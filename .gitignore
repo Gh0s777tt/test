@@ -1,1 +1,34 @@
-build
+# 🦀 RUST BUILD ARTIFACTS
+/target
+/debug
+/release
+**/*.rs.bk
+
+# 💿 OS IMAGES & BINARIES
+*.iso
+*.img
+*.bin
+*.hex
+*.elf
+
+# 🛡️ SECURITY & SECRETS (NEVER COMMIT THESE)
+*.pem
+*.key
+*.env
+.env.local
+private/
+secrets/
+
+# 🔧 IDE & SYSTEM TRASH
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 📦 PACKAGES
+node_modules/
+Cargo.lock # (Optional: Keep committed for binary apps, ignore for libs)
+
+# 🐳 DOCKER
+docker/*.log
