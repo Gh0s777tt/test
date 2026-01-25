@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # 🦀 Utrzymuj Kernel Rust w najnowszej wersji (KRYTYCZNE)
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    labels:
+      - "security"
+      - "dependencies"
+
+  # 🐙 GitHub Actions (Workflowy też muszą być bezpieczne)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
