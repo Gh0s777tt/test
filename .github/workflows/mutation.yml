@@ -1,0 +1,18 @@
+name: 🧬 Mutation Testing (Gene Splicing)
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  mutants:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-mutants
+        run: cargo install cargo-mutants
+      
+      - name: Hunt Mutants
+        run: cargo mutants --timeout 300 -- --all-features
