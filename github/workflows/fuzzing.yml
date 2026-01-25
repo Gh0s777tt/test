@@ -1,0 +1,15 @@
+name: 💣 Fuzzing Kernel
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Cargo Fuzz
+        run: cargo install cargo-fuzz
+      - name: Run Fuzzers
+        run: cargo fuzz run scheduler_harness -- -max_total_time=60
