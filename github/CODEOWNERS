@@ -1,0 +1,19 @@
+# .github/CODEOWNERS
+
+# VANTIS OS OWNER CONTROL LIST
+# This file dictates who controls the Citadel.
+
+# 👑 System Overlords (Full Access)
+* @vantisCorp
+
+# 🛡️ Security Directorate (Critical Crypto)
+/security/              @vantisCorp
+/src/vault/             @vantisCorp
+.github/workflows/      @vantisCorp
+
+# 🦀 Kernel Engineers
+/src/kernel/            @vantisCorp 
+
+# 📚 Documentation
+/docs/                  @vantisCorp 
+README.md               @vantisCorp
