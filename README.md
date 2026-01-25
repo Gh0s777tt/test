@@ -3,7 +3,7 @@
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:000000,100:39FF14&height=300&section=header&text=VANTIS%20CORP&fontSize=90&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=OPERATING%20SYSTEM%20PROTOCOL%20v5.0&descAlignY=55&descAlign=50" width="100%" />
 
   <a href="https://vantis.com">
-    <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&weight=600&size=25&pause=1000&color=39FF14&center=true&vCenter=true&width=600&lines=SECURE.+FAST.+IMMUTABLE.;ARCHITECTING+THE+FUTURE.;CODE+IS+LAW." alt="Typing SVG" />
+    <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&weight=600&size=25&pause=1000&color=39FF14&center=true&vCenter=true&width=600&lines=SECURE.+FAST.+IMMUTABLE.;MATHEMATICALLY+VERIFIED.;CODE+IS+LAW." alt="Typing SVG" />
   </a>
 
   <br/><br/>
@@ -19,6 +19,9 @@
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/LICENSE-MIT-red?style=for-the-badge&logo=law&logoColor=white" />
+  </a>
+  <a href="SECURITY.md">
+    <img src="https://img.shields.io/badge/SECURITY-EAL7%2B-blue?style=for-the-badge&logo=security&logoColor=white" />
   </a>
 
 </div>
@@ -40,93 +43,49 @@
 
 ---
 
-## ⚡ ABOUT THE PROTOCOL
-
-**VANTIS OS** is a next-generation microkernel operating system written in Rust. We prioritize mathematical security verification, zero-cost abstractions, and a futuristic user experience.
-
-> *"The future is not inherited. It is compiled."* — Vantis Architect
-
-### 🛡️ KEY FEATURES
-| Module | Status | Description |
-| :--- | :---: | :--- |
-| **Microkernel** | 🟢 **Active** | Rust-based, memory safe, formally verified. |
-| **Vantis FS** | 🟡 **Beta** | Copy-on-Write filesystem with ZFS-level integrity. |
-| **Neural UI** | 🔴 **WIP** | GPU-accelerated interface (Vulkan/WGPU). |
-| **Sentinel** | 🟢 **Active** | AI-driven intrusion detection system (IDS). |
-
----
-
-## 📡 COMMUNICATION UPLINK
-
-Connect with the Vantis Citadel across the digital expanse.
-
 <div align="center">
-  
-| Platform | Access Point | Status |
-| :--- | :--- | :---: |
-| **Discord** | [**Join the Citadel**](https://discord.gg/dSxQXXVBhx) | 🟢 Live |
-| **Telegram** | [**@VantisCorp**](https://t.me/+fvJef95RZmk1ZGE0) | 🟢 Live |
-| **E-mail** | `VantisCorp@gmail.com` | 📩 Open |
-
+  <h2>📺 VISUAL DEMO (LIVE UPLINK)</h2>
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjEx.../giphy.gif" width="800" alt="Vantis OS Boot Sequence - Matrix Style" style="border-radius: 10px; border: 2px solid #39FF14; box-shadow: 0 0 20px #39FF14;">
+  <br/>
+  <sub><i>Fig 1. Vantis Kernel Initialization Sequence (Real-time capture)</i></sub>
 </div>
-
-## 🌐 SOCIAL GRID
-
-<div align="center">
-
-<a href="https://twitter.com/VantisCorp">
-  <img src="https://img.shields.io/badge/X-%40VantisCorp-000000?style=flat-square&logo=x&logoColor=white" height="35" />
-</a>
-<a href="https://instagram.com">
-  <img src="https://img.shields.io/badge/Instagram-VantisCorp-E4405F?style=flat-square&logo=instagram&logoColor=white" height="35" />
-</a>
-<a href="https://youtube.com/@VantisCorp">
-  <img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=flat-square&logo=youtube&logoColor=white" height="35" />
-</a>
-<a href="https://reddit.com/u/VantisCorp">
-  <img src="https://img.shields.io/badge/Reddit-u%2FVantisCorp-FF4500?style=flat-square&logo=reddit&logoColor=white" height="35" />
-</a>
-<a href="https://tiktok.com/@vantiscorp">
-  <img src="https://img.shields.io/badge/TikTok-Follow-000000?style=flat-square&logo=tiktok&logoColor=white" height="35" />
-</a>
-<a href="https://rumble.com">
-  <img src="https://img.shields.io/badge/Rumble-VantisCorp-85c742?style=flat-square&logo=rumble&logoColor=white" height="35" />
-</a>
-
-</div>
-
----
-
-## 🔋 FUEL THE SYSTEM (DONATIONS)
-
-Development requires resources. Support the hardware lab and server infrastructure.
-
-<div align="center">
-
-<a href="https://patreon.com/VantisCorp">
-  <img src="https://img.shields.io/badge/PATREON-BECOME_A_PATRON-F96854?style=for-the-badge&logo=patreon&logoColor=white" height="50" />
-</a>
 
 <br/>
 
-<a href="https://buymeacoffee.com/VantisCorp">
-  <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-Donate-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" />
-</a>
-&nbsp;
-<a href="https://www.paypal.me/VantisCorp">
-  <img src="https://img.shields.io/badge/PayPal-Send_Funds-00457C?style=for-the-badge&logo=paypal&logoColor=white" />
-</a>
+<details>
+<summary>📖 <b>TABLE OF CONTENTS (NAVIGATOR)</b></summary>
 
-</div>
+- [⚡ Quick Start](#-deployment-quick-start)
+- [📐 Architecture](#-architecture-schematics)
+- [📊 Benchmarks](#-performance-metrics-vs-linux)
+- [🗺️ Roadmap](#-trajectory-roadmap)
+- [🧬 File Structure](#-system-topography)
+- [📡 Communication](#-communication-uplink)
+- [💰 Donate](#-fuel-the-system-donations)
+
+</details>
 
 ---
 
-## 🗺️ PROJECT STATUS
+## ⚡ DEPLOYMENT (QUICK START)
 
-```mermaid
-pie
-    title Codebase Composition
-    "Rust (Kernel)" : 85
-    "Assembly (Boot)" : 5
-    "Python (Tools)" : 5
-    "Documentation" : 5
+Initialize the simulation environment instantly using Docker or Cloud IDE.
+
+### ☁️ CLOUD IDE (Zero Setup)
+Start hacking Vantis OS instantly in your browser.
+
+<a href="https://gitpod.io/#https://github.com/vantisCorp/VantisOS">
+  <img src="https://img.shields.io/badge/Gitpod-Ready--to--Code-orange?style=for-the-badge&logo=gitpod" height="40" />
+</a>
+&nbsp;
+<a href="https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=vantisCorp/VantisOS">
+  <img src="https://img.shields.io/badge/GitHub_Codespaces-Open-black?style=for-the-badge&logo=github&logoColor=white" height="40" />
+</a>
+
+### 🐳 DOCKER (Local)
+```bash
+# 1. Pull the hermetic build container
+docker pull vantiscorp/forge:latest
+
+# 2. Boot Vantis OS in QEMU (Web Interface)
+docker run -p 8080:80 vantiscorp/forge boot --web
