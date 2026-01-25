@@ -130,12 +130,3 @@ pie
     "Assembly (Boot)" : 5
     "Python (Tools)" : 5
     "Documentation" : 5
-<div align="center">
-<sub>
-© 2026 VANTIS CORP. | CERTIFIED: ISO/IEC 27001 | OPEN SOURCE
-</sub>
-
-
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/ENCRYPTION-PGP_SIGNED-success%3Fstyle%3Dflat-square" />
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/STANDARDS-EAL_7%252B-blue%3Fstyle%3Dflat-square" />
-</div>
