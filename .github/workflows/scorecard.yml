@@ -1,0 +1,54 @@
+name: 🛡️ OpenSSF Scorecard (Audit)
+
+on:
+  # Uruchom przy zmianach w Branch Protection
+  branch_protection_rule:
+  # Uruchom co tydzień (żeby wynik był świeży)
+  schedule:
+    - cron: '20 7 * * 1'
+  # Uruchom przy każdym pushu na główną gałąź
+  push:
+    branches: [ "master", "main" ]
+
+# Uprawnienia (Zasada najmniejszych przywilejów)
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Potrzebne do wrzucenia wyników do zakładki Security
+      security-events: write
+      # Potrzebne do publikowania wyników (dla odznaki)
+      id-token: write
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: "Run analysis"
+        uses: ossf/scorecard-action@v2.3.1
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publiczne repozytoria:
+          publish_results: true
+          # Prywatne repozytoria (zakomentuj powyższe, odkomentuj poniższe):
+          # publish_results: false
+
+      # (Opcjonalnie) Zapisz wyniki jako artefakt do pobrania
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: SARIF file
+          path: results.sarif
+          retention-days: 5
+
+      # Wyślij wyniki do GitHub Security Dashboard
+      - name: "Upload to code-scanning"
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
