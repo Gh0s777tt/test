@@ -3,7 +3,7 @@
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:000000,100:39FF14&height=300&section=header&text=VANTIS%20CORP&fontSize=90&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=OPERATING%20SYSTEM%20PROTOCOL%20v5.0&descAlignY=55&descAlign=50" width="100%" />
 
   <a href="https://vantis.com">
-    <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&weight=600&size=25&pause=1000&color=39FF14&center=true&vCenter=true&width=600&lines=SECURE.+FAST.+IMMUTABLE.;MATHEMATICALLY+VERIFIED.;CODE+IS+LAW." alt="Typing SVG" />
+    <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&weight=600&size=25&pause=1000&color=39FF14&center=true&vCenter=true&width=600&lines=SECURE.+FAST.+IMMUTABLE.;MATHEMATICALLY+VERIFIED.;CODE+IS+LAW.;WELCOME+TO+THE+SINGULARITY." alt="Typing SVG" />
   </a>
 
   <br/><br/>
@@ -59,9 +59,8 @@
 - [📐 Architecture](#-architecture-schematics)
 - [📊 Benchmarks](#-performance-metrics-vs-linux)
 - [🗺️ Roadmap](#-trajectory-roadmap)
-- [🧬 File Structure](#-system-topography)
 - [📡 Communication](#-communication-uplink)
-- [💰 Donate](#-fuel-the-system-donations)
+- [💰 Support](#-fuel-the-system-support)
 
 </details>
 
@@ -69,45 +68,41 @@
 
 ## ⚡ DEPLOYMENT (QUICK START)
 
-Initialize the simulation environment instantly using Docker or Cloud IDE.
+Initialize the simulation environment instantly using Cloud IDEs.
 
-### ☁️ CLOUD IDE (Zero Setup)
-Start hacking Vantis OS instantly in your browser.
+### ☁️ INSTANT ACCESS (Zero Setup)
 
 <a href="https://gitpod.io/#https://github.com/vantisCorp/VantisOS">
-  <img src="https://img.shields.io/badge/Gitpod-Ready--to--Code-orange?style=for-the-badge&logo=gitpod" height="40" />
+  <img src="https://img.shields.io/badge/Gitpod-Ready--to--Code-orange?style=for-the-badge&logo=gitpod" height="45" />
 </a>
 &nbsp;
 <a href="https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=vantisCorp/VantisOS">
-  <img src="https://img.shields.io/badge/GitHub_Codespaces-Open-black?style=for-the-badge&logo=github&logoColor=white" height="40" />
+  <img src="https://img.shields.io/badge/GitHub_Codespaces-Open-black?style=for-the-badge&logo=github&logoColor=white" height="45" />
 </a>
 
-### 🐳 DOCKER (Local)
-```bash
-# 1. Pull the hermetic build container
-docker pull vantiscorp/forge:latest
+---
 
-# 2. Boot Vantis OS in QEMU (Web Interface)
-docker run -p 8080:80 vantiscorp/forge boot --web
+## 📐 ARCHITECTURE SCHEMATICS
 
+Vantis utilizes a **Microkernel Architecture**, moving drivers and filesystems to userspace for maximum stability.
+
+```mermaid
 graph TD
     subgraph HARDWARE [LAYER 0: SILICON]
         CPU[CPU / Memory]
-        IO[I/O Devices]
         TPM[TPM 2.0 Security Chip]
     end
 
     subgraph KERNEL [LAYER 1: VANTIS CORE]
-        S[Scheduler (O(1))]
-        IPC[IPC Bus (Zero-Copy)]
-        MM[Memory Manager]
+        S[Scheduler O1]
+        IPC[IPC Bus Zero-Copy]
     end
 
     subgraph USER [LAYER 2: USERSPACE]
-        DRV[Drivers (NVMe, GPU)]
-        FS[VantisFS (ZFS-like)]
+        DRV[Drivers NVMe/GPU]
+        FS[VantisFS ZFS-like]
         NET[Sentinel NetStack]
-        GUI[Neural UI (WGPU)]
+        GUI[Neural UI WGPU]
     end
 
     HARDWARE <==> KERNEL
@@ -115,14 +110,3 @@ graph TD
     
     style KERNEL fill:#111,stroke:#39FF14,stroke-width:2px
     style USER fill:#222,stroke:#fff,stroke-width:1px
-
-VantisOS/
-├── 🦀 kernel/          # The Heart. Microkernel source code (Rust).
-│   ├── src/            # Core logic (Scheduling, Memory, IPC).
-│   └── arch/           # Hardware abstractions (x86_64, AArch64).
-├── 📦 drivers/         # Userspace Drivers (Network, GPU, NVMe).
-├── 🛡️ security/        # Cryptography, Sentinel IDS, Key Management.
-├── 🚀 bootloader/      # UEFI Boot shim (loads the Kernel).
-├── 📜 docs/            # The Codex. Wiki and Manuals.
-├── 🔧 tools/           # Build scripts, CI/CD helpers, Docker.
-└── 🧪 tests/           # Integration tests and Fuzzing corpus.
