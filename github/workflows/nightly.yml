@@ -1,0 +1,39 @@
+name: 🏭 Nightly ISO Factory
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Codziennie o północy
+  workflow_dispatch:    # Przycisk ręczny
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      # [Tu wstaw kroki instalacji Rusta i narzędzi z docker/Dockerfile]
+      
+      - name: Build ISO
+        run: |
+          # Symulacja kompilacji
+          touch vantis-nightly.iso 
+          echo "Vantis OS Build $(date)" > vantis-nightly.iso
+          
+      - name: Delete Old Nightly Release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          delete_release: true
+          tag_name: nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Nightly
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Vantis OS: Nightly Build ($(date +'%Y-%m-%d'))"
+          tag_name: nightly
+          files: vantis-nightly.iso
+          prerelease: true
+          body: "⚠️ **EXPERIMENTAL BUILD.** Contains latest commits from `master`."
