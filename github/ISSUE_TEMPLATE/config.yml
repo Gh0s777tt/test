@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discord Community (Citadel)
+    url: https://discord.gg/vantis
+    about: Please ask questions and discuss features here before opening an issue.
+  
+  - name: 🛡️ Report a Security Vulnerability
+    url: https://github.com/vantisCorp/VantisOS/blob/master/SECURITY.md
+    about: Do NOT open public issues for exploits. Give us time to patch.
+    
+  - name: 💡 Feature Requests (Discussions)
+    url: https://github.com/vantisCorp/VantisOS/discussions
+    about: Have an idea? Discuss it with the Architects first.
