@@ -115,3 +115,14 @@ graph TD
     
     style KERNEL fill:#111,stroke:#39FF14,stroke-width:2px
     style USER fill:#222,stroke:#fff,stroke-width:1px
+
+VantisOS/
+├── 🦀 kernel/          # The Heart. Microkernel source code (Rust).
+│   ├── src/            # Core logic (Scheduling, Memory, IPC).
+│   └── arch/           # Hardware abstractions (x86_64, AArch64).
+├── 📦 drivers/         # Userspace Drivers (Network, GPU, NVMe).
+├── 🛡️ security/        # Cryptography, Sentinel IDS, Key Management.
+├── 🚀 bootloader/      # UEFI Boot shim (loads the Kernel).
+├── 📜 docs/            # The Codex. Wiki and Manuals.
+├── 🔧 tools/           # Build scripts, CI/CD helpers, Docker.
+└── 🧪 tests/           # Integration tests and Fuzzing corpus.
