@@ -89,3 +89,29 @@ docker pull vantiscorp/forge:latest
 
 # 2. Boot Vantis OS in QEMU (Web Interface)
 docker run -p 8080:80 vantiscorp/forge boot --web
+
+graph TD
+    subgraph HARDWARE [LAYER 0: SILICON]
+        CPU[CPU / Memory]
+        IO[I/O Devices]
+        TPM[TPM 2.0 Security Chip]
+    end
+
+    subgraph KERNEL [LAYER 1: VANTIS CORE]
+        S[Scheduler (O(1))]
+        IPC[IPC Bus (Zero-Copy)]
+        MM[Memory Manager]
+    end
+
+    subgraph USER [LAYER 2: USERSPACE]
+        DRV[Drivers (NVMe, GPU)]
+        FS[VantisFS (ZFS-like)]
+        NET[Sentinel NetStack]
+        GUI[Neural UI (WGPU)]
+    end
+
+    HARDWARE <==> KERNEL
+    KERNEL <==> USER
+    
+    style KERNEL fill:#111,stroke:#39FF14,stroke-width:2px
+    style USER fill:#222,stroke:#fff,stroke-width:1px
