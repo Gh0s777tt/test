@@ -1,0 +1,12 @@
+      - name: Install cargo-depgraph
+        run: cargo install cargo-depgraph
+
+      - name: Generate Map
+        run: |
+          cargo depgraph --all-deps | dot -Tpng > assets/architecture_map.png
+          
+      - name: Commit Map
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update neural architecture map"
+          file_pattern: assets/architecture_map.png
