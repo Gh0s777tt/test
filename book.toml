@@ -1,0 +1,11 @@
+[book]
+authors = ["Vantis Corp"]
+language = "en"
+multilingual = false
+src = "docs"
+title = "Vantis OS Codex"
+
+[output.html]
+theme = "navy" # Pasuje do stylu Cyberpunk
+default-theme = "navy"
+preferred-dark-theme = "navy"
