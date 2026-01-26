@@ -1,0 +1,13 @@
+name: Vantis CI
+
+on: [push, pull_request]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build kernel
+        run: cargo build --release
+      - name: Run tests
+        run: cargo test
