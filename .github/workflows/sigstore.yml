@@ -1,0 +1,20 @@
+name: Sigstore Sign
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sign artifacts
+        uses: sigstore/fulcio-action@v1
+        with:
+          artifact: target/release
+      - name: Upload signature
+        uses: actions/upload-artifact@v4
+        with:
+          name: signatures
+          path: target/release/*.sig
