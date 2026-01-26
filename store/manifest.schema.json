@@ -1,0 +1,10 @@
+{
+  "name": "string",
+  "version": "string",
+  "hash": "sha256",
+  "permissions": {
+    "filesystem": false,
+    "network": false,
+    "devices": false
+  }
+}
