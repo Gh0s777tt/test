@@ -1,0 +1,3 @@
+vlog --kernel
+vlog --boot
+vlog --panic
