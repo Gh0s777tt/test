@@ -1,0 +1,6 @@
+[cortex]
+enabled = true
+offline_only = true
+model = "/models/cortex.gguf"
+semantic_index = true
+automation = true
