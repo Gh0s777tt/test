@@ -1,0 +1,10 @@
+{
+  "name": "Horizon UI",
+  "version": "0.1",
+  "capabilities": [
+    "vector_rendering",
+    "multi_shell",
+    "gpu_acceleration",
+    "accessibility"
+  ]
+}
