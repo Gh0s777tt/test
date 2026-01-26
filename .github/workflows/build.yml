@@ -1,19 +1,31 @@
-name: Build
+name: Secure Build
+
 on:
   push:
-    branches:
-      - 0.4.1
+    branches: [ main ]
   pull_request:
-    types: [opened, synchronize, reopened]
+
 jobs:
-  sonarqube:
-    name: SonarQube
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          fetch-depth: 1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: clippy
+
+      - name: Build
+        run: cargo build --locked --release
+
+      - name: Static Analysis
+        run: cargo clippy -- -D warnings
