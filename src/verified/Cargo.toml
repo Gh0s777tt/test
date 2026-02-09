@@ -1,0 +1,69 @@
+[package]
+name = "vantis-verified"
+version = "0.1.0"
+edition = "2021"
+authors = ["VANTIS OS Team"]
+description = "Formally verified components of VANTIS OS"
+license = "MIT"
+
+[features]
+# Enable formal verification with Verus
+verus = []
+
+# Enable Kani verification
+kani = []
+
+# Enable hardware acceleration
+hw-accel = ["aes/aes-ni"]
+
+# Default features
+default = ["hw-accel"]
+
+[dependencies]
+# Cryptographic implementations from RustCrypto
+aes = { version = "0.8", default-features = false }
+twofish = { version = "0.7", default-features = false }
+serpent = { version = "0.5", default-features = false }
+
+# Block cipher modes
+cbc = { version = "0.1", default-features = false, features = ["alloc"] }
+
+# Padding for block ciphers
+block-padding = { version = "0.3", default-features = false }
+
+# Random number generation for IV
+rand_core = { version = "0.6", default-features = false, features = ["getrandom"] }
+getrandom = { version = "0.2", default-features = false }
+
+# Hex encoding for test vectors
+hex = { version = "0.4", optional = true }
+
+[dev-dependencies]
+hex = "0.4"
+
+[profile.verify]
+# Optimized profile for verification
+inherits = "dev"
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'abort'
+incremental = false
+codegen-units = 1
+
+[profile.release]
+# Production profile with all safety checks
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = true
+lto = true
+panic = 'abort'
+codegen-units = 1
+strip = true
+
+# Kani configuration
+[package.metadata.kani]
+flags = ["--enable-unstable", "--cbmc-args", "--bounds-check", "--pointer-check"]

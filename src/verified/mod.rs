@@ -14,6 +14,10 @@ pub mod scheduler;
 pub mod scheduler_optimized;
 pub mod vault;
 pub mod vault_simple_demo;
+pub mod vault_aes;
+pub mod vault_twofish;
+pub mod vault_serpent;
+pub mod vault_cascade;
 
 #[cfg(test)]
 mod tests {
