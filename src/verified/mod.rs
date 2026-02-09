@@ -5,6 +5,7 @@
 
 pub mod memory;
 pub mod math;
+pub mod direct_metal;
 pub mod allocator;
 pub mod process;
 pub mod ipc;

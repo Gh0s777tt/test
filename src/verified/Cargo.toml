@@ -6,6 +6,9 @@ authors = ["VANTIS OS Team"]
 description = "Formally verified components of VANTIS OS"
 license = "MIT"
 
+[lib]
+path = "lib.rs"
+
 [features]
 # Enable formal verification with Verus
 verus = []
