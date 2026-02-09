@@ -357,6 +357,68 @@ pub enum GpuError {
     SubmissionFailed,
 }
 
+/// GPU statistics for monitoring and profiling
+#[derive(Debug, Clone, Copy)]
+pub struct GpuStats {
+    pub commands_submitted: u64,
+    pub memory_allocated: u64,
+    pub memory_freed: u64,
+    pub fences_created: u64,
+    pub pipelines_created: u64,
+}
+
+impl GpuStats {
+    /// Create new GPU statistics tracker
+    pub fn new() -> Self {
+        Self {
+            commands_submitted: 0,
+            memory_allocated: 0,
+            memory_freed: 0,
+            fences_created: 0,
+            pipelines_created: 0,
+        }
+    }
+
+    /// Record command submission
+    pub fn record_command(&mut self) {
+        self.commands_submitted = self.commands_submitted.saturating_add(1);
+    }
+
+    /// Record memory allocation
+    pub fn record_allocation(&mut self, size: u64) {
+        self.memory_allocated = self.memory_allocated.saturating_add(size);
+    }
+
+    /// Record memory deallocation
+    pub fn record_free(&mut self, size: u64) {
+        self.memory_freed = self.memory_freed.saturating_add(size);
+    }
+
+    /// Record fence creation
+    pub fn record_fence(&mut self) {
+        self.fences_created = self.fences_created.saturating_add(1);
+    }
+
+    /// Record pipeline creation
+    pub fn record_pipeline(&mut self) {
+        self.pipelines_created = self.pipelines_created.saturating_add(1);
+    }
+
+    /// Get current memory usage (allocated - freed)
+    pub fn current_memory_usage(&self) -> u64 {
+        self.memory_allocated.saturating_sub(self.memory_freed)
+    }
+
+    /// Reset all statistics
+    pub fn reset(&mut self) {
+        self.commands_submitted = 0;
+        self.memory_allocated = 0;
+        self.memory_freed = 0;
+        self.fences_created = 0;
+        self.pipelines_created = 0;
+    }
+}
+
 // ============================================================================
 // TESTS
 // ============================================================================
@@ -560,5 +622,75 @@ mod tests {
         scheduler.queue(buffer);
         scheduler.execute_all().unwrap();
         assert_eq!(scheduler.pending_count(), 0);
+    }
+
+    #[test]
+    fn test_gpu_stats_creation() {
+        let stats = GpuStats::new();
+        assert_eq!(stats.commands_submitted, 0);
+        assert_eq!(stats.memory_allocated, 0);
+        assert_eq!(stats.memory_freed, 0);
+        assert_eq!(stats.fences_created, 0);
+        assert_eq!(stats.pipelines_created, 0);
+    }
+
+    #[test]
+    fn test_gpu_stats_record_command() {
+        let mut stats = GpuStats::new();
+        stats.record_command();
+        assert_eq!(stats.commands_submitted, 1);
+        stats.record_command();
+        assert_eq!(stats.commands_submitted, 2);
+    }
+
+    #[test]
+    fn test_gpu_stats_record_allocation() {
+        let mut stats = GpuStats::new();
+        stats.record_allocation(1024);
+        assert_eq!(stats.memory_allocated, 1024);
+        stats.record_allocation(2048);
+        assert_eq!(stats.memory_allocated, 3072);
+    }
+
+    #[test]
+    fn test_gpu_stats_record_free() {
+        let mut stats = GpuStats::new();
+        stats.record_allocation(4096);
+        stats.record_free(1024);
+        assert_eq!(stats.memory_freed, 1024);
+    }
+
+    #[test]
+    fn test_gpu_stats_current_memory_usage() {
+        let mut stats = GpuStats::new();
+        stats.record_allocation(4096);
+        stats.record_free(1024);
+        assert_eq!(stats.current_memory_usage(), 3072);
+    }
+
+    #[test]
+    fn test_gpu_stats_record_fence() {
+        let mut stats = GpuStats::new();
+        stats.record_fence();
+        assert_eq!(stats.fences_created, 1);
+    }
+
+    #[test]
+    fn test_gpu_stats_record_pipeline() {
+        let mut stats = GpuStats::new();
+        stats.record_pipeline();
+        assert_eq!(stats.pipelines_created, 1);
+    }
+
+    #[test]
+    fn test_gpu_stats_reset() {
+        let mut stats = GpuStats::new();
+        stats.record_command();
+        stats.record_allocation(1024);
+        stats.record_fence();
+        stats.reset();
+        assert_eq!(stats.commands_submitted, 0);
+        assert_eq!(stats.memory_allocated, 0);
+        assert_eq!(stats.fences_created, 0);
     }
 }
