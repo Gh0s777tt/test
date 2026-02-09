@@ -18,6 +18,7 @@ pub mod vault_aes;
 pub mod vault_twofish;
 pub mod vault_serpent;
 pub mod vault_cascade;
+pub mod vault_production_example;
 
 #[cfg(test)]
 mod tests {
