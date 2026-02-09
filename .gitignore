@@ -3,6 +3,9 @@
 /debug
 /release
 **/*.rs.bk
+**/target/
+src/verified/target/
+**/*.long-type-*.txt
 
 # 💿 OS IMAGES & BINARIES
 *.iso
@@ -28,6 +31,16 @@ Thumbs.db
 
 # 📦 PACKAGES
 node_modules/
+
+# 🧪 TEST & BENCHMARK OUTPUTS
+benchmark_*.txt
+*_test_results.txt
+*.benchmark
+test_output/
+
+# 📝 TEMPORARY DOCUMENTATION
+PUSH_PENDING.md
+*_TEMP.md
 Cargo.lock # (Optional: Keep committed for binary apps, ignore for libs)
 
 # 🐳 DOCKER

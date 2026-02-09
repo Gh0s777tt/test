@@ -672,28 +672,66 @@ gantt
 
 ## 📚 DOCUMENTATION
 
-### For Users
+**Complete documentation index**: [docs/README.md](docs/README.md)
 
-- 📘 [User Guide](docs/guides/user/getting-started.md)
-- 🔧 [Installation & Configuration](docs/INSTALLATION.md)
-- ❓ [FAQ - Frequently Asked Questions](docs/FAQ.md)
-- 🎮 [Gaming on VANTIS OS](docs/GAMING.md)
-- 🔒 [Security Guide](docs/SECURITY.md)
+### 🚀 Quick Start
 
-### For Developers
+- 📘 [Installation Guide](docs/operations/INSTALLATION.md) - Get started quickly
+- 🔧 [Developer Onboarding](docs/development/DEVELOPER_ONBOARDING.md) - For contributors
+- 📖 [API Documentation](docs/api/API_DOCUMENTATION.md) - Complete API reference
 
-- 🏗️ [System Architecture](docs/ARCHITECTURE.md)
-- 📖 [API Documentation](docs/api/README.md)
-- 🔨 [Building Guide](docs/guides/developer/building.md)
-- 🧪 [Testing](docs/guides/developer/testing.md)
-- 🤝 [Contributing](CONTRIBUTING.md)
+### 📂 Documentation Structure
 
-### For Administrators
+#### 🏗️ [Architecture](docs/architecture/)
+System design and architecture documents
+- Kernel verification plan
+- Hardware compatibility
 
-- 🖥️ [Server Installation](docs/guides/admin/server-install.md)
-- ⚙️ [Advanced Configuration](docs/guides/admin/configuration.md)
-- 🔐 [Security Hardening](docs/guides/admin/security-hardening.md)
-- 📊 [Monitoring & Diagnostics](docs/guides/admin/monitoring.md)
+#### 💻 [Implementation](docs/implementation/)
+Detailed implementation guides (18 documents)
+- Direct Metal (GPU access)
+- Flux Engine (Wayland compositor)
+- Neural Scheduler (AI scheduler)
+- Sentinel HAL (Hardware abstraction)
+- Vantis Aegis (Kernel masquerade)
+- Vantis Vault (Cryptography)
+- VantisFS (File system)
+
+#### 🚀 [Operations](docs/operations/)
+Deployment and operational guides
+- Deployment instructions
+- Production crypto guide
+- Installation guide
+- Keybindings
+
+#### 🛠️ [Development](docs/development/)
+Developer guides and best practices (20 documents)
+- Developer onboarding
+- Formal verification guide
+- Code review guidelines
+- Optimization guides
+
+#### 🔌 [API](docs/api/)
+API documentation and examples
+- Complete API reference
+- Verification examples
+
+#### 🔒 [Security](docs/security/)
+Security documentation and policies
+- Threat model
+- Bug bounty program
+- Trademark policy
+
+#### 🌍 [Translations](docs/translations/)
+Documentation in 8 languages
+- 🇵🇱 Polski, 🇩🇪 Deutsch, 🇫🇷 Français, 🇪🇸 Español
+- 🇯🇵 日本語, 🇨🇳 中文, 🇸🇦 العربية, 🇷🇺 Русский
+
+### 📜 [Historical Records](history/)
+Development history and milestones
+- **Milestones**: Major achievement celebrations (7 documents)
+- **Sessions**: Development session summaries (19 documents)
+- **Releases**: Release notes archive
 
 ---
 
