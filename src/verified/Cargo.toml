@@ -21,22 +21,26 @@ default = ["hw-accel"]
 
 [dependencies]
 # Cryptographic implementations from RustCrypto
-aes = { version = "0.8", default-features = false }
+aes = { version = "0.8", default-features = false, features = ["cbc"] }
 twofish = { version = "0.7", default-features = false }
 serpent = { version = "0.5", default-features = false }
 
-# Block cipher modes
-cbc = { version = "0.1", default-features = false, features = ["alloc"] }
+# Block cipher traits
+cipher = { version = "0.4", default-features = false, features = ["block-padding"] }
 
 # Padding for block ciphers
 block-padding = { version = "0.3", default-features = false }
 
 # Random number generation for IV
 rand_core = { version = "0.6", default-features = false, features = ["getrandom"] }
-getrandom = { version = "0.2", default-features = false }
+getrandom = { version = "0.2", default-features = false, features = ["std"] }
+rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
 
 # Hex encoding for test vectors
 hex = { version = "0.4", optional = true }
+
+# For testing
+sha2 = { version = "0.10", optional = true }
 
 [dev-dependencies]
 hex = "0.4"
