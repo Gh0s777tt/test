@@ -28,6 +28,8 @@ pub mod ipc_message_integrity;
 pub mod ipc_resource_bounds;
 pub mod ipc_information_leakage;
 pub mod ipc_integrated;
+pub mod ipc_deadlock_freedom;
+pub mod ipc_capability_correctness;
 pub mod syscall;
 pub mod scheduler;
 pub mod scheduler_optimized;
