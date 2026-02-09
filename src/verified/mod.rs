@@ -58,6 +58,11 @@ pub mod flux_window;
 pub mod flux_compositor;
 pub mod flux_hdr;
 pub mod flux_gaming;
+pub mod horizon_profiles;
+pub mod horizon_gamer;
+pub mod horizon_wraith;
+pub mod horizon_creator;
+pub mod horizon_enterprise;
 
 #[cfg(test)]
 mod tests {
