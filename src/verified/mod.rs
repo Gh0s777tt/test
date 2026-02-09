@@ -13,6 +13,7 @@ pub mod syscall;
 pub mod scheduler;
 pub mod scheduler_optimized;
 pub mod vault;
+pub mod vault_simple_demo;
 
 #[cfg(test)]
 mod tests {
