@@ -14,6 +14,12 @@ pub mod ipc_deadlock_freedom;
 pub mod ipc_capability_correctness;
 pub mod ipc_complete;
 
+// Extended File Operations
+pub mod syscall_file_ops;
+
+// Directory Operations
+pub mod syscall_dir_ops;
+
 #[cfg(test)]
 mod ipc_complete_tests;
 

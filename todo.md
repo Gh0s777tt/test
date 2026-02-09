@@ -26,12 +26,16 @@
 - [x] Update syscall enum with new numbers
 - [x] Document all new syscalls
 
-## Phase 4: Bloat Identification (Week 6 - Day 1-3)
-- [ ] Identify deprecated POSIX functions
-- [ ] Identify rarely-used POSIX functions
-- [ ] Identify redundant POSIX functions
-- [ ] Identify security-problematic functions
-- [ ] Create removal priority list
+## Phase 4: Directory Operations Implementation (Week 5 - Day 4-5)
+- [x] Implement Mkdir syscall (create directory)
+- [x] Implement Rmdir syscall (remove directory)
+- [x] Implement Chdir syscall (change directory)
+- [x] Implement Getcwd syscall (get current directory)
+- [x] Add Verus verification annotations
+- [x] Add Kani model checks
+- [x] Add comprehensive unit tests (20+ tests)
+- [x] Update syscall enum with new numbers
+- [x] Document all new syscalls
 
 ## Phase 5: Incremental Removal (Week 6 - Day 4-7)
 - [ ] Remove deprecated functions (Phase 1)

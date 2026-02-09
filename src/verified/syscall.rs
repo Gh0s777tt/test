@@ -56,6 +56,12 @@ pub enum SyscallNumber {
     // Time
     GetTime = 40,
     Sleep = 41,
+    
+    // Directory operations
+    Mkdir = 50,
+    Rmdir = 51,
+    Chdir = 52,
+    Getcwd = 53,
 }
 
 impl SyscallNumber {
@@ -87,6 +93,10 @@ impl SyscallNumber {
             38 => Some(SyscallNumber::Rename),
             40 => Some(SyscallNumber::GetTime),
             41 => Some(SyscallNumber::Sleep),
+            50 => Some(SyscallNumber::Mkdir),
+            51 => Some(SyscallNumber::Rmdir),
+            52 => Some(SyscallNumber::Chdir),
+            53 => Some(SyscallNumber::Getcwd),
             _ => None,
         }
     }
