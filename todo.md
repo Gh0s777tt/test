@@ -1,90 +1,37 @@
-# POSIX Debloating Phase (Weeks 5-8)
+# Week 6: Performance Optimization & Benchmarking
 
-## Phase 1: Analysis & Planning (Week 5 - Day 1-2)
-- [x] Analyze current POSIX implementation in VantisOS
-- [x] Identify all POSIX functions currently implemented
-- [x] Categorize functions (Essential vs. Bloat vs. Rarely Used)
-- [x] Research POSIX usage statistics from real-world applications
-- [x] Create comprehensive analysis report
+## Phase 1: Benchmark Infrastructure (Day 1)
+- [x] Create comprehensive benchmark suite
+- [x] Set up performance measurement tools
+- [x] Define performance metrics and targets
+- [ ] Create baseline measurements
+- [x] Document benchmark methodology
 
-## Phase 2: Strategy Development (Week 5 - Day 3-4)
-- [x] Define criteria for "essential" vs "bloat"
-- [x] Create enhancement strategy document
-- [x] Identify compatibility requirements
-- [x] Plan implementation path for new functions
-- [x] Define success metrics
+## Phase 2: Syscall Benchmarking (Day 2-3)
+- [ ] Benchmark file operations (5 syscalls)
+- [ ] Benchmark directory operations (4 syscalls)
+- [ ] Benchmark advanced operations (4 syscalls)
+- [ ] Benchmark time operations (6 syscalls)
+- [ ] Benchmark original syscalls (20 syscalls)
+- [ ] Collect and analyze results
 
-## Phase 3: Essential File Operations Implementation (Week 5 - Day 3-5)
-- [x] Implement Seek syscall (file positioning)
-- [x] Implement Stat syscall (file metadata by path)
-- [x] Implement Fstat syscall (file metadata by fd)
-- [x] Implement Unlink syscall (file deletion)
-- [x] Implement Rename syscall (file renaming)
-- [x] Add Verus verification annotations
-- [x] Add Kani model checks
-- [x] Add comprehensive unit tests
-- [x] Update syscall enum with new numbers
-- [x] Document all new syscalls
+## Phase 3: Performance Analysis (Day 4)
+- [ ] Identify bottlenecks
+- [ ] Analyze overhead sources
+- [ ] Compare with baseline targets
+- [ ] Prioritize optimization opportunities
+- [ ] Create optimization plan
 
-## Phase 4: Directory Operations Implementation (Week 5 - Day 4-5)
-- [x] Implement Mkdir syscall (create directory)
-- [x] Implement Rmdir syscall (remove directory)
-- [x] Implement Chdir syscall (change directory)
-- [x] Implement Getcwd syscall (get current directory)
-- [x] Add Verus verification annotations
-- [x] Add Kani model checks
-- [x] Add comprehensive unit tests (20+ tests)
-- [x] Update syscall enum with new numbers
-- [x] Document all new syscalls
+## Phase 4: Optimization Implementation (Day 5-6)
+- [ ] Optimize critical paths
+- [ ] Reduce syscall overhead
+- [ ] Improve cache efficiency
+- [ ] Optimize data structures
+- [ ] Re-benchmark after optimizations
 
-## Phase 5: Advanced File Operations Implementation (Week 5 - Day 5)
-- [x] Implement Dup syscall (duplicate file descriptor)
-- [x] Implement Dup2 syscall (duplicate to specific fd)
-- [x] Implement Pipe syscall (create pipe for IPC)
-- [x] Implement Ioctl syscall (device control)
-- [x] Add Verus verification annotations
-- [x] Add Kani model checks (4 properties)
-- [x] Add comprehensive unit tests (15+ tests)
-- [x] Update syscall enum with new numbers
-- [x] Document all new syscalls
-
-## Phase 6: Time and Timer Operations (Week 5 - Day 6)
-- [x] Implement SetTimer syscall (set timer with interval)
-- [x] Implement CancelTimer syscall (cancel active timer)
-- [x] Implement PauseTimer syscall (pause timer)
-- [x] Implement ResumeTimer syscall (resume paused timer)
-- [x] Implement GetTimerInfo syscall (get timer state)
-- [x] Implement GetTimerResolution syscall (get timer precision)
-- [x] Add Verus verification annotations
-- [x] Add Kani model checks (4 properties)
-- [x] Add comprehensive unit tests (15+ tests)
-- [x] Update syscall enum with new numbers
-- [x] Document all new syscalls
-
-## Phase 7: Compatibility Layer (Week 7 - Day 5-7)
-- [ ] Create compatibility shims for removed functions
-- [ ] Implement deprecation warnings
-- [ ] Create migration guide
-- [ ] Test compatibility layer
-- [ ] Document compatibility approach
-
-## Phase 8: Testing & Validation (Week 8 - Day 1-3)
-- [ ] Run comprehensive test suite
-- [ ] Test real-world applications
-- [ ] Measure performance improvements
-- [ ] Verify compatibility
-- [ ] Document test results
-
-## Phase 9: Documentation (Week 8 - Day 4-5)
-- [ ] Create POSIX_DEBLOATING_REPORT.md
-- [ ] Document removed functions
-- [ ] Document migration guide
-- [ ] Update API documentation
-- [ ] Create before/after comparison
-
-## Phase 10: Finalization (Week 8 - Day 6-7)
-- [ ] Final code review
-- [ ] Commit all changes
-- [ ] Push to GitHub
-- [ ] Update roadmap
-- [ ] Celebrate completion! 🎉
+## Phase 5: Documentation & Reporting (Day 7)
+- [ ] Create performance report
+- [ ] Document optimization techniques
+- [ ] Create performance guide
+- [ ] Update API documentation with perf characteristics
+- [ ] Commit and push all changes
