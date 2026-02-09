@@ -205,7 +205,7 @@ impl GamerProfileBuilder {
             ));
         }
         self.gaming_settings.target_fps = fps;
-        self
+        Ok(self)
     }
 
     /// Enable/disable background process suppression

@@ -137,10 +137,8 @@ pub fn decrypt_twofish256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Tw
     if padding_len == 0 || padding_len > block_size || padding_len > buffer.len() { return Err(TwofishError::DecryptionFailed); }
     for i in (buffer.len() - padding_len)..buffer.len() { if buffer[i] != padding_len as u8 { return Err(TwofishError::DecryptionFailed); } }
     buffer.truncate(buffer.len() - padding_len);
-    let plaintext = Ok(buffer)
-        .map_err(|_| TwofishError::DecryptionFailed)?;
     
-    Ok(plaintext)
+    Ok(buffer)
 }
 
 /// Encrypt data with explicit IV (for testing)

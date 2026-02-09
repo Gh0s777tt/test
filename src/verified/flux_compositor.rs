@@ -270,13 +270,17 @@ impl Compositor {
             return Err("Compositor not initialized");
         }
 
-        let node = self.nodes.get_mut(&id)
-            .ok_or("Node not found")?;
+        // Get old dimensions before mutable borrow
+        let (old_x, old_y, old_width, old_height) = {
+            let node = self.nodes.get(&id).ok_or("Node not found")?;
+            (node.x, node.y, node.width, node.height)
+        };
 
         // Mark old area as damaged
-        self.track_damage(node.x, node.y, node.width, node.height)?;
+        self.track_damage(old_x, old_y, old_width, old_height)?;
 
         // Update node
+        let node = self.nodes.get_mut(&id).ok_or("Node not found")?;
         node.x = x;
         node.y = y;
         node.width = width;

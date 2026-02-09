@@ -17,7 +17,7 @@
 
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit, Block,
-    block_padding::Pkcs7,
+    block_padding::Pkcs7, generic_array::GenericArray,
 };
 use rand::RngCore;
 use serpent::Serpent;
@@ -76,7 +76,7 @@ pub fn encrypt_serpent256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8
     let iv = generate_iv()?;
     
     // Create encryptor
-    let mut encryptor = SerpentCbcEnc::new(key.into(), &iv.into());
+    let mut encryptor = SerpentCbcEnc::new(GenericArray::from_slice(key), GenericArray::from_slice(&iv));
     
     // Encrypt with PKCS#7 padding
     let block_size = 16;
@@ -126,7 +126,7 @@ pub fn decrypt_serpent256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Se
     let (iv, ciphertext) = data.split_at(16);
     
     // Create decryptor
-    let mut decryptor = SerpentCbcDec::new(key.into(), iv.try_into().unwrap());
+    let mut decryptor = SerpentCbcDec::new(GenericArray::from_slice(key), GenericArray::from_slice(iv.try_into().unwrap()));
     
     // Decrypt and remove padding
     let mut buffer = ciphertext.to_vec();
@@ -137,10 +137,8 @@ pub fn decrypt_serpent256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Se
     if padding_len == 0 || padding_len > block_size || padding_len > buffer.len() { return Err(SerpentError::DecryptionFailed); }
     for i in (buffer.len() - padding_len)..buffer.len() { if buffer[i] != padding_len as u8 { return Err(SerpentError::DecryptionFailed); } }
     buffer.truncate(buffer.len() - padding_len);
-    let plaintext = Ok(buffer)
-        .map_err(|_| SerpentError::DecryptionFailed)?;
     
-    Ok(plaintext)
+    Ok(buffer)
 }
 
 /// Encrypt data with explicit IV (for testing)
@@ -162,7 +160,7 @@ pub fn encrypt_serpent256_cbc_with_iv(
     plaintext: &[u8]
 ) -> Result<Vec<u8>, SerpentError> {
     // Create encryptor
-    let mut encryptor = SerpentCbcEnc::new(key.into(), iv.into());
+    let mut encryptor = SerpentCbcEnc::new(GenericArray::from_slice(key), GenericArray::from_slice(iv));
     
     // Encrypt with PKCS#7 padding
     let block_size = 16;

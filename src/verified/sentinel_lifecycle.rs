@@ -238,20 +238,24 @@ impl LifecycleManager {
             return Err("Lifecycle manager not initialized");
         }
 
-        let driver = self.drivers.get_mut(&id)
-            .ok_or("Driver not found")?;
+        // Check state and dependencies before mutable borrow
+        {
+            let driver = self.drivers.get(&id).ok_or("Driver not found")?;
+            
+            if driver.state != DriverState::Loaded && driver.state != DriverState::Stopped {
+                return Err("Driver must be loaded or stopped to start");
+            }
 
-        if driver.state != DriverState::Loaded && driver.state != DriverState::Stopped {
-            return Err("Driver must be loaded or stopped to start");
-        }
-
-        // Check dependencies
-        for dep in &driver.dependencies {
-            if !self.is_dependency_satisfied(dep) {
-                return Err("Dependency not satisfied");
+            // Check dependencies
+            for dep in &driver.dependencies {
+                if !self.is_dependency_satisfied(dep) {
+                    return Err("Dependency not satisfied");
+                }
             }
         }
 
+        // Now mutate the driver
+        let driver = self.drivers.get_mut(&id).ok_or("Driver not found")?;
         driver.state = DriverState::Starting;
         driver.state = DriverState::Running;
 

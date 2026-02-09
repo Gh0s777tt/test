@@ -146,6 +146,12 @@ struct VulkanMemory {
     mapped_ptr: Option<*mut u8>,
 }
 
+// SAFETY: VulkanMemory is safe to send between threads because:
+// 1. The mapped_ptr is only used within synchronized contexts
+// 2. The Vulkan backend ensures proper synchronization
+unsafe impl Send for VulkanMemory {}
+unsafe impl Sync for VulkanMemory {}
+
 /// Vulkan command buffer
 struct VulkanCommandBuffer {
     /// Command buffer handle

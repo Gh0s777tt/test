@@ -101,6 +101,12 @@ struct MetalBuffer {
     contents_ptr: *mut u8,
 }
 
+// SAFETY: MetalBuffer is safe to send between threads because:
+// 1. The contents_ptr is only used within synchronized contexts
+// 2. The Metal backend ensures proper synchronization
+unsafe impl Send for MetalBuffer {}
+unsafe impl Sync for MetalBuffer {}
+
 /// Metal storage mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum MetalStorageMode {

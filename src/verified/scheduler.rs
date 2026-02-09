@@ -318,11 +318,13 @@ impl RunQueue {
             return None;
         }
         
-        // Round-robin within priority
-        let task = &mut self.tasks[self.current_index];
-        self.current_index = (self.current_index + 1) % self.tasks.len();
+        // Calculate next index before borrowing
+        let current = self.current_index;
+        let len = self.tasks.len();
+        self.current_index = (current + 1) % len;
         
-        Some(task)
+        // Round-robin within priority
+        Some(&mut self.tasks[current])
     }
     
     /// Peek at next task without advancing
