@@ -10,6 +10,7 @@ pub mod process;
 pub mod ipc;
 pub mod syscall;
 pub mod scheduler;
+pub mod scheduler_optimized;
 
 #[cfg(test)]
 mod tests {
