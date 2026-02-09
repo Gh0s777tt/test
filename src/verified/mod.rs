@@ -12,6 +12,7 @@ pub mod ipc_inline;
 pub mod syscall;
 pub mod scheduler;
 pub mod scheduler_optimized;
+pub mod vault;
 
 #[cfg(test)]
 mod tests {
