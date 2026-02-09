@@ -5,6 +5,8 @@
 
 pub mod memory;
 pub mod math;
+pub mod allocator;
+pub mod process;
 
 #[cfg(test)]
 mod tests {
