@@ -20,6 +20,9 @@ pub mod syscall_file_ops;
 // Directory Operations
 pub mod syscall_dir_ops;
 
+// Advanced File Operations
+pub mod syscall_advanced_ops;
+
 #[cfg(test)]
 mod ipc_complete_tests;
 

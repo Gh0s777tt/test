@@ -37,12 +37,16 @@
 - [x] Update syscall enum with new numbers
 - [x] Document all new syscalls
 
-## Phase 5: Incremental Removal (Week 6 - Day 4-7)
-- [ ] Remove deprecated functions (Phase 1)
-- [ ] Remove rarely-used functions (Phase 2)
-- [ ] Remove redundant functions (Phase 3)
-- [ ] Test after each removal batch
-- [ ] Document removed functions
+## Phase 5: Advanced File Operations Implementation (Week 5 - Day 5)
+- [x] Implement Dup syscall (duplicate file descriptor)
+- [x] Implement Dup2 syscall (duplicate to specific fd)
+- [x] Implement Pipe syscall (create pipe for IPC)
+- [x] Implement Ioctl syscall (device control)
+- [x] Add Verus verification annotations
+- [x] Add Kani model checks (4 properties)
+- [x] Add comprehensive unit tests (15+ tests)
+- [x] Update syscall enum with new numbers
+- [x] Document all new syscalls
 
 ## Phase 6: Optimization (Week 7 - Day 1-4)
 - [ ] Optimize remaining POSIX implementations

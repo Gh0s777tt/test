@@ -62,6 +62,12 @@ pub enum SyscallNumber {
     Rmdir = 51,
     Chdir = 52,
     Getcwd = 53,
+    
+    // Advanced file operations
+    Dup = 60,
+    Dup2 = 61,
+    Pipe = 62,
+    Ioctl = 63,
 }
 
 impl SyscallNumber {
@@ -97,6 +103,10 @@ impl SyscallNumber {
             51 => Some(SyscallNumber::Rmdir),
             52 => Some(SyscallNumber::Chdir),
             53 => Some(SyscallNumber::Getcwd),
+            60 => Some(SyscallNumber::Dup),
+            61 => Some(SyscallNumber::Dup2),
+            62 => Some(SyscallNumber::Pipe),
+            63 => Some(SyscallNumber::Ioctl),
             _ => None,
         }
     }
