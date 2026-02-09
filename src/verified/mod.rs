@@ -43,6 +43,14 @@ pub mod vantisfs_ab;
 pub mod vantisfs_data;
 pub mod vantisfs_recovery;
 
+// Sentinel - Hardware Abstraction Layer
+pub mod sentinel;
+pub mod sentinel_sandbox;
+pub mod sentinel_lifecycle;
+pub mod sentinel_recovery;
+pub mod sentinel_fingerprint;
+pub mod sentinel_api;
+
 #[cfg(test)]
 mod tests {
     use super::*;
