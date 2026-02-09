@@ -23,6 +23,9 @@ pub mod syscall_dir_ops;
 // Advanced File Operations
 pub mod syscall_advanced_ops;
 
+// Time and Timer Operations
+pub mod syscall_time_ops;
+
 #[cfg(test)]
 mod ipc_complete_tests;
 

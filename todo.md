@@ -48,12 +48,18 @@
 - [x] Update syscall enum with new numbers
 - [x] Document all new syscalls
 
-## Phase 6: Optimization (Week 7 - Day 1-4)
-- [ ] Optimize remaining POSIX implementations
-- [ ] Reduce code complexity
-- [ ] Improve performance
-- [ ] Add verification where possible
-- [ ] Update documentation
+## Phase 6: Time and Timer Operations (Week 5 - Day 6)
+- [x] Implement SetTimer syscall (set timer with interval)
+- [x] Implement CancelTimer syscall (cancel active timer)
+- [x] Implement PauseTimer syscall (pause timer)
+- [x] Implement ResumeTimer syscall (resume paused timer)
+- [x] Implement GetTimerInfo syscall (get timer state)
+- [x] Implement GetTimerResolution syscall (get timer precision)
+- [x] Add Verus verification annotations
+- [x] Add Kani model checks (4 properties)
+- [x] Add comprehensive unit tests (15+ tests)
+- [x] Update syscall enum with new numbers
+- [x] Document all new syscalls
 
 ## Phase 7: Compatibility Layer (Week 7 - Day 5-7)
 - [ ] Create compatibility shims for removed functions

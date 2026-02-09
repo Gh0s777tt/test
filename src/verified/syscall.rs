@@ -68,6 +68,14 @@ pub enum SyscallNumber {
     Dup2 = 61,
     Pipe = 62,
     Ioctl = 63,
+    
+    // Time and timer operations
+    SetTimer = 70,
+    CancelTimer = 71,
+    PauseTimer = 72,
+    ResumeTimer = 73,
+    GetTimerInfo = 74,
+    GetTimerResolution = 75,
 }
 
 impl SyscallNumber {
@@ -107,6 +115,12 @@ impl SyscallNumber {
             61 => Some(SyscallNumber::Dup2),
             62 => Some(SyscallNumber::Pipe),
             63 => Some(SyscallNumber::Ioctl),
+            70 => Some(SyscallNumber::SetTimer),
+            71 => Some(SyscallNumber::CancelTimer),
+            72 => Some(SyscallNumber::PauseTimer),
+            73 => Some(SyscallNumber::ResumeTimer),
+            74 => Some(SyscallNumber::GetTimerInfo),
+            75 => Some(SyscallNumber::GetTimerResolution),
             _ => None,
         }
     }
