@@ -6,6 +6,13 @@
 pub mod memory;
 pub mod math;
 pub mod direct_metal;
+pub mod direct_metal_backend;
+
+#[cfg(feature = "vulkan")]
+pub mod direct_metal_vulkan;
+
+#[cfg(all(target_os = "macos", feature = "metal"))]
+pub mod direct_metal_metal;
 pub mod allocator;
 pub mod process;
 pub mod ipc;

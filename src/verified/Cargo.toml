@@ -19,6 +19,11 @@ kani = []
 # Enable hardware acceleration
 hw-accel = []
 
+# GPU backend features
+vulkan = ["ash"]
+metal = ["metal-rs", "objc"]
+all-backends = ["vulkan", "metal"]
+
 # Default features
 default = ["hw-accel"]
 
@@ -45,6 +50,13 @@ hex = { version = "0.4", optional = true }
 
 # For testing
 sha2 = { version = "0.10", optional = true }
+
+# GPU backend dependencies (optional)
+ash = { version = "0.37", optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+metal-rs = { version = "0.27", optional = true, package = "metal" }
+objc = { version = "0.2", optional = true }
 
 [dev-dependencies]
 hex = "0.4"
