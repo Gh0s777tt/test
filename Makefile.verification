@@ -1,0 +1,168 @@
+# VANTIS OS - Formal Verification Makefile
+# This file contains targets for running formal verification
+
+.PHONY: verify verify-verus verify-kani verify-all verify-clean verify-report
+
+# Colors for output
+GREEN := \033[0;32m
+YELLOW := \033[0;33m
+RED := \033[0;31m
+NC := \033[0m # No Color
+
+# Verification directories
+VERIFIED_SRC := src/verified
+VERIFICATION_REPORTS := verification-reports
+
+# Verus configuration
+VERUS_TIMEOUT := 30
+VERUS_PARALLEL := 4
+
+# Kani configuration
+KANI_UNWIND := 10
+
+# Main verification target
+verify: verify-verus verify-kani
+	@echo "$(GREEN)✓ All verification complete$(NC)"
+
+# Verus verification
+verify-verus:
+	@echo "$(YELLOW)Running Verus verification...$(NC)"
+	@mkdir -p $(VERIFICATION_REPORTS)
+	@if [ -d "$(VERIFIED_SRC)" ]; then \
+		find $(VERIFIED_SRC) -name "*.rs" -exec verus --smt-timeout $(VERUS_TIMEOUT) {} \; 2>&1 | tee $(VERIFICATION_REPORTS)/verus-report.txt; \
+		if [ $$? -eq 0 ]; then \
+			echo "$(GREEN)✓ Verus verification passed$(NC)"; \
+		else \
+			echo "$(RED)✗ Verus verification failed$(NC)"; \
+			exit 1; \
+		fi \
+	else \
+		echo "$(YELLOW)⚠ No verified code found in $(VERIFIED_SRC)$(NC)"; \
+	fi
+
+# Kani verification
+verify-kani:
+	@echo "$(YELLOW)Running Kani verification...$(NC)"
+	@mkdir -p $(VERIFICATION_REPORTS)
+	@if grep -r "#\[kani::proof\]" src/; then \
+		cargo kani --output-format terse 2>&1 | tee $(VERIFICATION_REPORTS)/kani-report.txt; \
+		if [ $$? -eq 0 ]; then \
+			echo "$(GREEN)✓ Kani verification passed$(NC)"; \
+		else \
+			echo "$(RED)✗ Kani verification failed$(NC)"; \
+			exit 1; \
+		fi \
+	else \
+		echo "$(YELLOW)⚠ No Kani proofs found$(NC)"; \
+	fi
+
+# Verify specific file with Verus
+verify-file-verus:
+	@if [ -z "$(FILE)" ]; then \
+		echo "$(RED)Error: FILE not specified. Usage: make verify-file-verus FILE=path/to/file.rs$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)Verifying $(FILE) with Verus...$(NC)"
+	@verus --smt-timeout $(VERUS_TIMEOUT) --verbose $(FILE)
+
+# Verify specific harness with Kani
+verify-harness-kani:
+	@if [ -z "$(HARNESS)" ]; then \
+		echo "$(RED)Error: HARNESS not specified. Usage: make verify-harness-kani HARNESS=harness_name$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)Verifying harness $(HARNESS) with Kani...$(NC)"
+	@cargo kani --harness $(HARNESS) --visualize
+
+# Run all verification (including tests)
+verify-all: verify test
+	@echo "$(GREEN)✓ All verification and tests complete$(NC)"
+
+# Clean verification artifacts
+verify-clean:
+	@echo "$(YELLOW)Cleaning verification artifacts...$(NC)"
+	@rm -rf $(VERIFICATION_REPORTS)
+	@rm -rf target/kani
+	@echo "$(GREEN)✓ Verification artifacts cleaned$(NC)"
+
+# Generate verification report
+verify-report:
+	@echo "$(YELLOW)Generating verification report...$(NC)"
+	@mkdir -p $(VERIFICATION_REPORTS)
+	@echo "# VANTIS OS Verification Report" > $(VERIFICATION_REPORTS)/report.md
+	@echo "" >> $(VERIFICATION_REPORTS)/report.md
+	@echo "**Generated**: $$(date)" >> $(VERIFICATION_REPORTS)/report.md
+	@echo "" >> $(VERIFICATION_REPORTS)/report.md
+	@echo "## Verus Verification" >> $(VERIFICATION_REPORTS)/report.md
+	@echo "" >> $(VERIFICATION_REPORTS)/report.md
+	@if [ -f "$(VERIFICATION_REPORTS)/verus-report.txt" ]; then \
+		echo "\`\`\`" >> $(VERIFICATION_REPORTS)/report.md; \
+		cat $(VERIFICATION_REPORTS)/verus-report.txt >> $(VERIFICATION_REPORTS)/report.md; \
+		echo "\`\`\`" >> $(VERIFICATION_REPORTS)/report.md; \
+	else \
+		echo "No Verus report available" >> $(VERIFICATION_REPORTS)/report.md; \
+	fi
+	@echo "" >> $(VERIFICATION_REPORTS)/report.md
+	@echo "## Kani Verification" >> $(VERIFICATION_REPORTS)/report.md
+	@echo "" >> $(VERIFICATION_REPORTS)/report.md
+	@if [ -f "$(VERIFICATION_REPORTS)/kani-report.txt" ]; then \
+		echo "\`\`\`" >> $(VERIFICATION_REPORTS)/report.md; \
+		cat $(VERIFICATION_REPORTS)/kani-report.txt >> $(VERIFICATION_REPORTS)/report.md; \
+		echo "\`\`\`" >> $(VERIFICATION_REPORTS)/report.md; \
+	else \
+		echo "No Kani report available" >> $(VERIFICATION_REPORTS)/report.md; \
+	fi
+	@echo "$(GREEN)✓ Report generated at $(VERIFICATION_REPORTS)/report.md$(NC)"
+
+# Install verification tools
+install-verification-tools:
+	@echo "$(YELLOW)Installing verification tools...$(NC)"
+	@echo "$(YELLOW)Installing Verus...$(NC)"
+	@if ! command -v verus &> /dev/null; then \
+		git clone https://github.com/verus-lang/verus.git /tmp/verus && \
+		cd /tmp/verus && \
+		./tools/get-z3.sh && \
+		cargo build --release && \
+		sudo cp target/release/verus /usr/local/bin/ && \
+		rm -rf /tmp/verus; \
+	else \
+		echo "$(GREEN)✓ Verus already installed$(NC)"; \
+	fi
+	@echo "$(YELLOW)Installing Kani...$(NC)"
+	@if ! command -v cargo-kani &> /dev/null; then \
+		cargo install --locked kani-verifier && \
+		cargo kani setup; \
+	else \
+		echo "$(GREEN)✓ Kani already installed$(NC)"; \
+	fi
+	@echo "$(GREEN)✓ All verification tools installed$(NC)"
+
+# Check verification tools
+check-verification-tools:
+	@echo "$(YELLOW)Checking verification tools...$(NC)"
+	@if command -v verus &> /dev/null; then \
+		echo "$(GREEN)✓ Verus: $$(verus --version)$(NC)"; \
+	else \
+		echo "$(RED)✗ Verus not found$(NC)"; \
+	fi
+	@if command -v cargo-kani &> /dev/null; then \
+		echo "$(GREEN)✓ Kani: $$(cargo kani --version)$(NC)"; \
+	else \
+		echo "$(RED)✗ Kani not found$(NC)"; \
+	fi
+
+# Help target
+help-verification:
+	@echo "VANTIS OS Formal Verification Targets:"
+	@echo ""
+	@echo "  make verify                    - Run all verification"
+	@echo "  make verify-verus              - Run Verus verification"
+	@echo "  make verify-kani               - Run Kani verification"
+	@echo "  make verify-file-verus FILE=.. - Verify specific file with Verus"
+	@echo "  make verify-harness-kani HARNESS=.. - Verify specific Kani harness"
+	@echo "  make verify-all                - Run verification and tests"
+	@echo "  make verify-clean              - Clean verification artifacts"
+	@echo "  make verify-report             - Generate verification report"
+	@echo "  make install-verification-tools - Install Verus and Kani"
+	@echo "  make check-verification-tools  - Check installed tools"
+	@echo ""
