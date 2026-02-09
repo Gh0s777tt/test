@@ -8,12 +8,12 @@
   - [x] Compare with other microkernels (seL4, Fuchsia, QNX)
   - [x] Document POSIX compatibility strategy (3-layer architecture)
 
-- [ ] Day 2: Dependency Mapping
-  - [ ] Scan codebase for POSIX includes
-  - [ ] Identify POSIX function usage
-  - [ ] Create dependency graph
-  - [ ] Categorize dependencies
-  - [ ] Plan removal strategy
+- [x] Day 2: Dependency Mapping
+  - [x] Scan codebase for POSIX includes
+  - [x] Identify POSIX function usage
+  - [x] Create dependency graph
+  - [x] Categorize dependencies
+  - [x] Plan removal strategy
 
 - [ ] Day 3: Alternative Implementations
   - [ ] Identify critical POSIX functions
@@ -105,5 +105,6 @@
 
 ## Current Status
 - Week 7 Day 1: ✅ COMPLETE
-- Progress: 7% (1/14 days)
-- Next: Day 2 - Dependency Mapping
+- Week 7 Day 2: ✅ COMPLETE
+- Progress: 14% (2/14 days)
+- Next: Day 3 - Alternative Implementations
