@@ -15,10 +15,14 @@
 //! - Corrupted blocks detected automatically
 //! - Safe error handling
 
+#[cfg(feature = "verus")]
 use builtin::*;
+#[cfg(feature = "verus")]
 use builtin_macros::*;
+#[cfg(feature = "verus")]
 use vstd::prelude::*;
 
+#[cfg(feature = "verus")]
 verus! {
 
 /// Block size in bytes (4KB)
@@ -330,6 +334,7 @@ impl DataBlockManager {
     }
 }
 
+#[cfg(feature = verus)]
 } // verus!
 
 #[cfg(test)]

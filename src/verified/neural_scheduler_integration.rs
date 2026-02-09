@@ -13,13 +13,17 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
+#[cfg(feature = "verus")]
 use builtin::*;
+#[cfg(feature = "verus")]
 use builtin_macros::*;
+#[cfg(feature = "verus")]
 use vstd::prelude::*;
 
-use crate::verified::neural_scheduler::{NeuralScheduler, ThreadFeatures, MAX_TRACKED_THREADS};
-use crate::verified::workload_predictor::{WorkloadPredictor, WorkloadPattern};
+use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures, MAX_TRACKED_THREADS};
+use crate::workload_predictor::{WorkloadPredictor, WorkloadPattern};
 
+#[cfg(feature = "verus")]
 verus! {
 
 /// Neural scheduler integration state
@@ -249,7 +253,60 @@ pub struct SchedulerStatistics {
     pub gaming_mode_enabled: bool,
 }
 
+#[cfg(feature = "verus")]
 } // verus!
+
+// Non-Verus version (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub struct NeuralSchedulerIntegration {
+    neural_scheduler: NeuralScheduler,
+    predictors: Vec<WorkloadPredictor>,
+    gaming_mode: bool,
+    adjustments_made: u64,
+    gaming_threads_detected: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl NeuralSchedulerIntegration {
+    pub fn new() -> Self {
+        Self {
+            neural_scheduler: NeuralScheduler::new(),
+            predictors: Vec::new(),
+            gaming_mode: false,
+            adjustments_made: 0,
+            gaming_threads_detected: 0,
+        }
+    }
+
+    pub fn enable_gaming_mode(&mut self) {
+        self.gaming_mode = true;
+    }
+
+    pub fn disable_gaming_mode(&mut self) {
+        self.gaming_mode = false;
+    }
+
+    pub fn is_gaming_mode(&self) -> bool {
+        self.gaming_mode
+    }
+
+    pub fn adjust_priority(&mut self, thread_id: usize, features: &ThreadFeatures) -> i8 {
+        let adjustment = self.neural_scheduler.predict_priority(features);
+        self.adjustments_made += 1;
+        if features.is_gaming != 0 {
+            self.gaming_threads_detected += 1;
+        }
+        adjustment
+    }
+
+    pub fn record_thread_behavior(&mut self, thread_id: usize, features: ThreadFeatures) {
+        self.neural_scheduler.record_thread(features);
+    }
+
+    pub fn get_stats(&self) -> (u64, u64) {
+        (self.adjustments_made, self.gaming_threads_detected)
+    }
+}
 
 #[cfg(test)]
 mod tests {

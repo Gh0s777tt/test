@@ -9,8 +9,8 @@
 //!
 //! All operations are formally verified using Verus and tested with Kani.
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+// Verus verification is optional
+// When disabled, verification attributes are ignored
 
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
@@ -276,7 +276,7 @@ impl Default for FileTable {
 ///
 /// # Returns
 /// New file position
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_seek(
     file_table: &mut FileTable,
     fd: FileDescriptor,
@@ -331,7 +331,7 @@ pub fn sys_seek(
 ///
 /// # Returns
 /// File metadata
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_stat(path: &Path) -> FileOpResult<FileStat> {
     // Validate path
     if !path.is_absolute() && !path.is_relative() {
@@ -359,7 +359,7 @@ pub fn sys_stat(path: &Path) -> FileOpResult<FileStat> {
 ///
 /// # Returns
 /// File metadata
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_fstat(
     file_table: &FileTable,
     fd: FileDescriptor,
@@ -399,7 +399,7 @@ pub fn sys_fstat(
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_unlink(path: &Path) -> FileOpResult<()> {
     // Validate path
     if !path.is_absolute() && !path.is_relative() {
@@ -432,7 +432,7 @@ pub fn sys_unlink(path: &Path) -> FileOpResult<()> {
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_rename(old_path: &Path, new_path: &Path) -> FileOpResult<()> {
     // Validate paths
     if !old_path.is_absolute() && !old_path.is_relative() {

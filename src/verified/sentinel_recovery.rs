@@ -19,9 +19,8 @@
 //! - State consistency
 //! - No cascading failures
 
-use core::sync::atomic::{AtomicU64, Ordering};
-use alloc::collections::BTreeMap;
-use alloc::vec::Vec;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::collections::BTreeMap;
 
 use crate::sentinel::{DriverId, DriverState};
 

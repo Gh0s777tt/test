@@ -19,8 +19,7 @@
 //! - Interrupt safety
 //! - Memory safety
 
-use alloc::vec::Vec;
-use core::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::sentinel::DriverId;
 

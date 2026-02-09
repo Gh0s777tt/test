@@ -14,10 +14,14 @@
 //! - Tracks all block allocations
 //! - Atomic operations
 
+#[cfg(feature = "verus")]
 use builtin::*;
+#[cfg(feature = "verus")]
 use builtin_macros::*;
+#[cfg(feature = "verus")]
 use vstd::prelude::*;
 
+#[cfg(feature = "verus")]
 verus! {
 
 /// Maximum number of blocks in the filesystem
@@ -244,6 +248,7 @@ impl BlockAllocator {
     }
 }
 
+#[cfg(feature = verus)]
 } // verus!
 
 #[cfg(test)]

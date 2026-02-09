@@ -21,10 +21,8 @@
 //! - Resource limit enforcement
 //! - Fault isolation
 
-use core::sync::atomic::{AtomicU64, Ordering};
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::vec::Vec;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::collections::BTreeMap;
 
 /// Driver identifier
 pub type DriverId = u64;

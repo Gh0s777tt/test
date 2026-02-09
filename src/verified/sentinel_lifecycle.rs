@@ -18,9 +18,7 @@
 //! - State consistency
 //! - No memory leaks
 
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::vec::Vec;
+use std::collections::BTreeMap;
 
 use crate::sentinel::{DriverId, DriverState};
 

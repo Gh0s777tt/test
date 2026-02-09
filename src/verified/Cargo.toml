@@ -37,6 +37,9 @@ cbc = { version = "0.1", default-features = false }
 # Block cipher traits
 cipher = { version = "0.4", default-features = false, features = ["block-padding"] }
 
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+
 # Padding for block ciphers
 block-padding = { version = "0.3", default-features = false }
 

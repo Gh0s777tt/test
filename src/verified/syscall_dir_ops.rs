@@ -8,8 +8,8 @@
 //!
 //! All operations are formally verified using Verus and tested with Kani.
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+
+
 
 use std::path::{Path, PathBuf};
 
@@ -120,7 +120,7 @@ impl Default for WorkingDirectory {
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
     // Validate path
     if path.as_os_str().is_empty() {
@@ -160,7 +160,7 @@ pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
     // Validate path
     if path.as_os_str().is_empty() {
@@ -203,7 +203,7 @@ pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
     // Validate path
     if path.as_os_str().is_empty() {
@@ -267,7 +267,7 @@ pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
 ///
 /// # Returns
 /// Path length or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_getcwd(
     wd: &WorkingDirectory,
     buf: &mut [u8],
@@ -310,7 +310,7 @@ pub fn sys_getcwd(
 ///
 /// # Returns
 /// Current working directory path
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_getcwd_path(wd: &WorkingDirectory) -> PathBuf {
     wd.get().to_path_buf()
 }

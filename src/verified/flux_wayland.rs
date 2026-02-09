@@ -17,10 +17,8 @@
 //! - Resource management
 //! - Thread safety
 
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::sync::atomic::{AtomicU64, Ordering};
+use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 /// Surface identifier
 pub type SurfaceId = u64;

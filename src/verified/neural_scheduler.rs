@@ -20,10 +20,14 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
+#[cfg(feature = "verus")]
 use builtin::*;
+#[cfg(feature = "verus")]
 use builtin_macros::*;
+#[cfg(feature = "verus")]
 use vstd::prelude::*;
 
+#[cfg(feature = "verus")]
 verus! {
 
 /// Maximum number of threads the neural scheduler can track
@@ -364,7 +368,119 @@ impl NeuralScheduler {
     }
 }
 
+#[cfg(feature = "verus")]
 } // verus!
+
+// Non-Verus version of the same code (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub const MAX_TRACKED_THREADS: usize = 256;
+
+#[cfg(not(feature = "verus"))]
+pub struct NeuralScheduler {
+    weights_l1: [[i32; 16]; 8],
+    weights_l2: [[i32; 16]; 16],
+    weights_output: [i32; 16],
+    bias_l1: [i32; 16],
+    bias_l2: [i32; 16],
+    bias_output: i32,
+    thread_history: [ThreadFeatures; MAX_TRACKED_THREADS],
+    next_thread_index: usize,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Clone, Copy, Debug)]
+pub struct ThreadFeatures {
+    pub priority: u8,
+    pub cpu_time_us: u64,
+    pub io_wait_us: u64,
+    pub voluntary_switches: u64,
+    pub involuntary_switches: u64,
+    pub avg_cpu_burst_us: u64,
+    pub is_interactive: u8,
+    pub is_gaming: u8,
+}
+
+#[cfg(not(feature = "verus"))]
+impl ThreadFeatures {
+    pub fn to_input_array(&self) -> [i32; 8] {
+        [
+            self.priority as i32,
+            (self.cpu_time_us / 1000) as i32,
+            (self.io_wait_us / 1000) as i32,
+            self.voluntary_switches as i32,
+            self.involuntary_switches as i32,
+            (self.avg_cpu_burst_us / 1000) as i32,
+            self.is_interactive as i32,
+            self.is_gaming as i32,
+        ]
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl NeuralScheduler {
+    pub fn new() -> Self {
+        Self {
+            weights_l1: [[0; 16]; 8],
+            weights_l2: [[0; 16]; 16],
+            weights_output: [0; 16],
+            bias_l1: [0; 16],
+            bias_l2: [0; 16],
+            bias_output: 0,
+            thread_history: [ThreadFeatures {
+                priority: 0,
+                cpu_time_us: 0,
+                io_wait_us: 0,
+                voluntary_switches: 0,
+                involuntary_switches: 0,
+                avg_cpu_burst_us: 0,
+                is_interactive: 0,
+                is_gaming: 0,
+            }; MAX_TRACKED_THREADS],
+            next_thread_index: 0,
+        }
+    }
+
+    pub fn predict_priority(&self, features: &ThreadFeatures) -> i8 {
+        let input = features.to_input_array();
+        let mut hidden1 = [0i32; 16];
+        for i in 0..16 {
+            let mut sum = self.bias_l1[i];
+            for j in 0..8 {
+                sum += input[j] * self.weights_l1[j][i] / 1000;
+            }
+            hidden1[i] = if sum > 0 { sum } else { 0 };
+        }
+        let mut hidden2 = [0i32; 16];
+        for i in 0..16 {
+            let mut sum = self.bias_l2[i];
+            for j in 0..16 {
+                sum += hidden1[j] * self.weights_l2[j][i] / 1000;
+            }
+            hidden2[i] = if sum > 0 { sum } else { 0 };
+        }
+        let mut output = self.bias_output;
+        for i in 0..16 {
+            output += hidden2[i] * self.weights_output[i] / 1000;
+        }
+        if output > 20 { 20 } else if output < -20 { -20 } else { output as i8 }
+    }
+
+    pub fn record_thread(&mut self, features: ThreadFeatures) {
+        self.thread_history[self.next_thread_index] = features;
+        self.next_thread_index = (self.next_thread_index + 1) % MAX_TRACKED_THREADS;
+    }
+
+    pub fn train_online(&mut self, features: &ThreadFeatures, actual_priority: i8) {
+        let predicted = self.predict_priority(features);
+        let error = actual_priority - predicted;
+        if error.abs() > 2 {
+            let learning_rate = 10;
+            for i in 0..16 {
+                self.weights_output[i] += error as i32 * learning_rate / 100;
+            }
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

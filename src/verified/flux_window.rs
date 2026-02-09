@@ -18,8 +18,7 @@
 //! - Proper resource cleanup
 //! - Thread safety
 
-use alloc::collections::BTreeMap;
-use alloc::vec::Vec;
+use std::collections::BTreeMap;
 
 use crate::flux_wayland::SurfaceId;
 

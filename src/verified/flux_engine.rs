@@ -20,10 +20,8 @@
 //! - Resource management
 //! - Protocol compliance
 
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::sync::atomic::{AtomicU64, Ordering};
+use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 /// Output (display) identifier
 pub type OutputId = u64;

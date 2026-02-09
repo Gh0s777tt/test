@@ -13,6 +13,13 @@
 
 use core::ptr::NonNull;
 
+// Type aliases for backend compatibility
+pub type GpuDeviceId = u32;
+pub type GpuMemoryId = u64;
+pub type GpuCommandBufferId = u32;
+pub type GpuFenceId = u32;
+pub type GpuPipelineId = u32;
+
 /// GPU device handle
 #[derive(Debug, Clone, Copy)]
 pub struct GpuDevice {

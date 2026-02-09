@@ -15,10 +15,14 @@
 //! - Checks permissions
 //! - Prevents invalid state
 
+#[cfg(feature = "verus")]
 use builtin::*;
+#[cfg(feature = "verus")]
 use builtin_macros::*;
+#[cfg(feature = "verus")]
 use vstd::prelude::*;
 
+#[cfg(feature = "verus")]
 verus! {
 
 /// Maximum number of inodes
@@ -353,6 +357,7 @@ impl InodeManager {
     }
 }
 
+#[cfg(feature = verus)]
 } // verus!
 
 #[cfg(test)]

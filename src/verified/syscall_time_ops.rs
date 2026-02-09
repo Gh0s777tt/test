@@ -6,8 +6,8 @@
 //!
 //! All operations are formally verified using Verus and tested with Kani.
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+
+
 
 use std::time::Duration;
 
@@ -225,7 +225,7 @@ impl Default for TimerManager {
 ///
 /// # Returns
 /// Timer ID
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_set_timer(
     manager: &mut TimerManager,
     interval: Duration,
@@ -279,7 +279,7 @@ pub fn sys_set_timer(
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_cancel_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
@@ -307,7 +307,7 @@ pub fn sys_cancel_timer(
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_pause_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
@@ -337,7 +337,7 @@ pub fn sys_pause_timer(
 ///
 /// # Returns
 /// Success or error
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_resume_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
@@ -366,7 +366,7 @@ pub fn sys_resume_timer(
 ///
 /// # Returns
 /// Timer information
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_get_timer_info(
     manager: &TimerManager,
     timer_id: TimerId,
@@ -387,7 +387,7 @@ pub fn sys_get_timer_info(
 ///
 /// # Returns
 /// Timer resolution information
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_get_timer_resolution(manager: &TimerManager) -> TimerResolution {
     manager.resolution
 }

@@ -7,8 +7,8 @@
 //!
 //! All operations are formally verified using Verus and tested with Kani.
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+
+
 
 /// File descriptor type
 pub type FileDescriptor = i32;
@@ -209,7 +209,7 @@ impl Default for FdTable {
 ///
 /// # Returns
 /// New file descriptor
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_dup(fd_table: &mut FdTable, oldfd: FileDescriptor) -> AdvOpResult<FileDescriptor> {
     // Validate old fd
     let old_entry = fd_table.get_entry(oldfd)?;
@@ -249,7 +249,7 @@ pub fn sys_dup(fd_table: &mut FdTable, oldfd: FileDescriptor) -> AdvOpResult<Fil
 ///
 /// # Returns
 /// New file descriptor (same as newfd)
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_dup2(
     fd_table: &mut FdTable,
     oldfd: FileDescriptor,
@@ -307,7 +307,7 @@ pub fn sys_dup2(
 ///
 /// # Returns
 /// Pipe file descriptors (read_fd, write_fd)
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_pipe(fd_table: &mut FdTable) -> AdvOpResult<PipeFds> {
     // Create read end
     let read_entry = FdEntry {
@@ -358,7 +358,7 @@ pub fn sys_pipe(fd_table: &mut FdTable) -> AdvOpResult<PipeFds> {
 ///
 /// # Returns
 /// Result code (device-specific)
-#[verus::verify]
+#[cfg_attr(feature = "verus", verus::verify)]
 pub fn sys_ioctl(
     fd_table: &FdTable,
     fd: FileDescriptor,

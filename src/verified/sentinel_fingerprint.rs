@@ -20,9 +20,7 @@
 //! - Unique identification
 //! - No information leakage
 
-use alloc::string::String;
-use alloc::vec::Vec;
-use alloc::collections::BTreeMap;
+use std::collections::BTreeMap;
 
 /// CPU information
 #[derive(Debug, Clone)]

@@ -23,12 +23,12 @@
   - [x] Create test plan (comprehensive testing strategy)
 
 ## Phase 2: Syscall Optimization (Days 4-7)
-- [ ] Day 4: Fix Compilation Issues
-  - [ ] Separate Verus verification code
-  - [ ] Fix no_std/alloc conflicts
-  - [ ] Update cipher API usage
-  - [ ] Resolve type mismatches
-  - [ ] Test compilation
+- [x] Day 4: Fix Compilation Issues (60% COMPLETE)
+  - [x] Separate Verus verification code (DONE - feature flags added)
+  - [x] Fix no_std/alloc conflicts (DONE - 10 files fixed)
+  - [x] Update cipher API usage (DONE - 3 vault files updated)
+  - [ ] Resolve type mismatches (IN PROGRESS - 42 errors remaining)
+  - [ ] Test compilation (PENDING - need 0 errors first)
 
 - [ ] Day 5: Path Lookup Caching
   - [ ] Design LRU cache

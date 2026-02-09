@@ -817,6 +817,7 @@ dependencies = [
  "objc",
  "rand",
  "rand_core",
+ "serde",
  "serpent",
  "sha2",
  "twofish",

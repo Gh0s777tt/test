@@ -13,10 +13,14 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
+#[cfg(feature = "verus")]
 use builtin::*;
+#[cfg(feature = "verus")]
 use builtin_macros::*;
+#[cfg(feature = "verus")]
 use vstd::prelude::*;
 
+#[cfg(feature = "verus")]
 verus! {
 
 /// Maximum history size for prediction
@@ -388,7 +392,126 @@ impl WorkloadPredictor {
     }
 }
 
+#[cfg(feature = "verus")]
 } // verus!
+
+// Non-Verus version (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub const MAX_HISTORY_SIZE: usize = 32;
+#[cfg(not(feature = "verus"))]
+pub const CONFIDENCE_THRESHOLD: u8 = 70;
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct BurstHistoryEntry {
+    pub cpu_burst_us: u64,
+    pub io_wait_us: u64,
+    pub timestamp_us: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum WorkloadPattern {
+    Unknown,
+    CpuBound,
+    IoBound,
+    Interactive,
+    Gaming,
+    Batch,
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct WorkloadPredictor {
+    history: [BurstHistoryEntry; MAX_HISTORY_SIZE],
+    history_count: usize,
+    current_pattern: WorkloadPattern,
+    pattern_confidence: u8,
+}
+
+#[cfg(not(feature = "verus"))]
+impl WorkloadPredictor {
+    pub fn new() -> Self {
+        Self {
+            history: [BurstHistoryEntry {
+                cpu_burst_us: 0,
+                io_wait_us: 0,
+                timestamp_us: 0,
+            }; MAX_HISTORY_SIZE],
+            history_count: 0,
+            current_pattern: WorkloadPattern::Unknown,
+            pattern_confidence: 0,
+        }
+    }
+
+    pub fn record_burst(&mut self, cpu_burst_us: u64, io_wait_us: u64, timestamp_us: u64) {
+        let entry = BurstHistoryEntry {
+            cpu_burst_us,
+            io_wait_us,
+            timestamp_us,
+        };
+        if self.history_count < MAX_HISTORY_SIZE {
+            self.history[self.history_count] = entry;
+            self.history_count += 1;
+        } else {
+            for i in 0..MAX_HISTORY_SIZE - 1 {
+                self.history[i] = self.history[i + 1];
+            }
+            self.history[MAX_HISTORY_SIZE - 1] = entry;
+        }
+        self.update_pattern();
+    }
+
+    pub fn predict_next_burst(&self) -> (u64, u64) {
+        if self.history_count == 0 {
+            return (0, 0);
+        }
+        let mut total_cpu = 0u64;
+        let mut total_io = 0u64;
+        for i in 0..self.history_count {
+            total_cpu += self.history[i].cpu_burst_us;
+            total_io += self.history[i].io_wait_us;
+        }
+        (total_cpu / self.history_count as u64, total_io / self.history_count as u64)
+    }
+
+    pub fn get_pattern(&self) -> WorkloadPattern {
+        self.current_pattern
+    }
+
+    pub fn get_confidence(&self) -> u8 {
+        self.pattern_confidence
+    }
+
+    fn update_pattern(&mut self) {
+        if self.history_count < 4 {
+            self.current_pattern = WorkloadPattern::Unknown;
+            self.pattern_confidence = 0;
+            return;
+        }
+        let mut total_cpu = 0u64;
+        let mut total_io = 0u64;
+        for i in 0..self.history_count {
+            total_cpu += self.history[i].cpu_burst_us;
+            total_io += self.history[i].io_wait_us;
+        }
+        let avg_cpu = total_cpu / self.history_count as u64;
+        let avg_io = total_io / self.history_count as u64;
+        
+        if avg_cpu > avg_io * 10 {
+            self.current_pattern = WorkloadPattern::CpuBound;
+            self.pattern_confidence = 80;
+        } else if avg_io > avg_cpu * 10 {
+            self.current_pattern = WorkloadPattern::IoBound;
+            self.pattern_confidence = 80;
+        } else if avg_cpu < 5000 && avg_io < 5000 {
+            self.current_pattern = WorkloadPattern::Interactive;
+            self.pattern_confidence = 75;
+        } else {
+            self.current_pattern = WorkloadPattern::Unknown;
+            self.pattern_confidence = 50;
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
