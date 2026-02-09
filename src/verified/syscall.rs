@@ -47,6 +47,11 @@ pub enum SyscallNumber {
     Close = 31,
     Read = 32,
     Write = 33,
+    Seek = 34,
+    Stat = 35,
+    Fstat = 36,
+    Unlink = 37,
+    Rename = 38,
     
     // Time
     GetTime = 40,
@@ -75,6 +80,11 @@ impl SyscallNumber {
             31 => Some(SyscallNumber::Close),
             32 => Some(SyscallNumber::Read),
             33 => Some(SyscallNumber::Write),
+            34 => Some(SyscallNumber::Seek),
+            35 => Some(SyscallNumber::Stat),
+            36 => Some(SyscallNumber::Fstat),
+            37 => Some(SyscallNumber::Unlink),
+            38 => Some(SyscallNumber::Rename),
             40 => Some(SyscallNumber::GetTime),
             41 => Some(SyscallNumber::Sleep),
             _ => None,

@@ -1,33 +1,76 @@
-# Final IPC Integration & Testing
+# POSIX Debloating Phase (Weeks 5-8)
 
-## Phase 1: Unified Module Creation (30 min)
-- [x] Create `ipc_complete.rs` integrating all 5 properties
-- [x] Implement unified API surface
-- [x] Add comprehensive error handling
-- [x] Include all verification annotations
+## Phase 1: Analysis & Planning (Week 5 - Day 1-2)
+- [x] Analyze current POSIX implementation in VantisOS
+- [x] Identify all POSIX functions currently implemented
+- [x] Categorize functions (Essential vs. Bloat vs. Rarely Used)
+- [x] Research POSIX usage statistics from real-world applications
+- [x] Create comprehensive analysis report
 
-## Phase 2: Comprehensive Testing (45 min)
-- [x] Create end-to-end test suite
-- [x] Test all 5 properties together
-- [x] Test edge cases and failure scenarios
-- [x] Test concurrent operations
-- [x] Test resource exhaustion scenarios
+## Phase 2: Strategy Development (Week 5 - Day 3-4)
+- [x] Define criteria for "essential" vs "bloat"
+- [x] Create enhancement strategy document
+- [x] Identify compatibility requirements
+- [x] Plan implementation path for new functions
+- [x] Define success metrics
 
-## Phase 3: Performance Validation (30 min)
-- [x] Benchmark throughput with all properties enabled
-- [x] Benchmark latency under load
-- [x] Test scalability (1-1000 processes)
-- [x] Memory usage profiling
-- [x] Compare with baseline (individual properties)
+## Phase 3: Essential File Operations Implementation (Week 5 - Day 3-5)
+- [x] Implement Seek syscall (file positioning)
+- [x] Implement Stat syscall (file metadata by path)
+- [x] Implement Fstat syscall (file metadata by fd)
+- [x] Implement Unlink syscall (file deletion)
+- [x] Implement Rename syscall (file renaming)
+- [x] Add Verus verification annotations
+- [x] Add Kani model checks
+- [x] Add comprehensive unit tests
+- [x] Update syscall enum with new numbers
+- [x] Document all new syscalls
 
-## Phase 4: Documentation (15 min)
-- [x] Create FINAL_IPC_INTEGRATION.md
-- [x] Document API usage examples
-- [x] Document performance characteristics
-- [x] Create migration guide from old IPC
+## Phase 4: Bloat Identification (Week 6 - Day 1-3)
+- [ ] Identify deprecated POSIX functions
+- [ ] Identify rarely-used POSIX functions
+- [ ] Identify redundant POSIX functions
+- [ ] Identify security-problematic functions
+- [ ] Create removal priority list
 
-## Phase 5: Celebration & Summary (10 min)
-- [x] Create completion summary
-- [x] Update roadmap progress
-- [ ] Commit and push all changes
-- [ ] Celebrate historic achievement! 🎉
+## Phase 5: Incremental Removal (Week 6 - Day 4-7)
+- [ ] Remove deprecated functions (Phase 1)
+- [ ] Remove rarely-used functions (Phase 2)
+- [ ] Remove redundant functions (Phase 3)
+- [ ] Test after each removal batch
+- [ ] Document removed functions
+
+## Phase 6: Optimization (Week 7 - Day 1-4)
+- [ ] Optimize remaining POSIX implementations
+- [ ] Reduce code complexity
+- [ ] Improve performance
+- [ ] Add verification where possible
+- [ ] Update documentation
+
+## Phase 7: Compatibility Layer (Week 7 - Day 5-7)
+- [ ] Create compatibility shims for removed functions
+- [ ] Implement deprecation warnings
+- [ ] Create migration guide
+- [ ] Test compatibility layer
+- [ ] Document compatibility approach
+
+## Phase 8: Testing & Validation (Week 8 - Day 1-3)
+- [ ] Run comprehensive test suite
+- [ ] Test real-world applications
+- [ ] Measure performance improvements
+- [ ] Verify compatibility
+- [ ] Document test results
+
+## Phase 9: Documentation (Week 8 - Day 4-5)
+- [ ] Create POSIX_DEBLOATING_REPORT.md
+- [ ] Document removed functions
+- [ ] Document migration guide
+- [ ] Update API documentation
+- [ ] Create before/after comparison
+
+## Phase 10: Finalization (Week 8 - Day 6-7)
+- [ ] Final code review
+- [ ] Commit all changes
+- [ ] Push to GitHub
+- [ ] Update roadmap
+- [ ] Celebrate completion! 🎉
