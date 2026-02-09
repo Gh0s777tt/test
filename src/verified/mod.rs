@@ -8,6 +8,7 @@ pub mod math;
 pub mod allocator;
 pub mod process;
 pub mod ipc;
+pub mod ipc_inline;
 pub mod syscall;
 pub mod scheduler;
 pub mod scheduler_optimized;
