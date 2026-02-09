@@ -197,7 +197,7 @@
 - [ ] Implement basic Vantis Vault module
 
 ### Medium Priority
-- [ ] Create developer onboarding guide
+- [x] Create developer onboarding guide
 - [ ] Set up continuous integration for formal verification
 - [ ] Begin Neural Scheduler prototype
 - [ ] Research NT Kernel simulation feasibility
