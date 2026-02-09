@@ -55,6 +55,9 @@ pub mod sentinel_api;
 pub mod flux_engine;
 pub mod flux_wayland;
 pub mod flux_window;
+pub mod flux_compositor;
+pub mod flux_hdr;
+pub mod flux_gaming;
 
 #[cfg(test)]
 mod tests {
