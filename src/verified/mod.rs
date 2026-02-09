@@ -19,6 +19,7 @@ pub mod vault_twofish;
 pub mod vault_serpent;
 pub mod vault_cascade;
 pub mod vault_production_example;
+pub mod vault_fips_tests;
 pub mod neural_scheduler;
 pub mod workload_predictor;
 pub mod neural_scheduler_integration;
