@@ -77,7 +77,7 @@ pub fn encrypt_aes256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8>, A
     let iv = generate_iv()?;
     
     // Create encryptor
-    let encryptor = Aes256CbcEnc::new(key.into(), &iv.into());
+    let mut encryptor = Aes256CbcEnc::new(key.into(), &iv.into());
     
     // Calculate padded length (PKCS#7 padding)
     let block_size = 16;
@@ -93,13 +93,11 @@ pub fn encrypt_aes256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8>, A
         buffer[i] = padding_len as u8;
     }
     
-    // Encrypt in place
-    encryptor.encrypt_blocks_mut(
-        buffer.chunks_exact_mut(block_size)
-            .map(|chunk| cipher::Block::<Aes256>::from_mut_slice(chunk))
-            .collect::<Vec<_>>()
-            .as_mut_slice()
-    );
+    // Encrypt in place - iterate over blocks
+    for chunk in buffer.chunks_exact_mut(block_size) {
+        let block = cipher::Block::<Aes256>::from_mut_slice(chunk);
+        encryptor.encrypt_block_mut(block);
+    }
     
     // Prepend IV to ciphertext (IV || ciphertext)
     let mut result = Vec::with_capacity(16 + buffer.len());
@@ -139,18 +137,16 @@ pub fn decrypt_aes256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, AesErr
     let (iv, ciphertext) = data.split_at(16);
     
     // Create decryptor
-    let decryptor = Aes256CbcDec::new(key.into(), iv.try_into().unwrap());
+    let mut decryptor = Aes256CbcDec::new(key.into(), iv.try_into().unwrap());
     
     // Decrypt in place
     let mut buffer = ciphertext.to_vec();
     let block_size = 16;
     
-    decryptor.decrypt_blocks_mut(
-        buffer.chunks_exact_mut(block_size)
-            .map(|chunk| cipher::Block::<Aes256>::from_mut_slice(chunk))
-            .collect::<Vec<_>>()
-            .as_mut_slice()
-    );
+    for chunk in buffer.chunks_exact_mut(block_size) {
+        let block = cipher::Block::<Aes256>::from_mut_slice(chunk);
+        decryptor.decrypt_block_mut(block);
+    }
     
     // Remove PKCS#7 padding
     if buffer.is_empty() {
@@ -191,7 +187,7 @@ pub fn encrypt_aes256_cbc_with_iv(
     plaintext: &[u8]
 ) -> Result<Vec<u8>, AesError> {
     // Create encryptor
-    let encryptor = Aes256CbcEnc::new(key.into(), iv.into());
+    let mut encryptor = Aes256CbcEnc::new(key.into(), iv.into());
     
     // Calculate padded length (PKCS#7 padding)
     let block_size = 16;
@@ -207,13 +203,11 @@ pub fn encrypt_aes256_cbc_with_iv(
         buffer[i] = padding_len as u8;
     }
     
-    // Encrypt in place
-    encryptor.encrypt_blocks_mut(
-        buffer.chunks_exact_mut(block_size)
-            .map(|chunk| cipher::Block::<Aes256>::from_mut_slice(chunk))
-            .collect::<Vec<_>>()
-            .as_mut_slice()
-    );
+    // Encrypt in place - iterate over blocks
+    for chunk in buffer.chunks_exact_mut(block_size) {
+        let block = cipher::Block::<Aes256>::from_mut_slice(chunk);
+        encryptor.encrypt_block_mut(block);
+    }
     
     // Prepend IV to ciphertext
     let mut result = Vec::with_capacity(16 + buffer.len());

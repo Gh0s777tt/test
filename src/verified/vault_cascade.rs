@@ -92,15 +92,15 @@ impl VantisVaultCascade {
         let keys = self.keys.as_ref().unwrap();
         
         // Layer 1: AES-256-CBC encryption
-        let mut encrypted = encrypt_aes256_cbc(keys.aes_key(), data)
+        let mut encrypted = encrypt_aes256_cbc(keys.aes_key().as_bytes(), data)
             .map_err(|_| "AES encryption failed")?;
         
         // Layer 2: Twofish-256-CBC encryption
-        encrypted = encrypt_twofish256_cbc(keys.twofish_key(), &encrypted)
+        encrypted = encrypt_twofish256_cbc(keys.twofish_key().as_bytes(), &encrypted)
             .map_err(|_| "Twofish encryption failed")?;
         
         // Layer 3: Serpent-256-CBC encryption
-        encrypted = encrypt_serpent256_cbc(keys.serpent_key(), &encrypted)
+        encrypted = encrypt_serpent256_cbc(keys.serpent_key().as_bytes(), &encrypted)
             .map_err(|_| "Serpent encryption failed")?;
         
         Ok(encrypted)
@@ -125,15 +125,15 @@ impl VantisVaultCascade {
         let keys = self.keys.as_ref().unwrap();
         
         // Layer 3: Serpent-256-CBC decryption (reverse order)
-        let mut decrypted = decrypt_serpent256_cbc(keys.serpent_key(), data)
+        let mut decrypted = decrypt_serpent256_cbc(keys.serpent_key().as_bytes(), data)
             .map_err(|_| "Serpent decryption failed")?;
         
         // Layer 2: Twofish-256-CBC decryption
-        decrypted = decrypt_twofish256_cbc(keys.twofish_key(), &decrypted)
+        decrypted = decrypt_twofish256_cbc(keys.twofish_key().as_bytes(), &decrypted)
             .map_err(|_| "Twofish decryption failed")?;
         
         // Layer 1: AES-256-CBC decryption
-        decrypted = decrypt_aes256_cbc(keys.aes_key(), &decrypted)
+        decrypted = decrypt_aes256_cbc(keys.aes_key().as_bytes(), &decrypted)
             .map_err(|_| "AES decryption failed")?;
         
         Ok(decrypted)

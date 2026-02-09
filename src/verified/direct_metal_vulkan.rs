@@ -435,7 +435,7 @@ impl GpuBackend for VulkanBackend {
             command_pool: 0x8000 + self.next_device_id,
         };
         
-        let device_id = GpuDeviceId(self.next_device_id);
+        let device_id = self.next_device_id;
         self.next_device_id += 1;
         
         self.devices.insert(device_id, device);
@@ -467,7 +467,7 @@ impl GpuBackend for VulkanBackend {
             mapped_ptr: None,
         };
         
-        let memory_id = GpuMemoryId(self.next_memory_id);
+        let memory_id = self.next_memory_id;
         self.next_memory_id += 1;
         
         self.memory.insert(memory_id, memory);
@@ -538,7 +538,7 @@ impl GpuBackend for VulkanBackend {
             recording: false,
         };
         
-        let cmd_id = GpuCommandBufferId(self.next_cmd_id);
+        let cmd_id = self.next_cmd_id;
         self.next_cmd_id += 1;
         
         self.command_buffers.insert(cmd_id, cmd_buffer);
@@ -625,7 +625,7 @@ impl GpuBackend for VulkanBackend {
             signaled: false,
         };
         
-        let fence_id = GpuFenceId(self.next_fence_id);
+        let fence_id = self.next_fence_id;
         self.next_fence_id += 1;
         
         self.fences.insert(fence_id, fence);
@@ -670,7 +670,7 @@ impl GpuBackend for VulkanBackend {
             pipeline_type,
         };
         
-        let pipeline_id = GpuPipelineId(self.next_pipeline_id);
+        let pipeline_id = self.next_pipeline_id;
         self.next_pipeline_id += 1;
         
         self.pipelines.insert(pipeline_id, pipeline);

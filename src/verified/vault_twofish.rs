@@ -15,12 +15,12 @@
 //! - Secure key zeroization
 //! - AES finalist providing defense in depth
 
-use twofish::Twofish;
 use cipher::{
-    BlockEncryptMut, BlockDecryptMut, KeyIvInit,
+    BlockEncryptMut, BlockDecryptMut, KeyIvInit, Block,
     block_padding::Pkcs7,
 };
 use rand::RngCore;
+use twofish::Twofish;
 
 type TwofishCbcEnc = cbc::Encryptor<Twofish>;
 type TwofishCbcDec = cbc::Decryptor<Twofish>;
@@ -76,7 +76,7 @@ pub fn encrypt_twofish256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8
     let iv = generate_iv()?;
     
     // Create encryptor
-    let encryptor = TwofishCbcEnc::new(key.into(), &iv.into());
+    let mut encryptor = TwofishCbcEnc::new(key.into(), &iv.into());
     
     // Encrypt with PKCS#7 padding
     let block_size = 16;
@@ -85,7 +85,7 @@ pub fn encrypt_twofish256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8
     let mut buffer = vec![0u8; padded_len];
     buffer[..plaintext.len()].copy_from_slice(plaintext);
     for i in plaintext.len()..padded_len { buffer[i] = padding_len as u8; }
-    encryptor.encrypt_blocks_mut(buffer.chunks_exact_mut(block_size).map(|chunk| cipher::Block::from_mut_slice(chunk)).collect::<Vec<_>>().as_mut_slice());
+    for chunk in buffer.chunks_exact_mut(block_size) { encryptor.encrypt_block_mut(Block::<Twofish>::from_mut_slice(chunk)); }
     let ciphertext = buffer;
     
     // Prepend IV to ciphertext (IV || ciphertext)
@@ -126,12 +126,12 @@ pub fn decrypt_twofish256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Tw
     let (iv, ciphertext) = data.split_at(16);
     
     // Create decryptor
-    let decryptor = TwofishCbcDec::new(key.into(), iv.try_into().unwrap());
+    let mut decryptor = TwofishCbcDec::new(key.into(), iv.try_into().unwrap());
     
     // Decrypt and remove padding
     let mut buffer = ciphertext.to_vec();
     let block_size = 16;
-    decryptor.decrypt_blocks_mut(buffer.chunks_exact_mut(block_size).map(|chunk| cipher::Block::from_mut_slice(chunk)).collect::<Vec<_>>().as_mut_slice());
+    for chunk in buffer.chunks_exact_mut(block_size) { decryptor.decrypt_block_mut(Block::<Twofish>::from_mut_slice(chunk)); }
     if buffer.is_empty() { return Err(TwofishError::DecryptionFailed); }
     let padding_len = buffer[buffer.len() - 1] as usize;
     if padding_len == 0 || padding_len > block_size || padding_len > buffer.len() { return Err(TwofishError::DecryptionFailed); }
@@ -162,7 +162,7 @@ pub fn encrypt_twofish256_cbc_with_iv(
     plaintext: &[u8]
 ) -> Result<Vec<u8>, TwofishError> {
     // Create encryptor
-    let encryptor = TwofishCbcEnc::new(key.into(), iv.into());
+    let mut encryptor = TwofishCbcEnc::new(key.into(), iv.into());
     
     // Encrypt with PKCS#7 padding
     let block_size = 16;
@@ -171,7 +171,7 @@ pub fn encrypt_twofish256_cbc_with_iv(
     let mut buffer = vec![0u8; padded_len];
     buffer[..plaintext.len()].copy_from_slice(plaintext);
     for i in plaintext.len()..padded_len { buffer[i] = padding_len as u8; }
-    encryptor.encrypt_blocks_mut(buffer.chunks_exact_mut(block_size).map(|chunk| cipher::Block::from_mut_slice(chunk)).collect::<Vec<_>>().as_mut_slice());
+    for chunk in buffer.chunks_exact_mut(block_size) { encryptor.encrypt_block_mut(Block::<Twofish>::from_mut_slice(chunk)); }
     let ciphertext = buffer;
     
     // Prepend IV to ciphertext

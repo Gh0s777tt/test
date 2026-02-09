@@ -28,7 +28,7 @@ use crate::sentinel::DriverId;
 pub type SandboxId = u64;
 
 /// Capability types that can be granted to drivers
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Capability {
     /// Access to memory regions
     Memory,
