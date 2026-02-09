@@ -256,12 +256,18 @@ pub fn sys_dup2(
     newfd: FileDescriptor,
 ) -> AdvOpResult<FileDescriptor> {
     // Validate old fd
-    let old_entry = fd_table.get_entry(oldfd)?;
-    
     // If oldfd == newfd, do nothing
     if oldfd == newfd {
         return Ok(newfd);
     }
+    
+    // Clone old entry data before any mutations
+    let old_entry = fd_table.get_entry(oldfd)?;
+    let description = old_entry.description.clone();
+    let readable = old_entry.readable;
+    let writable = old_entry.writable;
+    let is_pipe = old_entry.is_pipe;
+    drop(old_entry); // Explicitly drop the borrow
     
     // Validate newfd range
     if newfd < 0 || newfd as usize >= fd_table.entries.len() {
@@ -275,11 +281,11 @@ pub fn sys_dup2(
     
     // Create new entry with same properties
     let new_entry = FdEntry {
-        description: old_entry.description.clone(),
+        description,
         refcount: 1,
-        readable: old_entry.readable,
-        writable: old_entry.writable,
-        is_pipe: old_entry.is_pipe,
+        readable,
+        writable,
+        is_pipe,
     };
     
     // Set newfd

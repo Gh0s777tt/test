@@ -337,7 +337,7 @@ impl GpuBackend for MetalBackend {
             library: None,
         };
         
-        let device_id = self.next_device_id;
+        let device_id = self.next_device_id as u32;
         self.next_device_id += 1;
         
         self.devices.insert(device_id, device);
@@ -436,7 +436,7 @@ impl GpuBackend for MetalBackend {
             current_encoder: None,
         };
         
-        let cmd_id = self.next_cmd_id;
+        let cmd_id = self.next_cmd_id as u32;
         self.next_cmd_id += 1;
         
         self.command_buffers.insert(cmd_id, cmd_buffer);
@@ -532,7 +532,7 @@ impl GpuBackend for MetalBackend {
             command_buffer: None,
         };
         
-        let fence_id = self.next_fence_id;
+        let fence_id = self.next_fence_id as u32;
         self.next_fence_id += 1;
         
         self.fences.insert(fence_id, fence);
@@ -587,7 +587,7 @@ impl GpuBackend for MetalBackend {
             compute_pipeline_state: compute_state,
         };
         
-        let pipeline_id = self.next_pipeline_id;
+        let pipeline_id = self.next_pipeline_id as u32;
         self.next_pipeline_id += 1;
         
         self.pipelines.insert(pipeline_id, pipeline);

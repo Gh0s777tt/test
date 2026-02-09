@@ -361,9 +361,31 @@ impl SyscallHandler {
             SyscallNumber::Close => Self::sys_close(context),
             SyscallNumber::Read => Self::sys_read(context),
             SyscallNumber::Write => Self::sys_write(context),
+            SyscallNumber::Seek => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Stat => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Fstat => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Unlink => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Rename => Err(SyscallError::InvalidSyscall),
             
             SyscallNumber::GetTime => Self::sys_gettime(context),
             SyscallNumber::Sleep => Self::sys_sleep(context),
+            
+            SyscallNumber::Mkdir => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Rmdir => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Chdir => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Getcwd => Err(SyscallError::InvalidSyscall),
+            
+            SyscallNumber::Dup => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Dup2 => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Pipe => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::Ioctl => Err(SyscallError::InvalidSyscall),
+            
+            SyscallNumber::SetTimer => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::CancelTimer => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::PauseTimer => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::ResumeTimer => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::GetTimerInfo => Err(SyscallError::InvalidSyscall),
+            SyscallNumber::GetTimerResolution => Err(SyscallError::InvalidSyscall),
         }
     }
     
