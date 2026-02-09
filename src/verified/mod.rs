@@ -9,6 +9,7 @@ pub mod allocator;
 pub mod process;
 pub mod ipc;
 pub mod syscall;
+pub mod scheduler;
 
 #[cfg(test)]
 mod tests {
