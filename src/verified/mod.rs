@@ -8,6 +8,7 @@ pub mod math;
 pub mod allocator;
 pub mod process;
 pub mod ipc;
+pub mod syscall;
 
 #[cfg(test)]
 mod tests {
