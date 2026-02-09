@@ -455,7 +455,7 @@ impl NtApiEmulator {
     /// Convert Linux path to Windows-style path
     fn linux_to_windows_path(&self, linux_path: &str) -> String {
         // Simple conversion: /path/to/file -> C:\path\to\file
-        let windows_path = linux_path.replace('/', "\&quot;);
+        let windows_path = linux_path.replace('/', r"");
         format!("C:{}", windows_path)
     }
 }
@@ -604,6 +604,6 @@ mod tests {
         let emulator = NtApiEmulator::new();
         let windows_path = emulator.linux_to_windows_path("/usr/bin/bash");
         
-        assert_eq!(windows_path, "C:\\usr\\bin\\bash");
+        assert_eq!(windows_path, r"C:\usr\bin\bash");
     }
 }

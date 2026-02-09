@@ -106,3 +106,7 @@ strip = true
 # Kani configuration
 [package.metadata.kani]
 flags = ["--enable-unstable", "--cbmc-args", "--bounds-check", "--pointer-check"]
+[[bench]]
+name = "syscall_performance_simple"
+harness = false
+path = "../../benches/syscall_performance_simple.rs"
