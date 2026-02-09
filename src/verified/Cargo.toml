@@ -70,6 +70,16 @@ harness = false
 name = "filesystem_benchmark"
 harness = false
 
+[[bench]]
+name = "ipc_complete_benchmark"
+harness = false
+path = "../../benches/ipc_complete_benchmark.rs"
+
+[[bench]]
+name = "performance_baseline"
+harness = false
+path = "../../benches/performance_baseline.rs"
+
 [profile.verify]
 # Optimized profile for verification
 inherits = "dev"
