@@ -51,6 +51,11 @@ pub mod sentinel_recovery;
 pub mod sentinel_fingerprint;
 pub mod sentinel_api;
 
+// Flux Engine - Wayland Compositor
+pub mod flux_engine;
+pub mod flux_wayland;
+pub mod flux_window;
+
 #[cfg(test)]
 mod tests {
     use super::*;
