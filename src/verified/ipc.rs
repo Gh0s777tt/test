@@ -16,6 +16,7 @@ use verus::prelude::*;
 
 use super::process::Pid;
 use core::mem;
+use std::collections::HashMap;
 
 /// Maximum message size in bytes
 pub const MAX_MESSAGE_SIZE: usize = 4096;
@@ -283,8 +284,9 @@ pub struct IpcManager {
     queues: Vec<Option<MessageQueue>>,
     /// Next message ID
     next_message_id: u64,
-    /// Capability table
-    capabilities: Vec<(Pid, Pid, Capability)>,
+    /// Capability table (optimized with HashMap for O(1) lookup)
+    /// Key: (from_pid, to_pid), Value: list of capabilities
+    capabilities: HashMap<(Pid, Pid), Vec<Capability>>,
 }
 
 impl IpcManager {
@@ -293,7 +295,7 @@ impl IpcManager {
         IpcManager {
             queues: Vec::new(),
             next_message_id: 1,
-            capabilities: Vec::new(),
+            capabilities: HashMap::new(),
         }
     }
     
@@ -336,8 +338,8 @@ impl IpcManager {
         
         self.queues[index] = None;
         
-        // Remove all capabilities involving this process
-        self.capabilities.retain(|(from, to, _)| *from != pid && *to != pid);
+        // Remove all capabilities involving this process (optimized)
+        self.capabilities.retain(|(from, to), _| *from != pid && *to != pid);
         
         Ok(())
     }
@@ -364,12 +366,14 @@ impl IpcManager {
         to: Pid,
         cap: Capability,
     ) -> Result<(), &'static str> {
+        // Use HashMap for O(1) insertion
+        let caps = self.capabilities.entry((from, to)).or_insert_with(Vec::new);
+        
         // Check if capability already exists
-        if self.capabilities.iter().any(|(f, t, c)| *f == from && *t == to && *c == cap) {
-            return Ok(());
+        if !caps.contains(&cap) {
+            caps.push(cap);
         }
         
-        self.capabilities.push((from, to, cap));
         Ok(())
     }
     
@@ -383,13 +387,28 @@ impl IpcManager {
         to: Pid,
         cap: Capability,
     ) -> Result<(), &'static str> {
-        self.capabilities.retain(|(f, t, c)| !(*f == from && *t == to && *c == cap));
+        // Use HashMap for O(1) lookup and removal
+        if let Some(caps) = self.capabilities.get_mut(&(from, to)) {
+            caps.retain(|c| *c != cap);
+            
+            // Remove entry if no capabilities remain
+            if caps.is_empty() {
+                self.capabilities.remove(&(from, to));
+            }
+        }
+        
         Ok(())
     }
     
     /// Check if a process has a capability to another process
+    /// 
+    /// # Performance
+    /// - O(1) lookup with HashMap (optimized from O(n))
     pub fn has_capability(&self, from: Pid, to: Pid, cap: Capability) -> bool {
-        self.capabilities.iter().any(|(f, t, c)| *f == from && *t == to && *c == cap)
+        self.capabilities
+            .get(&(from, to))
+            .map(|caps| caps.contains(&cap))
+            .unwrap_or(false)
     }
     
     /// Send a message
@@ -662,5 +681,67 @@ mod tests {
         manager.grant_capability(pid1, pid2, Capability::Send).unwrap();
         let result = manager.send(pid1, pid2, vec![1, 2, 3], Priority::Normal);
         assert!(result.is_ok());
+    }
+    
+    #[test]
+    fn test_capability_hashmap_performance() {
+        let mut manager = IpcManager::new();
+        
+        // Create many processes and grant capabilities
+        for i in 1..=100 {
+            let from = Pid::new(i).unwrap();
+            let to = Pid::new(i + 1).unwrap();
+            
+            manager.create_queue(from).unwrap();
+            manager.grant_capability(from, to, Capability::Send).unwrap();
+            manager.grant_capability(from, to, Capability::Receive).unwrap();
+        }
+        
+        // Test O(1) lookup performance
+        // With HashMap, this should be very fast regardless of number of capabilities
+        let from = Pid::new(50).unwrap();
+        let to = Pid::new(51).unwrap();
+        
+        // Multiple lookups should be consistently fast
+        for _ in 0..1000 {
+            assert!(manager.has_capability(from, to, Capability::Send));
+            assert!(manager.has_capability(from, to, Capability::Receive));
+            assert!(!manager.has_capability(from, to, Capability::Transfer));
+        }
+    }
+    
+    #[test]
+    fn test_capability_revoke_with_hashmap() {
+        let mut manager = IpcManager::new();
+        
+        let from = Pid::new(1).unwrap();
+        let to = Pid::new(2).unwrap();
+        
+        // Grant multiple capabilities
+        manager.grant_capability(from, to, Capability::Send).unwrap();
+        manager.grant_capability(from, to, Capability::Receive).unwrap();
+        manager.grant_capability(from, to, Capability::Transfer).unwrap();
+        
+        // Verify all exist
+        assert!(manager.has_capability(from, to, Capability::Send));
+        assert!(manager.has_capability(from, to, Capability::Receive));
+        assert!(manager.has_capability(from, to, Capability::Transfer));
+        
+        // Revoke one capability
+        manager.revoke_capability(from, to, Capability::Send).unwrap();
+        
+        // Verify only that one is gone
+        assert!(!manager.has_capability(from, to, Capability::Send));
+        assert!(manager.has_capability(from, to, Capability::Receive));
+        assert!(manager.has_capability(from, to, Capability::Transfer));
+        
+        // Revoke remaining capabilities
+        manager.revoke_capability(from, to, Capability::Receive).unwrap();
+        manager.revoke_capability(from, to, Capability::Transfer).unwrap();
+        
+        // Verify all are gone
+        assert!(!manager.has_capability(from, to, Capability::Send));
+        assert!(!manager.has_capability(from, to, Capability::Receive));
+        assert!(!manager.has_capability(from, to, Capability::Transfer));
     }
 }
