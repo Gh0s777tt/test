@@ -15,6 +15,7 @@ pub mod direct_metal_vulkan;
 pub mod direct_metal_metal;
 
 // Vantis Aegis - Kernel Masquerade System
+pub mod vantis_aegis;
 pub mod vantis_aegis_nt_api;
 pub mod vantis_aegis_registry;
 pub mod vantis_aegis_syscall;
