@@ -23,6 +23,9 @@ pub mod vault_fips_tests;
 pub mod neural_scheduler;
 pub mod workload_predictor;
 pub mod neural_scheduler_integration;
+pub mod vantisfs_block_allocator;
+pub mod vantisfs_inode;
+pub mod vantisfs_ab;
 
 #[cfg(test)]
 mod tests {
