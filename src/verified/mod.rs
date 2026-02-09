@@ -26,6 +26,7 @@ pub mod ipc_inline;
 pub mod ipc_verified;
 pub mod ipc_message_integrity;
 pub mod ipc_resource_bounds;
+pub mod ipc_information_leakage;
 pub mod syscall;
 pub mod scheduler;
 pub mod scheduler_optimized;
