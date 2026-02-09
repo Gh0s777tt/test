@@ -14,16 +14,17 @@ verus = []
 kani = []
 
 # Enable hardware acceleration
-hw-accel = ["aes/aes-ni"]
+hw-accel = []
 
 # Default features
 default = ["hw-accel"]
 
 [dependencies]
 # Cryptographic implementations from RustCrypto
-aes = { version = "0.8", default-features = false, features = ["cbc"] }
+aes = { version = "0.8", default-features = false }
 twofish = { version = "0.7", default-features = false }
 serpent = { version = "0.5", default-features = false }
+cbc = { version = "0.1", default-features = false }
 
 # Block cipher traits
 cipher = { version = "0.4", default-features = false, features = ["block-padding"] }
@@ -44,6 +45,15 @@ sha2 = { version = "0.10", optional = true }
 
 [dev-dependencies]
 hex = "0.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "scheduler_benchmark"
+harness = false
+
+[[bench]]
+name = "filesystem_benchmark"
+harness = false
 
 [profile.verify]
 # Optimized profile for verification

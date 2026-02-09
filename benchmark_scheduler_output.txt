@@ -1,0 +1,15 @@
+info: syncing channel updates for 'nightly-2018-03-04-x86_64-unknown-linux-gnu'
+info: latest update on 2018-03-04, rust version 1.26.0-nightly (e026b59cf 2018-03-03)
+info: downloading component 'cargo'
+info: downloading component 'rust-docs'
+info: downloading component 'rust-std'
+info: downloading component 'rustc'
+info: installing component 'cargo'
+info: installing component 'rust-docs'
+info: installing component 'rust-std'
+info: installing component 'rustc'
+warning: unused manifest key: package.edition
+warning: unused manifest key: profile.release.strip
+warning: unused manifest key: profile.verify
+    Updating registry `https://github.com/rust-lang/crates.io-index`
+error: Package `aes v0.8.4` does not have these features: `cbc, aes-ni`
