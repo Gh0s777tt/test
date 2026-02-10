@@ -539,6 +539,80 @@ Poszukujemy **Technical Project Manager** do zarządzania rozwojem VantisOS. Bę
 
 ---
 
+# 5️⃣ Senior Kernel Developer (2 positions)
+
+## 📋 Podstawowe Informacje
+
+**Stanowisko**: Senior Kernel Developer  
+**Poziom**: Senior  
+**Wynagrodzenie**: $90,000 - $110,000/rok  
+**Lokalizacja**: Remote  
+**Pozycje**: 2  
+**Start**: Kwiecień 2025  
+
+## 🎯 Opis Stanowiska
+
+Poszukujemy **2 doświadczonych Senior Kernel Developers** do pracy nad kluczowymi komponentami VantisOS.
+
+## 💼 Zakres Obowiązków
+
+- Implementacja komponentów kernela
+- Code review i mentoring
+- Optymalizacja wydajności
+- Współpraca z verification team
+- Dokumentacja
+
+## 🎓 Wymagania
+
+**Must Have**: 5+ lat systems programming, Rust (2+ lata), concurrent programming  
+**Nice to Have**: Formal verification, microkernel experience
+
+## 💰 Benefity
+
+**Wynagrodzenie**: $90,000 - $110,000/rok + equity + remote
+
+---
+
+# 6️⃣ Kernel Developer (2 positions)
+
+**Stanowisko**: Kernel Developer  
+**Wynagrodzenie**: $70,000 - $90,000/rok  
+**Wymagania**: 3+ lat programming, Rust (1+ rok)
+
+---
+
+# 7️⃣ Formal Verification Engineer
+
+**Stanowisko**: Formal Verification Engineer  
+**Wynagrodzenie**: $80,000 - $100,000/rok  
+**Wymagania**: 3+ lat verification, Verus/Coq, Rust
+
+---
+
+# 8️⃣ Security Engineer
+
+**Stanowisko**: Security Engineer  
+**Wynagrodzenie**: $85,000 - $105,000/rok  
+**Wymagania**: 4+ lat security, cryptography, Rust
+
+---
+
+# 9️⃣ UI/UX Developer
+
+**Stanowisko**: UI/UX Developer  
+**Wynagrodzenie**: $75,000 - $95,000/rok  
+**Wymagania**: 4+ lat UI/UX, design tools, Linux desktop
+
+---
+
+# 🔟 AI/ML Engineer
+
+**Stanowisko**: AI/ML Engineer  
+**Wynagrodzenie**: $85,000 - $105,000/rok  
+**Wymagania**: 4+ lat ML/AI, PyTorch/TensorFlow, Rust
+
+---
+
 # 📊 Podsumowanie Rekrutacji
 
 ## Timeline Rekrutacji
