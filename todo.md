@@ -229,9 +229,16 @@
   - [x] Include signoff awareness in scaffold/template/transition outputs
   - [x] Validate end-to-end chain and publish Day 3 report
 
+- [x] Day 4: Signoff Review-Status Telemetry in Governance Artifacts
+  - [x] Extend dashboard output with signoff telemetry (coverage + decision distribution)
+  - [x] Extend MONPOL proposal drafts with proposal-level signoff telemetry
+  - [x] Extend transition pack with signoff telemetry and signoff-validation artifact status
+  - [x] Validate full chain and publish Day 4 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
 - Week 10 Day 3: ✅ COMPLETE (reviewer-signoff metadata validation + governance integration + evidence)
-- Week 10 Progress: 3 milestone days complete
-- Next: Week 10 Day 4 - add signoff review-status telemetry in governance artifacts
+- Week 10 Day 4: ✅ COMPLETE (dashboard/proposal/transition telemetry for signoff review status + evidence)
+- Week 10 Progress: 4 milestone days complete
+- Next: Week 10 Day 5 - add proposal-to-merge latency telemetry in governance artifacts

@@ -133,9 +133,9 @@ See [../history/](../history/) for:
 - **Running reproducibility benchmark profile**: `../scripts/benchmark_reproducibility.sh`
 - **Running CI-style benchmark gate locally**: `../scripts/run_benchmark_ci_gate.sh`
 - **Generating rolling monitor policy recommendations**: `../scripts/recommend_monitor_policy.sh`
-- **Building monitor policy drift dashboard**: `../scripts/build_monitor_policy_dashboard.sh`
-- **Generating governance-ready threshold proposal draft**: `../scripts/generate_monitor_threshold_proposal.sh`
-- **Generating Week 9 governance transition pack**: `../scripts/generate_governance_transition_pack.sh`
+- **Building monitor policy drift dashboard (includes signoff telemetry)**: `../scripts/build_monitor_policy_dashboard.sh`
+- **Generating governance-ready threshold proposal draft (includes signoff telemetry)**: `../scripts/generate_monitor_threshold_proposal.sh`
+- **Generating Week 9 governance transition pack (includes signoff review-status telemetry)**: `../scripts/generate_governance_transition_pack.sh`
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
 - **Validating MONPOL reviewer signoff metadata**: `../scripts/validate_monpol_signoff_metadata.sh`
 - **Checking monitor threshold governance gate**: `../scripts/check_monitor_threshold_governance.sh`
@@ -162,6 +162,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 1 governance toolchain transition pack**: `../WEEK_10_DAY_1_GOVERNANCE_TOOLCHAIN_TRANSITION_PACK.md`
 - **Week 10 Day 2 MONPOL changelog scaffold automation**: `../WEEK_10_DAY_2_MONPOL_CHANGELOG_SCAFFOLD_AUTOMATION.md`
 - **Week 10 Day 3 MONPOL signoff metadata validation**: `../WEEK_10_DAY_3_MONPOL_SIGNOFF_METADATA_VALIDATION.md`
+- **Week 10 Day 4 signoff review-status telemetry**: `../WEEK_10_DAY_4_SIGNOFF_REVIEW_STATUS_TELEMETRY.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

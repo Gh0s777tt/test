@@ -174,13 +174,13 @@ maintenance scripts from `scripts/`:
 # Generate rolling monitor policy recommendations from evidence
 ./scripts/recommend_monitor_policy.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark --lookback 6 --min-samples 2 --headroom-pct 15 --floor-pct 5 --ceil-pct 80
 
-# Build monitor policy drift dashboard from rolling artifacts
+# Build monitor policy drift dashboard from rolling artifacts (+ signoff telemetry)
 ./scripts/build_monitor_policy_dashboard.sh --lookback-runs 10 --lookback-recommendations 6
 
-# Generate governance-ready threshold proposal draft (MONPOL)
+# Generate governance-ready threshold proposal draft (MONPOL + signoff telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 
-# Generate Week 9 governance transition pack (md + json)
+# Generate Week 9 governance transition pack (md + json + signoff review-status telemetry)
 ./scripts/generate_governance_transition_pack.sh
 
 # Generate MONPOL changelog entry scaffold from latest proposal draft
