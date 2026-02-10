@@ -238,6 +238,19 @@ jobs:
           --lookback-runs 10
           --lookback-recommendations 6
 
+      - name: Evaluate monitor drift escalation policy
+        if: ${{ always() }}
+        run: >
+          ./scripts/evaluate_monitor_drift_escalation.sh
+          --window-runs 5
+          --watch-drift-rate-pct 20
+          --escalate-consecutive-drift 2
+          --critical-consecutive-drift 3
+          --escalate-drift-rate-pct 40
+          --critical-drift-rate-pct 60
+          --escalate-failure-rate-pct 10
+          --critical-failure-rate-pct 20
+
       - name: Generate threshold governance proposal draft
         if: ${{ always() }}
         run: >

@@ -177,6 +177,9 @@ maintenance scripts from `scripts/`:
 # Build monitor policy drift dashboard from rolling artifacts (+ signoff + proposal-to-merge latency telemetry)
 ./scripts/build_monitor_policy_dashboard.sh --lookback-runs 10 --lookback-recommendations 6
 
+# Evaluate monitor drift escalation policy from latest dashboard telemetry
+./scripts/evaluate_monitor_drift_escalation.sh --window-runs 5
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 

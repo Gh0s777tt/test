@@ -240,6 +240,28 @@ else
   warn "scripts/validate_monpol_signoff_metadata.sh is missing or not executable"
 fi
 
+if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
+  shopt -s nullglob
+  DASHBOARD_CANDIDATES=(analysis/benchmark_reproducibility/monitor_policy_dashboard_*.json)
+  shopt -u nullglob
+  if (( ${#DASHBOARD_CANDIDATES[@]} == 0 )); then
+    warn "monitor drift escalation check skipped (no dashboard artifacts)"
+  else
+    readarray -t SORTED_DASHBOARDS < <(printf '%s\n' "${DASHBOARD_CANDIDATES[@]}" | sort)
+    LATEST_DASHBOARD="${SORTED_DASHBOARDS[${#SORTED_DASHBOARDS[@]}-1]}"
+    TMP_ESCALATION_MD="$(mktemp /tmp/vantis_monitor_drift_escalation_verify_XXXXXX.md)"
+    TMP_ESCALATION_JSON="$(mktemp /tmp/vantis_monitor_drift_escalation_verify_XXXXXX.json)"
+    if ./scripts/evaluate_monitor_drift_escalation.sh --dashboard-json "$LATEST_DASHBOARD" --output "$TMP_ESCALATION_MD" --output-json "$TMP_ESCALATION_JSON" >/dev/null; then
+      pass "monitor drift escalation evaluation passed"
+    else
+      fail "monitor drift escalation evaluation failed"
+    fi
+    rm -f "$TMP_ESCALATION_MD" "$TMP_ESCALATION_JSON"
+  fi
+else
+  warn "scripts/evaluate_monitor_drift_escalation.sh is missing or not executable"
+fi
+
 if [[ -f "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md" ]]; then
   pass "monitor threshold changelog exists"
 else
@@ -250,6 +272,12 @@ if [[ -f "governance/performance/MONPOL_SIGNOFFS.json" ]]; then
   pass "MONPOL signoff metadata registry exists"
 else
   fail "MONPOL signoff metadata registry missing"
+fi
+
+if [[ -f "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md" ]]; then
+  pass "monitor drift escalation policy doc exists"
+else
+  fail "monitor drift escalation policy doc missing"
 fi
 
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"

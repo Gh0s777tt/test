@@ -117,6 +117,9 @@ Current repository integration:
   and recommendation snapshots into a drift dashboard artifact; dashboard outputs
   now include MONPOL signoff telemetry (decision distribution and approved-entry
   coverage), plus proposal-to-merge latency telemetry.
+- CI runs `scripts/evaluate_monitor_drift_escalation.sh` to classify repeated
+  monitor drift trends into escalation levels (`normal/watch/escalated/critical`)
+  using rolling run windows and policy thresholds.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -134,6 +137,8 @@ Current repository integration:
   to expose governance completeness at a glance.
 - latency telemetry highlights changelog entries that do not yet have matching
   proposal artifacts, so policy-cycle evidence gaps are visible in CI artifacts.
+- escalation policy reference:
+  - `governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md`
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -176,6 +181,20 @@ Build policy drift dashboard:
 ./scripts/build_monitor_policy_dashboard.sh \
   --lookback-runs 10 \
   --lookback-recommendations 6
+```
+
+Evaluate monitor drift escalation policy:
+
+```bash
+./scripts/evaluate_monitor_drift_escalation.sh \
+  --window-runs 5 \
+  --watch-drift-rate-pct 20 \
+  --escalate-consecutive-drift 2 \
+  --critical-consecutive-drift 3 \
+  --escalate-drift-rate-pct 40 \
+  --critical-drift-rate-pct 60 \
+  --escalate-failure-rate-pct 10 \
+  --critical-failure-rate-pct 20
 ```
 
 Generate governance-ready MONPOL proposal draft:

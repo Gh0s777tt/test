@@ -12,6 +12,7 @@ CHANGELOG_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
 PROFILE_DOC_PATH="$ROOT/docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md"
 TEMPLATE_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md"
 SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
+ESCALATION_POLICY_PATH="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md"
 
 OUTPUT_PATH=""
 OUTPUT_JSON_PATH=""
@@ -27,6 +28,8 @@ Options:
   --profile-doc <path>    Reproducibility profile doc path
   --template <path>       Proposal template path
   --signoff <path>        MONPOL signoff metadata JSON path
+  --escalation-policy <path>
+                           Monitor drift escalation policy doc path
   --output <path>         Output markdown path
   --output-json <path>    Output JSON path
   -h, --help              Show this help
@@ -57,6 +60,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --signoff)
       SIGNOFF_PATH="${2:-}"
+      shift 2
+      ;;
+    --escalation-policy)
+      ESCALATION_POLICY_PATH="${2:-}"
       shift 2
       ;;
     --output)
@@ -93,7 +100,7 @@ if [[ -z "$OUTPUT_JSON_PATH" ]]; then
   OUTPUT_JSON_PATH="${OUTPUT_PATH%.md}.json"
 fi
 
-python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$ESCALATION_POLICY_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import re
 import sys
@@ -108,8 +115,9 @@ changelog_path = Path(sys.argv[4])
 profile_doc_path = Path(sys.argv[5])
 template_path = Path(sys.argv[6])
 signoff_path = Path(sys.argv[7])
-output_path = Path(sys.argv[8])
-output_json_path = Path(sys.argv[9])
+escalation_policy_path = Path(sys.argv[8])
+output_path = Path(sys.argv[9])
+output_json_path = Path(sys.argv[10])
 
 
 def rel(path: Path) -> str:
@@ -429,6 +437,38 @@ def collect_latency_telemetry(entries, directory: Path):
     }
 
 
+def parse_escalation_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    level_counts = payload.get("level_counts", {})
+    if not isinstance(level_counts, dict):
+        level_counts = {}
+
+    rows = payload.get("rows", [])
+    if not isinstance(rows, list):
+        rows = []
+
+    return {
+        "source": rel(path),
+        "overall_level": str(payload.get("overall_level", "n/a")),
+        "level_counts": level_counts,
+        "escalated_benches": payload.get("escalated_benches", []),
+        "critical_benches": payload.get("critical_benches", []),
+        "fail_triggered": bool(payload.get("fail_triggered", False)),
+        "fail_on_level": str(payload.get("fail_on_level", "none")),
+        "rows": rows,
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "window": payload.get("window", {}),
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -440,6 +480,8 @@ latest_scaffold_md = latest("monpol_changelog_scaffold_MONPOL-*_*.md")
 latest_scaffold_json = latest("monpol_changelog_scaffold_MONPOL-*_*.json")
 latest_signoff_validation_md = latest("monpol_signoff_validation_*.md")
 latest_signoff_validation_json = latest("monpol_signoff_validation_*.json")
+latest_escalation_md = latest("monitor_drift_escalation_*.md")
+latest_escalation_json = latest("monitor_drift_escalation_*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -458,6 +500,7 @@ monpol_entries = parse_changelog_entries(changelog_text)
 signoff_records = parse_signoff_records(signoff_path)
 signoff_by_id = {record["proposal_id"]: record for record in signoff_records if record["proposal_id"]}
 latency_telemetry = collect_latency_telemetry(monpol_entries, analysis_dir)
+escalation_telemetry = parse_escalation_payload(latest_escalation_json) if latest_escalation_json else {}
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -478,6 +521,7 @@ scripts_required = [
     root / "scripts/run_benchmark_ci_gate.sh",
     root / "scripts/recommend_monitor_policy.sh",
     root / "scripts/build_monitor_policy_dashboard.sh",
+    root / "scripts/evaluate_monitor_drift_escalation.sh",
     root / "scripts/generate_monitor_threshold_proposal.sh",
     root / "scripts/scaffold_monpol_changelog_entry.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
@@ -496,6 +540,7 @@ docs_status = [
     {"path": rel(profile_doc_path), "exists": profile_doc_path.exists()},
     {"path": rel(changelog_path), "exists": changelog_path.exists()},
     {"path": rel(template_path), "exists": template_path.exists()},
+    {"path": rel(escalation_policy_path), "exists": escalation_policy_path.exists()},
     {
         "path": rel(signoff_path),
         "exists": signoff_path.exists(),
@@ -542,6 +587,16 @@ artifact_status = [
         "path": rel(latest_signoff_validation_json) if latest_signoff_validation_json else "n/a",
         "exists": bool(latest_signoff_validation_json),
     },
+    {
+        "kind": "escalation_md",
+        "path": rel(latest_escalation_md) if latest_escalation_md else "n/a",
+        "exists": bool(latest_escalation_md),
+    },
+    {
+        "kind": "escalation_json",
+        "path": rel(latest_escalation_json) if latest_escalation_json else "n/a",
+        "exists": bool(latest_escalation_json),
+    },
 ]
 
 readiness_checks = {
@@ -552,6 +607,8 @@ readiness_checks = {
     "changelog_has_entries": len(monpol_matches) > 0,
     "approved_entries_have_signoff": len(approved_missing_signoff) == 0,
     "latency_telemetry_present": latency_telemetry["summary"]["entries_evaluated"] > 0,
+    "escalation_policy_present": escalation_policy_path.exists(),
+    "escalation_artifact_present": bool(latest_escalation_json),
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -683,6 +740,43 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a | 0 |\n")
     fh.write("\n")
 
+    fh.write("## Monitor Drift Escalation Snapshot\n\n")
+    if escalation_telemetry:
+        level_counts = escalation_telemetry.get("level_counts", {})
+        escalated_benches = escalation_telemetry.get("escalated_benches", [])
+        critical_benches = escalation_telemetry.get("critical_benches", [])
+        fh.write(f"- Escalation policy doc: `{rel(escalation_policy_path)}`\n")
+        fh.write(f"- Escalation artifact: `{escalation_telemetry.get('source', 'n/a')}`\n")
+        fh.write(f"- Artifact generated at (UTC): {escalation_telemetry.get('generated_at_utc', 'n/a')}\n")
+        fh.write(f"- Overall escalation level: **{escalation_telemetry.get('overall_level', 'n/a')}**\n")
+        fh.write(
+            f"- Level counts: normal={level_counts.get('normal', 'n/a')}, "
+            f"watch={level_counts.get('watch', 'n/a')}, "
+            f"escalated={level_counts.get('escalated', 'n/a')}, "
+            f"critical={level_counts.get('critical', 'n/a')}\n"
+        )
+        fh.write(f"- Escalated benches: {len(escalated_benches)}\n")
+        fh.write(f"- Critical benches: {len(critical_benches)}\n")
+        fh.write(f"- Escalation fail trigger active: {'yes' if escalation_telemetry.get('fail_triggered') else 'no'}\n\n")
+
+        fh.write("| Benchmark | Level | Latest status | Consecutive drift | Drift rate (%) | Failure rate (%) | Required action |\n")
+        fh.write("|---|---|---|---:|---:|---:|---|\n")
+        rows = escalation_telemetry.get("rows", [])
+        if rows:
+            for row in sorted(rows, key=lambda item: item.get("bench", "")):
+                fh.write(
+                    f"| `{row.get('bench', 'n/a')}` | {row.get('level', 'n/a')} | {row.get('latest_status', 'n/a')} | "
+                    f"{row.get('consecutive_drift', 'n/a')} | {row.get('drift_rate_pct', 'n/a')} | "
+                    f"{row.get('failure_rate_pct', 'n/a')} | {row.get('required_action', 'n/a')} |\n"
+                )
+        else:
+            fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a |\n")
+        fh.write("\n")
+    else:
+        fh.write(f"- Escalation policy doc: `{rel(escalation_policy_path)}`\n")
+        fh.write("- Escalation artifact: not available\n")
+        fh.write("- Overall escalation level: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -693,7 +787,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("2. Validate scaffold quality against reviewer approval workflow.\n")
     fh.write("3. Review signoff telemetry weekly for drift and decision latency.\n")
     fh.write("4. Track policy change latency (proposal -> merge) in dashboard trends.\n")
-    fh.write("5. Define escalation policy for repeated monitor drift across releases.\n")
+    fh.write("5. Operationalize escalation policy with owner/SLA drills.\n")
     fh.write("\n")
 
 transition_json = {
@@ -720,6 +814,7 @@ transition_json = {
         "latest_signoff_record": latest_signoff_record,
     },
     "latency_telemetry": latency_telemetry,
+    "escalation_telemetry": escalation_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

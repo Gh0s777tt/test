@@ -42,6 +42,8 @@ Describe which monitor benchmarks are affected and why this proposal is needed.
 - `analysis/benchmark_reproducibility/monitor_policy_recommendations_<timestamp>.json`
 - `analysis/benchmark_reproducibility/monitor_policy_dashboard_<timestamp>.md`
 - `analysis/benchmark_reproducibility/monitor_policy_dashboard_<timestamp>.json`
+- `analysis/benchmark_reproducibility/monitor_drift_escalation_<timestamp>.md`
+- `analysis/benchmark_reproducibility/monitor_drift_escalation_<timestamp>.json`
 - latest `ci_benchmark_gate_summary_<timestamp>.md`
 - benchmark report(s) referenced by proposal
 
@@ -63,6 +65,8 @@ Summarize:
 - **False negatives impact**:
 - **Rollback approach**:
 - **Monitoring plan after merge**:
+- **Escalation level (normal/watch/escalated/critical)**:
+- **Escalation response owner + SLA**:
 
 ---
 
@@ -73,6 +77,8 @@ Summarize:
 - [ ] `docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md` updated.
 - [ ] `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md` updated with final decision.
 - [ ] `governance/performance/MONPOL_SIGNOFFS.json` updated when decision is approved.
+- [ ] Latest monitor drift escalation artifact reviewed and linked.
+- [ ] If escalation level is `escalated`/`critical`, mitigation plan and owner are explicit.
 - [ ] Evidence bundle links included and valid.
 
 ---

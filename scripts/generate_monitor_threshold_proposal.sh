@@ -10,6 +10,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
 CHANGELOG_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
 SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
+ESCALATION_JSON=""
 RECOMMENDATION_JSON=""
 DASHBOARD_JSON=""
 PROPOSAL_ID=""
@@ -25,6 +26,7 @@ Options:
   --analysis-dir <path>         Analysis directory (default: analysis/benchmark_reproducibility)
   --changelog <path>            Threshold changelog file path
   --signoff <path>              Signoff metadata JSON path
+  --escalation-json <path>      Drift escalation JSON snapshot (defaults to newest if available)
   --recommendation-json <path>  Recommendation JSON snapshot (defaults to newest)
   --dashboard-json <path>       Dashboard JSON snapshot (defaults to newest)
   --proposal-id <MONPOL-NNN>    Explicit proposal ID (default: next from changelog)
@@ -47,6 +49,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --signoff)
       SIGNOFF_PATH="${2:-}"
+      shift 2
+      ;;
+    --escalation-json)
+      ESCALATION_JSON="${2:-}"
       shift 2
       ;;
     --recommendation-json)
@@ -100,6 +106,21 @@ if [[ ! -f "$SIGNOFF_PATH" ]]; then
   exit 1
 fi
 
+if [[ -z "$ESCALATION_JSON" ]]; then
+  shopt -s nullglob
+  escalation_candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_*.json)
+  shopt -u nullglob
+  if (( ${#escalation_candidates[@]} > 0 )); then
+    readarray -t sorted_escalation < <(printf '%s\n' "${escalation_candidates[@]}" | sort)
+    ESCALATION_JSON="${sorted_escalation[${#sorted_escalation[@]}-1]}"
+  fi
+fi
+
+if [[ -n "$ESCALATION_JSON" ]] && [[ ! -f "$ESCALATION_JSON" ]]; then
+  echo "Error: escalation json not found: $ESCALATION_JSON" >&2
+  exit 1
+fi
+
 if [[ -z "$RECOMMENDATION_JSON" ]]; then
   shopt -s nullglob
   recommendation_candidates=("$ANALYSIS_DIR"/monitor_policy_recommendations_*.json)
@@ -139,7 +160,7 @@ if (( ${#BENCH_FILTERS[@]} > 0 )); then
   FILTER_CSV="$(IFS=,; echo "${BENCH_FILTERS[*]}")"
 fi
 
-python3 - "$ROOT" "$ANALYSIS_DIR" "$CHANGELOG_PATH" "$SIGNOFF_PATH" "$RECOMMENDATION_JSON" "$DASHBOARD_JSON" "$PROPOSAL_ID" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" "$FILTER_CSV" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$CHANGELOG_PATH" "$SIGNOFF_PATH" "$ESCALATION_JSON" "$RECOMMENDATION_JSON" "$DASHBOARD_JSON" "$PROPOSAL_ID" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" "$FILTER_CSV" <<'PY'
 import json
 import re
 import sys
@@ -150,12 +171,13 @@ root = Path(sys.argv[1])
 analysis_dir = Path(sys.argv[2])
 changelog_path = Path(sys.argv[3])
 signoff_path = Path(sys.argv[4])
-recommendation_path = Path(sys.argv[5])
-dashboard_path = Path(sys.argv[6])
-proposal_id_arg = sys.argv[7].strip()
-output_path_arg = sys.argv[8].strip()
-output_json_path_arg = sys.argv[9].strip()
-filter_csv = sys.argv[10]
+escalation_path_raw = sys.argv[5].strip()
+recommendation_path = Path(sys.argv[6])
+dashboard_path = Path(sys.argv[7])
+proposal_id_arg = sys.argv[8].strip()
+output_path_arg = sys.argv[9].strip()
+output_json_path_arg = sys.argv[10].strip()
+filter_csv = sys.argv[11]
 bench_filter = {entry.strip() for entry in filter_csv.split(",") if entry.strip()}
 
 
@@ -292,6 +314,21 @@ for record in normalized_signoff:
     decision = record["decision"]
     decision_counts[decision] = decision_counts.get(decision, 0) + 1
 
+escalation_path = Path(escalation_path_raw) if escalation_path_raw else None
+escalation_payload = {}
+if escalation_path and escalation_path.is_file():
+    escalation_payload = json.loads(escalation_path.read_text(encoding="utf-8"))
+
+escalation_overall_level = str(escalation_payload.get("overall_level", "n/a"))
+escalation_level_counts = escalation_payload.get("level_counts", {})
+if not isinstance(escalation_level_counts, dict):
+    escalation_level_counts = {}
+escalation_rows = escalation_payload.get("rows", [])
+if not isinstance(escalation_rows, list):
+    escalation_rows = []
+escalation_fail_triggered = bool(escalation_payload.get("fail_triggered", False))
+escalation_source = str(escalation_payload.get("dashboard_source", "n/a"))
+
 recommendations = recommendation_payload.get("recommendations", [])
 if bench_filter:
     recommendations = [item for item in recommendations if item.get("bench") in bench_filter]
@@ -388,6 +425,8 @@ evidence_files = [
     rel(recommendation_path),
     rel(dashboard_path),
 ]
+if escalation_path and escalation_path.is_file():
+    evidence_files.append(rel(escalation_path))
 if latest_recommendation:
     evidence_files.append(
         rel(root / "analysis" / "benchmark_reproducibility" / str(latest_recommendation.get("file", "")))
@@ -422,6 +461,10 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("## Inputs\n\n")
     fh.write(f"- Recommendation snapshot: `{rel(recommendation_path)}`\n")
     fh.write(f"- Dashboard snapshot: `{rel(dashboard_path)}`\n")
+    if escalation_path and escalation_path.is_file():
+        fh.write(f"- Escalation snapshot: `{rel(escalation_path)}`\n")
+    else:
+        fh.write("- Escalation snapshot: `n/a`\n")
     benches_joined = ", ".join(f"`{row['bench']}`" for row in rows)
     fh.write(f"- Benchmarks included: {benches_joined}\n\n")
 
@@ -464,6 +507,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("- [ ] Update `docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`.\n")
     fh.write(f"- [ ] Add `{proposal_id}` entry to `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`.\n")
     fh.write("- [ ] If decision is approved, add/update signoff metadata in `governance/performance/MONPOL_SIGNOFFS.json`.\n")
+    fh.write("- [ ] If escalation level is `escalated`/`critical`, include mitigation and owner plan.\n")
     fh.write(f"- [ ] Include `{proposal_id}` in PR title or body.\n")
     fh.write("- [ ] Link evidence bundle below in PR description.\n\n")
 
@@ -549,6 +593,34 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a |\n")
     fh.write("\n")
 
+    fh.write("## Drift Escalation Policy Snapshot\n\n")
+    if escalation_payload:
+        fh.write(f"- Escalation artifact: `{rel(escalation_path)}`\n")
+        fh.write(f"- Overall escalation level: **{escalation_overall_level}**\n")
+        fh.write(
+            f"- Level counts: normal={present(escalation_level_counts.get('normal'))}, "
+            f"watch={present(escalation_level_counts.get('watch'))}, "
+            f"escalated={present(escalation_level_counts.get('escalated'))}, "
+            f"critical={present(escalation_level_counts.get('critical'))}\n"
+        )
+        fh.write(f"- Escalation fail trigger active: {'yes' if escalation_fail_triggered else 'no'}\n")
+        fh.write(f"- Escalation dashboard source: `{escalation_source}`\n\n")
+        fh.write("| Benchmark | Level | Latest status | Consecutive drift | Drift rate (%) | Failure rate (%) | Required action |\n")
+        fh.write("|---|---|---|---:|---:|---:|---|\n")
+        if escalation_rows:
+            for row in sorted(escalation_rows, key=lambda item: item.get("bench", "")):
+                fh.write(
+                    f"| `{row.get('bench', 'n/a')}` | {row.get('level', 'n/a')} | {row.get('latest_status', 'n/a')} | "
+                    f"{present(row.get('consecutive_drift'))} | {present(row.get('drift_rate_pct'))} | "
+                    f"{present(row.get('failure_rate_pct'))} | {row.get('required_action', 'n/a')} |\n"
+                )
+        else:
+            fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a |\n")
+        fh.write("\n")
+    else:
+        fh.write("- Escalation artifact: not available\n")
+        fh.write("- Overall escalation level: n/a\n\n")
+
     fh.write("## Evidence Bundle Links\n\n")
     for entry in dedup_evidence:
         fh.write(f"- `{entry}`\n")
@@ -564,6 +636,7 @@ proposal_json = {
         "dashboard_json": rel(dashboard_path),
         "changelog_path": rel(changelog_path),
         "signoff_json": rel(signoff_path),
+        "escalation_json": rel(escalation_path) if escalation_path and escalation_path.is_file() else "n/a",
     },
     "bench_filter": sorted(bench_filter),
     "rows": rows,
@@ -587,6 +660,13 @@ proposal_json = {
             "age_days": current_age_days,
             "draft_files": [item["file"] for item in current_history],
         },
+    },
+    "escalation_telemetry": {
+        "source_json": rel(escalation_path) if escalation_path and escalation_path.is_file() else "n/a",
+        "overall_level": escalation_overall_level,
+        "level_counts": escalation_level_counts,
+        "rows": escalation_rows,
+        "fail_triggered": escalation_fail_triggered,
     },
 }
 output_json_path.write_text(json.dumps(proposal_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")
