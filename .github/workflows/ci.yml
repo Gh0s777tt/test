@@ -44,3 +44,8 @@ jobs:
             --no-progress
             README.md
             docs/README.md
+            docs/README_AR.md
+            docs/README_JA.md
+            docs/README_RU.md
+            docs/README_ZH.md
+            docs/security/BUG_BOUNTY.md

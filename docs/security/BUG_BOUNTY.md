@@ -390,16 +390,16 @@ gantt
 
 ### Documentation
 
-- [Security Policy](../SECURITY.md)
+- [Security Policy](../../SECURITY.MD)
 - [Threat Model](THREAT_MODEL.md)
-- [Architecture](ARCHITECTURE.md)
-- [API Documentation](api/README.md)
+- [Architecture](../ARCHITECTURE.md)
+- [API Documentation](../api/API_DOCUMENTATION.md)
 
 ### Tools
 
 - [Verus Verification](https://github.com/verus-lang/verus)
-- [Fuzzing Guide](guides/developer/fuzzing.md)
-- [Security Testing](guides/developer/security-testing.md)
+- [Formal Verification Guide](../development/FORMAL_VERIFICATION_GUIDE.md)
+- [Code Review & Optimization](../development/CODE_REVIEW_AND_OPTIMIZATION.md)
 
 ### References
 

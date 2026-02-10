@@ -1,11 +1,11 @@
 # 🌟 VANTIS OS
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](docs/SECURITY.md)
+[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](../SECURITY.MD)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/vantisCorp/VantisOS/ci.yml?branch=main)](https://github.com/vantisCorp/VantisOS/actions)
 
-> 🌍 **言語**: [English](../README.md) | [Polski](README_PL.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Español](README_ES.md) | **日本語** | [中文](README_ZH.md) | [العربية](README_AR.md) | [Русский](README_RU.md)
+> 🌍 **言語**: [English](../README.md) | [Polski](translations/README_PL.md) | [Deutsch](translations/README_DE.md) | [Français](translations/README_FR.md) | [Español](translations/README_ES.md) | **日本語** | [中文](README_ZH.md) | [العربية](README_AR.md) | [Русский](README_RU.md)
 
 ## 🎯 ビジョン
 
@@ -151,7 +151,7 @@ make qemu
 
 ## 🐛 バグ報奨金プログラム
 
-セキュリティ研究者を歓迎します！詳細については[BUG_BOUNTY.md](BUG_BOUNTY.md)をご覧ください。
+セキュリティ研究者を歓迎します！詳細については[BUG_BOUNTY.md](security/BUG_BOUNTY.md)をご覧ください。
 
 | 重大度 | 報奨金 |
 |--------|--------|
