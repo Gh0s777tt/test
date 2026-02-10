@@ -235,10 +235,17 @@
   - [x] Extend transition pack with signoff telemetry and signoff-validation artifact status
   - [x] Validate full chain and publish Day 4 report
 
+- [x] Day 5: Proposal-to-Merge Latency Telemetry
+  - [x] Add proposal-to-merge latency telemetry to monitor policy dashboard outputs
+  - [x] Add historical latency + proposal-age telemetry to MONPOL proposal drafts
+  - [x] Add latency telemetry and proposal-artifact gap visibility to transition pack outputs
+  - [x] Validate full chain and publish Day 5 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
 - Week 10 Day 3: ✅ COMPLETE (reviewer-signoff metadata validation + governance integration + evidence)
 - Week 10 Day 4: ✅ COMPLETE (dashboard/proposal/transition telemetry for signoff review status + evidence)
-- Week 10 Progress: 4 milestone days complete
-- Next: Week 10 Day 5 - add proposal-to-merge latency telemetry in governance artifacts
+- Week 10 Day 5: ✅ COMPLETE (proposal-to-merge latency telemetry + historical trend visibility + evidence)
+- Week 10 Progress: 5 milestone days complete
+- Next: Week 10 Day 6 - define escalation policy for repeated monitor drift across releases

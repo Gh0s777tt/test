@@ -116,13 +116,15 @@ Current repository integration:
 - CI runs `scripts/build_monitor_policy_dashboard.sh` to aggregate recent gate runs
   and recommendation snapshots into a drift dashboard artifact; dashboard outputs
   now include MONPOL signoff telemetry (decision distribution and approved-entry
-  coverage).
+  coverage), plus proposal-to-merge latency telemetry.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
-  telemetry.
+  telemetry; proposal output also includes historical latency summary and
+  current-proposal age telemetry.
 - CI runs `scripts/generate_governance_transition_pack.sh` to publish a packaged
   transition snapshot (toolchain components, evidence status, CI policy baseline,
-  signoff review-status telemetry) for Week 10 rollout tracking.
+  signoff review-status telemetry, proposal-to-merge latency telemetry) for Week
+  10 rollout tracking.
 - CI runs `scripts/scaffold_monpol_changelog_entry.sh` to generate a ready-to-review
   changelog entry scaffold for the latest proposal draft.
 - CI runs `scripts/validate_monpol_signoff_metadata.sh` to verify that approved
@@ -130,6 +132,8 @@ Current repository integration:
   `governance/performance/MONPOL_SIGNOFFS.json`.
 - transition pack readiness additionally tracks `approved_entries_have_signoff`
   to expose governance completeness at a glance.
+- latency telemetry highlights changelog entries that do not yet have matching
+  proposal artifacts, so policy-cycle evidence gaps are visible in CI artifacts.
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
