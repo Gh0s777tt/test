@@ -207,7 +207,10 @@ jobs:
           --strict-bench path_lookup_cache_benchmark
           --strict-threshold-pct 50
           --monitor-bench timer_queue_benchmark
+          --monitor-bench directory_entry_cache_benchmark
           --monitor-threshold-pct 25
+          --monitor-budget-seconds 240
+          --monitor-case-timeout-seconds 150
           --baseline-prefix ci_repro
 
       - name: Upload reproducibility report

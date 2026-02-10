@@ -101,9 +101,28 @@ Current repository integration:
 
 - `.github/workflows/ci.yml` includes `benchmark-reproducibility-gate`
 - gate uses `scripts/run_benchmark_ci_gate.sh` and runs two stages:
-  1. **strict**: `path_lookup_cache_benchmark` (50% spread threshold)
-  2. **monitor**: `timer_queue_benchmark` (25% spread threshold, non-blocking)
+  1. **strict**: `path_lookup_cache_benchmark` (50% spread threshold, blocking)
+  2. **monitor**: `timer_queue_benchmark` + `directory_entry_cache_benchmark`
+     (25% spread threshold, non-blocking)
+- monitor stage is budgeted by wall-clock limit (`--monitor-budget-seconds`) and
+  supports per-case timeout (`--monitor-case-timeout-seconds`) to prevent runaway
+  benchmark duration on shared runners.
 - all markdown reports are uploaded as CI artifacts.
 - strict threshold is intentionally conservative on shared runners and should be
   tightened as dedicated benchmarking infrastructure is introduced.
+
+Example CI-like command:
+
+```bash
+./scripts/run_benchmark_ci_gate.sh \
+  --runs 2 \
+  --strict-bench path_lookup_cache_benchmark \
+  --strict-threshold-pct 50 \
+  --monitor-bench timer_queue_benchmark \
+  --monitor-bench directory_entry_cache_benchmark \
+  --monitor-threshold-pct 25 \
+  --monitor-budget-seconds 240 \
+  --monitor-case-timeout-seconds 150 \
+  --baseline-prefix ci_repro
+```
 
