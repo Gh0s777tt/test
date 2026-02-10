@@ -186,6 +186,9 @@ maintenance scripts from `scripts/`:
 # Generate MONPOL changelog entry scaffold from latest proposal draft
 ./scripts/scaffold_monpol_changelog_entry.sh
 
+# Validate MONPOL reviewer signoff metadata
+./scripts/validate_monpol_signoff_metadata.sh
+
 # Validate monitor threshold governance rules (PR-aware, auto-skip outside PR payloads)
 ./scripts/check_monitor_threshold_governance.sh
 

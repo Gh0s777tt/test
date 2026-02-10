@@ -187,6 +187,8 @@ entry_lines.append(f"  - `{rel(proposal_path)}`")
 if generated_at:
     entry_lines.append(f"  - generated at: `{generated_at}`")
 entry_lines.append("- **Reviewer / Owner**: _to be assigned_")
+entry_lines.append("- **Signoff Metadata**:")
+entry_lines.append("  - add/update `governance/performance/MONPOL_SIGNOFFS.json` if decision becomes approved")
 entry_lines.append("")
 
 entry_text = "\n".join(entry_lines).rstrip() + "\n"
@@ -220,6 +222,19 @@ payload = {
     "entry_markdown": entry_text,
     "evidence_bundle": evidence_bundle,
     "row_count": len(rows),
+    "signoff_scaffold": {
+        "proposal_id": proposal_id,
+        "decision": "approved",
+        "owner": "to be assigned",
+        "approved_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+        "reviewers": [
+            {
+                "name": "Reviewer Name",
+                "role": "Role",
+                "signed_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+            }
+        ],
+    },
 }
 output_json_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

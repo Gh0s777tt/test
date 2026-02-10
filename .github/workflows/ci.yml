@@ -203,6 +203,9 @@ jobs:
       - name: Enforce monitor threshold governance
         run: ./scripts/check_monitor_threshold_governance.sh
 
+      - name: Validate MONPOL signoff metadata
+        run: ./scripts/validate_monpol_signoff_metadata.sh
+
       - name: Run benchmark reproducibility gate (strict + monitor)
         run: >
           ./scripts/run_benchmark_ci_gate.sh

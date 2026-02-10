@@ -122,6 +122,9 @@ Current repository integration:
   for Week 10 rollout tracking.
 - CI runs `scripts/scaffold_monpol_changelog_entry.sh` to generate a ready-to-review
   changelog entry scaffold for the latest proposal draft.
+- CI runs `scripts/validate_monpol_signoff_metadata.sh` to verify that approved
+  changelog decisions have matching reviewer signoff metadata in
+  `governance/performance/MONPOL_SIGNOFFS.json`.
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -184,6 +187,12 @@ Generate changelog scaffold draft for latest MONPOL proposal:
 
 ```bash
 ./scripts/scaffold_monpol_changelog_entry.sh
+```
+
+Validate reviewer signoff metadata:
+
+```bash
+./scripts/validate_monpol_signoff_metadata.sh
 ```
 
 Canonical governance template:

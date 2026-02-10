@@ -121,4 +121,66 @@ if ! rg -q "$POLICY_ID" "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md";
 fi
 pass "Policy reference found in threshold changelog"
 
+POLICY_DECISION="$(python3 - "$POLICY_ID" "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+policy_id = sys.argv[1]
+path = Path(sys.argv[2])
+text = path.read_text(encoding="utf-8")
+
+header_re = re.compile(r"^###\s+(MONPOL-\d{3})\s+\([^)]+\)\s*$", re.MULTILINE)
+headers = list(header_re.finditer(text))
+block = ""
+for idx, match in enumerate(headers):
+    if match.group(1) != policy_id:
+        continue
+    start = match.start()
+    end = headers[idx + 1].start() if idx + 1 < len(headers) else len(text)
+    block = text[start:end]
+    break
+
+if not block:
+    print("unknown")
+    raise SystemExit(0)
+
+decision_match = re.search(r"^- \*\*Decision\*\*:\s*(.+)$", block, re.MULTILINE)
+if not decision_match:
+    print("unknown")
+    raise SystemExit(0)
+
+value = decision_match.group(1).strip().lower()
+if "approved" in value:
+    print("approved")
+elif "reject" in value:
+    print("rejected")
+elif "withdraw" in value:
+    print("withdrawn")
+elif "defer" in value:
+    print("deferred")
+elif "pending" in value:
+    print("pending")
+else:
+    print("unknown")
+PY
+)"
+info "Detected changelog decision for ${POLICY_ID}: ${POLICY_DECISION}"
+
+if [[ "$POLICY_DECISION" == "approved" ]]; then
+  if ! echo "$CHANGED_FILES" | rg -q '^governance/performance/MONPOL_SIGNOFFS\.json$'; then
+    fail "Approved policy decision requires governance/performance/MONPOL_SIGNOFFS.json update in this PR."
+  fi
+  pass "Signoff metadata registry is included in changed files"
+
+  if [[ ! -x "scripts/validate_monpol_signoff_metadata.sh" ]]; then
+    fail "scripts/validate_monpol_signoff_metadata.sh is required for approved policy decisions."
+  fi
+  if ./scripts/validate_monpol_signoff_metadata.sh >/dev/null; then
+    pass "MONPOL signoff metadata validation passed for approved decision"
+  else
+    fail "MONPOL signoff metadata validation failed for approved decision"
+  fi
+fi
+
 echo "Monitor threshold governance gate passed."

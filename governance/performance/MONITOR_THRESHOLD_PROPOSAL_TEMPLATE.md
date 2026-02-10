@@ -72,5 +72,29 @@ Summarize:
 - [ ] `.github/workflows/ci.yml` monitor thresholds updated.
 - [ ] `docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md` updated.
 - [ ] `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md` updated with final decision.
+- [ ] `governance/performance/MONPOL_SIGNOFFS.json` updated when decision is approved.
 - [ ] Evidence bundle links included and valid.
+
+---
+
+## Reviewer Signoff Metadata (required for approved decisions)
+
+Add/update corresponding entry in `governance/performance/MONPOL_SIGNOFFS.json`:
+
+```json
+{
+  "proposal_id": "MONPOL-XXX",
+  "decision": "approved",
+  "owner": "Team or owner name",
+  "approved_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "reviewers": [
+    {
+      "name": "Reviewer Name",
+      "role": "Role",
+      "signed_at_utc": "YYYY-MM-DDTHH:MM:SSZ"
+    }
+  ],
+  "notes": "Optional notes"
+}
+```
 

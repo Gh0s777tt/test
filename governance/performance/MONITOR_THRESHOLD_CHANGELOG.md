@@ -11,6 +11,10 @@ Each policy change entry should include:
 5. Evidence references
 6. Reviewer/owner
 
+Approved decisions must also have corresponding reviewer signoff metadata in:
+
+- `governance/performance/MONPOL_SIGNOFFS.json`
+
 ---
 
 ## Entries

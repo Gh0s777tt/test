@@ -137,6 +137,7 @@ See [../history/](../history/) for:
 - **Generating governance-ready threshold proposal draft**: `../scripts/generate_monitor_threshold_proposal.sh`
 - **Generating Week 9 governance transition pack**: `../scripts/generate_governance_transition_pack.sh`
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
+- **Validating MONPOL reviewer signoff metadata**: `../scripts/validate_monpol_signoff_metadata.sh`
 - **Checking monitor threshold governance gate**: `../scripts/check_monitor_threshold_governance.sh`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Benchmark reproducibility guide**: `development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`
@@ -162,6 +163,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 2 MONPOL changelog scaffold automation**: `../WEEK_10_DAY_2_MONPOL_CHANGELOG_SCAFFOLD_AUTOMATION.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
+- **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`
 
 ---
 

@@ -208,6 +208,7 @@ scripts_required = [
     root / "scripts/build_monitor_policy_dashboard.sh",
     root / "scripts/generate_monitor_threshold_proposal.sh",
     root / "scripts/scaffold_monpol_changelog_entry.sh",
+    root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
 script_status = [
@@ -223,6 +224,10 @@ docs_status = [
     {"path": rel(profile_doc_path), "exists": profile_doc_path.exists()},
     {"path": rel(changelog_path), "exists": changelog_path.exists()},
     {"path": rel(template_path), "exists": template_path.exists()},
+    {
+        "path": rel(root / "governance/performance/MONPOL_SIGNOFFS.json"),
+        "exists": (root / "governance/performance/MONPOL_SIGNOFFS.json").exists(),
+    },
 ]
 
 artifact_status = [

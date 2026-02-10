@@ -230,10 +230,26 @@ else
   warn "scripts/check_monitor_threshold_governance.sh is missing or not executable"
 fi
 
+if [[ -x "scripts/validate_monpol_signoff_metadata.sh" ]]; then
+  if ./scripts/validate_monpol_signoff_metadata.sh >/dev/null; then
+    pass "MONPOL signoff metadata validation passed"
+  else
+    fail "MONPOL signoff metadata validation failed"
+  fi
+else
+  warn "scripts/validate_monpol_signoff_metadata.sh is missing or not executable"
+fi
+
 if [[ -f "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md" ]]; then
   pass "monitor threshold changelog exists"
 else
   fail "monitor threshold changelog missing"
+fi
+
+if [[ -f "governance/performance/MONPOL_SIGNOFFS.json" ]]; then
+  pass "MONPOL signoff metadata registry exists"
+else
+  fail "MONPOL signoff metadata registry missing"
 fi
 
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"
