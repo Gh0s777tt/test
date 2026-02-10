@@ -1,0 +1,30 @@
+{
+  "applied_to_changelog": false,
+  "entry_markdown": "### MONPOL-002 (2026-02-10)\n\n- **Scope**: Threshold policy decision scaffold generated from MONPOL proposal draft.\n- **Decision**: _pending reviewer approval_\n- **Changes**:\n  - `directory_entry_cache_benchmark`: `25.0%` -> `18.24%` (tighten)\n- **Rationale**:\n  - `directory_entry_cache_benchmark`: action `tighten`, drift reports `0`, drift rate `0.0%`.\n  - `timer_queue_benchmark`: action `hold`, drift reports `2`, drift rate `50.0%`.\n- **Evidence**:\n  - `analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json`\n  - `analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T235640Z.json`\n  - `analysis/benchmark_reproducibility/monitor_drift_escalation_20260210T235641Z.json`\n  - `analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md`\n  - `analysis/benchmark_reproducibility/directory_entry_cache_benchmark_20260210T143955Z.md`\n  - `analysis/benchmark_reproducibility/timer_queue_benchmark_20260210T143840Z.md`\n- **Proposal Source**:\n  - `analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260210T235641Z.json`\n  - generated at: `2026-02-10T23:56:41Z`\n- **Reviewer / Owner**: _to be assigned_\n- **Signoff Metadata**:\n  - add/update `governance/performance/MONPOL_SIGNOFFS.json` if decision becomes approved\n",
+  "evidence_bundle": [
+    "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json",
+    "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T235640Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_escalation_20260210T235641Z.json",
+    "analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md",
+    "analysis/benchmark_reproducibility/directory_entry_cache_benchmark_20260210T143955Z.md",
+    "analysis/benchmark_reproducibility/timer_queue_benchmark_20260210T143840Z.md"
+  ],
+  "generated_at_utc": "2026-02-10T23:56:41Z",
+  "proposal_id": "MONPOL-002",
+  "row_count": 2,
+  "signoff_scaffold": {
+    "approved_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+    "decision": "approved",
+    "owner": "to be assigned",
+    "proposal_id": "MONPOL-002",
+    "reviewers": [
+      {
+        "name": "Reviewer Name",
+        "role": "Role",
+        "signed_at_utc": "YYYY-MM-DDTHH:MM:SSZ"
+      }
+    ]
+  },
+  "source_proposal_json": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260210T235641Z.json",
+  "target_changelog": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
+}
