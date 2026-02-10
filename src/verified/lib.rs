@@ -62,3 +62,7 @@ pub mod vantis_aegis;
 pub mod vantis_aegis_nt_api;
 pub mod vantis_aegis_registry;
 pub mod vantis_aegis_syscall;
+
+// Path lookup caching
+pub mod path_cache;
+pub mod syscall_path_integration;
