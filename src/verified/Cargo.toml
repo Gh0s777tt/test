@@ -119,3 +119,8 @@ flags = ["--enable-unstable", "--cbmc-args", "--bounds-check", "--pointer-check"
 name = "syscall_performance_simple"
 harness = false
 path = "../../benches/syscall_performance_simple.rs"
+
+[[bench]]
+name = "path_lookup_cache_benchmark"
+harness = false
+path = "../../benches/path_lookup_cache_benchmark.rs"
