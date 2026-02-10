@@ -470,7 +470,10 @@ mod tests {
         let ciphertext_cascade = vault_cascade.encrypt(plaintext).unwrap();
         
         // Single layer (AES only) for comparison
-        let ciphertext_aes = encrypt_aes256_cbc(vault_cascade.keys.as_ref().unwrap().aes_key(), plaintext).unwrap();
+        let ciphertext_aes = encrypt_aes256_cbc(
+            vault_cascade.keys.as_ref().unwrap().aes_key().as_bytes(),
+            plaintext,
+        ).unwrap();
         
         // Cascade should produce different (and longer) ciphertext
         assert_ne!(ciphertext_cascade, ciphertext_aes);

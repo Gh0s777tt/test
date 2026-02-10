@@ -377,7 +377,7 @@ mod tests {
     fn test_different_from_aes() {
         // Verify that Twofish produces different output than AES
         // (This is a sanity check for algorithm diversity)
-        use crate::verified::vault_aes;
+        use crate::vault_aes;
         
         let key = [0x42u8; 32];
         let iv = [0x01u8; 16];

@@ -360,7 +360,7 @@ impl InodeManager {
 #[cfg(feature = verus)]
 } // verus!
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

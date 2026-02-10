@@ -403,8 +403,8 @@ mod tests {
     fn test_different_from_aes_and_twofish() {
         // Verify that Serpent produces different output than AES and Twofish
         // (This is a sanity check for algorithm diversity)
-        use crate::verified::vault_aes;
-        use crate::verified::vault_twofish;
+        use crate::vault_aes;
+        use crate::vault_twofish;
         
         let key = [0x42u8; 32];
         let iv = [0x01u8; 16];

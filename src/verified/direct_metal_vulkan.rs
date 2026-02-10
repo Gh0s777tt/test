@@ -765,7 +765,7 @@ mod tests {
         backend.initialize(&config).unwrap();
         
         let device_id = backend.create_device(0).unwrap();
-        assert_eq!(device_id.0, 1);
+        assert_eq!(device_id, 1);
     }
     
     #[test]
@@ -779,7 +779,7 @@ mod tests {
             .allocate_memory(device_id, 1024 * 1024, MemoryType::DeviceLocal)
             .unwrap();
         
-        assert_eq!(memory_id.0, 1);
+        assert_eq!(memory_id, 1);
     }
     
     #[test]

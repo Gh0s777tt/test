@@ -322,6 +322,7 @@ impl Default for NeuralSchedulerIntegration {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::workload_predictor::WorkloadPattern;
 
     #[test]
     fn test_integration_creation() {
