@@ -109,6 +109,11 @@ strip = true
 # Kani configuration
 [package.metadata.kani]
 flags = ["--enable-unstable", "--cbmc-args", "--bounds-check", "--pointer-check"]
+
+# Lints configuration
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)', 'cfg(verus)'] }
+
 [[bench]]
 name = "syscall_performance_simple"
 harness = false

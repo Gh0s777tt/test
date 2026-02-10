@@ -271,7 +271,7 @@ impl VantisVault {
     /// 
     /// Uses AES-256-CBC with PKCS#7 padding and random IV.
     /// See vault_aes.rs for implementation details.
-    fn encrypt_aes(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+    fn encrypt_aes(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
         // In production, this would call:
         // super::vault_aes::encrypt_aes256_cbc(data, key)
         
@@ -280,7 +280,7 @@ impl VantisVault {
     }
     
     /// AES-256 decryption
-    fn decrypt_aes(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+    fn decrypt_aes(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
         // In production, this would call:
         // super::vault_aes::decrypt_aes256_cbc(data, key)
         
@@ -291,7 +291,7 @@ impl VantisVault {
     /// 
     /// Uses Twofish-256-CBC with PKCS#7 padding and random IV.
     /// See vault_twofish.rs for implementation details.
-    fn encrypt_twofish(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+    fn encrypt_twofish(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
         // In production, this would call:
         // super::vault_twofish::encrypt_twofish256_cbc(data, key)
         
@@ -299,7 +299,7 @@ impl VantisVault {
     }
     
     /// Twofish-256 decryption
-    fn decrypt_twofish(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+    fn decrypt_twofish(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
         // In production, this would call:
         // super::vault_twofish::decrypt_twofish256_cbc(data, key)
         
@@ -310,7 +310,7 @@ impl VantisVault {
     /// 
     /// Uses Serpent-256-CBC with PKCS#7 padding and random IV.
     /// See vault_serpent.rs for implementation details.
-    fn encrypt_serpent(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+    fn encrypt_serpent(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
         // In production, this would call:
         // super::vault_serpent::encrypt_serpent256_cbc(data, key)
         
@@ -318,7 +318,7 @@ impl VantisVault {
     }
     
     /// Serpent-256 decryption
-    fn decrypt_serpent(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+    fn decrypt_serpent(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
         // In production, this would call:
         // super::vault_serpent::decrypt_serpent256_cbc(data, key)
         
