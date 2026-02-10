@@ -9,7 +9,7 @@ mod tests {
 
     #[test]
     fn test_compositor_draws_window_pixels() {
-        let mut storage = vec![0u32; 64].into_boxed_slice();
+        let storage = vec![0u32; 64].into_boxed_slice();
         let fb_mem: &'static mut [u32] = Box::leak(storage);
         let mut fb = Framebuffer {
             width: 8,

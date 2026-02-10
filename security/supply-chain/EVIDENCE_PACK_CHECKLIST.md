@@ -10,6 +10,18 @@ This checklist defines the minimum evidence required for a release candidate.
 - [ ] `security`: `cargo check --locked` passed
 - [ ] `security`: `cargo test --locked` passed
 - [ ] `security`: `cargo clippy --locked -- -D warnings` passed
+- [ ] `cortex`: `cargo check --locked` passed
+- [ ] `cortex`: `cargo test --locked` passed
+- [ ] `cortex`: `cargo clippy --locked -- -D warnings` passed
+- [ ] `cytadela`: `cargo check --locked` passed
+- [ ] `cytadela`: `cargo test --locked` passed
+- [ ] `cytadela`: `cargo clippy --locked -- -D warnings` passed
+- [ ] `horizon`: `cargo check --locked` passed
+- [ ] `horizon`: `cargo test --locked` passed
+- [ ] `horizon`: `cargo clippy --locked -- -D warnings` passed
+- [ ] `store`: `cargo check --locked` passed
+- [ ] `store`: `cargo test --locked` passed
+- [ ] `store`: `cargo clippy --locked -- -D warnings` passed
 
 ## 2. Provenance and signatures
 
@@ -31,6 +43,8 @@ This checklist defines the minimum evidence required for a release candidate.
 
 ## 4. Governance and traceability
 
+- [ ] `./scripts/check_traceability.sh` passed
+- [ ] `analysis/EVIDENCE_PACK.md` generated (`./scripts/generate_evidence_pack.sh`)
 - [ ] Security-impacting changes include traceability reference
 - [ ] Threat model reviewed for new attack surface
 - [ ] Release notes include security-relevant deltas
