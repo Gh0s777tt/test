@@ -17,6 +17,33 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
+      - name: Require successful provenance verification for release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          head_sha="$(git rev-parse HEAD)"
+          echo "Release commit SHA: ${head_sha}"
+
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/verification.yml/runs?per_page=100&status=completed" \
+            > verification-runs.json
+
+          python3 - "$head_sha" <<'PY'
+          import json
+          import sys
+
+          target_sha = sys.argv[1]
+          with open("verification-runs.json", "r", encoding="utf-8") as fh:
+              data = json.load(fh)
+          for run in data.get("workflow_runs", []):
+              if run.get("head_sha") == target_sha and run.get("conclusion") == "success":
+                  print(f"Found successful Verify Provenance run: {run.get('html_url')}")
+                  raise SystemExit(0)
+          raise SystemExit(
+              "No successful 'Verify Provenance' workflow run found for release commit."
+          )
+          PY
+
       - name: Build source archive and digest
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
