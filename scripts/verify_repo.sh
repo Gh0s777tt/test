@@ -182,6 +182,24 @@ run_optional_crate_checks "cytadela" "cytadela crate"
 run_optional_crate_checks "horizon" "horizon crate"
 run_optional_crate_checks "store" "store crate"
 
+if [[ -f "store/Cargo.toml" ]]; then
+  if [[ -f "store/manifest.schema.json" ]]; then
+    pass "store manifest schema exists"
+    if python3 - <<'PY' >/dev/null 2>&1
+import json
+from pathlib import Path
+json.loads(Path("store/manifest.schema.json").read_text(encoding="utf-8"))
+PY
+    then
+      pass "store manifest schema is valid JSON"
+    else
+      fail "store manifest schema is invalid JSON"
+    fi
+  else
+    fail "store manifest schema missing"
+  fi
+fi
+
 if [[ -x "scripts/check_traceability.sh" ]]; then
   if ./scripts/check_traceability.sh >/dev/null; then
     pass "traceability check passed"

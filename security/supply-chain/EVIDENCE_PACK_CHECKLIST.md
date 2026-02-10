@@ -46,6 +46,7 @@ This checklist defines the minimum evidence required for a release candidate.
 - [ ] `./scripts/check_traceability.sh` passed
 - [ ] `./scripts/check_requirement_ids.sh` passed (or skipped for non-critical PR scope)
 - [ ] `analysis/EVIDENCE_PACK.md` generated (`./scripts/generate_evidence_pack.sh`)
+- [ ] Store artifacts validated against manifest (`store/verify.rs`)
 - [ ] Security-impacting changes include traceability reference
 - [ ] Threat model reviewed for new attack surface
 - [ ] Release notes include security-relevant deltas

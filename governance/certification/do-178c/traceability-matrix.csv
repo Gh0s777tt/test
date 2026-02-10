@@ -7,3 +7,4 @@ HLR-005,LLR-003,src/verified/vault.rs,Negative Testing + KAT
 HLR-006,LLR-006,src/verified/process.rs,Code Review + Unit Test
 HLR-007,LLR-007,security/panic_protocol.rs,Fault Injection Simulation
 HLR-008,LLR-008,ALL,Static Analysis
+HLR-009,LLR-009,store/verify.rs,Unit Test + Static Analysis

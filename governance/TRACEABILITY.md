@@ -9,3 +9,4 @@
 | REQ-SEC-005 | Supply chain signing | .github/workflows/release.yml | signed builds |
 | REQ-SEC-006 | Provenance generation | .github/workflows/provenance.yml | provenance bundle artifact |
 | REQ-SEC-007 | Provenance verification | .github/workflows/verification.yml | signature + digest verification |
+| REQ-SEC-008 | Store package integrity and manifest validation | store/verify.rs | store crate unit tests |

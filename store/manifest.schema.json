@@ -1,10 +1,33 @@
 {
-  "name": "string",
-  "version": "string",
-  "hash": "sha256",
-  "permissions": {
-    "filesystem": false,
-    "network": false,
-    "devices": false
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantis.os/schema/store/manifest.schema.json",
+  "title": "Vantis Store Package Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "version", "hash", "permissions"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filesystem", "network", "devices"],
+      "properties": {
+        "filesystem": { "type": "boolean" },
+        "network": { "type": "boolean" },
+        "devices": { "type": "boolean" }
+      }
+    }
   }
 }

@@ -128,6 +128,7 @@ See [../history/](../history/) for:
 - **Checking traceability**: `../scripts/check_traceability.sh`
 - **Enforcing requirement IDs**: `../scripts/check_requirement_ids.sh`
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
+- **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 
 ---
 

@@ -150,6 +150,9 @@ maintenance scripts from `scripts/`:
 # Generate evidence pack snapshot (use --full for tests)
 ./scripts/generate_evidence_pack.sh
 
+# Validate store manifest verifier and package integrity checks
+(cd store && cargo test --locked)
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```
