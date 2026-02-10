@@ -174,7 +174,12 @@ impl FdTable {
     /// Allocate new file descriptor
     fn alloc_fd(&mut self, entry: FdEntry) -> AdvOpResult<FileDescriptor> {
         let start = self.next_fd.max(FD_RESERVED_COUNT as FileDescriptor) as usize;
-        if let Some(fd) = self.find_next_free_fd(start) {
+        // POSIX-like behavior: prefer the lowest available descriptor.
+        let candidate = self
+            .find_free_in_range(FD_RESERVED_COUNT, start)
+            .or_else(|| self.find_free_in_range(start, self.entries.len()));
+
+        if let Some(fd) = candidate {
             self.entries[fd] = Some(entry);
             self.mark_fd_used(fd, true);
             self.next_fd = ((fd + 1) % self.entries.len()) as FileDescriptor;
@@ -216,11 +221,6 @@ impl FdTable {
         } else {
             bitmap[word] &= !mask;
         }
-    }
-
-    fn find_next_free_fd(&self, start: usize) -> Option<usize> {
-        self.find_free_in_range(start, self.entries.len())
-            .or_else(|| self.find_free_in_range(FD_RESERVED_COUNT, start))
     }
 
     fn find_free_in_range(&self, start: usize, end: usize) -> Option<usize> {
