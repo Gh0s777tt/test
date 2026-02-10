@@ -149,18 +149,17 @@ impl Default for CachedFilesystem {
 }
 
 /// Global cached filesystem instance
-static mut CACHED_FS: Option<CachedFilesystem> = None;
+use std::sync::OnceLock;
+static CACHED_FS: OnceLock<CachedFilesystem> = OnceLock::new();
 
 /// Initialize the global cached filesystem
 pub fn init_cached_filesystem() {
-    unsafe {
-        CACHED_FS = Some(CachedFilesystem::new());
-    }
+    CACHED_FS.get_or_init(|| CachedFilesystem::new());
 }
 
 /// Get the global cached filesystem instance
 pub fn get_cached_filesystem() -> Option<&'static CachedFilesystem> {
-    unsafe { CACHED_FS.as_ref() }
+    CACHED_FS.get()
 }
 
 #[cfg(all(test, feature = "verus"))]

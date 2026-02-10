@@ -18,7 +18,7 @@
 //! information is used. This is a clean-room implementation for compatibility
 //! purposes only.
 
-use std::sync::{Arc, Mutex, Once};
+use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// NT API error types
@@ -153,15 +153,10 @@ impl NtApiEmulator {
     
     /// Get the global NT API emulator instance
     pub fn instance() -> &'static NtApiEmulator {
-        static mut INSTANCE: Option<NtApiEmulator> = None;
-        static ONCE: Once = Once::new();
+        use std::sync::OnceLock;
+        static INSTANCE: OnceLock<NtApiEmulator> = OnceLock::new();
         
-        unsafe {
-            ONCE.call_once(|| {
-                INSTANCE = Some(NtApiEmulator::new());
-            });
-            INSTANCE.as_ref().unwrap()
-        }
+        INSTANCE.get_or_init(|| NtApiEmulator::new())
     }
     
     /// Create system basic information
