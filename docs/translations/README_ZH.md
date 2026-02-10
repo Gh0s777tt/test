@@ -1,8 +1,8 @@
 # 🌟 VANTIS OS
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](docs/SECURITY.md)
+[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](../../SECURITY.MD)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/vantisCorp/VantisOS/ci.yml?branch=main)](https://github.com/vantisCorp/VantisOS/actions)
 
 > 🌍 **语言**: [English](../README.md) | [Polski](README_PL.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Español](README_ES.md) | [日本語](README_JA.md) | **中文** | [العربية](README_AR.md) | [Русский](README_RU.md)
@@ -139,7 +139,7 @@ make qemu
 
 ## 🤝 贡献
 
-我们欢迎贡献！请查看 [CONTRIBUTING.md](../CONTRIBUTING.md) 了解详情。
+我们欢迎贡献！请查看 [CONTRIBUTING.md](../../CONTRIBUTING.md) 了解详情。
 
 ### 如何贡献
 
@@ -151,7 +151,7 @@ make qemu
 
 ## 🐛 漏洞赏金计划
 
-欢迎安全研究人员！查看 [BUG_BOUNTY.md](BUG_BOUNTY.md) 了解详情。
+欢迎安全研究人员！查看 [BUG_BOUNTY.md](../security/BUG_BOUNTY.md) 了解详情。
 
 | 严重程度 | 赏金 |
 |---------|------|
@@ -162,7 +162,7 @@ make qemu
 
 ## 📜 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](../LICENSE) 文件。
+本项目采用 MIT 许可证 - 详见 [LICENSE](../../LICENSE) 文件。
 
 ## 🌟 社区
 

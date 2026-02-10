@@ -1,8 +1,8 @@
 # 🌟 VANTIS OS
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](docs/SECURITY.md)
+[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](../../SECURITY.MD)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/vantisCorp/VantisOS/ci.yml?branch=main)](https://github.com/vantisCorp/VantisOS/actions)
 
 > 🌍 **Языки**: [English](../README.md) | [Polski](README_PL.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Español](README_ES.md) | [日本語](README_JA.md) | [中文](README_ZH.md) | [العربية](README_AR.md) | **Русский**
@@ -141,7 +141,7 @@ make qemu
 
 ## 🤝 Вклад в проект
 
-Мы приветствуем вклад! См. [CONTRIBUTING.md](../CONTRIBUTING.md) для деталей.
+Мы приветствуем вклад! См. [CONTRIBUTING.md](../../CONTRIBUTING.md) для деталей.
 
 ### Как внести вклад
 
@@ -153,7 +153,7 @@ make qemu
 
 ## 🐛 Программа вознаграждений за ошибки
 
-Приветствуем исследователей безопасности! См. [BUG_BOUNTY.md](BUG_BOUNTY.md) для деталей.
+Приветствуем исследователей безопасности! См. [BUG_BOUNTY.md](../security/BUG_BOUNTY.md) для деталей.
 
 | Серьезность | Вознаграждение |
 |-------------|----------------|
@@ -164,7 +164,7 @@ make qemu
 
 ## 📜 Лицензия
 
-Этот проект лицензирован под лицензией MIT - см. файл [LICENSE](../LICENSE) для деталей.
+Этот проект лицензирован под лицензией MIT - см. файл [LICENSE](../../LICENSE) для деталей.
 
 ## 🌟 Сообщество
 

@@ -21,10 +21,10 @@ lang: pl
   <a href="https://github.com/vantisCorp/VantisOS/releases">
     <img src="https://img.shields.io/github/v/release/vantisCorp/VantisOS?style=for-the-badge&logo=rust&logoColor=white&label=WERSJA&color=orange" />
   </a>
-  <a href="LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/LICENCJA-MIT-red?style=for-the-badge&logo=law&logoColor=white" />
   </a>
-  <a href="SECURITY.md">
+  <a href="../../SECURITY.MD">
     <img src="https://img.shields.io/badge/BEZPIECZEŃSTWO-EAL7%2B-blue?style=for-the-badge&logo=security&logoColor=white" />
   </a>
 

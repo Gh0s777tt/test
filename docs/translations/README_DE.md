@@ -21,10 +21,10 @@ lang: de
   <a href="https://github.com/vantisCorp/VantisOS/releases">
     <img src="https://img.shields.io/github/v/release/vantisCorp/VantisOS?style=for-the-badge&logo=rust&logoColor=white&label=VERSION&color=orange" />
   </a>
-  <a href="LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/LIZENZ-MIT-red?style=for-the-badge&logo=law&logoColor=white" />
   </a>
-  <a href="SECURITY.md">
+  <a href="../../SECURITY.MD">
     <img src="https://img.shields.io/badge/SICHERHEIT-EAL7%2B-blue?style=for-the-badge&logo=security&logoColor=white" />
   </a>
 
@@ -39,10 +39,10 @@ lang: de
   [**🇵🇱 POLSKI**](README_PL.md) &nbsp;|&nbsp; 
   [**🇩🇪 DEUTSCH**](README_DE.md) &nbsp;|&nbsp; 
   [**🇫🇷 FRANÇAIS**](README_FR.md) &nbsp;|&nbsp; 
-  [**🇨🇳 中文**](README_CN.md) <br/>
-  [**🇯🇵 日本語**](README_JP.md) &nbsp;|&nbsp; 
-  [**🇮🇹 ITALIANO**](README_IT.md) &nbsp;|&nbsp; 
-  [**🇰🇷 한국어**](README_KR.md)
+  [**🇨🇳 中文**](README_ZH.md) <br/>
+  [**🇯🇵 日本語**](README_JA.md) &nbsp;|&nbsp; 
+  [**🇸🇦 العربية**](README_AR.md) &nbsp;|&nbsp; 
+  [**🇷🇺 РУССКИЙ**](README_RU.md)
 </div>
 
 ---
@@ -407,7 +407,7 @@ make run
 3. Update-Profil wählen
 4. Bestätigen und 3 Sekunden auf Neustart warten
 
-**Details:** [docs/MOBILE_UPDATE_GUIDE.md](MOBILE_UPDATE_GUIDE.md)
+**Details:** [docs/MOBILE_UPDATE_GUIDE.md](../MOBILE_UPDATE_GUIDE.md)
 
 ---
 
@@ -415,26 +415,26 @@ make run
 
 ### Für Benutzer
 
-- 📘 [Benutzerhandbuch](docs/guides/user/getting-started.md)
-- 🔧 [Installation und Konfiguration](docs/INSTALLATION.md)
-- ❓ [FAQ - Häufig gestellte Fragen](docs/FAQ.md)
-- 🎮 [Gaming auf VANTIS OS](docs/GAMING.md)
-- 🔒 [Sicherheitshandbuch](docs/SECURITY.md)
+- 📘 [Benutzerhandbuch](../README.md)
+- 🔧 [Installation und Konfiguration](../operations/INSTALLATION.md)
+- ❓ [FAQ - Häufig gestellte Fragen](../README.md)
+- 🎮 [Gaming auf VANTIS OS](../../README.md)
+- 🔒 [Sicherheitshandbuch](../../SECURITY.MD)
 
 ### Für Entwickler
 
-- 🏗️ [Systemarchitektur](docs/ARCHITECTURE.md)
-- 📖 [API-Dokumentation](docs/api/README.md)
-- 🔨 [Build-Anleitung](docs/guides/developer/building.md)
-- 🧪 [Testen](docs/guides/developer/testing.md)
-- 🤝 [Beitragen](CONTRIBUTING.md)
+- 🏗️ [Systemarchitektur](../ARCHITECTURE.md)
+- 📖 [API-Dokumentation](../api/API_DOCUMENTATION.md)
+- 🔨 [Build-Anleitung](../development/DEVELOPER_ONBOARDING.md)
+- 🧪 [Testen](../development/FORMAL_VERIFICATION_GUIDE.md)
+- 🤝 [Beitragen](../../CONTRIBUTING.md)
 
 ### Für Administratoren
 
-- 🖥️ [Server-Installation](docs/guides/admin/server-install.md)
-- ⚙️ [Erweiterte Konfiguration](docs/guides/admin/configuration.md)
-- 🔐 [Sicherheitshärtung](docs/guides/admin/security-hardening.md)
-- 📊 [Überwachung und Diagnose](docs/guides/admin/monitoring.md)
+- 🖥️ [Server-Installation](../operations/INSTALLATION.md)
+- ⚙️ [Erweiterte Konfiguration](../operations/DEPLOYMENT_INSTRUCTIONS.md)
+- 🔐 [Sicherheitshärtung](../security/THREAT_MODEL.md)
+- 📊 [Überwachung und Diagnose](../development/PROGRESS_REPORT.md)
 
 ---
 
@@ -477,7 +477,7 @@ graph LR
 
 </div>
 
-**Details:** [CONTRIBUTING.md](CONTRIBUTING.md)
+**Details:** [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ---
 
@@ -560,7 +560,7 @@ Interessiert an Unternehmens-Sponsoring? Kontakt: sponsor@vantis.os
 
 VANTIS OS ist unter der **MIT-Lizenz** lizenziert.
 
-**Details:** [LICENSE](../LICENSE)
+**Details:** [LICENSE](../../LICENSE)
 
 ---
 
@@ -606,7 +606,7 @@ Dank an diese großartigen Projekte:
 - [ ] Neuronale Netzwerkbeschleunigung
 - [ ] Erweiterte KI-Funktionen
 
-**Details:** [docs/ROADMAP.md](docs/ROADMAP.md)
+**Details:** [docs/ROADMAP.md](../../ROADMAP_2026_2027.md)
 
 ---
 

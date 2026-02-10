@@ -1,8 +1,8 @@
 # 🌟 VANTIS OS
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](docs/SECURITY.md)
+[![Security](https://img.shields.io/badge/security-EAL7%2B-green.svg)](../../SECURITY.MD)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/vantisCorp/VantisOS/ci.yml?branch=main)](https://github.com/vantisCorp/VantisOS/actions)
 
 > 🌍 **اللغات**: [English](../README.md) | [Polski](README_PL.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Español](README_ES.md) | [日本語](README_JA.md) | [中文](README_ZH.md) | **العربية** | [Русский](README_RU.md)
@@ -141,7 +141,7 @@ make qemu
 
 ## 🤝 المساهمة
 
-نرحب بالمساهمات! راجع [CONTRIBUTING.md](../CONTRIBUTING.md) للتفاصيل.
+نرحب بالمساهمات! راجع [CONTRIBUTING.md](../../CONTRIBUTING.md) للتفاصيل.
 
 ### كيفية المساهمة
 
@@ -153,7 +153,7 @@ make qemu
 
 ## 🐛 برنامج مكافآت الأخطاء
 
-مرحباً بالباحثين الأمنيين! راجع [BUG_BOUNTY.md](BUG_BOUNTY.md) للتفاصيل.
+مرحباً بالباحثين الأمنيين! راجع [BUG_BOUNTY.md](../security/BUG_BOUNTY.md) للتفاصيل.
 
 | الخطورة | المكافأة |
 |---------|----------|
@@ -164,7 +164,7 @@ make qemu
 
 ## 📜 الترخيص
 
-هذا المشروع مرخص بموجب ترخيص MIT - راجع ملف [LICENSE](../LICENSE) للتفاصيل.
+هذا المشروع مرخص بموجب ترخيص MIT - راجع ملف [LICENSE](../../LICENSE) للتفاصيل.
 
 ## 🌟 المجتمع
 
