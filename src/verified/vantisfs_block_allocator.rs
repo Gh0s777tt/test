@@ -248,10 +248,137 @@ impl BlockAllocator {
     }
 }
 
-#[cfg(feature = verus)]
+#[cfg(feature = "verus")]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+// Non-Verus implementation (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub const MAX_BLOCKS: usize = 1_000_000;
+#[cfg(not(feature = "verus"))]
+pub const BLOCK_SIZE: usize = 4096;
+#[cfg(not(feature = "verus"))]
+pub const BITMAP_SIZE: usize = (MAX_BLOCKS + 63) / 64;
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum BlockAllocatorError {
+    NoFreeBlocks,
+    InvalidBlock,
+    BlockAlreadyAllocated,
+    BlockNotAllocated,
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct BlockAllocator {
+    bitmap: [u64; BITMAP_SIZE],
+    free_count: u64,
+    total_blocks: u64,
+    next_free: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl BlockAllocator {
+    pub fn new(total_blocks: u64) -> Self {
+        let bounded = total_blocks.min(MAX_BLOCKS as u64);
+        Self {
+            bitmap: [u64::MAX; BITMAP_SIZE],
+            free_count: bounded,
+            total_blocks: bounded,
+            next_free: 0,
+        }
+    }
+
+    pub fn is_block_free(&self, block: u64) -> bool {
+        if block >= self.total_blocks {
+            return false;
+        }
+
+        let word_index = (block / 64) as usize;
+        let bit_index = block % 64;
+        if word_index >= BITMAP_SIZE {
+            return false;
+        }
+
+        let mask = 1u64 << bit_index;
+        (self.bitmap[word_index] & mask) != 0
+    }
+
+    pub fn allocate_block(&mut self) -> Result<u64, BlockAllocatorError> {
+        if self.free_count == 0 || self.total_blocks == 0 {
+            return Err(BlockAllocatorError::NoFreeBlocks);
+        }
+
+        let start = self.next_free;
+        let mut current = start;
+
+        for _ in 0..self.total_blocks {
+            if self.is_block_free(current) {
+                let word_index = (current / 64) as usize;
+                let bit_index = current % 64;
+                let mask = 1u64 << bit_index;
+
+                self.bitmap[word_index] &= !mask;
+                self.free_count = self.free_count.saturating_sub(1);
+                self.next_free = (current + 1) % self.total_blocks;
+                return Ok(current);
+            }
+
+            current = (current + 1) % self.total_blocks;
+        }
+
+        Err(BlockAllocatorError::NoFreeBlocks)
+    }
+
+    pub fn free_block(&mut self, block: u64) -> Result<(), BlockAllocatorError> {
+        if block >= self.total_blocks {
+            return Err(BlockAllocatorError::InvalidBlock);
+        }
+
+        let word_index = (block / 64) as usize;
+        let bit_index = block % 64;
+        if word_index >= BITMAP_SIZE {
+            return Err(BlockAllocatorError::InvalidBlock);
+        }
+
+        let mask = 1u64 << bit_index;
+        if (self.bitmap[word_index] & mask) != 0 {
+            return Err(BlockAllocatorError::BlockNotAllocated);
+        }
+
+        self.bitmap[word_index] |= mask;
+        self.free_count = self.free_count.saturating_add(1);
+        Ok(())
+    }
+
+    pub fn get_free_count(&self) -> u64 {
+        self.free_count
+    }
+
+    pub fn get_total_blocks(&self) -> u64 {
+        self.total_blocks
+    }
+
+    pub fn get_allocated_count(&self) -> u64 {
+        self.total_blocks.saturating_sub(self.free_count)
+    }
+
+    pub fn is_full(&self) -> bool {
+        self.free_count == 0
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.free_count == self.total_blocks
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for BlockAllocator {
+    fn default() -> Self {
+        Self::new(0)
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

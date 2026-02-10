@@ -408,10 +408,243 @@ impl RecoverySystem {
     }
 }
 
-#[cfg(feature = verus)]
+#[cfg(feature = "verus")]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+// Non-Verus implementation (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub const MAX_JOURNAL_ENTRIES: usize = 1024;
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum JournalEntryType {
+    BlockAlloc,
+    BlockFree,
+    InodeAlloc,
+    InodeFree,
+    DataWrite,
+    MetadataUpdate,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum JournalEntryState {
+    Pending,
+    Committed,
+    Aborted,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum RecoveryError {
+    JournalFull,
+    InvalidEntry,
+    TransactionNotFound,
+    InconsistentFilesystem,
+    RecoveryFailed,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, Debug)]
+pub struct JournalEntry {
+    pub transaction_id: u64,
+    pub entry_type: JournalEntryType,
+    pub state: JournalEntryState,
+    pub block_num: u64,
+    pub inode_num: u64,
+    pub timestamp: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl JournalEntry {
+    pub const fn new(
+        transaction_id: u64,
+        entry_type: JournalEntryType,
+        block_num: u64,
+        inode_num: u64,
+        timestamp: u64,
+    ) -> Self {
+        Self {
+            transaction_id,
+            entry_type,
+            state: JournalEntryState::Pending,
+            block_num,
+            inode_num,
+            timestamp,
+        }
+    }
+
+    pub fn is_pending(&self) -> bool {
+        self.state == JournalEntryState::Pending
+    }
+
+    pub fn is_committed(&self) -> bool {
+        self.state == JournalEntryState::Committed
+    }
+
+    pub fn commit(&mut self) {
+        self.state = JournalEntryState::Committed;
+    }
+
+    pub fn abort(&mut self) {
+        self.state = JournalEntryState::Aborted;
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct RecoverySystem {
+    journal: [JournalEntry; MAX_JOURNAL_ENTRIES],
+    num_entries: usize,
+    next_transaction_id: u64,
+    current_transaction: u64,
+    transactions_committed: u64,
+    transactions_aborted: u64,
+    recoveries_performed: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl RecoverySystem {
+    pub const fn new() -> Self {
+        Self {
+            journal: [JournalEntry::new(0, JournalEntryType::BlockAlloc, 0, 0, 0); MAX_JOURNAL_ENTRIES],
+            num_entries: 0,
+            next_transaction_id: 1,
+            current_transaction: 0,
+            transactions_committed: 0,
+            transactions_aborted: 0,
+            recoveries_performed: 0,
+        }
+    }
+
+    pub fn start_transaction(&mut self) -> u64 {
+        let txn = self.next_transaction_id;
+        self.next_transaction_id = self.next_transaction_id.saturating_add(1);
+        self.current_transaction = txn;
+        txn
+    }
+
+    pub fn journal_entry(
+        &mut self,
+        entry_type: JournalEntryType,
+        block_num: u64,
+        inode_num: u64,
+        timestamp: u64,
+    ) -> Result<(), RecoveryError> {
+        if self.current_transaction == 0 {
+            return Err(RecoveryError::TransactionNotFound);
+        }
+        if self.num_entries >= MAX_JOURNAL_ENTRIES {
+            return Err(RecoveryError::JournalFull);
+        }
+
+        self.journal[self.num_entries] = JournalEntry::new(
+            self.current_transaction,
+            entry_type,
+            block_num,
+            inode_num,
+            timestamp,
+        );
+        self.num_entries += 1;
+        Ok(())
+    }
+
+    pub fn commit_transaction(&mut self) -> Result<(), RecoveryError> {
+        if self.current_transaction == 0 {
+            return Err(RecoveryError::TransactionNotFound);
+        }
+
+        let txn = self.current_transaction;
+        for i in 0..self.num_entries {
+            if self.journal[i].transaction_id == txn {
+                self.journal[i].commit();
+            }
+        }
+
+        self.transactions_committed = self.transactions_committed.saturating_add(1);
+        self.current_transaction = 0;
+        Ok(())
+    }
+
+    pub fn abort_transaction(&mut self) -> Result<(), RecoveryError> {
+        if self.current_transaction == 0 {
+            return Err(RecoveryError::TransactionNotFound);
+        }
+
+        let txn = self.current_transaction;
+        for i in 0..self.num_entries {
+            if self.journal[i].transaction_id == txn {
+                self.journal[i].abort();
+            }
+        }
+
+        self.transactions_aborted = self.transactions_aborted.saturating_add(1);
+        self.current_transaction = 0;
+        Ok(())
+    }
+
+    pub fn recover_from_crash(&mut self) -> Result<(), RecoveryError> {
+        for i in 0..self.num_entries {
+            if self.journal[i].is_pending() {
+                self.journal[i].abort();
+            }
+        }
+        self.current_transaction = 0;
+        self.recoveries_performed = self.recoveries_performed.saturating_add(1);
+        Ok(())
+    }
+
+    pub fn check_consistency(&self) -> bool {
+        for i in 0..self.num_entries {
+            if self.journal[i].is_pending() {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn repair_filesystem(&mut self) -> Result<(), RecoveryError> {
+        self.recover_from_crash()?;
+        if !self.check_consistency() {
+            return Err(RecoveryError::InconsistentFilesystem);
+        }
+        Ok(())
+    }
+
+    pub fn clear_journal(&mut self) {
+        self.num_entries = 0;
+    }
+
+    pub fn get_pending_count(&self) -> usize {
+        let mut count = 0usize;
+        for i in 0..self.num_entries {
+            if self.journal[i].is_pending() {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_transactions_committed(&self) -> u64 {
+        self.transactions_committed
+    }
+
+    pub fn get_transactions_aborted(&self) -> u64 {
+        self.transactions_aborted
+    }
+
+    pub fn get_recoveries_performed(&self) -> u64 {
+        self.recoveries_performed
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for RecoverySystem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

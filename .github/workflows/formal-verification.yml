@@ -2,9 +2,9 @@ name: Formal Verification
 
 on:
   push:
-    branches: [ 0.4.1, main ]
+    branches: [ 0.4.1, main, master ]
   pull_request:
-    branches: [ 0.4.1, main ]
+    branches: [ 0.4.1, main, master ]
 
 env:
   RUST_BACKTRACE: 1
@@ -51,17 +51,19 @@ jobs:
           chmod +x ~/.cargo/bin/verus
       
       - name: Verify Verus installation
-        run: |
-          verus --version || echo "Verus not found, skipping verification"
+        run: verus --version
       
       - name: Run Verus verification
         run: |
-          if [ -d "src/verified" ]; then
-            find src/verified -name "*.rs" -exec verus {} \;
+          if ls formal/specs/*.rs >/dev/null 2>&1; then
+            for spec_file in formal/specs/*.rs; do
+              echo "Verifying ${spec_file}"
+              verus "$spec_file"
+            done
           else
-            echo "No verified code found yet"
+            echo "No formal/specs/*.rs files found."
+            exit 1
           fi
-        continue-on-error: true
 
   kani-verification:
     name: Kani Verification
@@ -104,12 +106,12 @@ jobs:
       
       - name: Run Kani verification
         run: |
-          if grep -r "#\[kani::proof\]" src/; then
-            cargo kani
+          if grep -r "#\[kani::proof\]" src/verified; then
+            cargo kani --manifest-path src/verified/Cargo.toml --harness verify_allocate_free_roundtrip
           else
             echo "No Kani proofs found yet"
+            exit 1
           fi
-        continue-on-error: true
 
   verification-report:
     name: Generate Verification Report
@@ -140,7 +142,7 @@ jobs:
           echo "3. Add more verified code" >> verification-report.md
       
       - name: Upload report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: verification-report
           path: verification-report.md

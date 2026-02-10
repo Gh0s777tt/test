@@ -2,7 +2,7 @@ name: Secure Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ 0.4.1, main, master ]
   pull_request:
 
 jobs:

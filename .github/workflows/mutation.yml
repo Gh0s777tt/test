@@ -2,7 +2,7 @@ name: 🧬 Mutation Testing (Gene Splicing)
 
 on:
   push:
-    branches: [master]
+    branches: [ 0.4.1, master, main ]
   pull_request:
 
 jobs:
@@ -15,4 +15,4 @@ jobs:
         run: cargo install cargo-mutants
       
       - name: Hunt Mutants
-        run: cargo mutants --timeout 300 -- --all-features
+        run: cargo mutants --manifest-path src/verified/Cargo.toml --timeout 300 -- --all-features

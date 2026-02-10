@@ -334,10 +334,230 @@ impl DataBlockManager {
     }
 }
 
-#[cfg(feature = verus)]
+#[cfg(feature = "verus")]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+// Non-Verus implementation (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub const BLOCK_SIZE: usize = 4096;
+#[cfg(not(feature = "verus"))]
+pub const CHECKSUM_SIZE: usize = 8;
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum DataBlockError {
+    InvalidBlock,
+    ChecksumMismatch,
+    BlockNotFound,
+    IoError,
+    BlockExists,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone)]
+pub struct DataBlock {
+    pub block_num: u64,
+    pub data: [u8; BLOCK_SIZE],
+    pub checksum: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl DataBlock {
+    pub fn new(block_num: u64, data: [u8; BLOCK_SIZE]) -> Self {
+        let checksum = Self::compute_checksum(&data);
+        Self {
+            block_num,
+            data,
+            checksum,
+        }
+    }
+
+    pub fn compute_checksum(data: &[u8; BLOCK_SIZE]) -> u64 {
+        let mut checksum = 0u64;
+        for byte in data {
+            checksum ^= *byte as u64;
+            checksum = checksum.wrapping_mul(31);
+        }
+        checksum
+    }
+
+    pub fn verify_checksum(&self) -> bool {
+        self.checksum == Self::compute_checksum(&self.data)
+    }
+
+    pub fn update_data(&mut self, data: [u8; BLOCK_SIZE]) {
+        self.data = data;
+        self.checksum = Self::compute_checksum(&data);
+    }
+
+    pub fn get_block_num(&self) -> u64 {
+        self.block_num
+    }
+
+    pub fn get_data(&self) -> &[u8; BLOCK_SIZE] {
+        &self.data
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone)]
+struct CacheEntry {
+    block: DataBlock,
+    valid: bool,
+    last_access: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl CacheEntry {
+    pub const fn new() -> Self {
+        Self {
+            block: DataBlock {
+                block_num: 0,
+                data: [0u8; BLOCK_SIZE],
+                checksum: 0,
+            },
+            valid: false,
+            last_access: 0,
+        }
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct DataBlockManager {
+    cache: [CacheEntry; 64],
+    cache_hits: u64,
+    cache_misses: u64,
+    blocks_read: u64,
+    blocks_written: u64,
+    corrupted_blocks: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl DataBlockManager {
+    pub const fn new() -> Self {
+        Self {
+            cache: [CacheEntry::new(); 64],
+            cache_hits: 0,
+            cache_misses: 0,
+            blocks_read: 0,
+            blocks_written: 0,
+            corrupted_blocks: 0,
+        }
+    }
+
+    fn get_cache_index(block_num: u64) -> usize {
+        (block_num % 64) as usize
+    }
+
+    pub fn is_cached(&self, block_num: u64) -> bool {
+        let index = Self::get_cache_index(block_num);
+        self.cache[index].valid && self.cache[index].block.block_num == block_num
+    }
+
+    fn read_from_cache(&mut self, block_num: u64, timestamp: u64) -> Option<DataBlock> {
+        let index = Self::get_cache_index(block_num);
+        if self.cache[index].valid && self.cache[index].block.block_num == block_num {
+            self.cache_hits += 1;
+            let _ = self.cache[index].last_access;
+            self.cache[index].last_access = timestamp;
+            Some(self.cache[index].block)
+        } else {
+            self.cache_misses += 1;
+            None
+        }
+    }
+
+    fn write_to_cache(&mut self, block: DataBlock, timestamp: u64) {
+        let index = Self::get_cache_index(block.block_num);
+        self.cache[index] = CacheEntry {
+            block,
+            valid: true,
+            last_access: timestamp,
+        };
+    }
+
+    pub fn read_block(
+        &mut self,
+        block_num: u64,
+        timestamp: u64,
+    ) -> Result<DataBlock, DataBlockError> {
+        self.blocks_read += 1;
+
+        if let Some(block) = self.read_from_cache(block_num, timestamp) {
+            return Ok(block);
+        }
+
+        Err(DataBlockError::BlockNotFound)
+    }
+
+    pub fn write_block(
+        &mut self,
+        block_num: u64,
+        data: [u8; BLOCK_SIZE],
+        timestamp: u64,
+    ) -> Result<(), DataBlockError> {
+        self.blocks_written += 1;
+        let block = DataBlock::new(block_num, data);
+        self.write_to_cache(block, timestamp);
+        Ok(())
+    }
+
+    pub fn verify_block(&mut self, block: &DataBlock) -> bool {
+        if !block.verify_checksum() {
+            self.corrupted_blocks += 1;
+            return false;
+        }
+        true
+    }
+
+    pub fn repair_block(&mut self, _block_num: u64) -> Result<DataBlock, DataBlockError> {
+        Err(DataBlockError::ChecksumMismatch)
+    }
+
+    pub fn get_cache_hit_rate(&self) -> u64 {
+        let total = self.cache_hits + self.cache_misses;
+        if total == 0 {
+            return 0;
+        }
+        ((self.cache_hits * 100) / total).min(100)
+    }
+
+    pub fn get_blocks_read(&self) -> u64 {
+        self.blocks_read
+    }
+
+    pub fn get_blocks_written(&self) -> u64 {
+        self.blocks_written
+    }
+
+    pub fn get_corrupted_blocks(&self) -> u64 {
+        self.corrupted_blocks
+    }
+
+    pub fn flush_cache(&mut self) -> Result<(), DataBlockError> {
+        Ok(())
+    }
+
+    pub fn invalidate_cache(&mut self, block_num: u64) {
+        let index = Self::get_cache_index(block_num);
+        self.cache[index].valid = false;
+    }
+
+    pub fn clear_cache(&mut self) {
+        for entry in &mut self.cache {
+            entry.valid = false;
+        }
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for DataBlockManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

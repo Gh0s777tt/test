@@ -8,7 +8,7 @@ on:
     - cron: '20 7 * * 1'
   # Uruchom przy każdym pushu na główną gałąź
   push:
-    branches: [ "master", "main" ]
+    branches: [ "0.4.1", "master", "main" ]
 
 # Uprawnienia (Zasada najmniejszych przywilejów)
 permissions: read-all

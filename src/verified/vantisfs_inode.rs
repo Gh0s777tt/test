@@ -357,10 +357,235 @@ impl InodeManager {
     }
 }
 
-#[cfg(feature = verus)]
+#[cfg(feature = "verus")]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+// Non-Verus implementation (without formal verification)
+#[cfg(not(feature = "verus"))]
+pub const MAX_INODES: usize = 100_000;
+#[cfg(not(feature = "verus"))]
+pub const DIRECT_BLOCKS: usize = 12;
+#[cfg(not(feature = "verus"))]
+pub const FILE_TYPE_REGULAR: u32 = 0x8000;
+#[cfg(not(feature = "verus"))]
+pub const FILE_TYPE_DIRECTORY: u32 = 0x4000;
+#[cfg(not(feature = "verus"))]
+pub const FILE_TYPE_SYMLINK: u32 = 0xA000;
+#[cfg(not(feature = "verus"))]
+pub const PERM_READ: u32 = 0x0004;
+#[cfg(not(feature = "verus"))]
+pub const PERM_WRITE: u32 = 0x0002;
+#[cfg(not(feature = "verus"))]
+pub const PERM_EXEC: u32 = 0x0001;
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum InodeError {
+    InvalidInode,
+    InodeAlreadyAllocated,
+    InodeNotAllocated,
+    InvalidFileType,
+    InvalidPermissions,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, Debug)]
+pub struct Inode {
+    pub ino: u64,
+    pub mode: u32,
+    pub uid: u32,
+    pub gid: u32,
+    pub nlink: u32,
+    pub size: u64,
+    pub direct_blocks: [u64; DIRECT_BLOCKS],
+    pub indirect_block: u64,
+    pub double_indirect: u64,
+    pub triple_indirect: u64,
+    pub atime: u64,
+    pub mtime: u64,
+    pub ctime: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl Inode {
+    pub const fn new(ino: u64, mode: u32, uid: u32, gid: u32) -> Self {
+        Self {
+            ino,
+            mode,
+            uid,
+            gid,
+            nlink: 1,
+            size: 0,
+            direct_blocks: [0; DIRECT_BLOCKS],
+            indirect_block: 0,
+            double_indirect: 0,
+            triple_indirect: 0,
+            atime: 0,
+            mtime: 0,
+            ctime: 0,
+        }
+    }
+
+    pub fn is_regular_file(&self) -> bool {
+        (self.mode & 0xF000) == FILE_TYPE_REGULAR
+    }
+
+    pub fn is_directory(&self) -> bool {
+        (self.mode & 0xF000) == FILE_TYPE_DIRECTORY
+    }
+
+    pub fn is_symlink(&self) -> bool {
+        (self.mode & 0xF000) == FILE_TYPE_SYMLINK
+    }
+
+    pub fn get_permissions(&self) -> u32 {
+        self.mode & 0x0FFF
+    }
+
+    pub fn set_size(&mut self, size: u64) {
+        self.size = size;
+    }
+
+    pub fn get_size(&self) -> u64 {
+        self.size
+    }
+
+    pub fn set_direct_block(&mut self, index: usize, block: u64) -> Result<(), InodeError> {
+        if index >= DIRECT_BLOCKS {
+            return Err(InodeError::InvalidInode);
+        }
+        self.direct_blocks[index] = block;
+        Ok(())
+    }
+
+    pub fn get_direct_block(&self, index: usize) -> Result<u64, InodeError> {
+        if index >= DIRECT_BLOCKS {
+            return Err(InodeError::InvalidInode);
+        }
+        Ok(self.direct_blocks[index])
+    }
+
+    pub fn inc_nlink(&mut self) {
+        self.nlink = self.nlink.saturating_add(1);
+    }
+
+    pub fn dec_nlink(&mut self) -> Result<(), InodeError> {
+        if self.nlink == 0 {
+            return Err(InodeError::InodeNotAllocated);
+        }
+        self.nlink -= 1;
+        Ok(())
+    }
+
+    pub fn update_atime(&mut self, time: u64) {
+        self.atime = time;
+    }
+
+    pub fn update_mtime(&mut self, time: u64) {
+        self.mtime = time;
+    }
+
+    pub fn update_ctime(&mut self, time: u64) {
+        self.ctime = time;
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct InodeManager {
+    bitmap: [u64; (MAX_INODES + 63) / 64],
+    free_count: u64,
+    total_inodes: u64,
+    next_free: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl InodeManager {
+    pub fn new(total_inodes: u64) -> Self {
+        let bounded = total_inodes.min(MAX_INODES as u64);
+        Self {
+            bitmap: [u64::MAX; (MAX_INODES + 63) / 64],
+            free_count: bounded,
+            total_inodes: bounded,
+            next_free: 1,
+        }
+    }
+
+    pub fn allocate_inode(&mut self) -> Result<u64, InodeError> {
+        if self.free_count == 0 || self.total_inodes <= 1 {
+            return Err(InodeError::InodeNotAllocated);
+        }
+
+        let start = self.next_free;
+        let mut current = start;
+
+        for _ in 0..self.total_inodes {
+            if current == 0 {
+                current = 1;
+            }
+
+            if current >= self.total_inodes {
+                current = 1;
+            }
+
+            let word_index = (current / 64) as usize;
+            let bit_index = current % 64;
+            let mask = 1u64 << bit_index;
+
+            if (self.bitmap[word_index] & mask) != 0 {
+                self.bitmap[word_index] &= !mask;
+                self.free_count = self.free_count.saturating_sub(1);
+                self.next_free = (current + 1) % self.total_inodes;
+                if self.next_free == 0 {
+                    self.next_free = 1;
+                }
+                return Ok(current);
+            }
+
+            current = (current + 1) % self.total_inodes;
+            if current == start {
+                break;
+            }
+        }
+
+        Err(InodeError::InodeNotAllocated)
+    }
+
+    pub fn free_inode(&mut self, ino: u64) -> Result<(), InodeError> {
+        if ino == 0 || ino >= self.total_inodes {
+            return Err(InodeError::InvalidInode);
+        }
+
+        let word_index = (ino / 64) as usize;
+        let bit_index = ino % 64;
+        let mask = 1u64 << bit_index;
+
+        if (self.bitmap[word_index] & mask) != 0 {
+            return Err(InodeError::InodeNotAllocated);
+        }
+
+        self.bitmap[word_index] |= mask;
+        self.free_count = self.free_count.saturating_add(1);
+        self.next_free = ino;
+        Ok(())
+    }
+
+    pub fn get_free_count(&self) -> u64 {
+        self.free_count
+    }
+
+    pub fn get_total_inodes(&self) -> u64 {
+        self.total_inodes
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for InodeManager {
+    fn default() -> Self {
+        Self::new(0)
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

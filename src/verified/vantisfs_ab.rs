@@ -372,10 +372,236 @@ impl ABSystem {
     }
 }
 
-#[cfg(feature = verus)]
+#[cfg(feature = "verus")]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+// Non-Verus implementation (without formal verification)
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum Partition {
+    A,
+    B,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum PartitionState {
+    Bootable,
+    Updating,
+    Failed,
+    Inactive,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum ABError {
+    InvalidPartition,
+    NotBootable,
+    UpdateInProgress,
+    NoValidPartition,
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Copy, Clone, Debug)]
+pub struct PartitionMetadata {
+    pub state: PartitionState,
+    pub boot_count: u32,
+    pub failed_boots: u32,
+    pub last_update: u64,
+    pub version: u32,
+    pub checksum: u64,
+}
+
+#[cfg(not(feature = "verus"))]
+impl PartitionMetadata {
+    pub const fn new() -> Self {
+        Self {
+            state: PartitionState::Inactive,
+            boot_count: 0,
+            failed_boots: 0,
+            last_update: 0,
+            version: 0,
+            checksum: 0,
+        }
+    }
+
+    pub fn is_bootable(&self) -> bool {
+        self.state == PartitionState::Bootable
+    }
+
+    pub fn mark_bootable(&mut self, checksum: u64, version: u32, timestamp: u64) {
+        self.state = PartitionState::Bootable;
+        self.checksum = checksum;
+        self.version = version;
+        self.last_update = timestamp;
+        self.failed_boots = 0;
+    }
+
+    pub fn mark_updating(&mut self) {
+        self.state = PartitionState::Updating;
+    }
+
+    pub fn mark_failed(&mut self) {
+        self.state = PartitionState::Failed;
+        self.failed_boots = self.failed_boots.saturating_add(1);
+    }
+
+    pub fn mark_inactive(&mut self) {
+        self.state = PartitionState::Inactive;
+    }
+
+    pub fn inc_boot_count(&mut self) {
+        self.boot_count = self.boot_count.saturating_add(1);
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for PartitionMetadata {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct ABSystem {
+    active: Partition,
+    partition_a: PartitionMetadata,
+    partition_b: PartitionMetadata,
+    max_failed_boots: u32,
+}
+
+#[cfg(not(feature = "verus"))]
+impl ABSystem {
+    pub const fn new() -> Self {
+        let mut partition_a = PartitionMetadata::new();
+        partition_a.state = PartitionState::Bootable;
+        Self {
+            active: Partition::A,
+            partition_a,
+            partition_b: PartitionMetadata::new(),
+            max_failed_boots: 3,
+        }
+    }
+
+    pub fn get_active(&self) -> Partition {
+        self.active
+    }
+
+    pub fn get_inactive(&self) -> Partition {
+        match self.active {
+            Partition::A => Partition::B,
+            Partition::B => Partition::A,
+        }
+    }
+
+    pub fn get_metadata(&self, partition: Partition) -> &PartitionMetadata {
+        match partition {
+            Partition::A => &self.partition_a,
+            Partition::B => &self.partition_b,
+        }
+    }
+
+    fn get_metadata_mut(&mut self, partition: Partition) -> &mut PartitionMetadata {
+        match partition {
+            Partition::A => &mut self.partition_a,
+            Partition::B => &mut self.partition_b,
+        }
+    }
+
+    pub fn mark_bootable(
+        &mut self,
+        partition: Partition,
+        checksum: u64,
+        version: u32,
+        timestamp: u64,
+    ) -> Result<(), ABError> {
+        self.get_metadata_mut(partition)
+            .mark_bootable(checksum, version, timestamp);
+        Ok(())
+    }
+
+    pub fn is_bootable(&self, partition: Partition) -> bool {
+        self.get_metadata(partition).is_bootable()
+    }
+
+    pub fn switch_partition(&mut self) -> Result<(), ABError> {
+        let inactive = self.get_inactive();
+        if !self.is_bootable(inactive) {
+            return Err(ABError::NotBootable);
+        }
+
+        let old_active = self.active;
+        self.get_metadata_mut(old_active).mark_inactive();
+        self.active = inactive;
+        self.get_metadata_mut(self.active).inc_boot_count();
+        Ok(())
+    }
+
+    pub fn rollback(&mut self) -> Result<(), ABError> {
+        let current = self.active;
+        let other = self.get_inactive();
+        if !self.is_bootable(other) {
+            return Err(ABError::NoValidPartition);
+        }
+
+        self.get_metadata_mut(current).mark_failed();
+        self.active = other;
+        Ok(())
+    }
+
+    pub fn record_successful_boot(&mut self) {
+        let active = self.active;
+        self.get_metadata_mut(active).failed_boots = 0;
+    }
+
+    pub fn record_failed_boot(&mut self) -> bool {
+        let max_failed_boots = self.max_failed_boots;
+        let active = self.active;
+        let metadata = self.get_metadata_mut(active);
+        metadata.failed_boots = metadata.failed_boots.saturating_add(1);
+        metadata.failed_boots >= max_failed_boots
+    }
+
+    pub fn start_update(&mut self) -> Result<Partition, ABError> {
+        let inactive = self.get_inactive();
+        let metadata = self.get_metadata_mut(inactive);
+        if metadata.state == PartitionState::Updating {
+            return Err(ABError::UpdateInProgress);
+        }
+        metadata.mark_updating();
+        Ok(inactive)
+    }
+
+    pub fn complete_update(
+        &mut self,
+        partition: Partition,
+        checksum: u64,
+        version: u32,
+        timestamp: u64,
+    ) -> Result<(), ABError> {
+        if partition == self.active {
+            return Err(ABError::InvalidPartition);
+        }
+        self.mark_bootable(partition, checksum, version, timestamp)
+    }
+
+    pub fn abort_update(&mut self, partition: Partition) -> Result<(), ABError> {
+        if partition == self.active {
+            return Err(ABError::InvalidPartition);
+        }
+        self.get_metadata_mut(partition).mark_failed();
+        Ok(())
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for ABSystem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 

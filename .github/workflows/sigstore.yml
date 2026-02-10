@@ -2,7 +2,7 @@ name: Sigstore Sign
 
 on:
   push:
-    branches: [ main ]
+    branches: [ 0.4.1, main, master ]
 
 jobs:
   sign:
