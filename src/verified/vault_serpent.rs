@@ -80,6 +80,8 @@ pub fn generate_iv() -> Result<[u8; 16], SerpentError> {
 /// 
 /// # Example
 /// ```rust
+/// use vantis_verified::vault_serpent::encrypt_serpent256_cbc;
+///
 /// let key = [0u8; 32];
 /// let plaintext = b"Hello, World!";
 /// let ciphertext = encrypt_serpent256_cbc(&key, plaintext).unwrap();
@@ -129,9 +131,12 @@ pub fn encrypt_serpent256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8
 /// 
 /// # Example
 /// ```rust
+/// use vantis_verified::vault_serpent::{decrypt_serpent256_cbc, encrypt_serpent256_cbc};
+///
 /// let key = [0u8; 32];
 /// let ciphertext = encrypt_serpent256_cbc(&key, b"Hello, World!").unwrap();
 /// let plaintext = decrypt_serpent256_cbc(&key, &ciphertext).unwrap();
+/// assert_eq!(plaintext, b"Hello, World!");
 /// ```
 pub fn decrypt_serpent256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, SerpentError> {
     // Validate minimum length (IV + at least one block)

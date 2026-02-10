@@ -6,7 +6,7 @@
 //! # Usage
 //! 
 //! ```rust
-//! use vantis_aegis::VantisAegis;
+//! use vantis_verified::vantis_aegis::VantisAegis;
 //! 
 //! // Initialize Vantis Aegis
 //! let aegis = VantisAegis::initialize();
