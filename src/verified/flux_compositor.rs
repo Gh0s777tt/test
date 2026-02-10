@@ -678,7 +678,7 @@ mod tests {
         let mut compositor = Compositor::new();
         compositor.init_compositor().unwrap();
 
-        let id1 = compositor.add_node(Some(1), 0, 0, 100, 100).unwrap();
+        let _id1 = compositor.add_node(Some(1), 0, 0, 100, 100).unwrap();
         let id2 = compositor.add_node(Some(2), 100, 100, 100, 100).unwrap();
 
         // Make one node invisible

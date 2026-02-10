@@ -398,7 +398,7 @@ mod tests {
         let backends = BackendFactory::available_backends();
         // Should have at least one backend available
         // (or none if no features enabled, which is fine for testing)
-        assert!(backends.len() >= 0);
+        let _ = backends;
     }
     
     #[test]

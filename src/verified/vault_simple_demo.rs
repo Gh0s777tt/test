@@ -136,7 +136,7 @@ impl Default for VantisVaultDemo {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::super::vault::{SecureKey, CascadeKeys};
+    use super::super::vault::CascadeKeys;
     
     #[test]
     fn test_demo_vault_encrypt_decrypt() {

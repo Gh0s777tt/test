@@ -352,7 +352,7 @@ mod tests {
     
     #[test]
     fn test_syscall_translator_creation() {
-        let translator = SyscallTranslator::new();
+        let _translator = SyscallTranslator::new();
         // Should not panic
     }
     

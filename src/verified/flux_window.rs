@@ -317,9 +317,9 @@ mod tests {
         let mut manager = WindowManager::new();
         manager.init().unwrap();
 
-        let id1 = manager.create_window(1).unwrap();
+        let _id1 = manager.create_window(1).unwrap();
         let id2 = manager.create_window(2).unwrap();
-        let id3 = manager.create_window(3).unwrap();
+        let _id3 = manager.create_window(3).unwrap();
 
         assert!(manager.set_stacking_order(id2, 10).is_ok());
         assert_eq!(manager.get_window(id2).unwrap().z_order, 10);
