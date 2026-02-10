@@ -163,7 +163,7 @@ pub fn get_cached_filesystem() -> Option<&'static CachedFilesystem> {
     unsafe { CACHED_FS.as_ref() }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

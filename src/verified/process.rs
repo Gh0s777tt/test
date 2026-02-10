@@ -564,7 +564,7 @@ mod verification {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

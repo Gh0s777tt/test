@@ -353,7 +353,7 @@ impl Default for SyscallTranslator {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

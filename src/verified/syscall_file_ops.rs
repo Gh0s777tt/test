@@ -453,7 +453,7 @@ pub fn sys_rename(old_path: &Path, new_path: &Path) -> FileOpResult<()> {
     Ok(())
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

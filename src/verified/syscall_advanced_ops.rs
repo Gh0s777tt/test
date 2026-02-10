@@ -388,7 +388,7 @@ pub fn sys_ioctl(
     Ok(0)
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

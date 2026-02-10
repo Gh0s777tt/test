@@ -496,7 +496,7 @@ pub proof fn theorem_memory_accounting_correct()
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

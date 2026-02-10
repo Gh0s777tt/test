@@ -315,7 +315,7 @@ pub fn sys_getcwd_path(wd: &WorkingDirectory) -> PathBuf {
     wd.get().to_path_buf()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

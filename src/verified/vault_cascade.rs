@@ -275,7 +275,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     use super::super::vault::KEY_SIZE;

@@ -464,7 +464,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

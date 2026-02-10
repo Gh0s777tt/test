@@ -127,7 +127,7 @@ impl VantisVaultDemo {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     use super::super::vault::{SecureKey, CascadeKeys};

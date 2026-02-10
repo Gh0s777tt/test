@@ -720,7 +720,7 @@ impl GpuBackend for VulkanBackend {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

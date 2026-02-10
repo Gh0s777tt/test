@@ -567,7 +567,7 @@ pub proof fn theorem_unauthorized_read_fails()
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

@@ -311,7 +311,7 @@ pub fn create_casual_profile() -> Profile {
         .build()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

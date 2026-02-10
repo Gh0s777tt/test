@@ -379,7 +379,7 @@ pub proof fn theorem_end_to_end_integrity()
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

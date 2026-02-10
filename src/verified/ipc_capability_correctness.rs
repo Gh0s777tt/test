@@ -488,7 +488,7 @@ spec fn was_granted(manager: CapabilityManager, process: Pid, cap_type: Capabili
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

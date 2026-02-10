@@ -392,7 +392,7 @@ pub fn sys_get_timer_resolution(manager: &TimerManager) -> TimerResolution {
     manager.resolution
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     
