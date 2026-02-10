@@ -145,6 +145,30 @@ if [[ "$MODE" == "full" ]]; then
 fi
 popd >/dev/null
 
+if [[ -f "security/Cargo.toml" ]]; then
+  pushd security >/dev/null
+  if cargo check --locked >/dev/null; then
+    pass "security crate cargo check --locked passed"
+  else
+    fail "security crate cargo check --locked failed"
+  fi
+
+  if [[ "$MODE" == "full" ]]; then
+    if cargo test --locked >/dev/null; then
+      pass "security crate cargo test --locked passed"
+    else
+      fail "security crate cargo test --locked failed"
+    fi
+
+    if cargo clippy --locked -- -D warnings >/dev/null; then
+      pass "security crate cargo clippy strict mode passed"
+    else
+      fail "security crate cargo clippy strict mode failed"
+    fi
+  fi
+  popd >/dev/null
+fi
+
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"
 TAG_COUNT="$(git tag | wc -l | tr -d ' ')"
 COMMITS_COUNT="$(git rev-list --count HEAD | tr -d ' ')"

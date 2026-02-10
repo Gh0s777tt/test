@@ -1,0 +1,14 @@
+[package]
+name = "vantis-security"
+version = "0.1.0"
+edition = "2021"
+authors = ["VANTIS OS Team"]
+description = "Security support crate for VantisOS"
+license = "MIT"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+vantis-verified = { path = "../src/verified" }
+zeroize = "1"

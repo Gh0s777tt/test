@@ -29,6 +29,27 @@ jobs:
       - name: Clippy (warnings are errors)
         run: cargo clippy --locked -- -D warnings
 
+  security-quality-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: security
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cargo check
+        run: cargo check --locked
+
+      - name: Cargo test
+        run: cargo test --locked
+
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --locked -- -D warnings
+
   markdown-links:
     runs-on: ubuntu-latest
     steps:
