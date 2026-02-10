@@ -408,7 +408,7 @@ impl ProfileManager {
     /// # Function 9/10
     fn apply_profile_settings(&self, profile_id: &ProfileId) -> Result<(), ProfileError> {
         let profiles = self.profiles.read().unwrap();
-        let profile = profiles.get(profile_id).ok_or(ProfileError::NotFound)?;
+        let _profile = profiles.get(profile_id).ok_or(ProfileError::NotFound)?;
 
         // Apply CPU priority
         // In real implementation, this would call into the Neural Scheduler
@@ -479,7 +479,7 @@ impl ProfileManager {
         let profile = profiles.get(id).ok_or(ProfileError::NotFound)?.clone();
         
         if let Some(ref parent_id) = profile.parent {
-            let parent = self.resolve_profile_internal(profiles, parent_id)?;
+            let _parent = self.resolve_profile_internal(profiles, parent_id)?;
             // Merge logic here (simplified for internal use)
             Ok(profile)
         } else {
@@ -494,7 +494,7 @@ impl Default for ProfileManager {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

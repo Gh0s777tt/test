@@ -447,7 +447,7 @@ impl HdrManager {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

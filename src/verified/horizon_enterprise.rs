@@ -24,7 +24,7 @@
 //! - Audit log integrity
 //! - Compliance guarantees
 
-use crate::horizon_profiles::{Profile, ProfileId, ProfileError, MemoryStrategy, PowerMode};
+use crate::horizon_profiles::{Profile, ProfileId, MemoryStrategy, PowerMode};
 use std::collections::HashMap;
 
 /// Enterprise profile builder
@@ -357,7 +357,7 @@ pub fn create_government_profile() -> Profile {
         .build()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

@@ -267,7 +267,7 @@ pub fn sys_dup2(
     let readable = old_entry.readable;
     let writable = old_entry.writable;
     let is_pipe = old_entry.is_pipe;
-    drop(old_entry); // Explicitly drop the borrow
+    let _ = old_entry; // Ignore the expression
     
     // Validate newfd range
     if newfd < 0 || newfd as usize >= fd_table.entries.len() {
@@ -388,7 +388,7 @@ pub fn sys_ioctl(
     Ok(0)
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

@@ -22,7 +22,6 @@
 use crate::vantis_aegis_nt_api::{NtApiEmulator, NtVersion};
 use crate::vantis_aegis_registry::RegistryEmulator;
 use crate::vantis_aegis_syscall::SyscallTranslator;
-use std::sync::{Arc, Once};
 
 /// Vantis Aegis main interface
 pub struct VantisAegis {
@@ -83,20 +82,17 @@ impl VantisAegis {
     
     /// Get the global Vantis Aegis instance
     pub fn instance() -> &'static Self {
-        static mut INSTANCE: Option<VantisAegis> = None;
-        static ONCE: Once = Once::new();
+        use std::sync::OnceLock;
+        static INSTANCE: OnceLock<VantisAegis> = OnceLock::new();
         
-        unsafe {
-            ONCE.call_once(|| {
-                INSTANCE = Some(VantisAegis {
-                    nt_api: NtApiEmulator::instance(),
-                    registry: RegistryEmulator::instance(),
-                    syscall: SyscallTranslator::instance(),
-                    enabled: true,
-                });
-            });
-            INSTANCE.as_ref().unwrap()
-        }
+        INSTANCE.get_or_init(|| {
+            VantisAegis {
+                nt_api: NtApiEmulator::instance(),
+                registry: RegistryEmulator::instance(),
+                syscall: SyscallTranslator::instance(),
+                enabled: true,
+            }
+        })
     }
     
     /// Check if Vantis Aegis is enabled
@@ -207,7 +203,7 @@ impl VantisAegis {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

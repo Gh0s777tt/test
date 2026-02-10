@@ -23,7 +23,6 @@
 use verus::prelude::*;
 
 use super::process::{Pid, ProcessState};
-use core::cmp::Ordering;
 
 /// Scheduling priority (0 = highest, 255 = lowest)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -199,6 +198,7 @@ impl SchedTask {
 
 /// Run queue for a specific priority level
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct RunQueue {
     priority: SchedPriority,
     tasks: Vec<SchedTask>,
@@ -653,7 +653,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

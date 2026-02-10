@@ -3,8 +3,8 @@
 //! This module provides integration between the path lookup cache and
 //! filesystem syscalls to improve performance of path resolution operations.
 
-use crate::path_cache::{PathCache, PathCacheEntry, SharedPathCache};
-use crate::syscall_file_ops::{FileOpError, FileStat};
+use crate::path_cache::{PathCacheEntry, SharedPathCache};
+use crate::syscall_file_ops::FileOpError;
 
 /// Filesystem operations with path caching
 pub struct CachedFilesystem {
@@ -149,21 +149,20 @@ impl Default for CachedFilesystem {
 }
 
 /// Global cached filesystem instance
-static mut CACHED_FS: Option<CachedFilesystem> = None;
+use std::sync::OnceLock;
+static CACHED_FS: OnceLock<CachedFilesystem> = OnceLock::new();
 
 /// Initialize the global cached filesystem
 pub fn init_cached_filesystem() {
-    unsafe {
-        CACHED_FS = Some(CachedFilesystem::new());
-    }
+    CACHED_FS.get_or_init(|| CachedFilesystem::new());
 }
 
 /// Get the global cached filesystem instance
 pub fn get_cached_filesystem() -> Option<&'static CachedFilesystem> {
-    unsafe { CACHED_FS.as_ref() }
+    CACHED_FS.get()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

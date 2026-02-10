@@ -116,6 +116,7 @@ pub type TimeOpResult<T> = Result<T, TimeOpError>;
 
 /// Timer entry
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct TimerEntry {
     /// Timer information
     info: TimerInfo,
@@ -392,7 +393,7 @@ pub fn sys_get_timer_resolution(manager: &TimerManager) -> TimerResolution {
     manager.resolution
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

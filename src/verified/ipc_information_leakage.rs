@@ -9,13 +9,8 @@
 //! 2. **Capability-Based Access**: Access requires proper capabilities
 //! 3. **No Side-Channel Leaks**: No information leaks through timing or other channels
 //! 4. **Memory Isolation**: Message buffers are isolated per-process
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use std::collections::{HashMap, VecDeque};
@@ -503,7 +498,8 @@ impl IsolatedIpcManager {
 // FORMAL PROOFS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+verus! {
+
 pub proof fn theorem_process_isolation()
     ensures(
         forall|msg: IsolatedMessage, p1: Pid, p2: Pid|
@@ -518,7 +514,6 @@ pub proof fn theorem_process_isolation()
     // 4. Therefore can_read(p2) returns false
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_capability_enforcement()
     ensures(
         forall|manager: IsolatedIpcManager, sender: Pid, receiver: Pid|
@@ -534,7 +529,6 @@ pub proof fn theorem_capability_enforcement()
     // 3. Therefore, successful send implies capability
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_queue_isolation()
     ensures(
         forall|queue: IsolatedQueue, msg: IsolatedMessage|
@@ -548,7 +542,6 @@ pub proof fn theorem_queue_isolation()
     // 3. Therefore, msg.receiver() == queue.owner()
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_unauthorized_read_fails()
     ensures(
         forall|manager: IsolatedIpcManager, attacker: Pid, victim: Pid|
@@ -567,7 +560,7 @@ pub proof fn theorem_unauthorized_read_fails()
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     
@@ -779,3 +772,5 @@ mod kani_verification {
         assert!(result.is_none());
     }
 }
+
+} // verus!

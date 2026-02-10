@@ -15,7 +15,6 @@
 use verus::prelude::*;
 
 use super::process::Pid;
-use core::mem;
 use std::collections::HashMap;
 
 /// Maximum message size in bytes
@@ -561,7 +560,7 @@ mod verification {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

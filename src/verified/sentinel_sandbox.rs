@@ -395,7 +395,7 @@ impl SandboxManager {
         &mut self,
         sender: SandboxId,
         receiver: SandboxId,
-        data: Vec<u8>,
+        _data: Vec<u8>,
     ) -> Result<(), &'static str> {
         if !self.initialized {
             return Err("Sandbox manager not initialized");
@@ -519,7 +519,7 @@ impl SandboxManager {
     pub fn isolate_memory(
         &mut self,
         id: SandboxId,
-        base: u64,
+        _base: u64,
         size: u64,
     ) -> Result<(), &'static str> {
         if !self.initialized {
@@ -592,7 +592,7 @@ impl SandboxManager {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

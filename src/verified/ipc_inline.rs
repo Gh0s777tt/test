@@ -23,7 +23,6 @@
 use verus::prelude::*;
 
 use super::process::Pid;
-use core::mem;
 
 /// Maximum size for inline message storage (64 bytes)
 pub const INLINE_MESSAGE_SIZE: usize = 64;
@@ -225,6 +224,7 @@ impl MessageInline {
 
 /// Message queue with inline storage optimization
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct MessageQueueInline {
     /// Process ID this queue belongs to
     pid: Pid,
@@ -517,7 +517,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

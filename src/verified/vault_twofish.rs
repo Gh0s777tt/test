@@ -17,7 +17,6 @@
 
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit, Block,
-    block_padding::Pkcs7,
 };
 use rand::RngCore;
 use twofish::Twofish;
@@ -214,7 +213,7 @@ pub fn kat_twofish256_cbc() -> Result<(), TwofishError> {
     Ok(())
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

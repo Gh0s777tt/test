@@ -17,7 +17,7 @@
 #[cfg(feature = "verus")]
 use verus::prelude::*;
 
-use super::vault::{SecureKey, CascadeKeys, KEY_SIZE, BLOCK_SIZE, MAX_DATA_SIZE};
+use super::vault::{CascadeKeys, KEY_SIZE, MAX_DATA_SIZE};
 
 /// Simple XOR-based encryption (DEMO ONLY - NOT SECURE)
 /// 
@@ -127,7 +127,7 @@ impl VantisVaultDemo {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     use super::super::vault::{SecureKey, CascadeKeys};

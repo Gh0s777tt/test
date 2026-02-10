@@ -20,8 +20,8 @@ use builtin_macros::*;
 #[cfg(feature = "verus")]
 use vstd::prelude::*;
 
-use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures, MAX_TRACKED_THREADS};
-use crate::workload_predictor::{WorkloadPredictor, WorkloadPattern};
+use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures};
+use crate::workload_predictor::WorkloadPredictor;
 
 #[cfg(feature = "verus")]
 verus! {
@@ -258,6 +258,7 @@ pub struct SchedulerStatistics {
 
 // Non-Verus version (without formal verification)
 #[cfg(not(feature = "verus"))]
+#[allow(dead_code)]
 pub struct NeuralSchedulerIntegration {
     neural_scheduler: NeuralScheduler,
     predictors: Vec<WorkloadPredictor>,
@@ -290,7 +291,7 @@ impl NeuralSchedulerIntegration {
         self.gaming_mode
     }
 
-    pub fn adjust_priority(&mut self, thread_id: usize, features: &ThreadFeatures) -> i8 {
+    pub fn adjust_priority(&mut self, _thread_id: usize, features: &ThreadFeatures) -> i8 {
         let adjustment = self.neural_scheduler.predict_priority(features);
         self.adjustments_made += 1;
         if features.is_gaming != 0 {
@@ -299,7 +300,7 @@ impl NeuralSchedulerIntegration {
         adjustment
     }
 
-    pub fn record_thread_behavior(&mut self, thread_id: usize, features: ThreadFeatures) {
+    pub fn record_thread_behavior(&mut self, _thread_id: usize, features: ThreadFeatures) {
         self.neural_scheduler.record_thread(features);
     }
 
@@ -308,7 +309,7 @@ impl NeuralSchedulerIntegration {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

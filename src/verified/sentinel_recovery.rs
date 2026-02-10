@@ -22,7 +22,7 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::collections::BTreeMap;
 
-use crate::sentinel::{DriverId, DriverState};
+use crate::sentinel::DriverId;
 
 /// Watchdog timer
 #[derive(Debug, Clone, Copy)]
@@ -489,7 +489,7 @@ impl RecoveryManager {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

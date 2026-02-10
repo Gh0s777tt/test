@@ -15,6 +15,8 @@
 //! - Resource exhaustion tests
 //! - Security tests
 //! - Performance tests
+use vstd::prelude::*;
+
 
 #![cfg(test)]
 

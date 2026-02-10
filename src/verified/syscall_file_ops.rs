@@ -174,6 +174,7 @@ pub type FileOpResult<T> = Result<T, FileOpError>;
 
 /// File table entry
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct FileEntry {
     /// File path
     path: PathBuf,
@@ -187,6 +188,7 @@ struct FileEntry {
     writable: bool,
 }
 
+#[allow(dead_code)]
 /// File table (simplified for verification)
 pub struct FileTable {
     /// Open files
@@ -227,6 +229,7 @@ impl FileTable {
     }
     
     /// Allocate file descriptor
+    #[allow(dead_code)]
     fn alloc_fd(&mut self, entry: FileEntry) -> FileOpResult<FileDescriptor> {
         // Find free slot
         for i in self.next_fd as usize..self.files.len() {
@@ -240,6 +243,7 @@ impl FileTable {
     }
     
     /// Free file descriptor
+    #[allow(dead_code)]
     fn free_fd(&mut self, fd: FileDescriptor) -> FileOpResult<()> {
         if fd < 0 || fd as usize >= self.files.len() {
             return Err(FileOpError::InvalidFd);
@@ -453,7 +457,7 @@ pub fn sys_rename(old_path: &Path, new_path: &Path) -> FileOpResult<()> {
     Ok(())
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

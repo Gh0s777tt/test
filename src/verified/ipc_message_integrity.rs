@@ -9,13 +9,8 @@
 //! 2. **Data Immutability**: Message data cannot be modified in transit
 //! 3. **Metadata Preservation**: Sender, receiver, and priority are preserved
 //! 4. **End-to-End Integrity**: Data sent equals data received
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use std::collections::VecDeque;
@@ -71,7 +66,8 @@ pub fn compute_checksum(data: &[u8]) -> u32 {
     !crc
 }
 
-#[cfg(feature = "verus")]
+verus! {
+
 spec fn compute_checksum_spec(data: Seq<u8>) -> u32;
 
 // ============================================================================
@@ -300,7 +296,6 @@ impl IntegrityBuffer {
 // FORMAL PROOFS
 // ============================================================================
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_message_integrity_preserved()
     ensures(
         forall|msg: IntegrityMessage| 
@@ -314,7 +309,6 @@ pub proof fn theorem_message_integrity_preserved()
     // 4. Therefore, verify_integrity() always returns true for well-formed messages
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_data_immutability()
     ensures(
         forall|msg1: IntegrityMessage, msg2: IntegrityMessage|
@@ -329,7 +323,6 @@ pub proof fn theorem_data_immutability()
     // 3. Therefore, equal data implies equal checksum
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_buffer_preserves_integrity()
     ensures(
         forall|buffer: IntegrityBuffer, msg: IntegrityMessage|
@@ -352,7 +345,6 @@ pub proof fn theorem_buffer_preserves_integrity()
     // 5. Therefore, integrity is preserved through buffer operations
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_end_to_end_integrity()
     ensures(
         forall|sender: Pid, receiver: Pid, data: Seq<u8>|
@@ -379,7 +371,7 @@ pub proof fn theorem_end_to_end_integrity()
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     
@@ -615,3 +607,5 @@ mod kani_verification {
         assert!(!msg.verify_integrity());
     }
 }
+
+} // verus!

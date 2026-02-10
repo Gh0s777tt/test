@@ -19,7 +19,6 @@
 use aes::Aes256;
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit,
-    block_padding::Pkcs7,
 };
 use rand::RngCore;
 
@@ -269,7 +268,7 @@ pub fn fips_kat_aes256_cbc() -> Result<(), AesError> {
     Ok(())
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

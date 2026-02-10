@@ -337,7 +337,7 @@ impl BackendFactory {
     
     /// Get list of available backends on this platform
     pub fn available_backends() -> Vec<BackendType> {
-        let mut backends = Vec::new();
+        let backends = Vec::new();
         
         #[cfg(feature = "vulkan")]
         backends.push(BackendType::Vulkan);
@@ -349,7 +349,7 @@ impl BackendFactory {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
     

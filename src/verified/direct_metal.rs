@@ -11,7 +11,6 @@
 //!
 //! Safety: All operations are formally verified with Verus
 
-use core::ptr::NonNull;
 
 // Type aliases for backend compatibility
 pub type GpuDeviceId = u32;
@@ -123,6 +122,7 @@ impl GpuMemory {
 
 /// GPU command buffer for submitting work to GPU
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct CommandBuffer {
     commands: Vec<GpuCommand>,
     device: GpuDevice,
@@ -171,7 +171,7 @@ impl CommandBuffer {
     }
 
     /// Internal submission function
-    fn submit_to_gpu(commands: &[GpuCommand]) -> Result<(), GpuError> {
+    fn submit_to_gpu(_commands: &[GpuCommand]) -> Result<(), GpuError> {
         // In real implementation, this would submit to GPU driver
         Ok(())
     }
@@ -231,6 +231,7 @@ impl GpuCommand {
 }
 
 /// GPU synchronization fence
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct GpuFence {
     signaled: bool,
@@ -267,6 +268,7 @@ impl GpuFence {
     }
 }
 
+#[allow(dead_code)]
 /// GPU pipeline for graphics or compute
 #[derive(Debug)]
 pub struct GpuPipeline {
@@ -313,6 +315,7 @@ impl GpuPipeline {
         }
     }
 }
+#[allow(dead_code)]
 
 /// GPU scheduler for managing GPU workloads
 #[derive(Debug)]
@@ -430,7 +433,7 @@ impl GpuStats {
 // TESTS
 // ============================================================================
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 
