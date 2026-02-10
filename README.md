@@ -165,6 +165,9 @@ maintenance scripts from `scripts/`:
 # Run all benchmark groups
 ./scripts/run_benchmarks.sh --all
 
+# Run repeated benchmark reproducibility profile
+./scripts/benchmark_reproducibility.sh --bench timer_queue_benchmark --runs 2
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```
