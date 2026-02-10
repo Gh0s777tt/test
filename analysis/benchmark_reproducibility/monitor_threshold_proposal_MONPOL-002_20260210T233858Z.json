@@ -1,0 +1,110 @@
+{
+  "bench_filter": [
+    "directory_entry_cache_benchmark",
+    "timer_queue_benchmark"
+  ],
+  "evidence_bundle": [
+    "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json",
+    "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T233858Z.json",
+    "analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md",
+    "analysis/benchmark_reproducibility/directory_entry_cache_benchmark_20260210T143955Z.md",
+    "analysis/benchmark_reproducibility/timer_queue_benchmark_20260210T143840Z.md"
+  ],
+  "generated_at_utc": "2026-02-10T23:38:58Z",
+  "inputs": {
+    "changelog_path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+    "dashboard_json": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T233858Z.json",
+    "recommendation_json": "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json",
+    "signoff_json": "governance/performance/MONPOL_SIGNOFFS.json"
+  },
+  "latency_telemetry": {
+    "current_proposal": {
+      "age_days": 0,
+      "draft_count": 6,
+      "draft_files": [
+        "monitor_threshold_proposal_MONPOL-002_20260210T154552Z.json",
+        "monitor_threshold_proposal_MONPOL-002_20260210T224520Z.json",
+        "monitor_threshold_proposal_MONPOL-002_20260210T225638Z.json",
+        "monitor_threshold_proposal_MONPOL-002_20260210T231232Z.json",
+        "monitor_threshold_proposal_MONPOL-002_20260210T232543Z.json",
+        "monitor_threshold_proposal_MONPOL-002_20260210T233757Z.json"
+      ],
+      "first_seen_utc": "2026-02-10T15:45:52Z",
+      "latest_seen_utc": "2026-02-10T23:37:57Z",
+      "proposal_id": "MONPOL-002"
+    },
+    "historical_latest_ok_entry": null,
+    "historical_rows": [
+      {
+        "decision": "unknown",
+        "first_proposal_generated_at_utc": "n/a",
+        "latency_days": null,
+        "merge_date": "2026-02-10",
+        "proposal_file": "n/a",
+        "proposal_history_files": 0,
+        "proposal_id": "MONPOL-001",
+        "status": "missing_proposal_artifact"
+      }
+    ],
+    "historical_summary": {
+      "chronology_error_count": 0,
+      "entries_evaluated": 1,
+      "invalid_merge_date_count": 0,
+      "latency_samples": 0,
+      "max_latency_days": null,
+      "median_latency_days": null,
+      "missing_proposal_artifact_count": 1,
+      "p90_latency_days": null,
+      "proposal_artifacts_discovered": 6,
+      "proposal_artifacts_skipped": 0
+    }
+  },
+  "proposal_changes": [
+    {
+      "action": "tighten",
+      "bench": "directory_entry_cache_benchmark",
+      "delta_pct": -6.76,
+      "from_threshold_pct": 25.0,
+      "to_threshold_pct": 18.24
+    }
+  ],
+  "proposal_id": "MONPOL-002",
+  "rows": [
+    {
+      "action": "tighten",
+      "bench": "directory_entry_cache_benchmark",
+      "delta_pct": -6.76,
+      "drift_rate_pct": 0.0,
+      "drift_reports": 0,
+      "failure_count": 0,
+      "latest_report": "directory_entry_cache_benchmark_20260210T143955Z.md",
+      "latest_status": "pass",
+      "latest_threshold_pct": 25.0,
+      "recommended_threshold_pct": 18.24,
+      "timeout_count": 0
+    },
+    {
+      "action": "hold",
+      "bench": "timer_queue_benchmark",
+      "delta_pct": -1.27,
+      "drift_rate_pct": 50.0,
+      "drift_reports": 2,
+      "failure_count": 0,
+      "latest_report": "timer_queue_benchmark_20260210T143840Z.md",
+      "latest_status": "pass",
+      "latest_threshold_pct": 60.0,
+      "recommended_threshold_pct": 58.73,
+      "timeout_count": 0
+    }
+  ],
+  "signoff_telemetry": {
+    "decision_counts": {},
+    "proposal_signoff": null,
+    "record_count": 0
+  },
+  "status": "draft",
+  "suggested_monitor_flags": [
+    "--monitor-bench directory_entry_cache_benchmark:18.24",
+    "--monitor-bench timer_queue_benchmark:60"
+  ]
+}
