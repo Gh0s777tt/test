@@ -136,6 +136,7 @@ See [../history/](../history/) for:
 - **Week 7 Day 9 microkernel architecture**: `implementation/MICROKERNEL_ARCHITECTURE.md`
 - **Week 7 Day 10 integration testing**: `../WEEK_7_DAY_10_INTEGRATION_TESTING.md`
 - **Week 7 Day 11 directory cache optimization**: `../WEEK_7_DAY_11_DIRECTORY_ENTRY_CACHING.md`
+- **Week 7 Day 12 timer queue optimization**: `../WEEK_7_DAY_12_TIMER_QUEUE_OPTIMIZATION.md`
 
 ---
 
