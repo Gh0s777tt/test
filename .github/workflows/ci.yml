@@ -200,13 +200,14 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Run strict reproducibility check (path lookup cache)
+      - name: Run benchmark reproducibility gate (strict + monitor)
         run: >
-          ./scripts/benchmark_reproducibility.sh
-          --bench path_lookup_cache_benchmark
+          ./scripts/run_benchmark_ci_gate.sh
           --runs 2
-          --spread-threshold-pct 50
-          --strict
+          --strict-bench path_lookup_cache_benchmark
+          --strict-threshold-pct 50
+          --monitor-bench timer_queue_benchmark
+          --monitor-threshold-pct 25
           --baseline-prefix ci_repro
 
       - name: Upload reproducibility report
@@ -214,5 +215,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-reproducibility-report
-          path: analysis/benchmark_reproducibility/path_lookup_cache_benchmark_*.md
+          path: analysis/benchmark_reproducibility/*.md
           if-no-files-found: warn

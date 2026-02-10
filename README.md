@@ -168,6 +168,9 @@ maintenance scripts from `scripts/`:
 # Run repeated benchmark reproducibility profile
 ./scripts/benchmark_reproducibility.sh --bench timer_queue_benchmark --runs 2
 
+# Run CI-like benchmark gate locally (strict + monitor)
+./scripts/run_benchmark_ci_gate.sh --runs 2 --strict-threshold-pct 50 --monitor-threshold-pct 25
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```

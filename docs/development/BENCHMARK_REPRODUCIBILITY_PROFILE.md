@@ -100,8 +100,10 @@ Example:
 Current repository integration:
 
 - `.github/workflows/ci.yml` includes `benchmark-reproducibility-gate`
-- gate currently runs strict reproducibility checks for `path_lookup_cache_benchmark`
-  with a conservative 50% spread threshold on pull requests.
-  This threshold is intentionally loose for shared cloud runners and should be tightened
-  as dedicated benchmarking infrastructure is introduced.
+- gate uses `scripts/run_benchmark_ci_gate.sh` and runs two stages:
+  1. **strict**: `path_lookup_cache_benchmark` (50% spread threshold)
+  2. **monitor**: `timer_queue_benchmark` (25% spread threshold, non-blocking)
+- all markdown reports are uploaded as CI artifacts.
+- strict threshold is intentionally conservative on shared runners and should be
+  tightened as dedicated benchmarking infrastructure is introduced.
 
