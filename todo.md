@@ -41,12 +41,12 @@
   - [x] Add cache invalidation
   - [x] Test and benchmark
 
-- [ ] Day 6: Fd Allocation Optimization
+- [x] Day 6: Fd Allocation Optimization
   - [x] Design bitmap allocation
   - [x] Implement bitmap structure
   - [x] Replace linear scan
   - [x] Test edge cases
-  - [ ] Benchmark improvements
+  - [x] Benchmark improvements
 
 - [ ] Day 7: Performance Validation
   - [ ] Run all syscall benchmarks
@@ -113,5 +113,6 @@
 - Week 7 Day 3: ✅ COMPLETE
 - Week 7 Day 4: ✅ COMPLETE (Library builds with 0 errors!)
 - Week 7 Day 5: ✅ COMPLETE (LRU path cache + syscall integration + benchmark)
-- Progress: 36% (5/14 days)
-- Next: Day 6 - Fd Allocation Optimization
+- Week 7 Day 6: ✅ COMPLETE (bitmap allocator + edge tests + benchmark)
+- Progress: 43% (6/14 days)
+- Next: Day 7 - Performance Validation

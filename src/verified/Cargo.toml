@@ -124,3 +124,8 @@ path = "../../benches/syscall_performance_simple.rs"
 name = "path_lookup_cache_benchmark"
 harness = false
 path = "../../benches/path_lookup_cache_benchmark.rs"
+
+[[bench]]
+name = "fd_allocator_benchmark"
+harness = false
+path = "../../benches/fd_allocator_benchmark.rs"
