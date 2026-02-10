@@ -247,6 +247,11 @@ jobs:
         run: >
           ./scripts/generate_governance_transition_pack.sh
 
+      - name: Generate MONPOL changelog scaffold draft
+        if: ${{ always() }}
+        run: >
+          ./scripts/scaffold_monpol_changelog_entry.sh
+
       - name: Upload reproducibility report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

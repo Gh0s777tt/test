@@ -120,6 +120,8 @@ Current repository integration:
 - CI runs `scripts/generate_governance_transition_pack.sh` to publish a packaged
   transition snapshot (toolchain components, evidence status, CI policy baseline)
   for Week 10 rollout tracking.
+- CI runs `scripts/scaffold_monpol_changelog_entry.sh` to generate a ready-to-review
+  changelog entry scaffold for the latest proposal draft.
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -176,6 +178,12 @@ Generate governance transition pack:
 
 ```bash
 ./scripts/generate_governance_transition_pack.sh
+```
+
+Generate changelog scaffold draft for latest MONPOL proposal:
+
+```bash
+./scripts/scaffold_monpol_changelog_entry.sh
 ```
 
 Canonical governance template:

@@ -183,6 +183,9 @@ maintenance scripts from `scripts/`:
 # Generate Week 9 governance transition pack (md + json)
 ./scripts/generate_governance_transition_pack.sh
 
+# Generate MONPOL changelog entry scaffold from latest proposal draft
+./scripts/scaffold_monpol_changelog_entry.sh
+
 # Validate monitor threshold governance rules (PR-aware, auto-skip outside PR payloads)
 ./scripts/check_monitor_threshold_governance.sh
 
