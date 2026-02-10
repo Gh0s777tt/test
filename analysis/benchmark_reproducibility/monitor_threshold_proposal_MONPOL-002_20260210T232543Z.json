@@ -1,0 +1,68 @@
+{
+  "bench_filter": [
+    "directory_entry_cache_benchmark",
+    "timer_queue_benchmark"
+  ],
+  "evidence_bundle": [
+    "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json",
+    "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T232543Z.json",
+    "analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md",
+    "analysis/benchmark_reproducibility/directory_entry_cache_benchmark_20260210T143955Z.md",
+    "analysis/benchmark_reproducibility/timer_queue_benchmark_20260210T143840Z.md"
+  ],
+  "generated_at_utc": "2026-02-10T23:25:43Z",
+  "inputs": {
+    "changelog_path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+    "dashboard_json": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T232543Z.json",
+    "recommendation_json": "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json",
+    "signoff_json": "governance/performance/MONPOL_SIGNOFFS.json"
+  },
+  "proposal_changes": [
+    {
+      "action": "tighten",
+      "bench": "directory_entry_cache_benchmark",
+      "delta_pct": -6.76,
+      "from_threshold_pct": 25.0,
+      "to_threshold_pct": 18.24
+    }
+  ],
+  "proposal_id": "MONPOL-002",
+  "rows": [
+    {
+      "action": "tighten",
+      "bench": "directory_entry_cache_benchmark",
+      "delta_pct": -6.76,
+      "drift_rate_pct": 0.0,
+      "drift_reports": 0,
+      "failure_count": 0,
+      "latest_report": "directory_entry_cache_benchmark_20260210T143955Z.md",
+      "latest_status": "pass",
+      "latest_threshold_pct": 25.0,
+      "recommended_threshold_pct": 18.24,
+      "timeout_count": 0
+    },
+    {
+      "action": "hold",
+      "bench": "timer_queue_benchmark",
+      "delta_pct": -1.27,
+      "drift_rate_pct": 50.0,
+      "drift_reports": 2,
+      "failure_count": 0,
+      "latest_report": "timer_queue_benchmark_20260210T143840Z.md",
+      "latest_status": "pass",
+      "latest_threshold_pct": 60.0,
+      "recommended_threshold_pct": 58.73,
+      "timeout_count": 0
+    }
+  ],
+  "signoff_telemetry": {
+    "decision_counts": {},
+    "proposal_signoff": null,
+    "record_count": 0
+  },
+  "status": "draft",
+  "suggested_monitor_flags": [
+    "--monitor-bench directory_entry_cache_benchmark:18.24",
+    "--monitor-bench timer_queue_benchmark:60"
+  ]
+}
