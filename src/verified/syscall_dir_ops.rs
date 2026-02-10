@@ -12,7 +12,9 @@
 
 
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
 
+use super::path_lookup_cache::{PathLookupCache, PathLookupCacheStats};
 use super::syscall_file_ops::{
     invalidate_path_lookup_cache,
     invalidate_path_lookup_cache_prefix,
@@ -20,6 +22,28 @@ use super::syscall_file_ops::{
 
 /// Maximum path length
 pub const MAX_PATH_LENGTH: usize = 4096;
+
+/// Default capacity for directory entry cache.
+pub const DIRECTORY_ENTRY_CACHE_CAPACITY: usize = 256;
+
+/// Cached directory metadata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DirectoryEntryCacheEntry {
+    /// Whether the cached object is a directory.
+    pub is_directory: bool,
+}
+
+impl DirectoryEntryCacheEntry {
+    /// Create directory cache entry.
+    pub const fn directory() -> Self {
+        Self { is_directory: true }
+    }
+}
+
+/// Directory entry cache keyed by path.
+pub type DirectoryEntryPathCache = PathLookupCache<DirectoryEntryCacheEntry>;
+
+static DIRECTORY_ENTRY_CACHE: OnceLock<Mutex<DirectoryEntryPathCache>> = OnceLock::new();
 
 /// Directory operation errors
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -110,6 +134,83 @@ impl Default for WorkingDirectory {
     }
 }
 
+fn default_directory_entry_cache() -> &'static Mutex<DirectoryEntryPathCache> {
+    DIRECTORY_ENTRY_CACHE
+        .get_or_init(|| Mutex::new(DirectoryEntryPathCache::new(DIRECTORY_ENTRY_CACHE_CAPACITY)))
+}
+
+fn with_default_directory_entry_cache<T>(f: impl FnOnce(&mut DirectoryEntryPathCache) -> T) -> T {
+    let mut guard = default_directory_entry_cache()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    f(&mut guard)
+}
+
+fn validate_directory_path(path: &Path) -> DirOpResult<()> {
+    if path.as_os_str().is_empty() {
+        return Err(DirOpError::InvalidPath);
+    }
+    if path.as_os_str().len() > MAX_PATH_LENGTH {
+        return Err(DirOpError::PathTooLong);
+    }
+    Ok(())
+}
+
+fn resolve_directory_path(base: &Path, path: &Path) -> PathBuf {
+    use std::path::Component;
+
+    let mut resolved = if path.is_absolute() {
+        PathBuf::from("/")
+    } else if base.as_os_str().is_empty() {
+        PathBuf::from("/")
+    } else {
+        base.to_path_buf()
+    };
+
+    for component in path.components() {
+        match component {
+            Component::Prefix(_) => {}
+            Component::RootDir => resolved = PathBuf::from("/"),
+            Component::CurDir => {}
+            Component::ParentDir => {
+                if resolved != Path::new("/") {
+                    resolved.pop();
+                    if resolved.as_os_str().is_empty() {
+                        resolved = PathBuf::from("/");
+                    }
+                }
+            }
+            Component::Normal(name) => resolved.push(name),
+        }
+    }
+
+    if resolved.as_os_str().is_empty() {
+        PathBuf::from("/")
+    } else {
+        resolved
+    }
+}
+
+/// Return current directory cache statistics.
+pub fn directory_entry_cache_stats() -> PathLookupCacheStats {
+    with_default_directory_entry_cache(|cache| cache.stats())
+}
+
+/// Clear global directory cache contents.
+pub fn reset_directory_entry_cache() {
+    with_default_directory_entry_cache(|cache| cache.clear());
+}
+
+/// Invalidate single directory path in global cache.
+pub fn invalidate_directory_entry_cache(path: &Path) -> bool {
+    with_default_directory_entry_cache(|cache| cache.invalidate(path))
+}
+
+/// Invalidate directory cache entries under path prefix.
+pub fn invalidate_directory_entry_cache_prefix(prefix: &Path) -> usize {
+    with_default_directory_entry_cache(|cache| cache.invalidate_prefix(prefix))
+}
+
 /// Create directory
 ///
 /// # Verification Properties
@@ -126,17 +227,13 @@ impl Default for WorkingDirectory {
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
-    // Validate path
-    if path.as_os_str().is_empty() {
-        return Err(DirOpError::InvalidPath);
-    }
-    
-    // Check path length
-    if path.as_os_str().len() > MAX_PATH_LENGTH {
-        return Err(DirOpError::PathTooLong);
-    }
-    
+pub fn sys_mkdir_with_cache(
+    path: &Path,
+    mode: Option<u32>,
+    cache: &mut DirectoryEntryPathCache,
+) -> DirOpResult<()> {
+    validate_directory_path(path)?;
+
     // Get permissions
     let _perms = mode.map(DirPermissions::new)
         .unwrap_or_else(DirPermissions::default_dir);
@@ -146,8 +243,23 @@ pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
     // 2. Check if directory already exists
     // 3. Create the directory with specified permissions
     // 4. Update file system metadata
-    
-    // Cache coherency: directory creation invalidates direct path and parent.
+
+    // Directory cache: insert created directory and refresh parent.
+    cache.insert(path, DirectoryEntryCacheEntry::directory());
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() {
+            cache.invalidate(parent);
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
+    with_default_directory_entry_cache(|cache| sys_mkdir_with_cache(path, mode, cache))?;
+
+    // Keep file-stat cache coherent with directory topology changes.
     invalidate_path_lookup_cache(path);
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -173,17 +285,9 @@ pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
-    // Validate path
-    if path.as_os_str().is_empty() {
-        return Err(DirOpError::InvalidPath);
-    }
-    
-    // Check path length
-    if path.as_os_str().len() > MAX_PATH_LENGTH {
-        return Err(DirOpError::PathTooLong);
-    }
-    
+pub fn sys_rmdir_with_cache(path: &Path, cache: &mut DirectoryEntryPathCache) -> DirOpResult<()> {
+    validate_directory_path(path)?;
+
     // Cannot remove root directory
     if path == Path::new("/") {
         return Err(DirOpError::PermissionDenied);
@@ -195,8 +299,23 @@ pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
     // 3. Check if directory is empty
     // 4. Check permissions
     // 5. Remove the directory
-    
-    // Cache coherency: drop directory subtree entries and refresh parent metadata.
+
+    // Directory cache coherency: remove subtree and refresh parent.
+    cache.invalidate_prefix(path);
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() {
+            cache.invalidate(parent);
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
+    with_default_directory_entry_cache(|cache| sys_rmdir_with_cache(path, cache))?;
+
+    // Keep file-stat cache coherent with directory removal.
     invalidate_path_lookup_cache_prefix(path);
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -223,52 +342,40 @@ pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
-    // Validate path
-    if path.as_os_str().is_empty() {
-        return Err(DirOpError::InvalidPath);
-    }
-    
-    // Check path length
-    if path.as_os_str().len() > MAX_PATH_LENGTH {
-        return Err(DirOpError::PathTooLong);
-    }
-    
-    // Resolve path (handle relative paths)
-    let new_path = if path.is_absolute() {
-        path.to_path_buf()
-    } else {
-        // Resolve relative to current directory
-        let mut resolved = wd.cwd.clone();
-        for component in path.components() {
-            use std::path::Component;
-            match component {
-                Component::CurDir => {
-                    // "." - stay in current directory
-                }
-                Component::ParentDir => {
-                    // ".." - go to parent
-                    resolved.pop();
-                }
-                Component::Normal(name) => {
-                    // Regular directory name
-                    resolved.push(name);
-                }
-                _ => {}
-            }
+pub fn sys_chdir_with_cache(
+    wd: &mut WorkingDirectory,
+    path: &Path,
+    cache: &mut DirectoryEntryPathCache,
+) -> DirOpResult<()> {
+    validate_directory_path(path)?;
+
+    let new_path = resolve_directory_path(wd.get(), path);
+
+    // Fast path: validated directory lookup from cache.
+    if let Some(entry) = cache.get(new_path.as_path()) {
+        if !entry.is_directory {
+            return Err(DirOpError::NotDirectory);
         }
-        resolved
-    };
-    
+        wd.set(new_path);
+        return Ok(());
+    }
+
     // In a real implementation, this would:
     // 1. Check if path exists
     // 2. Check if path is a directory
     // 3. Check execute permission
-    
+
+    cache.insert(new_path.as_path(), DirectoryEntryCacheEntry::directory());
+
     // Update working directory
     wd.set(new_path);
-    
+
     Ok(())
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
+    with_default_directory_entry_cache(|cache| sys_chdir_with_cache(wd, path, cache))
 }
 
 /// Get current working directory
@@ -287,15 +394,21 @@ pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
 /// # Returns
 /// Path length or error
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_getcwd(
+pub fn sys_getcwd_with_cache(
     wd: &WorkingDirectory,
     buf: &mut [u8],
     size: usize,
+    cache: &mut DirectoryEntryPathCache,
 ) -> DirOpResult<usize> {
     // Get current directory path
     let cwd = wd.get();
     let cwd_bytes = cwd.as_os_str().as_encoded_bytes();
-    
+
+    // Keep current directory visible in cache.
+    if cache.get(cwd).is_none() {
+        cache.insert(cwd, DirectoryEntryCacheEntry::directory());
+    }
+
     // Check if buffer is large enough
     if cwd_bytes.len() + 1 > size {
         return Err(DirOpError::PathTooLong);
@@ -315,6 +428,15 @@ pub fn sys_getcwd(
     }
     
     Ok(cwd_bytes.len())
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_getcwd(
+    wd: &WorkingDirectory,
+    buf: &mut [u8],
+    size: usize,
+) -> DirOpResult<usize> {
+    with_default_directory_entry_cache(|cache| sys_getcwd_with_cache(wd, buf, size, cache))
 }
 
 /// Get current working directory as PathBuf
@@ -489,6 +611,65 @@ mod tests {
         
         let path = sys_getcwd_path(&wd);
         assert_eq!(path, PathBuf::from("/usr/local"));
+    }
+
+    #[test]
+    fn test_directory_cache_stats_repeated_chdir() {
+        reset_directory_entry_cache();
+
+        let mut wd = WorkingDirectory::new();
+        assert!(sys_chdir(&mut wd, Path::new("/usr")).is_ok()); // miss
+        assert!(sys_chdir(&mut wd, Path::new("/usr")).is_ok()); // hit
+
+        let stats = directory_entry_cache_stats();
+        assert_eq!(stats.misses, 1);
+        assert_eq!(stats.hits, 1);
+    }
+
+    #[test]
+    fn test_mkdir_rmdir_with_cache_coherency() {
+        let mut cache = DirectoryEntryPathCache::new(16);
+        let child = Path::new("/tmp/demo");
+
+        assert!(sys_mkdir_with_cache(child, None, &mut cache).is_ok());
+        assert!(cache.peek(child).is_some());
+
+        assert!(sys_rmdir_with_cache(Path::new("/tmp"), &mut cache).is_ok());
+        assert!(cache.peek(child).is_none());
+    }
+
+    #[test]
+    fn test_getcwd_with_cache_hit_miss() {
+        let wd = WorkingDirectory::new();
+        let mut cache = DirectoryEntryPathCache::new(8);
+        let mut buf = [0u8; 64];
+        let size = buf.len();
+
+        assert!(sys_getcwd_with_cache(&wd, &mut buf, size, &mut cache).is_ok());
+        assert!(sys_getcwd_with_cache(&wd, &mut buf, size, &mut cache).is_ok());
+
+        let stats = cache.stats();
+        assert_eq!(stats.misses, 1);
+        assert_eq!(stats.hits, 1);
+    }
+
+    #[test]
+    fn test_global_directory_cache_prefix_invalidation() {
+        reset_directory_entry_cache();
+        with_default_directory_entry_cache(|cache| {
+            cache.insert(Path::new("/usr"), DirectoryEntryCacheEntry::directory());
+            cache.insert(Path::new("/usr/local"), DirectoryEntryCacheEntry::directory());
+            cache.insert(Path::new("/var/log"), DirectoryEntryCacheEntry::directory());
+        });
+
+        let removed = invalidate_directory_entry_cache_prefix(Path::new("/usr"));
+        assert_eq!(removed, 2);
+
+        with_default_directory_entry_cache(|cache| {
+            assert!(cache.peek(Path::new("/usr")).is_none());
+            assert!(cache.peek(Path::new("/usr/local")).is_none());
+            assert!(cache.peek(Path::new("/var/log")).is_some());
+        });
     }
     
     #[test]
