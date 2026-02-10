@@ -185,6 +185,8 @@ latest_dashboard_md = latest("monitor_policy_dashboard_*.md")
 latest_dashboard_json = latest("monitor_policy_dashboard_*.json")
 latest_proposal_md = latest("monitor_threshold_proposal_MONPOL-*_*.md")
 latest_proposal_json = latest("monitor_threshold_proposal_MONPOL-*_*.json")
+latest_scaffold_md = latest("monpol_changelog_scaffold_MONPOL-*_*.md")
+latest_scaffold_json = latest("monpol_changelog_scaffold_MONPOL-*_*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -205,6 +207,7 @@ scripts_required = [
     root / "scripts/recommend_monitor_policy.sh",
     root / "scripts/build_monitor_policy_dashboard.sh",
     root / "scripts/generate_monitor_threshold_proposal.sh",
+    root / "scripts/scaffold_monpol_changelog_entry.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
 script_status = [
@@ -245,6 +248,12 @@ artifact_status = [
         "kind": "proposal_json",
         "path": rel(latest_proposal_json) if latest_proposal_json else "n/a",
         "exists": bool(latest_proposal_json),
+    },
+    {"kind": "scaffold_md", "path": rel(latest_scaffold_md) if latest_scaffold_md else "n/a", "exists": bool(latest_scaffold_md)},
+    {
+        "kind": "scaffold_json",
+        "path": rel(latest_scaffold_json) if latest_scaffold_json else "n/a",
+        "exists": bool(latest_scaffold_json),
     },
 ]
 
@@ -316,7 +325,7 @@ with output_path.open("w", encoding="utf-8") as fh:
 
     fh.write("## Week 10 Transition Plan (Suggested)\n\n")
     fh.write("1. Validate proposal quality gates against real PR scenarios.\n")
-    fh.write("2. Add changelog-entry scaffolding automation for approved MONPOL proposals.\n")
+    fh.write("2. Validate scaffold quality against reviewer approval workflow.\n")
     fh.write("3. Introduce reviewer sign-off metadata in proposal JSON artifacts.\n")
     fh.write("4. Track policy change latency (proposal -> merge) in dashboard trends.\n")
     fh.write("5. Define escalation policy for repeated monitor drift across releases.\n")
