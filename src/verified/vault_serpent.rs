@@ -25,6 +25,19 @@ use serpent::Serpent;
 type SerpentCbcEnc = cbc::Encryptor<Serpent>;
 type SerpentCbcDec = cbc::Decryptor<Serpent>;
 
+/// Derive a Serpent-128 key from 32-byte material.
+///
+/// The upstream `serpent` crate exposes a 128-bit key interface.
+/// To keep the external API stable at 32 bytes, we fold both halves
+/// of the input key into a 16-byte working key.
+fn derive_serpent_key(key: &[u8; 32]) -> [u8; 16] {
+    let mut derived = [0u8; 16];
+    for i in 0..16 {
+        derived[i] = key[i] ^ key[i + 16];
+    }
+    derived
+}
+
 /// Serpent-256-CBC encryption errors
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SerpentError {
@@ -76,7 +89,11 @@ pub fn encrypt_serpent256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8
     let iv = generate_iv()?;
     
     // Create encryptor
-    let mut encryptor = SerpentCbcEnc::new(GenericArray::from_slice(key), GenericArray::from_slice(&iv));
+    let derived_key = derive_serpent_key(key);
+    let mut encryptor = SerpentCbcEnc::new(
+        GenericArray::from_slice(&derived_key),
+        GenericArray::from_slice(&iv),
+    );
     
     // Encrypt with PKCS#7 padding
     let block_size = 16;
@@ -126,7 +143,11 @@ pub fn decrypt_serpent256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Se
     let (iv, ciphertext) = data.split_at(16);
     
     // Create decryptor
-    let mut decryptor = SerpentCbcDec::new(GenericArray::from_slice(key), GenericArray::from_slice(iv));
+    let derived_key = derive_serpent_key(key);
+    let mut decryptor = SerpentCbcDec::new(
+        GenericArray::from_slice(&derived_key),
+        GenericArray::from_slice(iv),
+    );
     
     // Decrypt and remove padding
     let mut buffer = ciphertext.to_vec();
@@ -165,7 +186,11 @@ pub fn encrypt_serpent256_cbc_with_iv(
     plaintext: &[u8]
 ) -> Result<Vec<u8>, SerpentError> {
     // Create encryptor
-    let mut encryptor = SerpentCbcEnc::new(GenericArray::from_slice(key), GenericArray::from_slice(iv));
+    let derived_key = derive_serpent_key(key);
+    let mut encryptor = SerpentCbcEnc::new(
+        GenericArray::from_slice(&derived_key),
+        GenericArray::from_slice(iv),
+    );
     
     // Encrypt with PKCS#7 padding
     let block_size = 16;
