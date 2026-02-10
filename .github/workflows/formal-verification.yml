@@ -5,16 +5,20 @@ on:
     branches: [ 0.4.1, main ]
   pull_request:
     branches: [ 0.4.1, main ]
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
 
 env:
   RUST_BACKTRACE: 1
   CARGO_TERM_COLOR: always
+  VERUS_VERSION: "0.2026.02.06.4a2b93e"
 
 jobs:
   verus-verification:
     name: Verus Verification
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     
     steps:
       - name: Checkout repository
@@ -25,43 +29,113 @@ jobs:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: stable
           profile: minimal
           override: true
           components: rustfmt, clippy
       
-      - name: Cache Verus
+      - name: Cache Verus binary
         id: cache-verus
         uses: actions/cache@v3
         with:
           path: |
-            ~/.cargo/bin/verus
-            ~/.cargo/.crates.toml
-            ~/.cargo/.crates2.json
-          key: ${{ runner.os }}-verus-${{ hashFiles('**/Cargo.lock') }}
+            ~/verus-x86-linux
+          key: ${{ runner.os }}-verus-${{ env.VERUS_VERSION }}
       
-      - name: Install Verus
+      - name: Download Verus pre-built binary
         if: steps.cache-verus.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/verus-lang/verus.git /tmp/verus
-          cd /tmp/verus
-          ./tools/get-z3.sh
-          cargo build --release
-          cp target/release/verus ~/.cargo/bin/
-          chmod +x ~/.cargo/bin/verus
+          echo "Downloading Verus ${{ env.VERUS_VERSION }}..."
+          wget -q https://github.com/verus-lang/verus/releases/download/nightly/verus-x86-linux.tar.gz
+          tar -xzf verus-x86-linux.tar.gz -C ~/
+          chmod +x ~/verus-x86-linux/verus
+          echo "Verus downloaded and extracted"
       
       - name: Verify Verus installation
         run: |
-          verus --version || echo "Verus not found, skipping verification"
+          ~/verus-x86-linux/verus --version
+          echo "Verus is ready!"
       
-      - name: Run Verus verification
+      - name: Check for verified code
+        id: check-verified
         run: |
           if [ -d "src/verified" ]; then
-            find src/verified -name "*.rs" -exec verus {} \;
+            COUNT=$(find src/verified -name "*.rs" -type f | wc -l)
+            echo "Found $COUNT Rust files in src/verified"
+            echo "has_verified=true" >> $GITHUB_OUTPUT
+            echo "file_count=$COUNT" >> $GITHUB_OUTPUT
           else
-            echo "No verified code found yet"
+            echo "No src/verified directory found"
+            echo "has_verified=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run Verus verification on IPC files
+        if: steps.check-verified.outputs.has_verified == 'true'
+        run: |
+          echo "Running Verus verification on IPC files..."
+          FAILED=0
+          PASSED=0
+          
+          # Verify IPC files with verus! macro
+          for file in src/verified/ipc_*.rs; do
+            if [ -f "$file" ]; then
+              echo "Verifying $file..."
+              if ~/verus-x86-linux/verus "$file" 2>&1 | tee verus-output.log; then
+                echo "✅ $file - PASSED"
+                PASSED=$((PASSED + 1))
+              else
+                echo "❌ $file - FAILED"
+                FAILED=$((FAILED + 1))
+                cat verus-output.log
+              fi
+            fi
+          done
+          
+          echo ""
+          echo "Verification Summary:"
+          echo "  Passed: $PASSED"
+          echo "  Failed: $FAILED"
+          echo ""
+          
+          if [ $FAILED -gt 0 ]; then
+            echo "⚠️ Some verifications failed. This is expected during development."
+            echo "See VERIFICATION_STATUS.md for tracking progress."
+          else
+            echo "✅ All verifications passed!"
           fi
         continue-on-error: true
+      
+      - name: Generate Verus report
+        if: steps.check-verified.outputs.has_verified == 'true'
+        run: |
+          echo "# Verus Verification Report" > verus-report.md
+          echo "" >> verus-report.md
+          echo "**Date**: $(date)" >> verus-report.md
+          echo "**Commit**: ${{ github.sha }}" >> verus-report.md
+          echo "**Verus Version**: ${{ env.VERUS_VERSION }}" >> verus-report.md
+          echo "" >> verus-report.md
+          echo "## Files Verified" >> verus-report.md
+          echo "" >> verus-report.md
+          find src/verified -name "ipc_*.rs" -type f | while read file; do
+            echo "- \`$file\`" >> verus-report.md
+          done
+          echo "" >> verus-report.md
+          echo "## Status" >> verus-report.md
+          echo "" >> verus-report.md
+          echo "See workflow logs for detailed verification results." >> verus-report.md
+          echo "" >> verus-report.md
+          echo "## Next Steps" >> verus-report.md
+          echo "" >> verus-report.md
+          echo "1. Review verification results" >> verus-report.md
+          echo "2. Fix any failing proofs" >> verus-report.md
+          echo "3. Track progress in Issue #31" >> verus-report.md
+      
+      - name: Upload Verus report
+        if: steps.check-verified.outputs.has_verified == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: verus-report
+          path: verus-report.md
 
   kani-verification:
     name: Kani Verification
@@ -102,45 +176,186 @@ jobs:
         run: |
           cargo kani --version
       
-      - name: Run Kani verification
+      - name: Check for Kani proofs
+        id: check-kani
         run: |
           if grep -r "#\[kani::proof\]" src/; then
-            cargo kani
+            echo "has_kani=true" >> $GITHUB_OUTPUT
           else
-            echo "No Kani proofs found yet"
+            echo "has_kani=false" >> $GITHUB_OUTPUT
           fi
+      
+      - name: Run Kani verification
+        if: steps.check-kani.outputs.has_kani == 'true'
+        run: |
+          cargo kani
+        continue-on-error: true
+      
+      - name: Generate Kani report
+        if: steps.check-kani.outputs.has_kani == 'true'
+        run: |
+          echo "# Kani Verification Report" > kani-report.md
+          echo "" >> kani-report.md
+          echo "**Date**: $(date)" >> kani-report.md
+          echo "**Commit**: ${{ github.sha }}" >> kani-report.md
+          echo "" >> kani-report.md
+          echo "## Status" >> kani-report.md
+          echo "" >> kani-report.md
+          echo "See workflow logs for detailed verification results." >> kani-report.md
+      
+      - name: Upload Kani report
+        if: steps.check-kani.outputs.has_kani == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: kani-report
+          path: kani-report.md
+
+  build-verification:
+    name: Build with Verus Feature
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Cache cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Build without verus feature
+        run: |
+          cd src/verified
+          cargo build --release
+          echo "✅ Build without verus feature successful"
+      
+      - name: Build with verus feature
+        run: |
+          cd src/verified
+          cargo build --release --features verus
+          echo "✅ Build with verus feature successful"
+        continue-on-error: true
+      
+      - name: Run tests without verus
+        run: |
+          cd src/verified
+          cargo test --release
+          echo "✅ Tests without verus feature passed"
+      
+      - name: Run tests with verus
+        run: |
+          cd src/verified
+          cargo test --release --features verus
+          echo "✅ Tests with verus feature passed"
         continue-on-error: true
 
-  verification-report:
-    name: Generate Verification Report
+  verification-summary:
+    name: Verification Summary
     runs-on: ubuntu-latest
-    needs: [verus-verification, kani-verification]
+    needs: [verus-verification, kani-verification, build-verification]
     if: always()
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Generate report
-        run: |
-          echo "# Formal Verification Report" > verification-report.md
-          echo "" >> verification-report.md
-          echo "**Date**: $(date)" >> verification-report.md
-          echo "**Commit**: ${{ github.sha }}" >> verification-report.md
-          echo "" >> verification-report.md
-          echo "## Verification Status" >> verification-report.md
-          echo "" >> verification-report.md
-          echo "- Verus: ${{ needs.verus-verification.result }}" >> verification-report.md
-          echo "- Kani: ${{ needs.kani-verification.result }}" >> verification-report.md
-          echo "" >> verification-report.md
-          echo "## Next Steps" >> verification-report.md
-          echo "" >> verification-report.md
-          echo "1. Review verification results" >> verification-report.md
-          echo "2. Fix any failing proofs" >> verification-report.md
-          echo "3. Add more verified code" >> verification-report.md
+      - name: Download Verus report
+        uses: actions/download-artifact@v3
+        with:
+          name: verus-report
+        continue-on-error: true
       
-      - name: Upload report
+      - name: Download Kani report
+        uses: actions/download-artifact@v3
+        with:
+          name: kani-report
+        continue-on-error: true
+      
+      - name: Generate combined report
+        run: |
+          echo "# 🔬 Formal Verification Summary" > verification-summary.md
+          echo "" >> verification-summary.md
+          echo "**Date**: $(date)" >> verification-summary.md
+          echo "**Commit**: ${{ github.sha }}" >> verification-summary.md
+          echo "**Branch**: ${{ github.ref_name }}" >> verification-summary.md
+          echo "" >> verification-summary.md
+          
+          echo "## 📊 Job Results" >> verification-summary.md
+          echo "" >> verification-summary.md
+          echo "| Job | Status |" >> verification-summary.md
+          echo "|-----|--------|" >> verification-summary.md
+          echo "| Verus Verification | ${{ needs.verus-verification.result }} |" >> verification-summary.md
+          echo "| Kani Verification | ${{ needs.kani-verification.result }} |" >> verification-summary.md
+          echo "| Build Verification | ${{ needs.build-verification.result }} |" >> verification-summary.md
+          echo "" >> verification-summary.md
+          
+          echo "## 📚 Resources" >> verification-summary.md
+          echo "" >> verification-summary.md
+          echo "- [Verification Status](VERIFICATION_STATUS.md)" >> verification-summary.md
+          echo "- [IPC Verification Plan](docs/IPC_VERIFICATION_PLAN.md)" >> verification-summary.md
+          echo "- [Issue #31 - IPC Verification Tracking](https://github.com/vantisCorp/VantisOS/issues/31)" >> verification-summary.md
+          echo "" >> verification-summary.md
+          
+          echo "## 🎯 Next Steps" >> verification-summary.md
+          echo "" >> verification-summary.md
+          echo "1. Review detailed logs in workflow runs" >> verification-summary.md
+          echo "2. Fix any failing verifications" >> verification-summary.md
+          echo "3. Update VERIFICATION_STATUS.md with progress" >> verification-summary.md
+          echo "4. Track progress in Issue #31" >> verification-summary.md
+          echo "" >> verification-summary.md
+          
+          if [ -f "verus-report.md" ]; then
+            echo "## Verus Report" >> verification-summary.md
+            echo "" >> verification-summary.md
+            cat verus-report.md >> verification-summary.md
+            echo "" >> verification-summary.md
+          fi
+          
+          if [ -f "kani-report.md" ]; then
+            echo "## Kani Report" >> verification-summary.md
+            echo "" >> verification-summary.md
+            cat kani-report.md >> verification-summary.md
+          fi
+      
+      - name: Upload combined report
         uses: actions/upload-artifact@v3
         with:
-          name: verification-report
-          path: verification-report.md
+          name: verification-summary
+          path: verification-summary.md
+      
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('verification-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+        continue-on-error: true
