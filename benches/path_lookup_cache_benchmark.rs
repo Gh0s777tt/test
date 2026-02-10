@@ -20,7 +20,7 @@ fn bench_raw_path_lookup_cache(c: &mut Criterion) {
     });
 
     group.bench_function("miss", |b| {
-        let mut cache = PathLookupCache::new(1024);
+        let mut cache: PathLookupCache<u64> = PathLookupCache::new(1024);
         let key = PathBuf::from("/usr/bin/unknown");
 
         b.iter(|| black_box(cache.get(black_box(key.as_path()))));
