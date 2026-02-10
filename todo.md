@@ -124,3 +124,23 @@
 - Week 7 Day 14: ✅ COMPLETE (session summary + lessons learned + Week 9-10 handoff)
 - Progress: 100% (14/14 days)
 - Next: Week 9-10 execution plan
+
+## Week 9-10 Kickoff (Priority A: Tooling Fidelity)
+- [x] Day 1: IPC Benchmark Migration
+  - [x] Replace stale `vantis_os::ipc_complete::*` usage in benchmark
+  - [x] Migrate benchmark to `vantis_verified::ipc::IpcManager`
+  - [x] Add script mode `./scripts/run_benchmarks.sh --ipc`
+  - [x] Run benchmark and capture baseline (`ipc_complete_migrated`)
+  - [x] Publish migration report
+
+- [ ] Day 2: Benchmark Reproducibility Profile
+  - [ ] Define stable benchmark profile/flags for CI
+  - [ ] Document CPU governor and environment recommendations
+  - [ ] Add baseline retention policy
+  - [ ] Validate reproducibility with repeated runs
+
+- [ ] Day 3: Synthetic Benchmark Fidelity Hardening
+  - [ ] Reduce optimization artifacts in nanosecond synthetic benches
+  - [ ] Add mixed-scenario syscall sequences
+  - [ ] Compare synthetic vs scenario-driven drift
+  - [ ] Update performance guidance
