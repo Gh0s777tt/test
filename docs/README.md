@@ -142,6 +142,7 @@ See [../history/](../history/) for:
 - **Week 7 Day 13 consolidated performance report**: `../WEEK_7_DAY_13_PERFORMANCE_REPORT.md`
 - **Week 7 Day 14 final summary and handoff**: `../WEEK_7_DAY_14_WEEK_7_8_SUMMARY.md`
 - **Week 9 Day 1 IPC benchmark migration**: `../WEEK_9_DAY_1_IPC_BENCHMARK_MIGRATION.md`
+- **Week 9 Day 2 benchmark reproducibility profile**: `../WEEK_9_DAY_2_BENCHMARK_REPRODUCIBILITY.md`
 
 ---
 

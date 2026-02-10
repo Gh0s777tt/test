@@ -134,13 +134,19 @@
   - [x] Publish migration report
 
 - [ ] Day 2: Benchmark Reproducibility Profile
-  - [ ] Define stable benchmark profile/flags for CI
-  - [ ] Document CPU governor and environment recommendations
-  - [ ] Add baseline retention policy
-  - [ ] Validate reproducibility with repeated runs
+  - [x] Define stable benchmark profile/flags for CI
+  - [x] Document CPU governor and environment recommendations
+  - [x] Add baseline retention policy
+  - [x] Validate reproducibility with repeated runs
 
 - [ ] Day 3: Synthetic Benchmark Fidelity Hardening
   - [ ] Reduce optimization artifacts in nanosecond synthetic benches
   - [ ] Add mixed-scenario syscall sequences
   - [ ] Compare synthetic vs scenario-driven drift
   - [ ] Update performance guidance
+
+## Week 9-10 Current Status
+- Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
+- Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
+- Week 9 Progress: 2 milestone days complete
+- Next: Week 9 Day 3 - Synthetic Benchmark Fidelity Hardening
