@@ -149,5 +149,6 @@
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
 - Week 9 Day 3: ✅ COMPLETE (stateful benchmark hardening + mixed workload scenarios)
-- Week 9 Progress: 3 milestone days complete
-- Next: Week 9 Day 4 - CI benchmark profile integration and regression gate
+- Week 9 Day 4: ✅ COMPLETE (CI reproducibility gate + strict local validation)
+- Week 9 Progress: 4 milestone days complete
+- Next: Week 9 Day 5 - threshold calibration and expanded scenario gate
