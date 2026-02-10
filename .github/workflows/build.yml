@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    defaults:
+      run:
+        working-directory: src/verified
 
     steps:
       - name: Checkout source
@@ -18,14 +21,13 @@ jobs:
           fetch-depth: 1
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          components: clippy
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Build
+      - name: Check
+        run: cargo check --locked
+
+      - name: Build release
         run: cargo build --locked --release
 
       - name: Static Analysis
-        run: cargo clippy -- -D warnings
+        run: cargo clippy

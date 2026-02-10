@@ -5,6 +5,9 @@ on: [pull_request]
 jobs:
   bloat-check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/verified
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -14,18 +17,10 @@ jobs:
 
       - name: Analyze Binary Size
         run: |
-          # Zbuduj i sprawdź co zajmuje miejsce
-          cargo bloat --release --crates -n 10 > bloat_report.txt
-          
-      - name: Comment on PR
-        uses: actions/github-script@v6
+          cargo bloat --release --lib --crates -n 20 > bloat_report.txt
+
+      - name: Upload bloat report
+        uses: actions/upload-artifact@v4
         with:
-          script: |
-            const fs = require('fs');
-            const report = fs.readFileSync('bloat_report.txt', 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "### ⚖️ Binary Size Analysis\n```\n" + report + "\n```"
-            })
+          name: bloat-report
+          path: src/verified/bloat_report.txt

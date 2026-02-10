@@ -7,14 +7,33 @@ on:
 jobs:
   sign:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - name: Sign artifacts
-        uses: sigstore/fulcio-action@v1
-        with:
-          artifact: target/release
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Create source archive
+        run: tar -czf source.tar.gz --exclude=".git" .
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+
+      - name: Sign archive
+        run: |
+          cosign sign-blob --yes \
+            source.tar.gz \
+            --output-signature source.tar.gz.sig \
+            --output-certificate source.tar.gz.pem
+        env:
+          COSIGN_EXPERIMENTAL: 1
+
       - name: Upload signature
         uses: actions/upload-artifact@v4
         with:
           name: signatures
-          path: target/release/*.sig
+          path: |
+            source.tar.gz
+            source.tar.gz.sig
+            source.tar.gz.pem

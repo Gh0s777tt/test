@@ -208,19 +208,13 @@ impl FluxEngine {
 
         self.running = true;
 
-        // Main event loop (simplified for now)
-        while self.running {
-            // Process events
-            // Render frame
-            // Present to display
-            
-            // Increment frame counter
-            self.frame_count.fetch_add(1, Ordering::SeqCst);
-            
-            // In a real implementation, would wait for vblank
-            // For now, just break after one iteration
-            break;
-        }
+        // Single-step compositor tick (simplified for now).
+        // This avoids a degenerate loop that runs exactly once.
+        // Process events
+        // Render frame
+        // Present to display
+        self.frame_count.fetch_add(1, Ordering::SeqCst);
+        self.running = false;
 
         Ok(())
     }
