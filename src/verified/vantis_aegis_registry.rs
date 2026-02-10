@@ -17,7 +17,7 @@
 //! from official Microsoft documentation. No proprietary information is used.
 
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock, Once};
+use std::sync::{Arc, OnceLock, RwLock};
 
 /// Registry error types
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -131,15 +131,8 @@ impl RegistryEmulator {
     
     /// Get the global registry emulator instance
     pub fn instance() -> &'static RegistryEmulator {
-        static mut INSTANCE: Option<RegistryEmulator> = None;
-        static ONCE: Once = Once::new();
-        
-        unsafe {
-            ONCE.call_once(|| {
-                INSTANCE = Some(RegistryEmulator::new());
-            });
-            INSTANCE.as_ref().unwrap()
-        }
+        static INSTANCE: OnceLock<RegistryEmulator> = OnceLock::new();
+        INSTANCE.get_or_init(RegistryEmulator::new)
     }
     
     /// Populate system registry keys
@@ -474,6 +467,12 @@ impl RegistryEmulator {
         };
         
         Ok((root, subpath))
+    }
+}
+
+impl Default for RegistryEmulator {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

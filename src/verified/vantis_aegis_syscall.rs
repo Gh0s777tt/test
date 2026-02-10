@@ -16,8 +16,9 @@
 //! This implementation uses only publicly documented Windows system call
 //! interfaces from official Microsoft documentation.
 
-use crate::vantis_aegis_nt_api::{NtApiEmulator, NtError};
-use crate::vantis_aegis_registry::{RegistryEmulator, RegistryValue};
+use crate::vantis_aegis_nt_api::NtApiEmulator;
+use crate::vantis_aegis_registry::RegistryEmulator;
+use std::sync::OnceLock;
 
 /// System call error types
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -152,16 +153,8 @@ impl SyscallTranslator {
     
     /// Get the global syscall translator instance
     pub fn instance() -> &'static SyscallTranslator {
-        use std::sync::Once;
-        static mut INSTANCE: Option<SyscallTranslator> = None;
-        static ONCE: Once = Once::new();
-        
-        unsafe {
-            ONCE.call_once(|| {
-                INSTANCE = Some(SyscallTranslator::new());
-            });
-            INSTANCE.as_ref().unwrap()
-        }
+        static INSTANCE: OnceLock<SyscallTranslator> = OnceLock::new();
+        INSTANCE.get_or_init(SyscallTranslator::new)
     }
     
     // ========================================================================

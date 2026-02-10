@@ -18,8 +18,7 @@
 //! information is used. This is a clean-room implementation for compatibility
 //! purposes only.
 
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex, Once};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// NT API error types
@@ -154,15 +153,8 @@ impl NtApiEmulator {
     
     /// Get the global NT API emulator instance
     pub fn instance() -> &'static NtApiEmulator {
-        static mut INSTANCE: Option<NtApiEmulator> = None;
-        static ONCE: Once = Once::new();
-        
-        unsafe {
-            ONCE.call_once(|| {
-                INSTANCE = Some(NtApiEmulator::new());
-            });
-            INSTANCE.as_ref().unwrap()
-        }
+        static INSTANCE: OnceLock<NtApiEmulator> = OnceLock::new();
+        INSTANCE.get_or_init(NtApiEmulator::new)
     }
     
     /// Create system basic information
@@ -455,8 +447,14 @@ impl NtApiEmulator {
     /// Convert Linux path to Windows-style path
     fn linux_to_windows_path(&self, linux_path: &str) -> String {
         // Simple conversion: /path/to/file -> C:\path\to\file
-        let windows_path = linux_path.replace('/', r"");
+        let windows_path = linux_path.replace('/', "\\");
         format!("C:{}", windows_path)
+    }
+}
+
+impl Default for NtApiEmulator {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

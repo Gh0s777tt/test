@@ -424,6 +424,12 @@ impl Sentinel {
     }
 }
 
+impl Default for Sentinel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

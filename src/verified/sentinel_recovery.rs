@@ -489,6 +489,12 @@ impl RecoveryManager {
     }
 }
 
+impl Default for RecoveryManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

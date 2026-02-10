@@ -395,7 +395,7 @@ impl SandboxManager {
         &mut self,
         sender: SandboxId,
         receiver: SandboxId,
-        data: Vec<u8>,
+        _data: Vec<u8>,
     ) -> Result<(), &'static str> {
         if !self.initialized {
             return Err("Sandbox manager not initialized");
@@ -435,12 +435,9 @@ impl SandboxManager {
     /// Message if available
     pub fn receive_message(&mut self, receiver: SandboxId) -> Option<IpcMessage> {
         // In a real implementation, this would retrieve from a message queue
-        // For now, we just validate the receiver exists
-        if self.sandboxes.contains_key(&receiver) {
-            None
-        } else {
-            None
-        }
+        // For now, we only validate the receiver exists.
+        self.sandboxes.get(&receiver)?;
+        None
     }
 
     /// Get sandbox statistics
@@ -519,7 +516,7 @@ impl SandboxManager {
     pub fn isolate_memory(
         &mut self,
         id: SandboxId,
-        base: u64,
+        _base: u64,
         size: u64,
     ) -> Result<(), &'static str> {
         if !self.initialized {
@@ -589,6 +586,12 @@ impl SandboxManager {
         sandbox.ipc_channel = None;
 
         Ok(())
+    }
+}
+
+impl Default for SandboxManager {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

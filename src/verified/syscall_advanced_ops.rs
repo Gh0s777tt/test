@@ -267,7 +267,7 @@ pub fn sys_dup2(
     let readable = old_entry.readable;
     let writable = old_entry.writable;
     let is_pipe = old_entry.is_pipe;
-    drop(old_entry); // Explicitly drop the borrow
+    let _ = old_entry; // Explicitly end the immutable borrow
     
     // Validate newfd range
     if newfd < 0 || newfd as usize >= fd_table.entries.len() {

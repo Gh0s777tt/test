@@ -483,6 +483,12 @@ impl DriverApi {
     }
 }
 
+impl Default for DriverApi {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
