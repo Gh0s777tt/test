@@ -153,6 +153,12 @@ maintenance scripts from `scripts/`:
 # Validate store manifest verifier and package integrity checks
 (cd store && cargo test --locked)
 
+# Run scheduler/filesystem benchmarks (legacy default)
+./scripts/run_benchmarks.sh
+
+# Run syscall-focused benchmark suite
+./scripts/run_benchmarks.sh --syscall
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```

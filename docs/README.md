@@ -129,6 +129,7 @@ See [../history/](../history/) for:
 - **Enforcing requirement IDs**: `../scripts/check_requirement_ids.sh`
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
+- **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`
 
 ---
 
