@@ -255,6 +255,10 @@ def collect_proposal_history(directory: Path, proposal_id: str):
     return history
 
 
+def present(value):
+    return value if value is not None else "n/a"
+
+
 changelog_text = changelog_path.read_text(encoding="utf-8")
 proposal_id = proposal_id_arg or parse_next_monpol_id(changelog_text)
 if not re.fullmatch(r"MONPOL-\d{3}", proposal_id):
@@ -496,22 +500,22 @@ with output_path.open("w", encoding="utf-8") as fh:
 
     fh.write("## Proposal-to-Merge Latency Telemetry\n\n")
     fh.write(
-        f"- Historical latency samples (days): {dashboard_latency_summary.get('latency_samples', 'n/a')}\n"
+        f"- Historical latency samples (days): {present(dashboard_latency_summary.get('latency_samples'))}\n"
     )
     fh.write(
-        f"- Historical median latency (days): {dashboard_latency_summary.get('median_latency_days', 'n/a')}\n"
+        f"- Historical median latency (days): {present(dashboard_latency_summary.get('median_latency_days'))}\n"
     )
     fh.write(
-        f"- Historical P90 latency (days): {dashboard_latency_summary.get('p90_latency_days', 'n/a')}\n"
+        f"- Historical P90 latency (days): {present(dashboard_latency_summary.get('p90_latency_days'))}\n"
     )
     fh.write(
-        f"- Historical max latency (days): {dashboard_latency_summary.get('max_latency_days', 'n/a')}\n"
+        f"- Historical max latency (days): {present(dashboard_latency_summary.get('max_latency_days'))}\n"
     )
     fh.write(
-        f"- Changelog entries missing proposal artifacts: {dashboard_latency_summary.get('missing_proposal_artifact_count', 'n/a')}\n"
+        f"- Changelog entries missing proposal artifacts: {present(dashboard_latency_summary.get('missing_proposal_artifact_count'))}\n"
     )
     fh.write(
-        f"- Changelog chronology errors: {dashboard_latency_summary.get('chronology_error_count', 'n/a')}\n"
+        f"- Changelog chronology errors: {present(dashboard_latency_summary.get('chronology_error_count'))}\n"
     )
     if dashboard_latest_latency:
         fh.write(
