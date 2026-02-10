@@ -1,0 +1,40 @@
+{
+  "bench_filter": [
+    "directory_entry_cache_benchmark",
+    "timer_queue_benchmark"
+  ],
+  "ceil_pct": 80.0,
+  "floor_pct": 5.0,
+  "headroom_pct": 15.0,
+  "lookback": 6,
+  "min_samples": 2,
+  "recommendations": [
+    {
+      "action": "tighten",
+      "bench": "directory_entry_cache_benchmark",
+      "drift_rate_pct": 0.0,
+      "drift_reports": 0,
+      "latest_report": "directory_entry_cache_benchmark_20260210T143955Z.md",
+      "latest_threshold_pct": 25.0,
+      "max_spread_peak_pct": 15.86,
+      "p75_median_spread_pct": 0.741,
+      "p90_max_spread_pct": 15.86,
+      "recommended_threshold_pct": 18.24,
+      "samples": 2
+    },
+    {
+      "action": "hold",
+      "bench": "timer_queue_benchmark",
+      "drift_rate_pct": 50.0,
+      "drift_reports": 2,
+      "latest_report": "timer_queue_benchmark_20260210T143840Z.md",
+      "latest_threshold_pct": 60.0,
+      "max_spread_peak_pct": 51.073,
+      "p75_median_spread_pct": 3.739,
+      "p90_max_spread_pct": 51.073,
+      "recommended_threshold_pct": 58.73,
+      "samples": 4
+    }
+  ],
+  "source_directory": "/workspace/analysis/benchmark_reproducibility"
+}
