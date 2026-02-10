@@ -750,16 +750,22 @@ mod tests {
         let mut scheduler = SchedulerOptimized::new();
         
         // Add tasks in random order
-        scheduler.add_task(SchedTask::new(Pid::new(1).unwrap(), SchedPriority::new(200)));
-        scheduler.add_task(SchedTask::new(Pid::new(2).unwrap(), SchedPriority::new(50)));
-        scheduler.add_task(SchedTask::new(Pid::new(3).unwrap(), SchedPriority::new(100)));
-        scheduler.add_task(SchedTask::new(Pid::new(4).unwrap(), SchedPriority::new(10)));
+        let pid1 = Pid::new(1).unwrap();
+        let pid2 = Pid::new(2).unwrap();
+        let pid3 = Pid::new(3).unwrap();
+        let pid4 = Pid::new(4).unwrap();
+        scheduler.add_task(SchedTask::new(pid1, SchedPriority::new(200)));
+        scheduler.add_task(SchedTask::new(pid2, SchedPriority::new(50)));
+        scheduler.add_task(SchedTask::new(pid3, SchedPriority::new(100)));
+        scheduler.add_task(SchedTask::new(pid4, SchedPriority::new(10)));
         
-        // Should schedule in priority order: 10, 50, 100, 200
-        assert_eq!(scheduler.schedule(), Some(Pid::new(4).unwrap()));
-        assert_eq!(scheduler.schedule(), Some(Pid::new(2).unwrap()));
-        assert_eq!(scheduler.schedule(), Some(Pid::new(3).unwrap()));
-        assert_eq!(scheduler.schedule(), Some(Pid::new(1).unwrap()));
+        // Verify dequeue order by priority: 10, 50, 100, 200.
+        // `schedule()` performs round-robin and re-enqueues tasks, so
+        // `select_next_task()` is the right primitive for this assertion.
+        assert_eq!(scheduler.select_next_task().map(|t| t.pid()), Some(pid4));
+        assert_eq!(scheduler.select_next_task().map(|t| t.pid()), Some(pid2));
+        assert_eq!(scheduler.select_next_task().map(|t| t.pid()), Some(pid3));
+        assert_eq!(scheduler.select_next_task().map(|t| t.pid()), Some(pid1));
     }
     
     #[test]
