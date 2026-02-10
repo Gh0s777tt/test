@@ -1,0 +1,13 @@
+[package]
+name = "vantis-store"
+version = "0.1.0"
+edition = "2021"
+authors = ["VANTIS OS Team"]
+description = "Store and package verification primitives for VantisOS"
+license = "MIT"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+sha2 = "0.10"

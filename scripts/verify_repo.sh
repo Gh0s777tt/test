@@ -179,6 +179,18 @@ run_optional_crate_checks() {
 run_optional_crate_checks "security" "security crate"
 run_optional_crate_checks "cortex" "cortex crate"
 run_optional_crate_checks "cytadela" "cytadela crate"
+run_optional_crate_checks "horizon" "horizon crate"
+run_optional_crate_checks "store" "store crate"
+
+if [[ -x "scripts/check_traceability.sh" ]]; then
+  if ./scripts/check_traceability.sh >/dev/null; then
+    pass "traceability check passed"
+  else
+    fail "traceability check failed"
+  fi
+else
+  warn "scripts/check_traceability.sh is missing or not executable"
+fi
 
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"
 TAG_COUNT="$(git tag | wc -l | tr -d ' ')"

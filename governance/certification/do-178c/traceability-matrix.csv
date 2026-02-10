@@ -1,9 +1,9 @@
 HLR,LLR,Source File,Verification Method
-HLR-001,LLR-001,kernel/memory.rs,Formal Proof + Test
-HLR-002,LLR-002,kernel/mmu.rs,Static Analysis
-HLR-003,LLR-005,kernel/scheduler.rs,Timing Analysis
-HLR-004,LLR-004,kernel/ipc.rs,Unit Test
-HLR-005,LLR-003,kernel/syscall.rs,Negative Testing
-HLR-006,LLR-006,kernel/init.rs,Code Review
-HLR-007,LLR-007,kernel/panic.rs,Fault Injection
+HLR-001,LLR-001,src/verified/memory.rs,Formal Proof + Test
+HLR-002,LLR-002,src/verified/ipc.rs,Static Analysis + Unit Test
+HLR-003,LLR-005,src/verified/scheduler_optimized.rs,Timing Analysis
+HLR-004,LLR-004,src/verified/syscall.rs,Unit Test
+HLR-005,LLR-003,src/verified/vault.rs,Negative Testing + KAT
+HLR-006,LLR-006,src/verified/process.rs,Code Review + Unit Test
+HLR-007,LLR-007,security/panic_protocol.rs,Fault Injection Simulation
 HLR-008,LLR-008,ALL,Static Analysis

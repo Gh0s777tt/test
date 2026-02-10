@@ -1,6 +1,5 @@
 pub fn launch(name: &str) {
-    match name {
-        "terminal" => println!("launch terminal"),
-        _ => {}
+    if name == "terminal" {
+        println!("launch terminal");
     }
 }

@@ -141,6 +141,12 @@ maintenance scripts from `scripts/`:
 # Dependency analysis for src/verified
 ./scripts/analyze_dependencies.sh
 
+# Governance traceability consistency check
+./scripts/check_traceability.sh
+
+# Generate evidence pack snapshot (use --full for tests)
+./scripts/generate_evidence_pack.sh
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```
@@ -148,6 +154,7 @@ maintenance scripts from `scripts/`:
 Generated reports:
 - `analysis/GIT_REFS_AUDIT.md`
 - `analysis/dependencies/summary.txt`
+- `analysis/EVIDENCE_PACK.md`
 
 ---
 

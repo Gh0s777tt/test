@@ -1,0 +1,10 @@
+[package]
+name = "vantis-horizon"
+version = "0.1.0"
+edition = "2021"
+authors = ["VANTIS OS Team"]
+description = "Horizon UI primitives for VantisOS"
+license = "MIT"
+
+[lib]
+path = "lib.rs"

@@ -92,6 +92,57 @@ jobs:
       - name: Clippy (warnings are errors)
         run: cargo clippy --locked -- -D warnings
 
+  horizon-quality-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: horizon
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cargo check
+        run: cargo check --locked
+
+      - name: Cargo test
+        run: cargo test --locked
+
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --locked -- -D warnings
+
+  store-quality-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: store
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cargo check
+        run: cargo check --locked
+
+      - name: Cargo test
+        run: cargo test --locked
+
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --locked -- -D warnings
+
+  traceability-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Run traceability consistency check
+        run: ./scripts/check_traceability.sh
+
   markdown-links:
     runs-on: ubuntu-latest
     steps:
