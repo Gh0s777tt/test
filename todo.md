@@ -159,11 +159,19 @@
   - [x] Validate full gate locally and capture evidence
   - [x] Publish Day 5 report
 
+- [x] Day 6: Monitored Scenario Expansion with Runtime Budget
+  - [x] Expand monitor stage to multiple benchmark scenarios
+  - [x] Add monitor wall-clock budget and per-case timeout controls
+  - [x] Harden gate summary reporting and report-path detection
+  - [x] Validate full strict+monitor execution in CI-like mode
+  - [x] Publish Day 6 report
+
 ## Week 9-10 Current Status
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
 - Week 9 Day 3: ✅ COMPLETE (stateful benchmark hardening + mixed workload scenarios)
 - Week 9 Day 4: ✅ COMPLETE (CI reproducibility gate + strict local validation)
 - Week 9 Day 5: ✅ COMPLETE (threshold calibration + dual-stage scenario gate + evidence)
-- Week 9 Progress: 5 milestone days complete
-- Next: Week 9 Day 6 - expand monitored benchmark scenarios within CI runtime budget
+- Week 9 Day 6: ✅ COMPLETE (multi-monitor expansion + runtime budget controls + evidence)
+- Week 9 Progress: 6 milestone days complete
+- Next: Week 9 Day 7 - stabilize noisy monitor metrics and recalibrate monitor thresholds

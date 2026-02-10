@@ -147,6 +147,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 3 synthetic benchmark hardening**: `../WEEK_9_DAY_3_SYNTHETIC_BENCHMARK_HARDENING.md`
 - **Week 9 Day 4 CI benchmark reproducibility gate**: `../WEEK_9_DAY_4_CI_BENCHMARK_GATE.md`
 - **Week 9 Day 5 threshold calibration and scenario gate**: `../WEEK_9_DAY_5_THRESHOLD_CALIBRATION_AND_SCENARIO_GATE.md`
+- **Week 9 Day 6 monitored scenario expansion and runtime budget**: `../WEEK_9_DAY_6_MONITORED_SCENARIO_EXPANSION_AND_RUNTIME_BUDGET.md`
 
 ---
 
