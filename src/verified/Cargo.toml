@@ -8,9 +8,8 @@ license = "MIT"
 
 [lib]
 path = "lib.rs"
-# Temporary stabilization: legacy unit/doctests are out of sync
-# with the current non-Verus API surface.
-test = false
+# Unit tests re-enabled after API-alignment cleanup.
+test = true
 doctest = false
 
 [lints.rust]
