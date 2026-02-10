@@ -220,6 +220,22 @@ else
   warn "scripts/check_requirement_ids.sh is missing or not executable"
 fi
 
+if [[ -x "scripts/check_monitor_threshold_governance.sh" ]]; then
+  if ./scripts/check_monitor_threshold_governance.sh >/dev/null; then
+    pass "monitor-threshold governance check passed or skipped"
+  else
+    fail "monitor-threshold governance check failed"
+  fi
+else
+  warn "scripts/check_monitor_threshold_governance.sh is missing or not executable"
+fi
+
+if [[ -f "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md" ]]; then
+  pass "monitor threshold changelog exists"
+else
+  fail "monitor threshold changelog missing"
+fi
+
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"
 TAG_COUNT="$(git tag | wc -l | tr -d ' ')"
 COMMITS_COUNT="$(git rev-list --count HEAD | tr -d ' ')"

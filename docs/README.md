@@ -133,6 +133,8 @@ See [../history/](../history/) for:
 - **Running reproducibility benchmark profile**: `../scripts/benchmark_reproducibility.sh`
 - **Running CI-style benchmark gate locally**: `../scripts/run_benchmark_ci_gate.sh`
 - **Generating rolling monitor policy recommendations**: `../scripts/recommend_monitor_policy.sh`
+- **Building monitor policy drift dashboard**: `../scripts/build_monitor_policy_dashboard.sh`
+- **Checking monitor threshold governance gate**: `../scripts/check_monitor_threshold_governance.sh`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Benchmark reproducibility guide**: `development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`
 - **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`
@@ -151,6 +153,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 6 monitored scenario expansion and runtime budget**: `../WEEK_9_DAY_6_MONITORED_SCENARIO_EXPANSION_AND_RUNTIME_BUDGET.md`
 - **Week 9 Day 7 monitor noise stabilization and threshold recalibration**: `../WEEK_9_DAY_7_MONITOR_NOISE_STABILIZATION_AND_THRESHOLD_RECALIBRATION.md`
 - **Week 9 Day 8 monitor policy automation**: `../WEEK_9_DAY_8_MONITOR_POLICY_AUTOMATION.md`
+- **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 
 ---
 

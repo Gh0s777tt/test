@@ -174,6 +174,12 @@ maintenance scripts from `scripts/`:
 # Generate rolling monitor policy recommendations from evidence
 ./scripts/recommend_monitor_policy.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark --lookback 6 --min-samples 2 --headroom-pct 15 --floor-pct 5 --ceil-pct 80
 
+# Build monitor policy drift dashboard from rolling artifacts
+./scripts/build_monitor_policy_dashboard.sh --lookback-runs 10 --lookback-recommendations 6
+
+# Validate monitor threshold governance rules (PR-aware, auto-skip outside PR payloads)
+./scripts/check_monitor_threshold_governance.sh
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```

@@ -200,6 +200,9 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Enforce monitor threshold governance
+        run: ./scripts/check_monitor_threshold_governance.sh
+
       - name: Run benchmark reproducibility gate (strict + monitor)
         run: >
           ./scripts/run_benchmark_ci_gate.sh
@@ -224,6 +227,13 @@ jobs:
           --headroom-pct 15
           --floor-pct 5
           --ceil-pct 80
+
+      - name: Build monitor policy drift dashboard
+        if: ${{ always() }}
+        run: >
+          ./scripts/build_monitor_policy_dashboard.sh
+          --lookback-runs 10
+          --lookback-recommendations 6
 
       - name: Upload reproducibility report
         if: ${{ always() }}

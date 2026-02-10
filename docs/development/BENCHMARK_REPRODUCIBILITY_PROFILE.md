@@ -113,6 +113,13 @@ Current repository integration:
   `--monitor-bench <name:pct>` or `--monitor-threshold <name:pct>`.
 - CI also runs `scripts/recommend_monitor_policy.sh` to generate advisory rolling
   threshold recommendations for monitor scenarios.
+- CI runs `scripts/build_monitor_policy_dashboard.sh` to aggregate recent gate runs
+  and recommendation snapshots into a drift dashboard artifact.
+- CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
+  policy changes require:
+  - `MONPOL-<NNN>` reference in PR title/body,
+  - update to `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`,
+  - update to this profile document.
 - all markdown reports are uploaded as CI artifacts.
 - strict threshold is intentionally conservative on shared runners and should be
   tightened as dedicated benchmarking infrastructure is introduced.
@@ -142,5 +149,13 @@ Generate rolling policy recommendations from existing evidence:
   --headroom-pct 15 \
   --floor-pct 5 \
   --ceil-pct 80
+```
+
+Build policy drift dashboard:
+
+```bash
+./scripts/build_monitor_policy_dashboard.sh \
+  --lookback-runs 10 \
+  --lookback-recommendations 6
 ```
 
