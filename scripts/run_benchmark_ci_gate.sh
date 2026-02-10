@@ -152,6 +152,31 @@ append_case_log() {
     >> "$CASE_LOG"
 }
 
+detect_report_path() {
+  local bench="$1"
+  local not_before_epoch="$2"
+
+  shopt -s nullglob
+  local latest_path=""
+  local latest_mtime=0
+  local candidate
+  for candidate in "$ANALYSIS_DIR/${bench}_"*.md; do
+    [[ -f "$candidate" ]] || continue
+    local mtime=0
+    mtime="$(stat -c %Y "$candidate" 2>/dev/null || echo 0)"
+    if (( mtime < not_before_epoch )); then
+      continue
+    fi
+    if (( mtime >= latest_mtime )); then
+      latest_mtime="$mtime"
+      latest_path="$candidate"
+    fi
+  done
+  shopt -u nullglob
+
+  printf '%s' "$latest_path"
+}
+
 run_repro_case() {
   local bench="$1"
   local threshold="$2"
@@ -191,6 +216,9 @@ run_repro_case() {
 
   local report_path=""
   report_path="$(printf '%s\n' "$output" | awk -F': ' '/Reproducibility report written to/{print $2}' | tail -1)"
+  if [[ -z "$report_path" || ! -f "$report_path" ]]; then
+    report_path="$(detect_report_path "$bench" "$case_start")"
+  fi
   if [[ -n "$report_path" && -f "$report_path" ]]; then
     REPORTS+=("$report_path")
   fi
@@ -204,6 +232,10 @@ run_repro_case() {
     else
       case_status="failed"
     fi
+  elif [[ -z "$report_path" || ! -f "$report_path" ]]; then
+    status=2
+    case_status="missing_report"
+    note="report_not_detected"
   fi
   append_case_log "$stage" "$bench" "$threshold" "$case_status" "$duration_seconds" "$report_path" "$note"
 
