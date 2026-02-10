@@ -13,6 +13,11 @@
 
 use std::path::{Path, PathBuf};
 
+use super::syscall_file_ops::{
+    invalidate_path_lookup_cache,
+    invalidate_path_lookup_cache_prefix,
+};
+
 /// Maximum path length
 pub const MAX_PATH_LENGTH: usize = 4096;
 
@@ -142,7 +147,14 @@ pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
     // 3. Create the directory with specified permissions
     // 4. Update file system metadata
     
-    // For now, just validate
+    // Cache coherency: directory creation invalidates direct path and parent.
+    invalidate_path_lookup_cache(path);
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() {
+            invalidate_path_lookup_cache(parent);
+        }
+    }
+
     Ok(())
 }
 
@@ -184,7 +196,14 @@ pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
     // 4. Check permissions
     // 5. Remove the directory
     
-    // For now, just validate
+    // Cache coherency: drop directory subtree entries and refresh parent metadata.
+    invalidate_path_lookup_cache_prefix(path);
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() {
+            invalidate_path_lookup_cache(parent);
+        }
+    }
+
     Ok(())
 }
 

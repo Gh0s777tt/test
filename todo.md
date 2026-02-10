@@ -35,10 +35,10 @@
     - Note: Library builds successfully, test issues are non-blocking
 
 - [ ] Day 5: Path Lookup Caching
-  - [ ] Design LRU cache
-  - [ ] Implement cache structure
-  - [ ] Integrate with filesystem syscalls
-  - [ ] Add cache invalidation
+  - [x] Design LRU cache
+  - [x] Implement cache structure
+  - [x] Integrate with filesystem syscalls
+  - [x] Add cache invalidation
   - [ ] Test and benchmark
 
 - [ ] Day 6: Fd Allocation Optimization

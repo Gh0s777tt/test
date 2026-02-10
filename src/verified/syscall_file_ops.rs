@@ -13,7 +13,21 @@
 // When disabled, verification attributes are ignored
 
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
 use std::time::SystemTime;
+
+use super::path_lookup_cache::{PathLookupCache, PathLookupCacheStats};
+
+/// Default capacity for path lookup cache.
+pub const PATH_LOOKUP_CACHE_CAPACITY: usize = 256;
+
+/// Maximum file path length accepted by this module.
+pub const MAX_FILE_PATH_LENGTH: usize = 4096;
+
+/// Path lookup cache specialized for `FileStat`.
+pub type FileStatPathCache = PathLookupCache<FileStat>;
+
+static FILE_STAT_PATH_CACHE: OnceLock<Mutex<FileStatPathCache>> = OnceLock::new();
 
 /// File descriptor type
 pub type FileDescriptor = i32;
@@ -264,6 +278,57 @@ impl Default for FileTable {
     }
 }
 
+fn default_file_stat_cache() -> &'static Mutex<FileStatPathCache> {
+    FILE_STAT_PATH_CACHE
+        .get_or_init(|| Mutex::new(FileStatPathCache::new(PATH_LOOKUP_CACHE_CAPACITY)))
+}
+
+fn with_default_file_stat_cache<T>(f: impl FnOnce(&mut FileStatPathCache) -> T) -> T {
+    let mut guard = default_file_stat_cache()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    f(&mut guard)
+}
+
+fn validate_file_path(path: &Path) -> FileOpResult<()> {
+    if path.as_os_str().is_empty() {
+        return Err(FileOpError::InvalidPath);
+    }
+    if path.as_os_str().as_encoded_bytes().len() > MAX_FILE_PATH_LENGTH {
+        return Err(FileOpError::InvalidPath);
+    }
+    if !path.is_absolute() && !path.is_relative() {
+        return Err(FileOpError::InvalidPath);
+    }
+    Ok(())
+}
+
+fn build_placeholder_stat() -> FileStat {
+    let mut stat = FileStat::new();
+    stat.size = 1024;
+    stat
+}
+
+/// Return current global path lookup cache statistics.
+pub fn path_lookup_cache_stats() -> PathLookupCacheStats {
+    with_default_file_stat_cache(|cache| cache.stats())
+}
+
+/// Clear global path lookup cache contents.
+pub fn reset_path_lookup_cache() {
+    with_default_file_stat_cache(|cache| cache.clear());
+}
+
+/// Invalidate a single path entry in global cache.
+pub fn invalidate_path_lookup_cache(path: &Path) -> bool {
+    with_default_file_stat_cache(|cache| cache.invalidate(path))
+}
+
+/// Invalidate all cached entries under given prefix.
+pub fn invalidate_path_lookup_cache_prefix(prefix: &Path) -> usize {
+    with_default_file_stat_cache(|cache| cache.invalidate_prefix(prefix))
+}
+
 /// Seek to position in file
 ///
 /// # Verification Properties
@@ -336,18 +401,21 @@ pub fn sys_seek(
 /// # Returns
 /// File metadata
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_stat(path: &Path) -> FileOpResult<FileStat> {
-    // Validate path
-    if !path.is_absolute() && !path.is_relative() {
-        return Err(FileOpError::InvalidPath);
+pub fn sys_stat_with_cache(path: &Path, cache: &mut FileStatPathCache) -> FileOpResult<FileStat> {
+    validate_file_path(path)?;
+
+    if let Some(stat) = cache.get(path) {
+        return Ok(stat);
     }
-    
-    // In a real implementation, this would query the file system
-    // For now, return a placeholder
-    let mut stat = FileStat::new();
-    stat.size = 1024; // Placeholder
-    
+
+    let stat = build_placeholder_stat();
+    cache.insert(path, stat.clone());
     Ok(stat)
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_stat(path: &Path) -> FileOpResult<FileStat> {
+    with_default_file_stat_cache(|cache| sys_stat_with_cache(path, cache))
 }
 
 /// Get file metadata by file descriptor
@@ -404,20 +472,15 @@ pub fn sys_fstat(
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_unlink(path: &Path) -> FileOpResult<()> {
-    // Validate path
-    if !path.is_absolute() && !path.is_relative() {
-        return Err(FileOpError::InvalidPath);
-    }
-    
-    // Check if path is a directory
-    // In real implementation, would check file system
-    // For now, assume it's a file
-    
-    // In a real implementation, this would delete the file
-    // For now, just validate
-    
+pub fn sys_unlink_with_cache(path: &Path, cache: &mut FileStatPathCache) -> FileOpResult<()> {
+    validate_file_path(path)?;
+    cache.invalidate(path);
     Ok(())
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_unlink(path: &Path) -> FileOpResult<()> {
+    with_default_file_stat_cache(|cache| sys_unlink_with_cache(path, cache))
 }
 
 /// Rename file
@@ -437,24 +500,31 @@ pub fn sys_unlink(path: &Path) -> FileOpResult<()> {
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus", verus::verify)]
-pub fn sys_rename(old_path: &Path, new_path: &Path) -> FileOpResult<()> {
-    // Validate paths
-    if !old_path.is_absolute() && !old_path.is_relative() {
-        return Err(FileOpError::InvalidPath);
-    }
-    if !new_path.is_absolute() && !new_path.is_relative() {
-        return Err(FileOpError::InvalidPath);
-    }
-    
+pub fn sys_rename_with_cache(
+    old_path: &Path,
+    new_path: &Path,
+    cache: &mut FileStatPathCache,
+) -> FileOpResult<()> {
+    validate_file_path(old_path)?;
+    validate_file_path(new_path)?;
+
     // Check if old and new are the same
     if old_path == new_path {
         return Ok(()); // No-op
     }
-    
-    // In a real implementation, this would rename the file
-    // For now, just validate
-    
+
+    if let Some(stat) = cache.take(old_path) {
+        cache.insert(new_path, stat);
+    } else {
+        cache.invalidate(new_path);
+    }
+
     Ok(())
+}
+
+#[cfg_attr(feature = "verus", verus::verify)]
+pub fn sys_rename(old_path: &Path, new_path: &Path) -> FileOpResult<()> {
+    with_default_file_stat_cache(|cache| sys_rename_with_cache(old_path, new_path, cache))
 }
 
 #[cfg(test)]
@@ -613,6 +683,51 @@ mod tests {
         
         let result = sys_rename(path, path);
         assert!(result.is_ok()); // Should be no-op
+    }
+
+    #[test]
+    fn test_stat_cache_lru_and_stats() {
+        let mut cache = FileStatPathCache::new(2);
+
+        assert!(sys_stat_with_cache(Path::new("/a"), &mut cache).is_ok()); // miss
+        assert!(sys_stat_with_cache(Path::new("/b"), &mut cache).is_ok()); // miss
+        assert!(sys_stat_with_cache(Path::new("/a"), &mut cache).is_ok()); // hit
+        assert!(sys_stat_with_cache(Path::new("/c"), &mut cache).is_ok()); // miss + eviction
+
+        assert!(cache.peek(Path::new("/b")).is_none());
+        assert!(cache.peek(Path::new("/a")).is_some());
+        assert!(cache.peek(Path::new("/c")).is_some());
+
+        let stats = cache.stats();
+        assert_eq!(stats.hits, 1);
+        assert_eq!(stats.misses, 3);
+        assert_eq!(stats.evictions, 1);
+    }
+
+    #[test]
+    fn test_unlink_invalidates_path_cache_entry() {
+        let mut cache = FileStatPathCache::new(8);
+        let path = Path::new("/tmp/item");
+
+        assert!(sys_stat_with_cache(path, &mut cache).is_ok());
+        assert!(cache.peek(path).is_some());
+
+        assert!(sys_unlink_with_cache(path, &mut cache).is_ok());
+        assert!(cache.peek(path).is_none());
+    }
+
+    #[test]
+    fn test_rename_moves_cached_entry() {
+        let mut cache = FileStatPathCache::new(8);
+        let old_path = Path::new("/tmp/old");
+        let new_path = Path::new("/tmp/new");
+
+        assert!(sys_stat_with_cache(old_path, &mut cache).is_ok());
+        assert!(cache.peek(old_path).is_some());
+
+        assert!(sys_rename_with_cache(old_path, new_path, &mut cache).is_ok());
+        assert!(cache.peek(old_path).is_none());
+        assert!(cache.peek(new_path).is_some());
     }
     
     #[test]

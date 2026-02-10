@@ -13,6 +13,7 @@ pub mod allocator;
 pub mod process;
 pub mod ipc;
 pub mod ipc_inline;
+pub mod path_lookup_cache;
 pub mod syscall;
 pub mod syscall_file_ops;
 pub mod syscall_dir_ops;
