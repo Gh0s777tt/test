@@ -23,8 +23,8 @@ jobs:
       - name: Cargo check
         run: cargo check --locked
 
-      - name: Cargo test (build-only)
-        run: cargo test --locked --no-run
+      - name: Cargo test
+        run: cargo test --locked
 
       - name: Clippy (warnings are errors)
         run: cargo clippy --locked -- -D warnings
