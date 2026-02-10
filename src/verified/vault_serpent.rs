@@ -17,7 +17,7 @@
 
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit, Block,
-    block_padding::Pkcs7, generic_array::GenericArray,
+    generic_array::GenericArray,
 };
 use rand::RngCore;
 use serpent::Serpent;

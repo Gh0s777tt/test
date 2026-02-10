@@ -35,7 +35,7 @@
 #[cfg(feature = "verus")]
 use verus::prelude::*;
 
-use super::vault::{SecureKey, CascadeKeys, MAX_DATA_SIZE};
+use super::vault::{CascadeKeys, MAX_DATA_SIZE};
 use super::vault_aes::{encrypt_aes256_cbc, decrypt_aes256_cbc};
 use super::vault_twofish::{encrypt_twofish256_cbc, decrypt_twofish256_cbc};
 use super::vault_serpent::{encrypt_serpent256_cbc, decrypt_serpent256_cbc};

@@ -337,6 +337,7 @@ impl BackendFactory {
     
     /// Get list of available backends on this platform
     pub fn available_backends() -> Vec<BackendType> {
+        #[allow(unused_mut)]
         let mut backends = Vec::new();
         
         #[cfg(feature = "vulkan")]

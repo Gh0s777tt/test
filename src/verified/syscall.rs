@@ -14,9 +14,9 @@
 #[cfg(feature = "verus")]
 use verus::prelude::*;
 
-use super::process::{Pid, ProcessState};
+use super::process::Pid;
 use super::ipc::{Priority, Capability};
-use super::allocator::{PhysAddr, Order};
+use super::allocator::Order;
 
 /// System call number
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -456,7 +456,7 @@ impl SyscallHandler {
         let receiver_pid = ParamValidator::validate_pid(context.args().arg0)?;
         let data_ptr = context.args().arg1;
         let data_len = context.args().arg2;
-        let priority = ParamValidator::validate_priority(context.args().arg3)?;
+        let _priority = ParamValidator::validate_priority(context.args().arg3)?;
         
         // Validate parameters
         ParamValidator::validate_size(data_len, 4096)?;
@@ -473,7 +473,7 @@ impl SyscallHandler {
     
     fn sys_grant_capability(context: &SyscallContext) -> SyscallResult {
         let to_pid = ParamValidator::validate_pid(context.args().arg0)?;
-        let capability = ParamValidator::validate_capability(context.args().arg1)?;
+        let _capability = ParamValidator::validate_capability(context.args().arg1)?;
         
         // In real implementation, would call IPC manager
         Ok(to_pid.as_u32() as i64)
@@ -481,7 +481,7 @@ impl SyscallHandler {
     
     fn sys_revoke_capability(context: &SyscallContext) -> SyscallResult {
         let from_pid = ParamValidator::validate_pid(context.args().arg0)?;
-        let capability = ParamValidator::validate_capability(context.args().arg1)?;
+        let _capability = ParamValidator::validate_capability(context.args().arg1)?;
         
         // In real implementation, would call IPC manager
         Ok(from_pid.as_u32() as i64)

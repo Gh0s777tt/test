@@ -14,8 +14,7 @@
 #[cfg(feature = "verus")]
 use verus::prelude::*;
 
-use super::process::{Pid, ProcessState};
-use core::cmp::Ordering;
+use super::process::Pid;
 
 /// Scheduling priority (0 = highest, 255 = lowest)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

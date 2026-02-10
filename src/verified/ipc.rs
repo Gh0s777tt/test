@@ -15,7 +15,6 @@
 use verus::prelude::*;
 
 use super::process::Pid;
-use core::mem;
 use std::collections::HashMap;
 
 /// Maximum message size in bytes
