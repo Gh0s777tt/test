@@ -10,7 +10,7 @@ license = "MIT"
 path = "lib.rs"
 # Unit tests re-enabled after API-alignment cleanup.
 test = true
-doctest = false
+doctest = true
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }
