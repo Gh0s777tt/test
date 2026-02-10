@@ -140,13 +140,14 @@
   - [x] Validate reproducibility with repeated runs
 
 - [ ] Day 3: Synthetic Benchmark Fidelity Hardening
-  - [ ] Reduce optimization artifacts in nanosecond synthetic benches
-  - [ ] Add mixed-scenario syscall sequences
-  - [ ] Compare synthetic vs scenario-driven drift
-  - [ ] Update performance guidance
+  - [x] Reduce optimization artifacts in nanosecond synthetic benches
+  - [x] Add mixed-scenario syscall sequences
+  - [x] Compare synthetic vs scenario-driven drift
+  - [x] Update performance guidance
 
 ## Week 9-10 Current Status
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
-- Week 9 Progress: 2 milestone days complete
-- Next: Week 9 Day 3 - Synthetic Benchmark Fidelity Hardening
+- Week 9 Day 3: ✅ COMPLETE (stateful benchmark hardening + mixed workload scenarios)
+- Week 9 Progress: 3 milestone days complete
+- Next: Week 9 Day 4 - CI benchmark profile integration and regression gate
