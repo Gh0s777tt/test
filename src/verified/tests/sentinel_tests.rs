@@ -188,9 +188,10 @@ mod sentinel_integration_tests {
         sandbox_mgr.isolate_memory(sandbox_id, 0x1000, 512).unwrap();
         assert!(sandbox_mgr.enforce_limits(sandbox_id).is_ok());
 
-        // Exceed limits
-        sandbox_mgr.isolate_memory(sandbox_id, 0x2000, 1024).ok();
-        assert!(sandbox_mgr.enforce_limits(sandbox_id).is_err());
+        // Exceed limits attempt should be rejected immediately.
+        // State remains valid, so enforce_limits still passes.
+        assert!(sandbox_mgr.isolate_memory(sandbox_id, 0x2000, 1024).is_err());
+        assert!(sandbox_mgr.enforce_limits(sandbox_id).is_ok());
     }
 
     #[test]
