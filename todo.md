@@ -187,6 +187,13 @@
   - [x] Integrate dashboard and governance gate into CI benchmark job
   - [x] Validate local generation/verification and publish Day 9 report
 
+- [x] Day 10: Governance-Ready MONPOL Proposal Template Automation
+  - [x] Add automated monitor threshold proposal draft generator
+  - [x] Add canonical MONPOL proposal template in governance/performance
+  - [x] Integrate proposal draft generation into CI benchmark job
+  - [x] Validate generated proposal and linked evidence bundle
+  - [x] Publish Day 10 report
+
 ## Week 9-10 Current Status
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
@@ -197,5 +204,6 @@
 - Week 9 Day 7: ✅ COMPLETE (monitor drift signaling + per-scenario threshold recalibration + evidence)
 - Week 9 Day 8: ✅ COMPLETE (rolling policy recommendation automation + CI integration + evidence)
 - Week 9 Day 9: ✅ COMPLETE (policy drift dashboard + threshold governance gate + evidence)
-- Week 9 Progress: 9 milestone days complete
-- Next: Week 9 Day 10 - automate governance-ready threshold change proposal templates
+- Week 9 Day 10: ✅ COMPLETE (automated MONPOL proposal drafts + evidence bundle links + CI integration)
+- Week 9 Progress: 10 milestone days complete
+- Next: Week 10 Day 1 - package Week 9 governance toolchain summary and transition plan

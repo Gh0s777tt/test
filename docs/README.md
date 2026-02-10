@@ -155,6 +155,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 7 monitor noise stabilization and threshold recalibration**: `../WEEK_9_DAY_7_MONITOR_NOISE_STABILIZATION_AND_THRESHOLD_RECALIBRATION.md`
 - **Week 9 Day 8 monitor policy automation**: `../WEEK_9_DAY_8_MONITOR_POLICY_AUTOMATION.md`
 - **Week 9 Day 9 policy drift dashboard and governance**: `../WEEK_9_DAY_9_POLICY_DRIFT_DASHBOARD_AND_GOVERNANCE.md`
+- **Week 9 Day 10 MONPOL proposal template automation**: `../WEEK_9_DAY_10_MONPOL_PROPOSAL_TEMPLATE_AUTOMATION.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 

@@ -169,3 +169,7 @@ Generate governance-ready MONPOL proposal draft:
   --bench directory_entry_cache_benchmark
 ```
 
+Canonical governance template:
+
+- `governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
+
