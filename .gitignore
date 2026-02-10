@@ -6,6 +6,10 @@
 **/target/
 src/verified/target/
 **/*.long-type-*.txt
+*.rlib
+*.so
+*.dylib
+*.dll
 
 # 💿 OS IMAGES & BINARIES
 *.iso
@@ -26,8 +30,14 @@ secrets/
 .idea/
 .vscode/
 *.swp
+*.swo
+*.iml
+.project
+.classpath
+.settings/
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # 📦 PACKAGES
 node_modules/
@@ -37,11 +47,25 @@ benchmark_*.txt
 *_test_results.txt
 *.benchmark
 test_output/
+benchmark_results/
 
-# 📝 TEMPORARY DOCUMENTATION
+# 📝 TEMPORARY FILES
+*.tmp
+*.bak
+*~
 PUSH_PENDING.md
 *_TEMP.md
-Cargo.lock # (Optional: Keep committed for binary apps, ignore for libs)
+
+# 📚 DOCUMENTATION BUILD
+docs/_build/
+docs/.doctrees/
+
+# 📊 LOGS
+*.log
+logs/
+
+# 🔒 CARGO LOCK (Optional: Keep for binary apps, ignore for libs)
+# Cargo.lock
 
 # 🐳 DOCKER
 docker/*.log
