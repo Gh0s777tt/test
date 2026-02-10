@@ -139,7 +139,7 @@ if (( ${#BENCH_FILTERS[@]} > 0 )); then
   FILTER_CSV="$(IFS=,; echo "${BENCH_FILTERS[*]}")"
 fi
 
-python3 - "$ROOT" "$CHANGELOG_PATH" "$SIGNOFF_PATH" "$RECOMMENDATION_JSON" "$DASHBOARD_JSON" "$PROPOSAL_ID" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" "$FILTER_CSV" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$CHANGELOG_PATH" "$SIGNOFF_PATH" "$RECOMMENDATION_JSON" "$DASHBOARD_JSON" "$PROPOSAL_ID" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" "$FILTER_CSV" <<'PY'
 import json
 import re
 import sys
@@ -147,14 +147,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 root = Path(sys.argv[1])
-changelog_path = Path(sys.argv[2])
-signoff_path = Path(sys.argv[3])
-recommendation_path = Path(sys.argv[4])
-dashboard_path = Path(sys.argv[5])
-proposal_id_arg = sys.argv[6].strip()
-output_path_arg = sys.argv[7].strip()
-output_json_path_arg = sys.argv[8].strip()
-filter_csv = sys.argv[9]
+analysis_dir = Path(sys.argv[2])
+changelog_path = Path(sys.argv[3])
+signoff_path = Path(sys.argv[4])
+recommendation_path = Path(sys.argv[5])
+dashboard_path = Path(sys.argv[6])
+proposal_id_arg = sys.argv[7].strip()
+output_path_arg = sys.argv[8].strip()
+output_json_path_arg = sys.argv[9].strip()
+filter_csv = sys.argv[10]
 bench_filter = {entry.strip() for entry in filter_csv.split(",") if entry.strip()}
 
 
@@ -190,6 +191,68 @@ def normalize_decision(text: str) -> str:
     if "pending" in value:
         return "pending"
     return "unknown"
+
+
+proposal_file_re = re.compile(r"^monitor_threshold_proposal_(MONPOL-\d{3})_(\d{8}T\d{6}Z)\.json$")
+
+
+def parse_iso_utc(value: str):
+    if not value:
+        return None
+    normalized = value.strip()
+    if not normalized:
+        return None
+    if normalized.endswith("Z"):
+        normalized = normalized[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def parse_compact_utc(value: str):
+    try:
+        parsed = datetime.strptime(value, "%Y%m%dT%H%M%SZ")
+    except ValueError:
+        return None
+    return parsed.replace(tzinfo=timezone.utc)
+
+
+def parse_proposal_generated_at(path: Path):
+    payload_dt = None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload_dt = parse_iso_utc(str(payload.get("generated_at_utc", "")).strip())
+    except (json.JSONDecodeError, OSError):
+        payload_dt = None
+
+    if payload_dt is not None:
+        return payload_dt
+
+    match = proposal_file_re.match(path.name)
+    if match:
+        return parse_compact_utc(match.group(2))
+    return None
+
+
+def collect_proposal_history(directory: Path, proposal_id: str):
+    history = []
+    for path in sorted(directory.glob(f"monitor_threshold_proposal_{proposal_id}_*.json")):
+        generated_dt = parse_proposal_generated_at(path)
+        if generated_dt is None:
+            continue
+        history.append(
+            {
+                "file": path.name,
+                "generated_dt": generated_dt,
+                "generated_at_utc": generated_dt.isoformat().replace("+00:00", "Z"),
+            }
+        )
+    history.sort(key=lambda item: item["generated_dt"])
+    return history
 
 
 changelog_text = changelog_path.read_text(encoding="utf-8")
@@ -236,9 +299,14 @@ bench_health = dashboard_payload.get("bench_health", {})
 latest_recommendation = dashboard_payload.get("latest_recommendation") or {}
 recent_runs = dashboard_payload.get("recent_runs", [])
 latest_run = recent_runs[-1] if recent_runs else {}
+dashboard_latency = dashboard_payload.get("latency_telemetry", {})
+dashboard_latency_summary = dashboard_latency.get("summary", {})
+dashboard_latency_rows = dashboard_latency.get("rows", [])
+dashboard_latest_latency = dashboard_latency.get("latest_ok_entry")
 
 proposal_timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-generated_at_iso = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+now_utc = datetime.now(timezone.utc)
+generated_at_iso = now_utc.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 if output_path_arg:
     output_path = Path(output_path_arg)
@@ -335,6 +403,11 @@ for entry in evidence_files:
     seen.add(entry)
     dedup_evidence.append(entry)
 
+current_history = collect_proposal_history(analysis_dir, proposal_id)
+current_first = current_history[0] if current_history else None
+current_last = current_history[-1] if current_history else None
+current_age_days = (now_utc.date() - current_first["generated_dt"].date()).days if current_first else None
+
 with output_path.open("w", encoding="utf-8") as fh:
     fh.write(f"# Monitor Threshold Change Proposal Draft: `{proposal_id}`\n\n")
     fh.write(f"**Status**: Draft  \n")
@@ -421,6 +494,57 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("| _none_ | n/a | n/a | 0 | n/a |\n")
     fh.write("\n")
 
+    fh.write("## Proposal-to-Merge Latency Telemetry\n\n")
+    fh.write(
+        f"- Historical latency samples (days): {dashboard_latency_summary.get('latency_samples', 'n/a')}\n"
+    )
+    fh.write(
+        f"- Historical median latency (days): {dashboard_latency_summary.get('median_latency_days', 'n/a')}\n"
+    )
+    fh.write(
+        f"- Historical P90 latency (days): {dashboard_latency_summary.get('p90_latency_days', 'n/a')}\n"
+    )
+    fh.write(
+        f"- Historical max latency (days): {dashboard_latency_summary.get('max_latency_days', 'n/a')}\n"
+    )
+    fh.write(
+        f"- Changelog entries missing proposal artifacts: {dashboard_latency_summary.get('missing_proposal_artifact_count', 'n/a')}\n"
+    )
+    fh.write(
+        f"- Changelog chronology errors: {dashboard_latency_summary.get('chronology_error_count', 'n/a')}\n"
+    )
+    if dashboard_latest_latency:
+        fh.write(
+            f"- Latest merged proposal latency: `{dashboard_latest_latency.get('proposal_id', 'n/a')}` "
+            f"({dashboard_latest_latency.get('latency_days', 'n/a')} days)\n"
+        )
+    else:
+        fh.write("- Latest merged proposal latency: none\n")
+    fh.write(f"- Current proposal drafts discovered: {len(current_history)}\n")
+    if current_first:
+        fh.write(f"- Current proposal first seen: `{current_first.get('generated_at_utc', 'n/a')}`\n")
+        fh.write(f"- Current proposal latest seen: `{current_last.get('generated_at_utc', 'n/a')}`\n")
+        fh.write(f"- Current proposal age (days): {current_age_days}\n\n")
+    else:
+        fh.write("- Current proposal first seen: n/a\n")
+        fh.write("- Current proposal latest seen: n/a\n")
+        fh.write("- Current proposal age (days): n/a\n\n")
+
+    fh.write("| Proposal | Decision | Merge date | First proposal generated_at_utc | Latency (days) | Status |\n")
+    fh.write("|---|---|---|---|---:|---|\n")
+    if dashboard_latency_rows:
+        for row in dashboard_latency_rows:
+            latency_cell = row.get("latency_days", "n/a")
+            if latency_cell is None:
+                latency_cell = "n/a"
+            fh.write(
+                f"| `{row.get('proposal_id', 'n/a')}` | {row.get('decision', 'n/a')} | {row.get('merge_date', 'n/a')} | "
+                f"{row.get('first_proposal_generated_at_utc', 'n/a')} | {latency_cell} | {row.get('status', 'n/a')} |\n"
+            )
+    else:
+        fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a |\n")
+    fh.write("\n")
+
     fh.write("## Evidence Bundle Links\n\n")
     for entry in dedup_evidence:
         fh.write(f"- `{entry}`\n")
@@ -446,6 +570,19 @@ proposal_json = {
         "decision_counts": decision_counts,
         "proposal_signoff": proposal_signoff,
         "record_count": len(normalized_signoff),
+    },
+    "latency_telemetry": {
+        "historical_summary": dashboard_latency_summary,
+        "historical_latest_ok_entry": dashboard_latest_latency,
+        "historical_rows": dashboard_latency_rows,
+        "current_proposal": {
+            "proposal_id": proposal_id,
+            "draft_count": len(current_history),
+            "first_seen_utc": current_first.get("generated_at_utc", "n/a") if current_first else "n/a",
+            "latest_seen_utc": current_last.get("generated_at_utc", "n/a") if current_last else "n/a",
+            "age_days": current_age_days,
+            "draft_files": [item["file"] for item in current_history],
+        },
     },
 }
 output_json_path.write_text(json.dumps(proposal_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

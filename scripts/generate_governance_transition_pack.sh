@@ -98,6 +98,7 @@ import json
 import re
 import sys
 from datetime import datetime, timezone
+from statistics import median
 from pathlib import Path
 
 root = Path(sys.argv[1])
@@ -249,6 +250,185 @@ def parse_signoff_records(path: Path):
     return normalized
 
 
+proposal_file_re = re.compile(r"^monitor_threshold_proposal_(MONPOL-\d{3})_(\d{8}T\d{6}Z)\.json$")
+
+
+def parse_iso_utc(value: str):
+    if not value:
+        return None
+    normalized = value.strip()
+    if not normalized:
+        return None
+    if normalized.endswith("Z"):
+        normalized = normalized[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def parse_compact_utc(value: str):
+    try:
+        parsed = datetime.strptime(value, "%Y%m%dT%H%M%SZ")
+    except ValueError:
+        return None
+    return parsed.replace(tzinfo=timezone.utc)
+
+
+def parse_ymd(value: str):
+    try:
+        return datetime.strptime(value.strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def parse_proposal_generated_at(path: Path):
+    payload_dt = None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload_dt = parse_iso_utc(str(payload.get("generated_at_utc", "")).strip())
+    except (json.JSONDecodeError, OSError):
+        payload_dt = None
+
+    if payload_dt is not None:
+        return payload_dt
+
+    match = proposal_file_re.match(path.name)
+    if match:
+        return parse_compact_utc(match.group(2))
+    return None
+
+
+def percentile_nearest_rank(values, pct: float):
+    if not values:
+        return None
+    rank = int((pct * len(values)) + 0.999999)
+    rank = max(1, min(rank, len(values)))
+    return values[rank - 1]
+
+
+def collect_latency_telemetry(entries, directory: Path):
+    proposal_candidates = sorted(directory.glob("monitor_threshold_proposal_MONPOL-*_*.json"))
+    by_id = {}
+    skipped_proposal_files = 0
+
+    for path in proposal_candidates:
+        match = proposal_file_re.match(path.name)
+        if not match:
+            continue
+        proposal_id = match.group(1)
+        generated_dt = parse_proposal_generated_at(path)
+        if generated_dt is None:
+            skipped_proposal_files += 1
+            continue
+        by_id.setdefault(proposal_id, []).append(
+            {
+                "file": path.name,
+                "generated_dt": generated_dt,
+                "generated_at_utc": generated_dt.isoformat().replace("+00:00", "Z"),
+            }
+        )
+
+    for values in by_id.values():
+        values.sort(key=lambda item: item["generated_dt"])
+
+    rows = []
+    latencies = []
+    missing_proposal_artifacts = []
+    invalid_merge_dates = []
+    chronology_errors = []
+
+    for entry in entries:
+        proposal_id = entry.get("proposal_id", "n/a")
+        merge_date_text = str(entry.get("date", "n/a"))
+        merge_date = parse_ymd(merge_date_text)
+        history = by_id.get(proposal_id, [])
+        decision = entry.get("decision", "unknown")
+
+        if merge_date is None:
+            invalid_merge_dates.append(proposal_id)
+            rows.append(
+                {
+                    "proposal_id": proposal_id,
+                    "decision": decision,
+                    "merge_date": merge_date_text,
+                    "first_proposal_generated_at_utc": "n/a",
+                    "latency_days": None,
+                    "status": "invalid_merge_date",
+                    "proposal_file": "n/a",
+                    "proposal_history_files": 0,
+                }
+            )
+            continue
+
+        if not history:
+            missing_proposal_artifacts.append(proposal_id)
+            rows.append(
+                {
+                    "proposal_id": proposal_id,
+                    "decision": decision,
+                    "merge_date": merge_date_text,
+                    "first_proposal_generated_at_utc": "n/a",
+                    "latency_days": None,
+                    "status": "missing_proposal_artifact",
+                    "proposal_file": "n/a",
+                    "proposal_history_files": 0,
+                }
+            )
+            continue
+
+        first = history[0]
+        latency_days = (merge_date - first["generated_dt"].date()).days
+        status = "ok"
+        if latency_days < 0:
+            status = "chronology_error"
+            chronology_errors.append(proposal_id)
+        else:
+            latencies.append(latency_days)
+
+        rows.append(
+            {
+                "proposal_id": proposal_id,
+                "decision": decision,
+                "merge_date": merge_date_text,
+                "first_proposal_generated_at_utc": first["generated_at_utc"],
+                "latency_days": latency_days,
+                "status": status,
+                "proposal_file": first["file"],
+                "proposal_history_files": len(history),
+            }
+        )
+
+    rows.sort(key=lambda item: (item.get("merge_date", "9999-99-99"), item.get("proposal_id", "n/a")))
+    sorted_latencies = sorted(latencies)
+    latest_ok = [row for row in rows if row.get("status") == "ok"]
+    latest_ok.sort(key=lambda item: (item.get("merge_date", ""), item.get("proposal_id", "")))
+    latest_ok_entry = latest_ok[-1] if latest_ok else None
+
+    return {
+        "summary": {
+            "entries_evaluated": len(entries),
+            "proposal_artifacts_discovered": len(proposal_candidates),
+            "proposal_artifacts_skipped": skipped_proposal_files,
+            "latency_samples": len(sorted_latencies),
+            "median_latency_days": float(median(sorted_latencies)) if sorted_latencies else None,
+            "p90_latency_days": percentile_nearest_rank(sorted_latencies, 0.90),
+            "max_latency_days": max(sorted_latencies) if sorted_latencies else None,
+            "missing_proposal_artifact_count": len(missing_proposal_artifacts),
+            "invalid_merge_date_count": len(invalid_merge_dates),
+            "chronology_error_count": len(chronology_errors),
+        },
+        "rows": rows,
+        "missing_proposal_artifacts": missing_proposal_artifacts,
+        "invalid_merge_dates": invalid_merge_dates,
+        "chronology_errors": chronology_errors,
+        "latest_ok_entry": latest_ok_entry,
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -277,6 +457,7 @@ latest_monpol_date = monpol_matches[-1].group(2) if monpol_matches else "n/a"
 monpol_entries = parse_changelog_entries(changelog_text)
 signoff_records = parse_signoff_records(signoff_path)
 signoff_by_id = {record["proposal_id"]: record for record in signoff_records if record["proposal_id"]}
+latency_telemetry = collect_latency_telemetry(monpol_entries, analysis_dir)
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -370,6 +551,7 @@ readiness_checks = {
     "ci_workflow_present": workflow_path.exists(),
     "changelog_has_entries": len(monpol_matches) > 0,
     "approved_entries_have_signoff": len(approved_missing_signoff) == 0,
+    "latency_telemetry_present": latency_telemetry["summary"]["entries_evaluated"] > 0,
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -459,6 +641,48 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("| _none_ | n/a | n/a | 0 | n/a |\n")
     fh.write("\n")
 
+    latency_summary = latency_telemetry["summary"]
+    latest_latency = latency_telemetry.get("latest_ok_entry")
+
+    fh.write("## Proposal-to-Merge Latency Telemetry\n\n")
+    fh.write(f"- Changelog entries evaluated: {latency_summary['entries_evaluated']}\n")
+    fh.write(f"- Proposal artifacts discovered: {latency_summary['proposal_artifacts_discovered']}\n")
+    fh.write(f"- Proposal artifacts skipped (unparseable time): {latency_summary['proposal_artifacts_skipped']}\n")
+    fh.write(f"- Latency samples (days): {latency_summary['latency_samples']}\n")
+    fh.write(
+        f"- Median latency (days): {latency_summary['median_latency_days'] if latency_summary['median_latency_days'] is not None else 'n/a'}\n"
+    )
+    fh.write(
+        f"- P90 latency (days): {latency_summary['p90_latency_days'] if latency_summary['p90_latency_days'] is not None else 'n/a'}\n"
+    )
+    fh.write(
+        f"- Max latency (days): {latency_summary['max_latency_days'] if latency_summary['max_latency_days'] is not None else 'n/a'}\n"
+    )
+    fh.write(f"- Entries missing proposal artifacts: {latency_summary['missing_proposal_artifact_count']}\n")
+    fh.write(f"- Entries with invalid merge date: {latency_summary['invalid_merge_date_count']}\n")
+    fh.write(f"- Entries with chronology errors: {latency_summary['chronology_error_count']}\n")
+    if latest_latency:
+        fh.write(
+            f"- Latest merged entry with latency: `{latest_latency.get('proposal_id', 'n/a')}` "
+            f"({latest_latency.get('latency_days', 'n/a')} days)\n\n"
+        )
+    else:
+        fh.write("- Latest merged entry with latency: none\n\n")
+
+    fh.write("| Proposal | Decision | Merge date | First proposal generated_at_utc | Latency (days) | Status | Proposal file | History files |\n")
+    fh.write("|---|---|---|---|---:|---|---|---:|\n")
+    if latency_telemetry["rows"]:
+        for row in latency_telemetry["rows"]:
+            latency_cell = row["latency_days"] if row["latency_days"] is not None else "n/a"
+            fh.write(
+                f"| `{row.get('proposal_id', 'n/a')}` | {row.get('decision', 'n/a')} | {row.get('merge_date', 'n/a')} | "
+                f"{row.get('first_proposal_generated_at_utc', 'n/a')} | {latency_cell} | {row.get('status', 'n/a')} | "
+                f"`{row.get('proposal_file', 'n/a')}` | {row.get('proposal_history_files', 0)} |\n"
+            )
+    else:
+        fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a | 0 |\n")
+    fh.write("\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -495,6 +719,7 @@ transition_json = {
         "approved_missing_signoff": approved_missing_signoff,
         "latest_signoff_record": latest_signoff_record,
     },
+    "latency_telemetry": latency_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")
