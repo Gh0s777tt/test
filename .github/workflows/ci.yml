@@ -235,6 +235,13 @@ jobs:
           --lookback-runs 10
           --lookback-recommendations 6
 
+      - name: Generate threshold governance proposal draft
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_monitor_threshold_proposal.sh
+          --bench timer_queue_benchmark
+          --bench directory_entry_cache_benchmark
+
       - name: Upload reproducibility report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

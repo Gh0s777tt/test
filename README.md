@@ -177,6 +177,9 @@ maintenance scripts from `scripts/`:
 # Build monitor policy drift dashboard from rolling artifacts
 ./scripts/build_monitor_policy_dashboard.sh --lookback-runs 10 --lookback-recommendations 6
 
+# Generate governance-ready threshold proposal draft (MONPOL)
+./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
+
 # Validate monitor threshold governance rules (PR-aware, auto-skip outside PR payloads)
 ./scripts/check_monitor_threshold_governance.sh
 

@@ -115,6 +115,8 @@ Current repository integration:
   threshold recommendations for monitor scenarios.
 - CI runs `scripts/build_monitor_policy_dashboard.sh` to aggregate recent gate runs
   and recommendation snapshots into a drift dashboard artifact.
+- CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
+  `MONPOL` proposal draft with evidence bundle links.
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -157,5 +159,13 @@ Build policy drift dashboard:
 ./scripts/build_monitor_policy_dashboard.sh \
   --lookback-runs 10 \
   --lookback-recommendations 6
+```
+
+Generate governance-ready MONPOL proposal draft:
+
+```bash
+./scripts/generate_monitor_threshold_proposal.sh \
+  --bench timer_queue_benchmark \
+  --bench directory_entry_cache_benchmark
 ```
 

@@ -134,6 +134,7 @@ See [../history/](../history/) for:
 - **Running CI-style benchmark gate locally**: `../scripts/run_benchmark_ci_gate.sh`
 - **Generating rolling monitor policy recommendations**: `../scripts/recommend_monitor_policy.sh`
 - **Building monitor policy drift dashboard**: `../scripts/build_monitor_policy_dashboard.sh`
+- **Generating governance-ready threshold proposal draft**: `../scripts/generate_monitor_threshold_proposal.sh`
 - **Checking monitor threshold governance gate**: `../scripts/check_monitor_threshold_governance.sh`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Benchmark reproducibility guide**: `development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`
@@ -155,6 +156,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 8 monitor policy automation**: `../WEEK_9_DAY_8_MONITOR_POLICY_AUTOMATION.md`
 - **Week 9 Day 9 policy drift dashboard and governance**: `../WEEK_9_DAY_9_POLICY_DRIFT_DASHBOARD_AND_GOVERNANCE.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
+- **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 
 ---
 
