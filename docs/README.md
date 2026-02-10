@@ -12,7 +12,7 @@ System architecture and design documents
 - [Hardware Documentation](architecture/hardware.md) - Hardware compatibility
 
 ### 💻 [Implementation](implementation/)
-Implementation guides for core components (18 documents)
+Implementation guides for core components (19 documents)
 - [Direct Metal Implementation](implementation/DIRECT_METAL_IMPLEMENTATION.md) - GPU access layer
 - [Flux Engine](implementation/FLUX_ENGINE_COMPLETE.md) - Wayland compositor
 - [Neural Scheduler](implementation/NEURAL_SCHEDULER_IMPLEMENTATION.md) - AI-based scheduler
@@ -20,6 +20,7 @@ Implementation guides for core components (18 documents)
 - [Vantis Aegis](implementation/VANTIS_AEGIS_COMPLETE.md) - Kernel masquerade
 - [Vantis Vault](implementation/VANTIS_VAULT_IMPLEMENTATION.md) - Cryptography
 - [VantisFS](implementation/VANTISFS_COMPLETE.md) - File system
+- [Syscall Interface Guide](implementation/SYSCALL_INTERFACE_GUIDE.md) - Practical syscall usage and troubleshooting
 - And more...
 
 ### 🚀 [Operations](operations/)
@@ -130,6 +131,7 @@ See [../history/](../history/) for:
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`
+- **Week 7 Day 8 syscall interface guide**: `implementation/SYSCALL_INTERFACE_GUIDE.md`
 
 ---
 

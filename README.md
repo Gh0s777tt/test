@@ -725,6 +725,7 @@ gantt
 - 📘 [Installation Guide](docs/operations/INSTALLATION.md) - Get started quickly
 - 🔧 [Developer Onboarding](docs/development/DEVELOPER_ONBOARDING.md) - For contributors
 - 📖 [API Documentation](docs/api/API_DOCUMENTATION.md) - Complete API reference
+- 🧭 [Syscall Interface Guide](docs/implementation/SYSCALL_INTERFACE_GUIDE.md) - Practical syscall usage, status, and troubleshooting
 
 ### 📂 Documentation Structure
 
@@ -734,7 +735,7 @@ System design and architecture documents
 - Hardware compatibility
 
 #### 💻 [Implementation](docs/implementation/)
-Detailed implementation guides (18 documents)
+Detailed implementation guides (19 documents)
 - Direct Metal (GPU access)
 - Flux Engine (Wayland compositor)
 - Neural Scheduler (AI scheduler)
@@ -742,6 +743,7 @@ Detailed implementation guides (18 documents)
 - Vantis Aegis (Kernel masquerade)
 - Vantis Vault (Cryptography)
 - VantisFS (File system)
+- Syscall Interface Guide (runtime status + examples)
 
 #### 🚀 [Operations](docs/operations/)
 Deployment and operational guides
