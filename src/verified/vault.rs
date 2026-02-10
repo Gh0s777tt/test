@@ -21,6 +21,10 @@
 #[cfg(feature = "verus")]
 use verus::prelude::*;
 
+use crate::vault_aes::{decrypt_aes256_cbc, encrypt_aes256_cbc};
+use crate::vault_serpent::{decrypt_serpent256_cbc, encrypt_serpent256_cbc};
+use crate::vault_twofish::{decrypt_twofish256_cbc, encrypt_twofish256_cbc};
+
 /// Key size for all algorithms (256 bits = 32 bytes)
 pub const KEY_SIZE: usize = 32;
 
@@ -193,7 +197,6 @@ impl VantisVault {
     /// - Precondition: vault is initialized
     /// - Precondition: data.len() <= MAX_DATA_SIZE
     /// - Postcondition: encrypted data can be decrypted to original
-    /// - Postcondition: encrypted data is same length as input
     pub fn encrypt(&self, data: &[u8]) -> Result<Vec<u8>, &'static str> {
         if !self.is_initialized() {
             return Err("Vault not initialized");
@@ -269,58 +272,39 @@ impl VantisVault {
     /// 
     /// Uses AES-256-CBC with PKCS#7 padding and random IV.
     /// See vault_aes.rs for implementation details.
-    fn encrypt_aes(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
-        // In production, this would call:
-        // super::vault_aes::encrypt_aes256_cbc(data, key)
-        
-        // For now, use placeholder (will be replaced with actual implementation)
-        Ok(data.to_vec())
+    fn encrypt_aes(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+        encrypt_aes256_cbc(key.as_bytes(), data).map_err(|_| "AES encryption failed")
     }
     
     /// AES-256 decryption
-    fn decrypt_aes(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
-        // In production, this would call:
-        // super::vault_aes::decrypt_aes256_cbc(data, key)
-        
-        Ok(data.to_vec())
+    fn decrypt_aes(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+        decrypt_aes256_cbc(key.as_bytes(), data).map_err(|_| "AES decryption failed")
     }
     
     /// Twofish-256 encryption
     /// 
     /// Uses Twofish-256-CBC with PKCS#7 padding and random IV.
     /// See vault_twofish.rs for implementation details.
-    fn encrypt_twofish(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
-        // In production, this would call:
-        // super::vault_twofish::encrypt_twofish256_cbc(data, key)
-        
-        Ok(data.to_vec())
+    fn encrypt_twofish(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+        encrypt_twofish256_cbc(key.as_bytes(), data).map_err(|_| "Twofish encryption failed")
     }
     
     /// Twofish-256 decryption
-    fn decrypt_twofish(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
-        // In production, this would call:
-        // super::vault_twofish::decrypt_twofish256_cbc(data, key)
-        
-        Ok(data.to_vec())
+    fn decrypt_twofish(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+        decrypt_twofish256_cbc(key.as_bytes(), data).map_err(|_| "Twofish decryption failed")
     }
     
     /// Serpent-256 encryption
     /// 
     /// Uses Serpent-256-CBC with PKCS#7 padding and random IV.
     /// See vault_serpent.rs for implementation details.
-    fn encrypt_serpent(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
-        // In production, this would call:
-        // super::vault_serpent::encrypt_serpent256_cbc(data, key)
-        
-        Ok(data.to_vec())
+    fn encrypt_serpent(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+        encrypt_serpent256_cbc(key.as_bytes(), data).map_err(|_| "Serpent encryption failed")
     }
     
     /// Serpent-256 decryption
-    fn decrypt_serpent(&self, data: &[u8], _key: &SecureKey) -> Result<Vec<u8>, &'static str> {
-        // In production, this would call:
-        // super::vault_serpent::decrypt_serpent256_cbc(data, key)
-        
-        Ok(data.to_vec())
+    fn decrypt_serpent(&self, data: &[u8], key: &SecureKey) -> Result<Vec<u8>, &'static str> {
+        decrypt_serpent256_cbc(key.as_bytes(), data).map_err(|_| "Serpent decryption failed")
     }
 }
 
