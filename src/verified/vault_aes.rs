@@ -19,7 +19,6 @@
 use aes::Aes256;
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit,
-    block_padding::Pkcs7,
 };
 use rand::RngCore;
 

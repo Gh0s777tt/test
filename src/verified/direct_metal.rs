@@ -11,7 +11,6 @@
 //!
 //! Safety: All operations are formally verified with Verus
 
-use core::ptr::NonNull;
 
 // Type aliases for backend compatibility
 pub type GpuDeviceId = u32;
@@ -171,7 +170,7 @@ impl CommandBuffer {
     }
 
     /// Internal submission function
-    fn submit_to_gpu(commands: &[GpuCommand]) -> Result<(), GpuError> {
+    fn submit_to_gpu(_commands: &[GpuCommand]) -> Result<(), GpuError> {
         // In real implementation, this would submit to GPU driver
         Ok(())
     }

@@ -16,8 +16,8 @@
 //! This implementation uses only publicly documented Windows system call
 //! interfaces from official Microsoft documentation.
 
-use crate::vantis_aegis_nt_api::{NtApiEmulator, NtError};
-use crate::vantis_aegis_registry::{RegistryEmulator, RegistryValue};
+use crate::vantis_aegis_nt_api::NtApiEmulator;
+use crate::vantis_aegis_registry::RegistryEmulator;
 
 /// System call error types
 #[derive(Debug, Clone, PartialEq, Eq)]

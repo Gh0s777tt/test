@@ -22,7 +22,7 @@
 use crate::vantis_aegis_nt_api::{NtApiEmulator, NtVersion};
 use crate::vantis_aegis_registry::RegistryEmulator;
 use crate::vantis_aegis_syscall::SyscallTranslator;
-use std::sync::{Arc, Once};
+use std::sync::Once;
 
 /// Vantis Aegis main interface
 pub struct VantisAegis {

@@ -23,7 +23,6 @@
 use verus::prelude::*;
 
 use super::process::Pid;
-use core::mem;
 
 /// Maximum size for inline message storage (64 bytes)
 pub const INLINE_MESSAGE_SIZE: usize = 64;

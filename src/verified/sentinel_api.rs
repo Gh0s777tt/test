@@ -129,7 +129,7 @@ impl DriverApi {
     /// - Initialize driver state
     /// - Allocate resources
     /// - Prepare for operation
-    pub fn driver_init(&mut self, driver_id: DriverId) -> Result<(), &'static str> {
+    pub fn driver_init(&mut self, _driver_id: DriverId) -> Result<(), &'static str> {
         if !self.initialized {
             return Err("Driver API not initialized");
         }
@@ -187,8 +187,8 @@ impl DriverApi {
     /// - Handle errors
     pub fn handle_event(
         &mut self,
-        driver_id: DriverId,
-        event: DriverEvent,
+        _driver_id: DriverId,
+        _event: DriverEvent,
     ) -> Result<(), &'static str> {
         if !self.initialized {
             return Err("Driver API not initialized");
@@ -254,7 +254,7 @@ impl DriverApi {
     /// - Return valid handle
     pub fn allocate_dma(
         &mut self,
-        driver_id: DriverId,
+        _driver_id: DriverId,
         size: u64,
     ) -> Result<DmaHandle, &'static str> {
         if !self.initialized {
@@ -328,7 +328,7 @@ impl DriverApi {
     /// - Set appropriate permissions
     pub fn map_memory(
         &mut self,
-        driver_id: DriverId,
+        _driver_id: DriverId,
         physical_address: u64,
         size: u64,
     ) -> Result<u64, &'static str> {

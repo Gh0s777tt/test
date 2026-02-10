@@ -24,7 +24,7 @@
 //! - No information leakage
 //! - Secure cleanup
 
-use crate::horizon_profiles::{Profile, ProfileId, ProfileError, MemoryStrategy, PowerMode};
+use crate::horizon_profiles::{Profile, ProfileId, MemoryStrategy, PowerMode};
 use std::collections::HashMap;
 
 /// Wraith profile builder

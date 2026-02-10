@@ -21,7 +21,6 @@
 #[cfg(feature = "verus")]
 use verus::prelude::*;
 
-use core::mem;
 
 /// Key size for all algorithms (256 bits = 32 bytes)
 pub const KEY_SIZE: usize = 32;

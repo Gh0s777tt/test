@@ -18,7 +18,6 @@
 //! information is used. This is a clean-room implementation for compatibility
 //! purposes only.
 
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex, Once};
 use std::time::{SystemTime, UNIX_EPOCH};
 

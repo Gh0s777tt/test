@@ -3,8 +3,8 @@
 //! This module provides integration between the path lookup cache and
 //! filesystem syscalls to improve performance of path resolution operations.
 
-use crate::path_cache::{PathCache, PathCacheEntry, SharedPathCache};
-use crate::syscall_file_ops::{FileOpError, FileStat};
+use crate::path_cache::{PathCacheEntry, SharedPathCache};
+use crate::syscall_file_ops::FileOpError;
 
 /// Filesystem operations with path caching
 pub struct CachedFilesystem {

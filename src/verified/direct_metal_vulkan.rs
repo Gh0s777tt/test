@@ -19,8 +19,6 @@ use crate::direct_metal::{
     GpuDeviceId, GpuMemoryId, GpuCommandBufferId, GpuFenceId, GpuPipelineId,
 };
 use std::collections::HashMap;
-use std::ffi::CString;
-use std::sync::{Arc, Mutex};
 
 /// Vulkan backend implementation
 pub struct VulkanBackend {

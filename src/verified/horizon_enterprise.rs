@@ -24,7 +24,7 @@
 //! - Audit log integrity
 //! - Compliance guarantees
 
-use crate::horizon_profiles::{Profile, ProfileId, ProfileError, MemoryStrategy, PowerMode};
+use crate::horizon_profiles::{Profile, ProfileId, MemoryStrategy, PowerMode};
 use std::collections::HashMap;
 
 /// Enterprise profile builder

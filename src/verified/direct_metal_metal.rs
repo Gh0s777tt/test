@@ -263,7 +263,7 @@ impl GpuBackend for MetalBackend {
         &self.capabilities
     }
     
-    fn initialize(&mut self, config: &BackendConfig) -> BackendResult<()> {
+    fn initialize(&mut self, _config: &BackendConfig) -> BackendResult<()> {
         if self.initialized {
             return Ok(());
         }
