@@ -57,6 +57,7 @@ impl NeuralSchedulerIntegration {
     }
 
     /// Update thread statistics and get priority adjustment
+    #[allow(clippy::too_many_arguments)]
     pub fn update_and_adjust(
         &mut self,
         thread_id: usize,
