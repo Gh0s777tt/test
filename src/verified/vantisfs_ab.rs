@@ -530,8 +530,6 @@ impl ABSystem {
             return Err(ABError::NotBootable);
         }
 
-        let old_active = self.active;
-        self.get_metadata_mut(old_active).mark_inactive();
         self.active = inactive;
         self.get_metadata_mut(self.active).inc_boot_count();
         Ok(())

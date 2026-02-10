@@ -377,6 +377,8 @@ pub const PERM_READ: u32 = 0x0004;
 pub const PERM_WRITE: u32 = 0x0002;
 #[cfg(not(feature = "verus"))]
 pub const PERM_EXEC: u32 = 0x0001;
+#[cfg(not(feature = "verus"))]
+const INODE_BITMAP_SIZE: usize = MAX_INODES.div_ceil(64);
 
 #[cfg(not(feature = "verus"))]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -492,7 +494,7 @@ impl Inode {
 
 #[cfg(not(feature = "verus"))]
 pub struct InodeManager {
-    bitmap: [u64; (MAX_INODES + 63) / 64],
+    bitmap: [u64; INODE_BITMAP_SIZE],
     free_count: u64,
     total_inodes: u64,
     next_free: u64,
@@ -503,7 +505,7 @@ impl InodeManager {
     pub fn new(total_inodes: u64) -> Self {
         let bounded = total_inodes.min(MAX_INODES as u64);
         Self {
-            bitmap: [u64::MAX; (MAX_INODES + 63) / 64],
+            bitmap: [u64::MAX; INODE_BITMAP_SIZE],
             free_count: bounded,
             total_inodes: bounded,
             next_free: 1,

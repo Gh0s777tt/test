@@ -257,7 +257,7 @@ pub const MAX_BLOCKS: usize = 1_000_000;
 #[cfg(not(feature = "verus"))]
 pub const BLOCK_SIZE: usize = 4096;
 #[cfg(not(feature = "verus"))]
-pub const BITMAP_SIZE: usize = (MAX_BLOCKS + 63) / 64;
+pub const BITMAP_SIZE: usize = MAX_BLOCKS.div_ceil(64);
 
 #[cfg(not(feature = "verus"))]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
