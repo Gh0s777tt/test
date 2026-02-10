@@ -404,28 +404,30 @@ pub const CONFIDENCE_THRESHOLD: u8 = 70;
 #[cfg(not(feature = "verus"))]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct BurstHistoryEntry {
-    pub cpu_burst_us: u64,
+    pub cpu_time_us: u32,
     pub io_wait_us: u64,
-    pub timestamp_us: u64,
+    pub timestamp: u64,
 }
 
 #[cfg(not(feature = "verus"))]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum WorkloadPattern {
     Unknown,
-    CpuBound,
-    IoBound,
+    CpuIntensive,
+    IoIntensive,
     Interactive,
-    Gaming,
-    Batch,
+    Balanced,
 }
 
 #[cfg(not(feature = "verus"))]
 pub struct WorkloadPredictor {
     history: [BurstHistoryEntry; MAX_HISTORY_SIZE],
-    history_count: usize,
+    history_size: usize,
+    next_index: usize,
     current_pattern: WorkloadPattern,
-    pattern_confidence: u8,
+    confidence: u8,
+    predictions_made: u64,
+    correct_predictions: u64,
 }
 
 #[cfg(not(feature = "verus"))]
@@ -433,45 +435,174 @@ impl WorkloadPredictor {
     pub fn new() -> Self {
         Self {
             history: [BurstHistoryEntry {
-                cpu_burst_us: 0,
+                cpu_time_us: 0,
                 io_wait_us: 0,
-                timestamp_us: 0,
+                timestamp: 0,
             }; MAX_HISTORY_SIZE],
-            history_count: 0,
+            history_size: 0,
+            next_index: 0,
             current_pattern: WorkloadPattern::Unknown,
-            pattern_confidence: 0,
+            confidence: 0,
+            predictions_made: 0,
+            correct_predictions: 0,
         }
     }
 
-    pub fn record_burst(&mut self, cpu_burst_us: u64, io_wait_us: u64, timestamp_us: u64) {
+    pub fn add_burst(&mut self, cpu_time_us: u32, io_wait_us: u32, timestamp: u64) {
         let entry = BurstHistoryEntry {
-            cpu_burst_us,
-            io_wait_us,
-            timestamp_us,
+            cpu_time_us,
+            io_wait_us: io_wait_us as u64,
+            timestamp,
         };
-        if self.history_count < MAX_HISTORY_SIZE {
-            self.history[self.history_count] = entry;
-            self.history_count += 1;
-        } else {
-            for i in 0..MAX_HISTORY_SIZE - 1 {
-                self.history[i] = self.history[i + 1];
-            }
-            self.history[MAX_HISTORY_SIZE - 1] = entry;
+
+        self.history[self.next_index] = entry;
+        self.next_index = (self.next_index + 1) % MAX_HISTORY_SIZE;
+
+        if self.history_size < MAX_HISTORY_SIZE {
+            self.history_size += 1;
         }
+
         self.update_pattern();
     }
 
+    pub fn record_burst(&mut self, cpu_burst_us: u64, io_wait_us: u64, timestamp_us: u64) {
+        self.add_burst(
+            cpu_burst_us.min(u32::MAX as u64) as u32,
+            io_wait_us.min(u32::MAX as u64) as u32,
+            timestamp_us,
+        );
+    }
+
+    pub fn calculate_avg_cpu_time(&self) -> u32 {
+        if self.history_size == 0 {
+            return 0;
+        }
+
+        let mut sum = 0u64;
+        for i in 0..self.history_size {
+            sum += self.history[i].cpu_time_us as u64;
+        }
+        (sum / self.history_size as u64) as u32
+    }
+
+    pub fn calculate_avg_io_wait(&self) -> u32 {
+        if self.history_size == 0 {
+            return 0;
+        }
+
+        let mut sum = 0u64;
+        for i in 0..self.history_size {
+            sum += self.history[i].io_wait_us;
+        }
+        (sum / self.history_size as u64) as u32
+    }
+
+    pub fn calculate_cpu_variance(&self) -> u32 {
+        if self.history_size < 2 {
+            return 0;
+        }
+
+        let avg = self.calculate_avg_cpu_time();
+        let mut sum_squared_diff = 0u64;
+
+        for i in 0..self.history_size {
+            let diff = self.history[i].cpu_time_us.abs_diff(avg);
+            sum_squared_diff += (diff as u64) * (diff as u64);
+        }
+
+        (sum_squared_diff / self.history_size as u64) as u32
+    }
+
+    fn update_pattern(&mut self) {
+        if self.history_size < 4 {
+            self.current_pattern = WorkloadPattern::Unknown;
+            self.confidence = 0;
+            return;
+        }
+
+        let avg_cpu = self.calculate_avg_cpu_time();
+        let avg_io = self.calculate_avg_io_wait();
+        let variance = self.calculate_cpu_variance();
+
+        let total_time = avg_cpu + avg_io;
+        if total_time == 0 {
+            self.current_pattern = WorkloadPattern::Unknown;
+            self.confidence = 0;
+            return;
+        }
+
+        let cpu_ratio = (avg_cpu * 100) / total_time;
+        let io_ratio = (avg_io * 100) / total_time;
+
+        if cpu_ratio > 80 {
+            self.current_pattern = WorkloadPattern::CpuIntensive;
+        } else if io_ratio > 60 {
+            self.current_pattern = WorkloadPattern::IoIntensive;
+        } else if variance < 1_000_000 && (41..70).contains(&cpu_ratio) {
+            self.current_pattern = WorkloadPattern::Interactive;
+        } else {
+            self.current_pattern = WorkloadPattern::Balanced;
+        }
+
+        let size_confidence = ((self.history_size * 100) / MAX_HISTORY_SIZE) as u8;
+        let stability_confidence = if variance < 1_000_000 {
+            90
+        } else if variance < 5_000_000 {
+            70
+        } else {
+            50
+        };
+
+        self.confidence = ((size_confidence as u32 + stability_confidence as u32) / 2) as u8;
+        if self.confidence > 100 {
+            self.confidence = 100;
+        }
+    }
+
+    pub fn predict_cpu_burst(&mut self) -> u32 {
+        self.predictions_made += 1;
+
+        if self.history_size < 2 {
+            return 5000;
+        }
+
+        let mut weighted_sum = 0u64;
+        let mut weight_sum = 0u64;
+
+        for i in 0..self.history_size {
+            let weight = (i + 1) as u64;
+            let idx = if self.next_index > i {
+                self.next_index - i - 1
+            } else {
+                MAX_HISTORY_SIZE + self.next_index - i - 1
+            };
+
+            weighted_sum += (self.history[idx].cpu_time_us as u64) * weight;
+            weight_sum += weight;
+        }
+
+        if weight_sum == 0 {
+            return 5000;
+        }
+
+        (weighted_sum / weight_sum) as u32
+    }
+
+    pub fn predict_io_wait(&self) -> u32 {
+        if self.history_size < 2 {
+            return 1000;
+        }
+        self.calculate_avg_io_wait()
+    }
+
     pub fn predict_next_burst(&self) -> (u64, u64) {
-        if self.history_count == 0 {
+        if self.history_size == 0 {
             return (0, 0);
         }
-        let mut total_cpu = 0u64;
-        let mut total_io = 0u64;
-        for i in 0..self.history_count {
-            total_cpu += self.history[i].cpu_burst_us;
-            total_io += self.history[i].io_wait_us;
-        }
-        (total_cpu / self.history_count as u64, total_io / self.history_count as u64)
+        (
+            self.calculate_avg_cpu_time() as u64,
+            self.calculate_avg_io_wait() as u64,
+        )
     }
 
     pub fn get_pattern(&self) -> WorkloadPattern {
@@ -479,37 +610,37 @@ impl WorkloadPredictor {
     }
 
     pub fn get_confidence(&self) -> u8 {
-        self.pattern_confidence
+        self.confidence
     }
 
-    fn update_pattern(&mut self) {
-        if self.history_count < 4 {
-            self.current_pattern = WorkloadPattern::Unknown;
-            self.pattern_confidence = 0;
-            return;
+    pub fn is_prediction_reliable(&self) -> bool {
+        self.confidence >= CONFIDENCE_THRESHOLD
+    }
+
+    pub fn record_correct_prediction(&mut self) {
+        self.correct_predictions += 1;
+    }
+
+    pub fn get_accuracy(&self) -> u8 {
+        if self.predictions_made == 0 {
+            return 0;
         }
-        let mut total_cpu = 0u64;
-        let mut total_io = 0u64;
-        for i in 0..self.history_count {
-            total_cpu += self.history[i].cpu_burst_us;
-            total_io += self.history[i].io_wait_us;
-        }
-        let avg_cpu = total_cpu / self.history_count as u64;
-        let avg_io = total_io / self.history_count as u64;
-        
-        if avg_cpu > avg_io * 10 {
-            self.current_pattern = WorkloadPattern::CpuBound;
-            self.pattern_confidence = 80;
-        } else if avg_io > avg_cpu * 10 {
-            self.current_pattern = WorkloadPattern::IoBound;
-            self.pattern_confidence = 80;
-        } else if avg_cpu < 5000 && avg_io < 5000 {
-            self.current_pattern = WorkloadPattern::Interactive;
-            self.pattern_confidence = 75;
-        } else {
-            self.current_pattern = WorkloadPattern::Unknown;
-            self.pattern_confidence = 50;
-        }
+
+        let accuracy = ((self.correct_predictions * 100) / self.predictions_made) as u8;
+        if accuracy > 100 { 100 } else { accuracy }
+    }
+
+    pub fn get_history_size(&self) -> usize {
+        self.history_size
+    }
+
+    pub fn clear_history(&mut self) {
+        self.history_size = 0;
+        self.next_index = 0;
+        self.current_pattern = WorkloadPattern::Unknown;
+        self.confidence = 0;
+        self.predictions_made = 0;
+        self.correct_predictions = 0;
     }
 }
 
@@ -520,7 +651,7 @@ impl Default for WorkloadPredictor {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
