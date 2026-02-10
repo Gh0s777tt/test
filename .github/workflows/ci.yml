@@ -189,3 +189,30 @@ jobs:
             docs/development/DEVELOPER_ONBOARDING.md
             docs/development/PROGRESS_REPORT.md
             docs/development/VERIFICATION_SETUP_COMPLETE.md
+
+  benchmark-reproducibility-gate:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run strict reproducibility check (timer queue)
+        run: >
+          ./scripts/benchmark_reproducibility.sh
+          --bench timer_queue_benchmark
+          --runs 2
+          --spread-threshold-pct 10
+          --strict
+          --baseline-prefix ci_repro
+
+      - name: Upload reproducibility report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-reproducibility-report
+          path: analysis/benchmark_reproducibility/timer_queue_benchmark_*.md
+          if-no-files-found: warn

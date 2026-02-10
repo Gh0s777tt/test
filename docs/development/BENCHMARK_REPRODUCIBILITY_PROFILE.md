@@ -97,3 +97,9 @@ Example:
   --strict
 ```
 
+Current repository integration:
+
+- `.github/workflows/ci.yml` includes `benchmark-reproducibility-gate`
+- gate currently runs strict reproducibility checks for `timer_queue_benchmark`
+  with a 10% spread threshold on pull requests.
+
