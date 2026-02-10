@@ -436,6 +436,13 @@ impl ThreadFeatures {
 }
 
 #[cfg(not(feature = "verus"))]
+impl Default for ThreadFeatures {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(not(feature = "verus"))]
 pub struct NeuralWeights {
     pub input_to_hidden1: [[i32; HIDDEN_LAYER_1_SIZE]; INPUT_FEATURES],
     pub hidden1_to_hidden2: [[i32; HIDDEN_LAYER_2_SIZE]; HIDDEN_LAYER_1_SIZE],
@@ -450,6 +457,13 @@ impl NeuralWeights {
             hidden1_to_hidden2: [[10; HIDDEN_LAYER_2_SIZE]; HIDDEN_LAYER_1_SIZE],
             hidden2_to_output: [10; HIDDEN_LAYER_2_SIZE],
         }
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for NeuralWeights {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -693,7 +707,7 @@ mod tests {
         scheduler.update_thread(0, features);
         let adjustment = scheduler.get_priority_adjustment(0);
         
-        assert!(adjustment >= -128 && adjustment <= 127);
+        let _ = adjustment;
         assert_eq!(scheduler.get_decisions_made(), 1);
     }
 
@@ -740,7 +754,7 @@ mod tests {
         // Get adjustments for all threads
         for i in 0..10 {
             let adjustment = scheduler.get_priority_adjustment(i);
-            assert!(adjustment >= -128 && adjustment <= 127);
+            let _ = adjustment;
         }
         
         assert_eq!(scheduler.get_decisions_made(), 10);
