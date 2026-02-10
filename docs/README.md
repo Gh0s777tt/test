@@ -134,6 +134,7 @@ See [../history/](../history/) for:
 - **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`
 - **Week 7 Day 8 syscall interface guide**: `implementation/SYSCALL_INTERFACE_GUIDE.md`
 - **Week 7 Day 9 microkernel architecture**: `implementation/MICROKERNEL_ARCHITECTURE.md`
+- **Week 7 Day 10 integration testing**: `../WEEK_7_DAY_10_INTEGRATION_TESTING.md`
 
 ---
 
