@@ -35,14 +35,14 @@ lang: pl
 <div align="center">
   <h3>🌍 WYBIERZ JĘZYK / SELECT LANGUAGE</h3>
   
-  [**🇺🇸 ENGLISH**](../README.md) &nbsp;|&nbsp; 
+  [**🇺🇸 ENGLISH**](../../README.md) &nbsp;|&nbsp; 
   [**🇵🇱 POLSKI**](README_PL.md) &nbsp;|&nbsp; 
   [**🇩🇪 DEUTSCH**](README_DE.md) &nbsp;|&nbsp; 
   [**🇫🇷 FRANÇAIS**](README_FR.md) &nbsp;|&nbsp; 
-  [**🇨🇳 中文**](README_CN.md) <br/>
-  [**🇯🇵 日本語**](README_JP.md) &nbsp;|&nbsp; 
-  [**🇮🇹 ITALIANO**](README_IT.md) &nbsp;|&nbsp; 
-  [**🇰🇷 한국어**](README_KR.md)
+  [**🇨🇳 中文**](README_ZH.md) <br/>
+  [**🇯🇵 日本語**](README_JA.md) &nbsp;|&nbsp; 
+  [**🇷🇺 РУССКИЙ**](README_RU.md) &nbsp;|&nbsp; 
+  [**🇸🇦 العربية**](README_AR.md)
 </div>
 
 ---
@@ -407,7 +407,7 @@ make run
 3. Wybierz profil aktualizacji
 4. Potwierdź i poczekaj 3 sekundy na restart
 
-**Szczegóły:** [docs/MOBILE_UPDATE_GUIDE.md](MOBILE_UPDATE_GUIDE.md)
+**Szczegóły:** [MOBILE_UPDATE_GUIDE.md](../MOBILE_UPDATE_GUIDE.md)
 
 ---
 
@@ -415,26 +415,24 @@ make run
 
 ### Dla Użytkowników
 
-- 📘 [Przewodnik Użytkownika](docs/guides/user/getting-started.md)
-- 🔧 [Instalacja i Konfiguracja](docs/INSTALLATION.md)
-- ❓ [FAQ - Często Zadawane Pytania](docs/FAQ.md)
-- 🎮 [Gaming na VANTIS OS](docs/GAMING.md)
-- 🔒 [Przewodnik Bezpieczeństwa](docs/SECURITY.md)
+- 📘 [Instalacja i Konfiguracja](../operations/INSTALLATION.md)
+- 📱 [Aktualizacja Mobilna](../MOBILE_UPDATE_GUIDE.md)
+- 🏗️ [Architektura Systemu](../ARCHITECTURE.md)
+- 🔒 [Przewodnik Bezpieczeństwa](../security/THREAT_MODEL.md)
 
 ### Dla Deweloperów
 
-- 🏗️ [Architektura Systemu](docs/ARCHITECTURE.md)
-- 📖 [Dokumentacja API](docs/api/README.md)
-- 🔨 [Przewodnik Budowania](docs/guides/developer/building.md)
-- 🧪 [Testowanie](docs/guides/developer/testing.md)
-- 🤝 [Wkład w Projekt](CONTRIBUTING.md)
+- 🏗️ [Architektura Systemu](../ARCHITECTURE.md)
+- 📖 [Dokumentacja API](../api/API_DOCUMENTATION.md)
+- 🧪 [Przykłady Weryfikacji](../api/VERIFICATION_EXAMPLES.md)
+- 🔨 [Developer Onboarding](../development/DEVELOPER_ONBOARDING.md)
+- 🤝 [Wkład w Projekt](../../CONTRIBUTING.md)
 
 ### Dla Administratorów
 
-- 🖥️ [Instalacja Serwerowa](docs/guides/admin/server-install.md)
-- ⚙️ [Konfiguracja Zaawansowana](docs/guides/admin/configuration.md)
-- 🔐 [Hardening Bezpieczeństwa](docs/guides/admin/security-hardening.md)
-- 📊 [Monitoring i Diagnostyka](docs/guides/admin/monitoring.md)
+- 🚀 [Instrukcje Wdrożenia](../operations/DEPLOYMENT_INSTRUCTIONS.md)
+- 🔐 [Production Crypto Guide](../operations/PRODUCTION_CRYPTO_GUIDE.md)
+- ⌨️ [Skróty Klawiszowe](../operations/KEYBINDINGS.md)
 
 ---
 
@@ -477,7 +475,7 @@ graph LR
 
 </div>
 
-**Szczegóły:** [CONTRIBUTING.md](CONTRIBUTING.md)
+**Szczegóły:** [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ---
 
@@ -584,7 +582,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-**Szczegóły:** [LICENSE](../LICENSE)
+**Szczegóły:** [LICENSE](../../LICENSE)
 
 ---
 
@@ -642,7 +640,7 @@ Dziękujemy naszym sponsorom za wsparcie!
 - [ ] Neural network acceleration
 - [ ] Advanced AI features
 
-**Szczegóły:** [docs/ROADMAP.md](docs/ROADMAP.md)
+**Szczegóły:** [ROADMAP_2026_2027.md](../../ROADMAP_2026_2027.md)
 
 ---
 

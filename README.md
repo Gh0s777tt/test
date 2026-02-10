@@ -20,7 +20,7 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/LICENSE-MIT-red?style=for-the-badge&logo=law&logoColor=white" />
   </a>
-  <a href="SECURITY.md">
+  <a href="SECURITY.MD">
     <img src="https://img.shields.io/badge/SECURITY-EAL7%2B-blue?style=for-the-badge&logo=security&logoColor=white" />
   </a>
 
@@ -32,14 +32,14 @@
   <h3>🌍 SELECT LANGUAGE / WYBIERZ JĘZYK / SPRACHE WÄHLEN</h3>
   
   [**🇺🇸 ENGLISH**](README.md) &nbsp;|&nbsp; 
-  [**🇵🇱 POLSKI**](docs/README_PL.md) &nbsp;|&nbsp; 
-  [**🇩🇪 DEUTSCH**](docs/README_DE.md) &nbsp;|&nbsp; 
-  [**🇫🇷 FRANÇAIS**](docs/README_FR.md) &nbsp;|&nbsp; 
-  [**🇪🇸 ESPAÑOL**](docs/README_ES.md) <br/>
-  [**🇨🇳 中文**](docs/README_CN.md) &nbsp;|&nbsp; 
-  [**🇯🇵 日本語**](docs/README_JP.md) &nbsp;|&nbsp; 
-  [**🇮🇹 ITALIANO**](docs/README_IT.md) &nbsp;|&nbsp; 
-  [**🇰🇷 한국어**](docs/README_KR.md)
+  [**🇵🇱 POLSKI**](docs/translations/README_PL.md) &nbsp;|&nbsp; 
+  [**🇩🇪 DEUTSCH**](docs/translations/README_DE.md) &nbsp;|&nbsp; 
+  [**🇫🇷 FRANÇAIS**](docs/translations/README_FR.md) &nbsp;|&nbsp; 
+  [**🇪🇸 ESPAÑOL**](docs/translations/README_ES.md) <br/>
+  [**🇨🇳 中文**](docs/translations/README_ZH.md) &nbsp;|&nbsp; 
+  [**🇯🇵 日本語**](docs/translations/README_JA.md) &nbsp;|&nbsp; 
+  [**🇷🇺 РУССКИЙ**](docs/translations/README_RU.md) &nbsp;|&nbsp; 
+  [**🇸🇦 العربية**](docs/translations/README_AR.md)
 </div>
 
 ---
@@ -112,8 +112,8 @@ Initialize the simulation environment instantly using Cloud IDEs.
 git clone https://github.com/vantisCorp/VantisOS.git
 cd VantisOS
 
-# Install dependencies
-./scripts/install_deps.sh
+# Install dependencies (see detailed guide)
+# docs/operations/INSTALLATION.md
 
 # Build the system
 make build
@@ -469,8 +469,8 @@ sudo dd if=vantis.iso of=/dev/sdX bs=4M status=progress
 git clone https://github.com/vantisCorp/VantisOS.git
 cd VantisOS
 
-# Install dependencies
-./scripts/install_deps.sh
+# Install dependencies (see detailed guide)
+# docs/operations/INSTALLATION.md
 
 # Choose profile
 # - core: Stability (default)
@@ -533,7 +533,7 @@ graph LR
     style B fill:#39FF14,color:#000
 ```
 
-**Details:** [docs/GAMING.md](docs/GAMING.md)
+**Details:** [docs/implementation/VANTIS_AEGIS_COMPLETE.md](docs/implementation/VANTIS_AEGIS_COMPLETE.md)
 
 ---
 
@@ -565,16 +565,16 @@ graph LR
 
 <div align="center">
 
-[![Bug Bounty](https://img.shields.io/badge/Bug_Bounty-Active-green?style=for-the-badge&logo=security)](docs/BUG_BOUNTY.md)
-[![Max Reward](https://img.shields.io/badge/Max_Reward-%2410%2C000-red?style=for-the-badge&logo=dollar)](docs/BUG_BOUNTY.md)
+[![Bug Bounty](https://img.shields.io/badge/Bug_Bounty-Active-green?style=for-the-badge&logo=security)](docs/security/BUG_BOUNTY.md)
+[![Max Reward](https://img.shields.io/badge/Max_Reward-%2410%2C000-red?style=for-the-badge&logo=dollar)](docs/security/BUG_BOUNTY.md)
 
 **Find vulnerabilities, get rewarded!**
 
-[View Bug Bounty Program →](docs/BUG_BOUNTY.md)
+[View Bug Bounty Program →](docs/security/BUG_BOUNTY.md)
 
 </div>
 
-**Details:** [SECURITY.md](SECURITY.md)
+**Details:** [SECURITY.MD](SECURITY.MD)
 
 ---
 
@@ -666,7 +666,7 @@ gantt
 - [ ] Vantis Aegis (gaming)
 - [ ] EAL 7+ certification
 
-**Details:** [docs/ROADMAP.md](docs/ROADMAP.md)
+**Details:** [ROADMAP_2026_2027.md](ROADMAP_2026_2027.md)
 
 ---
 
@@ -947,7 +947,7 @@ Thanks to these amazing projects:
 [📖 Docs](docs/) • 
 [💬 Discord](https://discord.gg/vantis) • 
 [🐛 Issues](https://github.com/vantisCorp/VantisOS/issues) • 
-[🏆 Bug Bounty](docs/BUG_BOUNTY.md)
+[🏆 Bug Bounty](docs/security/BUG_BOUNTY.md)
 
 ---
 
