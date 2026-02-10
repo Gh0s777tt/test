@@ -21,11 +21,8 @@ use builtin_macros::*;
 use vstd::prelude::*;
 
 use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures};
-#[cfg(feature = "verus")]
 use crate::neural_scheduler::MAX_TRACKED_THREADS;
-use crate::workload_predictor::WorkloadPredictor;
-#[cfg(feature = "verus")]
-use crate::workload_predictor::WorkloadPattern;
+use crate::workload_predictor::{WorkloadPattern, WorkloadPredictor};
 
 #[cfg(feature = "verus")]
 verus! {
@@ -264,7 +261,8 @@ pub struct SchedulerStatistics {
 #[cfg(not(feature = "verus"))]
 pub struct NeuralSchedulerIntegration {
     neural_scheduler: NeuralScheduler,
-    _predictors: Vec<WorkloadPredictor>,
+    predictors: Vec<WorkloadPredictor>,
+    num_predictors: usize,
     gaming_mode: bool,
     adjustments_made: u64,
     gaming_threads_detected: u64,
@@ -275,23 +273,152 @@ impl NeuralSchedulerIntegration {
     pub fn new() -> Self {
         Self {
             neural_scheduler: NeuralScheduler::new(),
-            _predictors: Vec::new(),
+            predictors: Vec::new(),
+            num_predictors: 0,
             gaming_mode: false,
             adjustments_made: 0,
             gaming_threads_detected: 0,
         }
     }
 
+    fn ensure_predictor(&mut self, thread_id: usize) {
+        if thread_id >= self.predictors.len() {
+            self.predictors
+                .resize_with(thread_id + 1, WorkloadPredictor::new);
+        }
+        if thread_id >= self.num_predictors {
+            self.num_predictors = thread_id + 1;
+        }
+    }
+
+    pub fn update_and_adjust(
+        &mut self,
+        thread_id: usize,
+        cpu_time_us: u32,
+        io_wait_us: u32,
+        voluntary_switches: u32,
+        involuntary_switches: u32,
+        current_priority: u8,
+        timestamp: u64,
+    ) -> i8 {
+        if thread_id >= MAX_TRACKED_THREADS {
+            return 0;
+        }
+
+        self.ensure_predictor(thread_id);
+
+        self.predictors[thread_id].add_burst(cpu_time_us, io_wait_us, timestamp);
+        let predicted_cpu = self.predictors[thread_id].predict_cpu_burst();
+        let pattern = self.predictors[thread_id].get_pattern();
+
+        let is_gaming =
+            pattern == WorkloadPattern::CpuIntensive && cpu_time_us > 8000 && io_wait_us < 1000;
+        let is_interactive = pattern == WorkloadPattern::Interactive
+            || (voluntary_switches > 50 && predicted_cpu < 5000);
+
+        if is_gaming {
+            self.gaming_threads_detected += 1;
+        }
+
+        let features = ThreadFeatures {
+            priority: current_priority,
+            cpu_time_us,
+            io_wait_us,
+            voluntary_switches,
+            involuntary_switches,
+            avg_cpu_burst_us: predicted_cpu,
+            is_interactive: if is_interactive { 1 } else { 0 },
+            is_gaming: if is_gaming { 1 } else { 0 },
+        };
+
+        self.neural_scheduler.update_thread(thread_id, features);
+        let mut adjustment = self.neural_scheduler.get_priority_adjustment(thread_id);
+
+        if self.gaming_mode && is_gaming {
+            adjustment = if adjustment > 100 { 127 } else { adjustment + 20 };
+        }
+
+        self.adjustments_made += 1;
+        adjustment
+    }
+
+    pub fn set_gaming_mode(&mut self, enabled: bool) {
+        self.gaming_mode = enabled;
+    }
+
     pub fn enable_gaming_mode(&mut self) {
-        self.gaming_mode = true;
+        self.set_gaming_mode(true);
     }
 
     pub fn disable_gaming_mode(&mut self) {
-        self.gaming_mode = false;
+        self.set_gaming_mode(false);
     }
 
     pub fn is_gaming_mode(&self) -> bool {
         self.gaming_mode
+    }
+
+    pub fn get_thread_pattern(&self, thread_id: usize) -> WorkloadPattern {
+        self.predictors
+            .get(thread_id)
+            .map(WorkloadPredictor::get_pattern)
+            .unwrap_or(WorkloadPattern::Unknown)
+    }
+
+    pub fn get_thread_confidence(&self, thread_id: usize) -> u8 {
+        self.predictors
+            .get(thread_id)
+            .map(WorkloadPredictor::get_confidence)
+            .unwrap_or(0)
+    }
+
+    pub fn is_thread_prediction_reliable(&self, thread_id: usize) -> bool {
+        self.predictors
+            .get(thread_id)
+            .map(WorkloadPredictor::is_prediction_reliable)
+            .unwrap_or(false)
+    }
+
+    pub fn get_scheduler_accuracy(&self) -> u32 {
+        self.neural_scheduler.get_accuracy()
+    }
+
+    pub fn get_predictor_accuracy(&self, thread_id: usize) -> u8 {
+        self.predictors
+            .get(thread_id)
+            .map(WorkloadPredictor::get_accuracy)
+            .unwrap_or(0)
+    }
+
+    pub fn get_adjustments_made(&self) -> u64 {
+        self.adjustments_made
+    }
+
+    pub fn get_gaming_threads_detected(&self) -> u64 {
+        self.gaming_threads_detected
+    }
+
+    pub fn record_correct_prediction(&mut self, thread_id: usize) {
+        self.neural_scheduler.record_correct_prediction();
+        if let Some(predictor) = self.predictors.get_mut(thread_id) {
+            predictor.record_correct_prediction();
+        }
+    }
+
+    pub fn clear_thread_history(&mut self, thread_id: usize) {
+        if let Some(predictor) = self.predictors.get_mut(thread_id) {
+            predictor.clear_history();
+        }
+    }
+
+    pub fn get_statistics(&self) -> SchedulerStatistics {
+        SchedulerStatistics {
+            total_threads: self.neural_scheduler.get_num_threads(),
+            adjustments_made: self.adjustments_made,
+            gaming_threads_detected: self.gaming_threads_detected,
+            scheduler_accuracy: self.neural_scheduler.get_accuracy(),
+            gaming_mode_enabled: self.gaming_mode,
+        }
     }
 
     pub fn adjust_priority(&mut self, _thread_id: usize, features: &ThreadFeatures) -> i8 {
@@ -313,13 +440,22 @@ impl NeuralSchedulerIntegration {
 }
 
 #[cfg(not(feature = "verus"))]
+pub struct SchedulerStatistics {
+    pub total_threads: usize,
+    pub adjustments_made: u64,
+    pub gaming_threads_detected: u64,
+    pub scheduler_accuracy: u32,
+    pub gaming_mode_enabled: bool,
+}
+
+#[cfg(not(feature = "verus"))]
 impl Default for NeuralSchedulerIntegration {
     fn default() -> Self {
         Self::new()
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
