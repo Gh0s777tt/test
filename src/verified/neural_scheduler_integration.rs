@@ -481,7 +481,7 @@ mod tests {
             1,      // timestamp
         );
         
-        assert!(adjustment >= -128 && adjustment <= 127);
+        let _ = adjustment;
         assert_eq!(integration.get_adjustments_made(), 1);
     }
 
@@ -536,7 +536,7 @@ mod tests {
         );
         
         // Gaming mode should provide boost (or at least not reduce priority)
-        assert!(adjustment2 >= adjustment1 - 20);
+        assert!((adjustment2 as i16) >= (adjustment1 as i16 - 20));
     }
 
     #[test]
