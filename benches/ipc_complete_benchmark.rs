@@ -1,394 +1,399 @@
-//! # Complete IPC System Performance Benchmarks
+//! IPC benchmark suite migrated to current `vantis_verified::ipc` APIs.
 //!
-//! Comprehensive benchmarks for the fully integrated IPC system with all 5 properties.
-//!
-//! ## Benchmark Categories
-//! 1. Throughput benchmarks (messages/second)
-//! 2. Latency benchmarks (microseconds)
-//! 3. Scalability benchmarks (1-1000 processes)
-//! 4. Memory usage benchmarks
-//! 5. Comparison with individual properties
+//! This benchmark replaces the legacy `vantis_os::ipc_complete::*` dependency
+//! and measures message throughput, latency, scalability, queue pressure, and
+//! capability-path costs using `IpcManager`.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use std::sync::Arc;
-use std::thread;
-use vantis_os::ipc_complete::*;
+use criterion::{
+    black_box, criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput,
+};
+use vantis_verified::ipc::{
+    Capability, IpcManager, Message, MessageId, Priority, MAX_MESSAGE_SIZE, MAX_QUEUE_SIZE,
+};
+use vantis_verified::process::Pid;
 
-// ============================================================================
-// THROUGHPUT BENCHMARKS
-// ============================================================================
+fn pid(id: u32) -> Pid {
+    Pid::new(id).expect("pid must be non-zero")
+}
+
+fn ensure_queue(manager: &mut IpcManager, process: Pid) {
+    if manager.queue_stats(process).is_none() {
+        manager
+            .create_queue(process)
+            .expect("queue creation should succeed");
+    }
+}
+
+fn setup_channel(manager: &mut IpcManager, sender_id: u32, receiver_id: u32) {
+    let sender = pid(sender_id);
+    let receiver = pid(receiver_id);
+    ensure_queue(manager, sender);
+    ensure_queue(manager, receiver);
+    manager
+        .grant_capability(sender, receiver, Capability::Send)
+        .expect("capability grant should succeed");
+}
+
+fn send_receive_once(
+    manager: &mut IpcManager,
+    sender_id: u32,
+    receiver_id: u32,
+    payload: &[u8],
+    priority: Priority,
+) {
+    let sender = pid(sender_id);
+    let receiver = pid(receiver_id);
+    manager
+        .send(sender, receiver, payload.to_vec(), priority)
+        .expect("send should succeed");
+    let received = manager
+        .receive(receiver)
+        .expect("receive call should succeed")
+        .expect("message should be available");
+    black_box(received.id());
+}
 
 fn bench_throughput_small_messages(c: &mut Criterion) {
-    let mut group = c.benchmark_group("throughput_small");
-    
-    for size in [64, 128, 256, 512, 1024].iter() {
-        group.throughput(Throughput::Bytes(*size as u64));
-        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
-            let ipc = IpcSystem::new();
-            let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-            let data = vec![0u8; size];
-            
+    let mut group = c.benchmark_group("ipc_throughput_small");
+
+    for size in [64usize, 128, 256, 512, 1024] {
+        group.throughput(Throughput::Bytes(size as u64));
+        group.bench_with_input(BenchmarkId::from_parameter(size), &size, |b, &size| {
+            let mut manager = IpcManager::new();
+            setup_channel(&mut manager, 1, 2);
+            let payload = vec![0u8; size];
+
             b.iter(|| {
-                let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                ipc.send(msg).unwrap();
-                ipc.receive(2).unwrap();
+                send_receive_once(
+                    black_box(&mut manager),
+                    1,
+                    2,
+                    black_box(payload.as_slice()),
+                    Priority::Normal,
+                );
             });
         });
     }
-    
+
     group.finish();
 }
 
 fn bench_throughput_large_messages(c: &mut Criterion) {
-    let mut group = c.benchmark_group("throughput_large");
-    
-    for size in [2048, 3072, 4096].iter() {
-        group.throughput(Throughput::Bytes(*size as u64));
-        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
-            let ipc = IpcSystem::new();
-            let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-            let data = vec![0u8; size];
-            
+    let mut group = c.benchmark_group("ipc_throughput_large");
+
+    for size in [2048usize, 3072, MAX_MESSAGE_SIZE] {
+        group.throughput(Throughput::Bytes(size as u64));
+        group.bench_with_input(BenchmarkId::from_parameter(size), &size, |b, &size| {
+            let mut manager = IpcManager::new();
+            setup_channel(&mut manager, 1, 2);
+            let payload = vec![0u8; size];
+
             b.iter(|| {
-                let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                ipc.send(msg).unwrap();
-                ipc.receive(2).unwrap();
+                send_receive_once(
+                    black_box(&mut manager),
+                    1,
+                    2,
+                    black_box(payload.as_slice()),
+                    Priority::High,
+                );
             });
         });
     }
-    
+
     group.finish();
 }
 
 fn bench_throughput_burst(c: &mut Criterion) {
-    let mut group = c.benchmark_group("throughput_burst");
-    
-    for burst_size in [10, 50, 100].iter() {
-        group.throughput(Throughput::Elements(*burst_size as u64));
-        group.bench_with_input(BenchmarkId::from_parameter(burst_size), burst_size, |b, &burst_size| {
-            let ipc = IpcSystem::new();
-            let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-            let data = vec![0u8; 1024];
-            
+    let mut group = c.benchmark_group("ipc_throughput_burst");
+
+    for burst in [8usize, 16, 32, MAX_QUEUE_SIZE] {
+        group.throughput(Throughput::Elements(burst as u64));
+        group.bench_with_input(BenchmarkId::from_parameter(burst), &burst, |b, &burst| {
+            let mut manager = IpcManager::new();
+            setup_channel(&mut manager, 1, 2);
+            let payload = vec![0u8; 256];
+            let sender = pid(1);
+            let receiver = pid(2);
+
             b.iter(|| {
-                // Send burst
-                for _ in 0..burst_size {
-                    let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                    ipc.send(msg).unwrap();
+                for _ in 0..burst {
+                    manager
+                        .send(sender, receiver, payload.clone(), Priority::Normal)
+                        .expect("burst send should succeed");
                 }
-                
-                // Receive burst
-                for _ in 0..burst_size {
-                    ipc.receive(2).unwrap();
+                for _ in 0..burst {
+                    black_box(
+                        manager
+                            .receive(receiver)
+                            .expect("burst receive call should succeed")
+                            .expect("burst receive should return message"),
+                    );
                 }
             });
         });
     }
-    
-    group.finish();
-}
 
-// ============================================================================
-// LATENCY BENCHMARKS
-// ============================================================================
-
-fn bench_latency_roundtrip(c: &mut Criterion) {
-    let mut group = c.benchmark_group("latency_roundtrip");
-    
-    group.bench_function("1kb_message", |b| {
-        let ipc = IpcSystem::new();
-        let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-        let data = vec![0u8; 1024];
-        
-        b.iter(|| {
-            let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-            let start = std::time::Instant::now();
-            ipc.send(msg).unwrap();
-            ipc.receive(2).unwrap();
-            start.elapsed()
-        });
-    });
-    
     group.finish();
 }
 
 fn bench_latency_send_only(c: &mut Criterion) {
-    let mut group = c.benchmark_group("latency_send");
-    
-    for size in [64, 256, 1024, 4096].iter() {
-        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
-            let ipc = IpcSystem::new();
-            let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-            let data = vec![0u8; size];
-            
-            b.iter(|| {
-                let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                ipc.send(msg).unwrap();
-            });
+    let mut group = c.benchmark_group("ipc_latency_send_only");
+
+    for size in [64usize, 256, 1024, MAX_MESSAGE_SIZE] {
+        group.bench_with_input(BenchmarkId::from_parameter(size), &size, |b, &size| {
+            b.iter_batched(
+                || {
+                    let mut manager = IpcManager::new();
+                    setup_channel(&mut manager, 1, 2);
+                    let payload = vec![0u8; size];
+                    (manager, payload)
+                },
+                |(mut manager, payload)| {
+                    let sender = pid(1);
+                    let receiver = pid(2);
+                    manager
+                        .send(sender, receiver, payload, Priority::Normal)
+                        .expect("send should succeed");
+                },
+                BatchSize::SmallInput,
+            );
         });
     }
-    
+
     group.finish();
 }
 
-fn bench_latency_receive_only(c: &mut Criterion) {
-    let mut group = c.benchmark_group("latency_receive");
-    
-    group.bench_function("receive_ready", |b| {
-        let ipc = IpcSystem::new();
-        let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-        
+fn bench_latency_receive_ready(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ipc_latency_receive");
+
+    group.bench_function("receive_ready_1kb", |b| {
         b.iter_batched(
             || {
-                // Setup: send message
-                let data = vec![0u8; 1024];
-                let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                ipc.send(msg).unwrap();
+                let mut manager = IpcManager::new();
+                setup_channel(&mut manager, 1, 2);
+                let sender = pid(1);
+                let receiver = pid(2);
+                manager
+                    .send(sender, receiver, vec![0u8; 1024], Priority::Normal)
+                    .expect("setup send should succeed");
+                manager
             },
-            |_| {
-                // Measure: receive message
-                ipc.receive(2).unwrap();
+            |mut manager| {
+                black_box(
+                    manager
+                        .receive(pid(2))
+                        .expect("receive call should succeed")
+                        .expect("message should be ready"),
+                );
             },
-            criterion::BatchSize::SmallInput,
+            BatchSize::SmallInput,
         );
     });
-    
+
     group.finish();
 }
-
-// ============================================================================
-// SCALABILITY BENCHMARKS
-// ============================================================================
 
 fn bench_scalability_processes(c: &mut Criterion) {
-    let mut group = c.benchmark_group("scalability_processes");
-    
-    for num_processes in [10, 50, 100, 500, 1000].iter() {
-        group.bench_with_input(BenchmarkId::from_parameter(num_processes), num_processes, |b, &num_processes| {
-            let ipc = IpcSystem::new();
-            
-            // Create capabilities for all processes
-            let mut capabilities = vec![];
-            for i in 0..num_processes {
-                let (cap_id, token) = ipc.create_capability(i as u64, (i + 1) as u64).unwrap();
-                capabilities.push((cap_id, token));
-            }
-            
-            b.iter(|| {
-                // Send from all processes
-                for (i, (cap_id, token)) in capabilities.iter().enumerate() {
-                    let data = format!("Process {}", i);
-                    let msg = CompleteMessage::new(data.as_bytes(), i as u64, (i + 1) as u64, *cap_id, *token).unwrap();
-                    ipc.send(msg).unwrap();
-                }
-                
-                // Receive all messages
-                for i in 0..num_processes {
-                    ipc.receive((i + 1) as u64).unwrap();
-                }
-            });
-        });
-    }
-    
-    group.finish();
-}
+    let mut group = c.benchmark_group("ipc_scalability_processes");
 
-fn bench_scalability_concurrent(c: &mut Criterion) {
-    let mut group = c.benchmark_group("scalability_concurrent");
-    
-    for num_threads in [2, 4, 8, 16].iter() {
-        group.bench_with_input(BenchmarkId::from_parameter(num_threads), num_threads, |b, &num_threads| {
-            let ipc = Arc::new(IpcSystem::new());
-            
-            b.iter(|| {
-                let mut handles = vec![];
-                
-                for i in 0..num_threads {
-                    let ipc_clone = Arc::clone(&ipc);
-                    let (cap_id, token) = ipc.create_capability(i as u64, (i + 1) as u64).unwrap();
-                    
-                    let handle = thread::spawn(move || {
-                        for j in 0..10 {
-                            let data = format!("Thread {} msg {}", i, j);
-                            let msg = CompleteMessage::new(data.as_bytes(), i as u64, (i + 1) as u64, cap_id, token).unwrap();
-                            ipc_clone.send(msg).unwrap();
-                        }
-                    });
-                    handles.push(handle);
+    for process_count in [10u32, 50, 100, 250, 500] {
+        group.bench_with_input(
+            BenchmarkId::from_parameter(process_count),
+            &process_count,
+            |b, &process_count| {
+                let mut manager = IpcManager::new();
+                for id in 1..=(process_count + 1) {
+                    ensure_queue(&mut manager, pid(id));
                 }
-                
-                for handle in handles {
-                    handle.join().unwrap();
+                for id in 1..=process_count {
+                    manager
+                        .grant_capability(pid(id), pid(id + 1), Capability::Send)
+                        .expect("capability grant should succeed");
                 }
-                
-                // Receive all messages
-                for i in 0..num_threads {
-                    for _ in 0..10 {
-                        ipc.receive((i + 1) as u64).unwrap();
+
+                b.iter(|| {
+                    for id in 1..=process_count {
+                        manager
+                            .send(
+                                pid(id),
+                                pid(id + 1),
+                                black_box(vec![0xAAu8; 128]),
+                                Priority::Normal,
+                            )
+                            .expect("fanout send should succeed");
                     }
-                }
-            });
-        });
+                    for id in 2..=(process_count + 1) {
+                        black_box(
+                            manager
+                                .receive(pid(id))
+                                .expect("fanout receive call should succeed")
+                                .expect("fanout receive should return message"),
+                        );
+                    }
+                });
+            },
+        );
     }
-    
+
     group.finish();
 }
 
-// ============================================================================
-// MEMORY BENCHMARKS
-// ============================================================================
+fn bench_queue_pressure(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ipc_queue_pressure");
 
-fn bench_memory_usage(c: &mut Criterion) {
-    let mut group = c.benchmark_group("memory_usage");
-    
-    group.bench_function("queue_fill", |b| {
-        let ipc = IpcSystem::new();
-        let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-        let data = vec![0u8; 1024];
-        
-        b.iter(|| {
-            let initial_memory = ipc.memory_usage();
-            
-            // Fill queue
-            for _ in 0..MAX_QUEUE_SIZE {
-                let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                ipc.send(msg).unwrap();
-            }
-            
-            let peak_memory = ipc.memory_usage();
-            
-            // Empty queue
-            for _ in 0..MAX_QUEUE_SIZE {
-                ipc.receive(2).unwrap();
-            }
-            
-            let final_memory = ipc.memory_usage();
-            
-            (initial_memory, peak_memory, final_memory)
-        });
-    });
-    
-    group.finish();
-}
-
-// ============================================================================
-// CAPABILITY BENCHMARKS
-// ============================================================================
-
-fn bench_capability_operations(c: &mut Criterion) {
-    let mut group = c.benchmark_group("capability_ops");
-    
-    group.bench_function("create", |b| {
-        let ipc = IpcSystem::new();
-        let mut counter = 0u64;
-        
-        b.iter(|| {
-            counter += 1;
-            ipc.create_capability(counter, counter + 1).unwrap()
-        });
-    });
-    
-    group.bench_function("revoke", |b| {
-        let ipc = IpcSystem::new();
-        
+    group.bench_function("fill_and_drain_max_queue", |b| {
         b.iter_batched(
             || {
-                // Setup: create capability
-                ipc.create_capability(1, 2).unwrap().0
+                let mut manager = IpcManager::new();
+                setup_channel(&mut manager, 1, 2);
+                manager
             },
-            |cap_id| {
-                // Measure: revoke capability
-                ipc.revoke_capability(cap_id).unwrap();
+            |mut manager| {
+                let sender = pid(1);
+                let receiver = pid(2);
+
+                for _ in 0..MAX_QUEUE_SIZE {
+                    manager
+                        .send(sender, receiver, vec![0u8; 512], Priority::Normal)
+                        .expect("queue fill send should succeed");
+                }
+
+                let (len, capacity) = manager
+                    .queue_stats(receiver)
+                    .expect("receiver queue should exist");
+                black_box((len, capacity));
+
+                for _ in 0..MAX_QUEUE_SIZE {
+                    manager
+                        .receive(receiver)
+                        .expect("queue drain receive call should succeed")
+                        .expect("queue drain should return message");
+                }
             },
-            criterion::BatchSize::SmallInput,
+            BatchSize::SmallInput,
         );
     });
-    
+
     group.finish();
 }
 
-// ============================================================================
-// VERIFICATION OVERHEAD BENCHMARKS
-// ============================================================================
+fn bench_capability_operations(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ipc_capability_ops");
 
-fn bench_verification_overhead(c: &mut Criterion) {
-    let mut group = c.benchmark_group("verification_overhead");
-    
-    group.bench_function("integrity_check", |b| {
-        let data = vec![0u8; 1024];
-        let msg = CompleteMessage::new(&data, 1, 2, 100, 0xDEADBEEF).unwrap();
-        
+    group.bench_function("grant_send_capability", |b| {
+        b.iter_batched(
+            || {
+                let mut manager = IpcManager::new();
+                ensure_queue(&mut manager, pid(1));
+                ensure_queue(&mut manager, pid(2));
+                manager
+            },
+            |mut manager| {
+                manager
+                    .grant_capability(pid(1), pid(2), Capability::Send)
+                    .expect("grant should succeed");
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("revoke_send_capability", |b| {
+        b.iter_batched(
+            || {
+                let mut manager = IpcManager::new();
+                ensure_queue(&mut manager, pid(1));
+                ensure_queue(&mut manager, pid(2));
+                manager
+                    .grant_capability(pid(1), pid(2), Capability::Send)
+                    .expect("setup grant should succeed");
+                manager
+            },
+            |mut manager| {
+                manager
+                    .revoke_capability(pid(1), pid(2), Capability::Send)
+                    .expect("revoke should succeed");
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("lookup_capability", |b| {
+        let mut manager = IpcManager::new();
+        for id in 1..=512u32 {
+            ensure_queue(&mut manager, pid(id));
+            ensure_queue(&mut manager, pid(id + 1));
+            manager
+                .grant_capability(pid(id), pid(id + 1), Capability::Send)
+                .expect("bulk capability grant should succeed");
+        }
+
         b.iter(|| {
-            msg.verify_integrity().unwrap();
+            black_box(manager.has_capability(pid(256), pid(257), Capability::Send));
         });
     });
-    
-    group.bench_function("message_creation", |b| {
-        let data = vec![0u8; 1024];
-        
-        b.iter(|| {
-            CompleteMessage::new(&data, 1, 2, 100, 0xDEADBEEF).unwrap()
-        });
-    });
-    
+
     group.finish();
 }
 
-// ============================================================================
-// COMPARISON BENCHMARKS
-// ============================================================================
+fn bench_message_verification_overhead(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ipc_message_verification");
 
-fn bench_comparison_with_baseline(c: &mut Criterion) {
-    let mut group = c.benchmark_group("comparison");
-    
-    group.bench_function("complete_system", |b| {
-        let ipc = IpcSystem::new();
-        let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-        let data = vec![0u8; 1024];
-        
+    group.bench_function("message_creation_1kb", |b| {
+        let sender = pid(1);
+        let receiver = pid(2);
+        let payload = vec![0u8; 1024];
+        let mut next_id = 1u64;
+
         b.iter(|| {
-            let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-            ipc.send(msg).unwrap();
-            ipc.receive(2).unwrap();
+            let message = Message::new(
+                MessageId::new(next_id),
+                sender,
+                receiver,
+                payload.clone(),
+                Priority::Normal,
+            )
+            .expect("message creation should succeed");
+            next_id = next_id.saturating_add(1);
+            black_box(message);
         });
     });
-    
-    group.bench_function("message_only", |b| {
-        let data = vec![0u8; 1024];
-        
+
+    group.bench_function("message_is_valid_1kb", |b| {
+        let sender = pid(1);
+        let receiver = pid(2);
+        let message = Message::new(
+            MessageId::new(1),
+            sender,
+            receiver,
+            vec![0u8; 1024],
+            Priority::Normal,
+        )
+        .expect("message creation should succeed");
+
         b.iter(|| {
-            CompleteMessage::new(&data, 1, 2, 100, 0xDEADBEEF).unwrap()
+            black_box(message.is_valid());
         });
     });
-    
+
     group.finish();
 }
-
-// ============================================================================
-// STRESS BENCHMARKS
-// ============================================================================
 
 fn bench_stress_high_load(c: &mut Criterion) {
-    let mut group = c.benchmark_group("stress_high_load");
-    group.sample_size(10); // Reduce sample size for stress tests
-    
-    group.bench_function("1000_messages", |b| {
-        let ipc = IpcSystem::new();
-        let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
-        let data = vec![0u8; 1024];
-        
+    let mut group = c.benchmark_group("ipc_stress_high_load");
+    group.sample_size(10);
+
+    group.bench_function("1000_roundtrips", |b| {
+        let mut manager = IpcManager::new();
+        setup_channel(&mut manager, 1, 2);
+        let payload = vec![0u8; 512];
+
         b.iter(|| {
             for _ in 0..1000 {
-                let msg = CompleteMessage::new(&data, 1, 2, cap_id, token).unwrap();
-                ipc.send(msg).unwrap();
-            }
-            
-            for _ in 0..1000 {
-                ipc.receive(2).unwrap();
+                send_receive_once(&mut manager, 1, 2, payload.as_slice(), Priority::Normal);
             }
         });
     });
-    
+
     group.finish();
 }
 
@@ -397,16 +402,12 @@ criterion_group!(
     bench_throughput_small_messages,
     bench_throughput_large_messages,
     bench_throughput_burst,
-    bench_latency_roundtrip,
     bench_latency_send_only,
-    bench_latency_receive_only,
+    bench_latency_receive_ready,
     bench_scalability_processes,
-    bench_scalability_concurrent,
-    bench_memory_usage,
+    bench_queue_pressure,
     bench_capability_operations,
-    bench_verification_overhead,
-    bench_comparison_with_baseline,
-    bench_stress_high_load,
+    bench_message_verification_overhead,
+    bench_stress_high_load
 );
-
 criterion_main!(benches);

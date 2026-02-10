@@ -159,6 +159,12 @@ maintenance scripts from `scripts/`:
 # Run syscall-focused benchmark suite
 ./scripts/run_benchmarks.sh --syscall
 
+# Run migrated IPC benchmark suite
+./scripts/run_benchmarks.sh --ipc
+
+# Run all benchmark groups
+./scripts/run_benchmarks.sh --all
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```

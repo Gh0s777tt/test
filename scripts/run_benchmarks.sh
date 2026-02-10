@@ -3,6 +3,7 @@
 # Usage:
 #   ./scripts/run_benchmarks.sh            # scheduler + filesystem (legacy default)
 #   ./scripts/run_benchmarks.sh --syscall  # syscall-focused suite (Day 7)
+#   ./scripts/run_benchmarks.sh --ipc      # migrated IPC complete benchmark
 #   ./scripts/run_benchmarks.sh --all      # run all benchmark groups
 
 set -euo pipefail
@@ -18,11 +19,13 @@ fi
 MODE="legacy"
 if [[ "${1:-}" == "--syscall" ]]; then
   MODE="syscall"
+elif [[ "${1:-}" == "--ipc" ]]; then
+  MODE="ipc"
 elif [[ "${1:-}" == "--all" ]]; then
   MODE="all"
 elif [[ -n "${1:-}" ]]; then
   echo "Unknown option: $1" >&2
-  echo "Usage: ./scripts/run_benchmarks.sh [--syscall|--all]" >&2
+  echo "Usage: ./scripts/run_benchmarks.sh [--syscall|--ipc|--all]" >&2
   exit 1
 fi
 
@@ -42,12 +45,19 @@ SYSCALL_BENCHES=(
   "timer_queue_benchmark:timer_queue_day12"
 )
 
+IPC_BENCHES=(
+  "ipc_complete_benchmark:ipc_complete_migrated"
+)
+
 BENCHES=()
 if [[ "$MODE" == "legacy" || "$MODE" == "all" ]]; then
   BENCHES+=("${LEGACY_BENCHES[@]}")
 fi
 if [[ "$MODE" == "syscall" || "$MODE" == "all" ]]; then
   BENCHES+=("${SYSCALL_BENCHES[@]}")
+fi
+if [[ "$MODE" == "ipc" || "$MODE" == "all" ]]; then
+  BENCHES+=("${IPC_BENCHES[@]}")
 fi
 
 for item in "${BENCHES[@]}"; do
