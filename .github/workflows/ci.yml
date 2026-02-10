@@ -242,15 +242,15 @@ jobs:
           --bench timer_queue_benchmark
           --bench directory_entry_cache_benchmark
 
-      - name: Generate governance transition pack
-        if: ${{ always() }}
-        run: >
-          ./scripts/generate_governance_transition_pack.sh
-
       - name: Generate MONPOL changelog scaffold draft
         if: ${{ always() }}
         run: >
           ./scripts/scaffold_monpol_changelog_entry.sh
+
+      - name: Generate governance transition pack
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_governance_transition_pack.sh
 
       - name: Upload reproducibility report
         if: ${{ always() }}
