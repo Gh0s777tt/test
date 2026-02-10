@@ -133,22 +133,37 @@
   - [x] Run benchmark and capture baseline (`ipc_complete_migrated`)
   - [x] Publish migration report
 
-- [ ] Day 2: Benchmark Reproducibility Profile
+- [x] Day 2: Benchmark Reproducibility Profile
   - [x] Define stable benchmark profile/flags for CI
   - [x] Document CPU governor and environment recommendations
   - [x] Add baseline retention policy
   - [x] Validate reproducibility with repeated runs
 
-- [ ] Day 3: Synthetic Benchmark Fidelity Hardening
+- [x] Day 3: Synthetic Benchmark Fidelity Hardening
   - [x] Reduce optimization artifacts in nanosecond synthetic benches
   - [x] Add mixed-scenario syscall sequences
   - [x] Compare synthetic vs scenario-driven drift
   - [x] Update performance guidance
+
+- [x] Day 4: CI Benchmark Profile Integration and Regression Gate
+  - [x] Integrate reproducibility gate into CI workflow
+  - [x] Add strict reproducibility benchmark stage
+  - [x] Add benchmark report artifact upload
+  - [x] Validate CI-equivalent strict command locally
+  - [x] Publish Day 4 report
+
+- [x] Day 5: Threshold Calibration and Expanded Scenario Gate
+  - [x] Calibrate strict threshold for shared runners
+  - [x] Add dual-stage strict + monitor benchmark gate runner
+  - [x] Integrate gate runner into CI workflow
+  - [x] Validate full gate locally and capture evidence
+  - [x] Publish Day 5 report
 
 ## Week 9-10 Current Status
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
 - Week 9 Day 3: ✅ COMPLETE (stateful benchmark hardening + mixed workload scenarios)
 - Week 9 Day 4: ✅ COMPLETE (CI reproducibility gate + strict local validation)
-- Week 9 Progress: 4 milestone days complete
-- Next: Week 9 Day 5 - threshold calibration and expanded scenario gate
+- Week 9 Day 5: ✅ COMPLETE (threshold calibration + dual-stage scenario gate + evidence)
+- Week 9 Progress: 5 milestone days complete
+- Next: Week 9 Day 6 - expand monitored benchmark scenarios within CI runtime budget
