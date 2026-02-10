@@ -42,10 +42,10 @@
   - [x] Test and benchmark
 
 - [ ] Day 6: Fd Allocation Optimization
-  - [ ] Design bitmap allocation
-  - [ ] Implement bitmap structure
-  - [ ] Replace linear scan
-  - [ ] Test edge cases
+  - [x] Design bitmap allocation
+  - [x] Implement bitmap structure
+  - [x] Replace linear scan
+  - [x] Test edge cases
   - [ ] Benchmark improvements
 
 - [ ] Day 7: Performance Validation

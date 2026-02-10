@@ -13,6 +13,10 @@
 /// File descriptor type
 pub type FileDescriptor = i32;
 
+const FD_TABLE_SIZE: usize = 1024;
+const FD_RESERVED_COUNT: usize = 3;
+const FD_BITMAP_WORDS: usize = FD_TABLE_SIZE.div_ceil(64);
+
 /// Pipe file descriptors
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PipeFds {
@@ -99,6 +103,8 @@ struct FdEntry {
 pub struct FdTable {
     /// File descriptor entries
     entries: Vec<Option<FdEntry>>,
+    /// Allocation bitmap (1 = used, 0 = free)
+    fd_bitmap: [u64; FD_BITMAP_WORDS],
     /// Next available fd
     next_fd: FileDescriptor,
 }
@@ -106,7 +112,8 @@ pub struct FdTable {
 impl FdTable {
     /// Create new file descriptor table
     pub fn new() -> Self {
-        let mut entries = vec![None; 1024];
+        let mut entries = vec![None; FD_TABLE_SIZE];
+        let mut fd_bitmap = [0u64; FD_BITMAP_WORDS];
         
         // Reserve stdin, stdout, stderr
         entries[0] = Some(FdEntry {
@@ -130,10 +137,15 @@ impl FdTable {
             writable: true,
             is_pipe: false,
         });
+
+        Self::set_bitmap_bit(&mut fd_bitmap, 0, true);
+        Self::set_bitmap_bit(&mut fd_bitmap, 1, true);
+        Self::set_bitmap_bit(&mut fd_bitmap, 2, true);
         
         Self {
             entries,
-            next_fd: 3,
+            fd_bitmap,
+            next_fd: FD_RESERVED_COUNT as FileDescriptor,
         }
     }
     
@@ -161,14 +173,17 @@ impl FdTable {
     
     /// Allocate new file descriptor
     fn alloc_fd(&mut self, entry: FdEntry) -> AdvOpResult<FileDescriptor> {
-        // Find free slot
-        for i in self.next_fd as usize..self.entries.len() {
-            if self.entries[i].is_none() {
-                self.entries[i] = Some(entry);
-                return Ok(i as FileDescriptor);
+        let start = self.next_fd.max(FD_RESERVED_COUNT as FileDescriptor) as usize;
+        if let Some(fd) = self.find_next_free_fd(start) {
+            self.entries[fd] = Some(entry);
+            self.mark_fd_used(fd, true);
+            self.next_fd = ((fd + 1) % self.entries.len()) as FileDescriptor;
+            if self.next_fd < FD_RESERVED_COUNT as FileDescriptor {
+                self.next_fd = FD_RESERVED_COUNT as FileDescriptor;
             }
+            return Ok(fd as FileDescriptor);
         }
-        
+
         Err(AdvOpError::TooManyFiles)
     }
     
@@ -182,9 +197,69 @@ impl FdTable {
         // If refcount reaches 0, remove entry
         if entry.refcount == 0 {
             self.entries[fd as usize] = None;
+            self.mark_fd_used(fd as usize, false);
         }
         
         Ok(())
+    }
+
+    fn mark_fd_used(&mut self, fd: usize, used: bool) {
+        Self::set_bitmap_bit(&mut self.fd_bitmap, fd, used);
+    }
+
+    fn set_bitmap_bit(bitmap: &mut [u64; FD_BITMAP_WORDS], fd: usize, used: bool) {
+        let word = fd / 64;
+        let bit = fd % 64;
+        let mask = 1u64 << bit;
+        if used {
+            bitmap[word] |= mask;
+        } else {
+            bitmap[word] &= !mask;
+        }
+    }
+
+    fn find_next_free_fd(&self, start: usize) -> Option<usize> {
+        self.find_free_in_range(start, self.entries.len())
+            .or_else(|| self.find_free_in_range(FD_RESERVED_COUNT, start))
+    }
+
+    fn find_free_in_range(&self, start: usize, end: usize) -> Option<usize> {
+        if start >= end {
+            return None;
+        }
+
+        let mut idx = start;
+        while idx < end {
+            let word_idx = idx / 64;
+            let bit_offset = idx % 64;
+            let mut available = !self.fd_bitmap[word_idx];
+
+            // Ignore bits before start offset in current word.
+            if bit_offset > 0 {
+                let lower_mask = (1u64 << bit_offset) - 1;
+                available &= !lower_mask;
+            }
+
+            // Ignore bits beyond end in final word.
+            let word_end = ((word_idx + 1) * 64).min(end);
+            if word_end < (word_idx + 1) * 64 {
+                let keep_bits = word_end - (word_idx * 64);
+                let upper_mask = !((1u64 << keep_bits) - 1);
+                available &= !upper_mask;
+            }
+
+            if available != 0 {
+                let bit = available.trailing_zeros() as usize;
+                let fd = word_idx * 64 + bit;
+                if fd < end {
+                    return Some(fd);
+                }
+            }
+
+            idx = (word_idx + 1) * 64;
+        }
+
+        None
     }
 }
 
@@ -565,6 +640,45 @@ mod tests {
         sys_dup(&mut table, 1).unwrap();
         let entry = table.get_entry(1).unwrap();
         assert_eq!(entry.refcount, 2);
+    }
+
+    #[test]
+    fn test_alloc_fd_reuses_freed_slot_with_bitmap() {
+        let mut table = FdTable::new();
+
+        let make_entry = |label: &str| FdEntry {
+            description: label.to_string(),
+            refcount: 1,
+            readable: true,
+            writable: true,
+            is_pipe: false,
+        };
+
+        let fd3 = table.alloc_fd(make_entry("fd3")).unwrap();
+        let fd4 = table.alloc_fd(make_entry("fd4")).unwrap();
+        assert_eq!(fd3, 3);
+        assert_eq!(fd4, 4);
+
+        table.free_fd(fd3).unwrap();
+        let reused = table.alloc_fd(make_entry("fd3_reused")).unwrap();
+        assert_eq!(reused, fd3);
+    }
+
+    #[test]
+    fn test_alloc_fd_wraparound_search() {
+        let mut table = FdTable::new();
+        table.next_fd = FD_TABLE_SIZE as FileDescriptor;
+
+        let entry = FdEntry {
+            description: "wraparound".to_string(),
+            refcount: 1,
+            readable: true,
+            writable: false,
+            is_pipe: false,
+        };
+
+        let fd = table.alloc_fd(entry).unwrap();
+        assert_eq!(fd, FD_RESERVED_COUNT as FileDescriptor);
     }
 }
 
