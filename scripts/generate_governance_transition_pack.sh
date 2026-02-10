@@ -11,6 +11,7 @@ WORKFLOW_PATH="$ROOT/.github/workflows/ci.yml"
 CHANGELOG_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
 PROFILE_DOC_PATH="$ROOT/docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md"
 TEMPLATE_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md"
+SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
 
 OUTPUT_PATH=""
 OUTPUT_JSON_PATH=""
@@ -25,6 +26,7 @@ Options:
   --changelog <path>      Monitor threshold changelog path
   --profile-doc <path>    Reproducibility profile doc path
   --template <path>       Proposal template path
+  --signoff <path>        MONPOL signoff metadata JSON path
   --output <path>         Output markdown path
   --output-json <path>    Output JSON path
   -h, --help              Show this help
@@ -51,6 +53,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --template)
       TEMPLATE_PATH="${2:-}"
+      shift 2
+      ;;
+    --signoff)
+      SIGNOFF_PATH="${2:-}"
       shift 2
       ;;
     --output)
@@ -87,7 +93,7 @@ if [[ -z "$OUTPUT_JSON_PATH" ]]; then
   OUTPUT_JSON_PATH="${OUTPUT_PATH%.md}.json"
 fi
 
-python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import re
 import sys
@@ -100,8 +106,9 @@ workflow_path = Path(sys.argv[3])
 changelog_path = Path(sys.argv[4])
 profile_doc_path = Path(sys.argv[5])
 template_path = Path(sys.argv[6])
-output_path = Path(sys.argv[7])
-output_json_path = Path(sys.argv[8])
+signoff_path = Path(sys.argv[7])
+output_path = Path(sys.argv[8])
+output_json_path = Path(sys.argv[9])
 
 
 def rel(path: Path) -> str:
@@ -178,6 +185,70 @@ def parse_ci_policy(workflow_text: str):
     }
 
 
+def normalize_decision(text: str) -> str:
+    value = (text or "").strip().lower()
+    if "approved" in value:
+        return "approved"
+    if "reject" in value:
+        return "rejected"
+    if "withdraw" in value:
+        return "withdrawn"
+    if "defer" in value:
+        return "deferred"
+    if "pending" in value:
+        return "pending"
+    return "unknown"
+
+
+def parse_changelog_entries(changelog_text: str):
+    header_re = re.compile(r"^###\s+(MONPOL-\d{3})\s+\(([^)]+)\)\s*$", re.MULTILINE)
+    headers = list(header_re.finditer(changelog_text))
+    entries = []
+    for idx, match in enumerate(headers):
+        start = match.start()
+        end = headers[idx + 1].start() if idx + 1 < len(headers) else len(changelog_text)
+        block = changelog_text[start:end]
+        decision_match = re.search(r"^- \*\*Decision\*\*:\s*(.+)$", block, re.MULTILINE)
+        raw_decision = decision_match.group(1).strip() if decision_match else "n/a"
+        entries.append(
+            {
+                "proposal_id": match.group(1),
+                "date": match.group(2),
+                "raw_decision": raw_decision,
+                "decision": normalize_decision(raw_decision),
+            }
+        )
+    return entries
+
+
+def parse_signoff_records(path: Path):
+    if not path.exists():
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("records", [])
+    if not isinstance(records, list):
+        records = []
+    normalized = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        proposal_id = str(record.get("proposal_id", "")).strip()
+        decision = normalize_decision(str(record.get("decision", "")))
+        owner = str(record.get("owner", "")).strip() or "n/a"
+        approved_at = str(record.get("approved_at_utc", "")).strip() or "n/a"
+        reviewers = record.get("reviewers", [])
+        normalized.append(
+            {
+                "proposal_id": proposal_id,
+                "decision": decision,
+                "owner": owner,
+                "approved_at_utc": approved_at,
+                "reviewer_count": len(reviewers) if isinstance(reviewers, list) else 0,
+            }
+        )
+    return normalized
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -187,6 +258,8 @@ latest_proposal_md = latest("monitor_threshold_proposal_MONPOL-*_*.md")
 latest_proposal_json = latest("monitor_threshold_proposal_MONPOL-*_*.json")
 latest_scaffold_md = latest("monpol_changelog_scaffold_MONPOL-*_*.md")
 latest_scaffold_json = latest("monpol_changelog_scaffold_MONPOL-*_*.json")
+latest_signoff_validation_md = latest("monpol_signoff_validation_*.md")
+latest_signoff_validation_json = latest("monpol_signoff_validation_*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -201,6 +274,24 @@ changelog_text = changelog_path.read_text(encoding="utf-8") if changelog_path.ex
 monpol_matches = list(re.finditer(r"###\s+(MONPOL-\d{3})\s+\(([^)]+)\)", changelog_text))
 latest_monpol_id = monpol_matches[-1].group(1) if monpol_matches else "n/a"
 latest_monpol_date = monpol_matches[-1].group(2) if monpol_matches else "n/a"
+monpol_entries = parse_changelog_entries(changelog_text)
+signoff_records = parse_signoff_records(signoff_path)
+signoff_by_id = {record["proposal_id"]: record for record in signoff_records if record["proposal_id"]}
+approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
+approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
+approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
+signoff_decision_counts = {}
+for record in signoff_records:
+    decision = record["decision"]
+    signoff_decision_counts[decision] = signoff_decision_counts.get(decision, 0) + 1
+
+latest_signoff_record = None
+for record in signoff_records:
+    current = record.get("approved_at_utc", "n/a")
+    if current == "n/a":
+        continue
+    if latest_signoff_record is None or current > latest_signoff_record.get("approved_at_utc", "n/a"):
+        latest_signoff_record = record
 
 scripts_required = [
     root / "scripts/run_benchmark_ci_gate.sh",
@@ -225,8 +316,8 @@ docs_status = [
     {"path": rel(changelog_path), "exists": changelog_path.exists()},
     {"path": rel(template_path), "exists": template_path.exists()},
     {
-        "path": rel(root / "governance/performance/MONPOL_SIGNOFFS.json"),
-        "exists": (root / "governance/performance/MONPOL_SIGNOFFS.json").exists(),
+        "path": rel(signoff_path),
+        "exists": signoff_path.exists(),
     },
 ]
 
@@ -260,6 +351,16 @@ artifact_status = [
         "path": rel(latest_scaffold_json) if latest_scaffold_json else "n/a",
         "exists": bool(latest_scaffold_json),
     },
+    {
+        "kind": "signoff_validation_md",
+        "path": rel(latest_signoff_validation_md) if latest_signoff_validation_md else "n/a",
+        "exists": bool(latest_signoff_validation_md),
+    },
+    {
+        "kind": "signoff_validation_json",
+        "path": rel(latest_signoff_validation_json) if latest_signoff_validation_json else "n/a",
+        "exists": bool(latest_signoff_validation_json),
+    },
 ]
 
 readiness_checks = {
@@ -268,6 +369,7 @@ readiness_checks = {
     "artifacts_ready": all(item["exists"] for item in artifact_status),
     "ci_workflow_present": workflow_path.exists(),
     "changelog_has_entries": len(monpol_matches) > 0,
+    "approved_entries_have_signoff": len(approved_missing_signoff) == 0,
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -323,6 +425,40 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write(f"- Total recorded entries: {len(monpol_matches)}\n")
     fh.write(f"- Latest entry: `{latest_monpol_id}` ({latest_monpol_date})\n\n")
 
+    fh.write("## Signoff Review-Status Telemetry\n\n")
+    fh.write(f"- Signoff metadata path: `{rel(signoff_path)}`\n")
+    fh.write(f"- Total signoff records: {len(signoff_records)}\n")
+    fh.write(f"- Approved changelog entries: {len(approved_entries)}\n")
+    fh.write(f"- Approved entries with signoff metadata: {len(approved_with_signoff)}\n")
+    fh.write(f"- Approved entries missing signoff metadata: {len(approved_missing_signoff)}\n")
+    if signoff_decision_counts:
+        ordered = ", ".join(
+            f"{decision}={count}" for decision, count in sorted(signoff_decision_counts.items())
+        )
+        fh.write(f"- Signoff decision distribution: {ordered}\n")
+    else:
+        fh.write("- Signoff decision distribution: none\n")
+    if latest_signoff_record:
+        fh.write(
+            f"- Latest signoff record: `{latest_signoff_record.get('proposal_id', 'n/a')}` "
+            f"({latest_signoff_record.get('decision', 'n/a')}, {latest_signoff_record.get('approved_at_utc', 'n/a')})\n"
+        )
+    else:
+        fh.write("- Latest signoff record: none\n")
+    fh.write("\n")
+
+    fh.write("| Proposal | Decision | Owner | Reviewers | approved_at_utc |\n")
+    fh.write("|---|---|---|---:|---|\n")
+    if signoff_records:
+        for record in sorted(signoff_records, key=lambda item: (item.get("proposal_id", ""), item.get("approved_at_utc", ""))):
+            fh.write(
+                f"| `{record.get('proposal_id', 'n/a')}` | {record.get('decision', 'n/a')} | "
+                f"{record.get('owner', 'n/a')} | {record.get('reviewer_count', 0)} | {record.get('approved_at_utc', 'n/a')} |\n"
+            )
+    else:
+        fh.write("| _none_ | n/a | n/a | 0 | n/a |\n")
+    fh.write("\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -331,7 +467,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("## Week 10 Transition Plan (Suggested)\n\n")
     fh.write("1. Validate proposal quality gates against real PR scenarios.\n")
     fh.write("2. Validate scaffold quality against reviewer approval workflow.\n")
-    fh.write("3. Introduce reviewer sign-off metadata in proposal JSON artifacts.\n")
+    fh.write("3. Review signoff telemetry weekly for drift and decision latency.\n")
     fh.write("4. Track policy change latency (proposal -> merge) in dashboard trends.\n")
     fh.write("5. Define escalation policy for repeated monitor drift across releases.\n")
     fh.write("\n")
@@ -349,6 +485,15 @@ transition_json = {
         "entry_count": len(monpol_matches),
         "latest_id": latest_monpol_id,
         "latest_date": latest_monpol_date,
+    },
+    "signoff_telemetry": {
+        "signoff_path": rel(signoff_path),
+        "record_count": len(signoff_records),
+        "decision_counts": signoff_decision_counts,
+        "approved_entries": approved_entries,
+        "approved_with_signoff": approved_with_signoff,
+        "approved_missing_signoff": approved_missing_signoff,
+        "latest_signoff_record": latest_signoff_record,
     },
     "readiness_checks": readiness_checks,
 }

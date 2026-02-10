@@ -9,6 +9,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
 CHANGELOG_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
+SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
 RECOMMENDATION_JSON=""
 DASHBOARD_JSON=""
 PROPOSAL_ID=""
@@ -23,6 +24,7 @@ Usage: ./scripts/generate_monitor_threshold_proposal.sh [options]
 Options:
   --analysis-dir <path>         Analysis directory (default: analysis/benchmark_reproducibility)
   --changelog <path>            Threshold changelog file path
+  --signoff <path>              Signoff metadata JSON path
   --recommendation-json <path>  Recommendation JSON snapshot (defaults to newest)
   --dashboard-json <path>       Dashboard JSON snapshot (defaults to newest)
   --proposal-id <MONPOL-NNN>    Explicit proposal ID (default: next from changelog)
@@ -41,6 +43,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --changelog)
       CHANGELOG_PATH="${2:-}"
+      shift 2
+      ;;
+    --signoff)
+      SIGNOFF_PATH="${2:-}"
       shift 2
       ;;
     --recommendation-json)
@@ -89,6 +95,11 @@ if [[ ! -f "$CHANGELOG_PATH" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$SIGNOFF_PATH" ]]; then
+  echo "Error: signoff metadata not found: $SIGNOFF_PATH" >&2
+  exit 1
+fi
+
 if [[ -z "$RECOMMENDATION_JSON" ]]; then
   shopt -s nullglob
   recommendation_candidates=("$ANALYSIS_DIR"/monitor_policy_recommendations_*.json)
@@ -128,7 +139,7 @@ if (( ${#BENCH_FILTERS[@]} > 0 )); then
   FILTER_CSV="$(IFS=,; echo "${BENCH_FILTERS[*]}")"
 fi
 
-python3 - "$ROOT" "$CHANGELOG_PATH" "$RECOMMENDATION_JSON" "$DASHBOARD_JSON" "$PROPOSAL_ID" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" "$FILTER_CSV" <<'PY'
+python3 - "$ROOT" "$CHANGELOG_PATH" "$SIGNOFF_PATH" "$RECOMMENDATION_JSON" "$DASHBOARD_JSON" "$PROPOSAL_ID" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" "$FILTER_CSV" <<'PY'
 import json
 import re
 import sys
@@ -137,12 +148,13 @@ from pathlib import Path
 
 root = Path(sys.argv[1])
 changelog_path = Path(sys.argv[2])
-recommendation_path = Path(sys.argv[3])
-dashboard_path = Path(sys.argv[4])
-proposal_id_arg = sys.argv[5].strip()
-output_path_arg = sys.argv[6].strip()
-output_json_path_arg = sys.argv[7].strip()
-filter_csv = sys.argv[8]
+signoff_path = Path(sys.argv[3])
+recommendation_path = Path(sys.argv[4])
+dashboard_path = Path(sys.argv[5])
+proposal_id_arg = sys.argv[6].strip()
+output_path_arg = sys.argv[7].strip()
+output_json_path_arg = sys.argv[8].strip()
+filter_csv = sys.argv[9]
 bench_filter = {entry.strip() for entry in filter_csv.split(",") if entry.strip()}
 
 
@@ -165,6 +177,21 @@ def fmt_number(value: float) -> str:
     return text if text else "0"
 
 
+def normalize_decision(text: str) -> str:
+    value = (text or "").strip().lower()
+    if "approved" in value:
+        return "approved"
+    if "reject" in value:
+        return "rejected"
+    if "withdraw" in value:
+        return "withdrawn"
+    if "defer" in value:
+        return "deferred"
+    if "pending" in value:
+        return "pending"
+    return "unknown"
+
+
 changelog_text = changelog_path.read_text(encoding="utf-8")
 proposal_id = proposal_id_arg or parse_next_monpol_id(changelog_text)
 if not re.fullmatch(r"MONPOL-\d{3}", proposal_id):
@@ -172,6 +199,31 @@ if not re.fullmatch(r"MONPOL-\d{3}", proposal_id):
 
 recommendation_payload = json.loads(recommendation_path.read_text(encoding="utf-8"))
 dashboard_payload = json.loads(dashboard_path.read_text(encoding="utf-8"))
+signoff_payload = json.loads(signoff_path.read_text(encoding="utf-8"))
+signoff_records = signoff_payload.get("records", [])
+if not isinstance(signoff_records, list):
+    signoff_records = []
+
+normalized_signoff = []
+for record in signoff_records:
+    if not isinstance(record, dict):
+        continue
+    normalized_signoff.append(
+        {
+            "proposal_id": str(record.get("proposal_id", "")).strip(),
+            "decision": normalize_decision(str(record.get("decision", ""))),
+            "owner": str(record.get("owner", "")).strip() or "n/a",
+            "approved_at_utc": str(record.get("approved_at_utc", "")).strip() or "n/a",
+            "reviewers": record.get("reviewers", []) if isinstance(record.get("reviewers", []), list) else [],
+        }
+    )
+
+signoff_by_id = {record["proposal_id"]: record for record in normalized_signoff if record["proposal_id"]}
+proposal_signoff = signoff_by_id.get(proposal_id)
+decision_counts = {}
+for record in normalized_signoff:
+    decision = record["decision"]
+    decision_counts[decision] = decision_counts.get(decision, 0) + 1
 
 recommendations = recommendation_payload.get("recommendations", [])
 if bench_filter:
@@ -334,8 +386,40 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("- [ ] Update `.github/workflows/ci.yml` monitor thresholds.\n")
     fh.write("- [ ] Update `docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`.\n")
     fh.write(f"- [ ] Add `{proposal_id}` entry to `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`.\n")
+    fh.write("- [ ] If decision is approved, add/update signoff metadata in `governance/performance/MONPOL_SIGNOFFS.json`.\n")
     fh.write(f"- [ ] Include `{proposal_id}` in PR title or body.\n")
     fh.write("- [ ] Link evidence bundle below in PR description.\n\n")
+
+    fh.write("## Signoff Telemetry\n\n")
+    if decision_counts:
+        ordered = ", ".join(
+            f"{decision}={count}" for decision, count in sorted(decision_counts.items())
+        )
+        fh.write(f"- Signoff decision distribution: {ordered}\n")
+    else:
+        fh.write("- Signoff decision distribution: none\n")
+
+    if proposal_signoff:
+        fh.write(f"- Existing signoff record for `{proposal_id}`: yes\n")
+        fh.write(f"- Decision: `{proposal_signoff.get('decision', 'n/a')}`\n")
+        fh.write(f"- Owner: `{proposal_signoff.get('owner', 'n/a')}`\n")
+        fh.write(f"- Reviewers: {len(proposal_signoff.get('reviewers', []))}\n")
+        fh.write(f"- approved_at_utc: `{proposal_signoff.get('approved_at_utc', 'n/a')}`\n\n")
+    else:
+        fh.write(f"- Existing signoff record for `{proposal_id}`: no\n")
+        fh.write("- Add signoff metadata when decision becomes approved.\n\n")
+
+    fh.write("| Proposal | Decision | Owner | Reviewers | approved_at_utc |\n")
+    fh.write("|---|---|---|---:|---|\n")
+    if normalized_signoff:
+        for record in sorted(normalized_signoff, key=lambda item: (item.get("proposal_id", ""), item.get("approved_at_utc", ""))):
+            fh.write(
+                f"| `{record.get('proposal_id', 'n/a')}` | {record.get('decision', 'n/a')} | "
+                f"{record.get('owner', 'n/a')} | {len(record.get('reviewers', []))} | {record.get('approved_at_utc', 'n/a')} |\n"
+            )
+    else:
+        fh.write("| _none_ | n/a | n/a | 0 | n/a |\n")
+    fh.write("\n")
 
     fh.write("## Evidence Bundle Links\n\n")
     for entry in dedup_evidence:
@@ -351,12 +435,18 @@ proposal_json = {
         "recommendation_json": rel(recommendation_path),
         "dashboard_json": rel(dashboard_path),
         "changelog_path": rel(changelog_path),
+        "signoff_json": rel(signoff_path),
     },
     "bench_filter": sorted(bench_filter),
     "rows": rows,
     "proposal_changes": proposal_changes,
     "suggested_monitor_flags": monitor_flag_suggestions,
     "evidence_bundle": dedup_evidence,
+    "signoff_telemetry": {
+        "decision_counts": decision_counts,
+        "proposal_signoff": proposal_signoff,
+        "record_count": len(normalized_signoff),
+    },
 }
 output_json_path.write_text(json.dumps(proposal_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

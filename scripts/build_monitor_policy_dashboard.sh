@@ -8,6 +8,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
+CHANGELOG_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
+SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
 
 LOOKBACK_RUNS=10
 LOOKBACK_RECOMMENDATIONS=6
@@ -20,6 +22,8 @@ Usage: ./scripts/build_monitor_policy_dashboard.sh [options]
 
 Options:
   --analysis-dir <path>              Directory with benchmark reproducibility artifacts
+  --changelog <path>                 MONPOL changelog path
+  --signoff <path>                   MONPOL signoff metadata JSON path
   --lookback-runs <n>                Number of newest CI summary runs to analyze (default: 10)
   --lookback-recommendations <n>     Number of newest recommendation files to analyze (default: 6)
   --output <path>                    Output markdown dashboard path
@@ -32,6 +36,14 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --analysis-dir)
       ANALYSIS_DIR="${2:-}"
+      shift 2
+      ;;
+    --changelog)
+      CHANGELOG_PATH="${2:-}"
+      shift 2
+      ;;
+    --signoff)
+      SIGNOFF_PATH="${2:-}"
       shift 2
       ;;
     --lookback-runs)
@@ -72,6 +84,16 @@ if ! [[ "$LOOKBACK_RECOMMENDATIONS" =~ ^[0-9]+$ ]] || (( LOOKBACK_RECOMMENDATION
   exit 1
 fi
 
+if [[ ! -f "$CHANGELOG_PATH" ]]; then
+  echo "Error: changelog not found: $CHANGELOG_PATH" >&2
+  exit 1
+fi
+
+if [[ ! -f "$SIGNOFF_PATH" ]]; then
+  echo "Error: signoff metadata not found: $SIGNOFF_PATH" >&2
+  exit 1
+fi
+
 if [[ -z "$OUTPUT_PATH" ]]; then
   TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   OUTPUT_PATH="$ANALYSIS_DIR/monitor_policy_dashboard_${TIMESTAMP}.md"
@@ -81,17 +103,19 @@ if [[ -z "$OUTPUT_JSON_PATH" ]]; then
   OUTPUT_JSON_PATH="${OUTPUT_PATH%.md}.json"
 fi
 
-python3 - "$ANALYSIS_DIR" "$LOOKBACK_RUNS" "$LOOKBACK_RECOMMENDATIONS" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
+python3 - "$ANALYSIS_DIR" "$CHANGELOG_PATH" "$SIGNOFF_PATH" "$LOOKBACK_RUNS" "$LOOKBACK_RECOMMENDATIONS" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import re
 import sys
 from pathlib import Path
 
 analysis_dir = Path(sys.argv[1])
-lookback_runs = int(sys.argv[2])
-lookback_recommendations = int(sys.argv[3])
-output_path = Path(sys.argv[4])
-output_json_path = Path(sys.argv[5])
+changelog_path = Path(sys.argv[2])
+signoff_path = Path(sys.argv[3])
+lookback_runs = int(sys.argv[4])
+lookback_recommendations = int(sys.argv[5])
+output_path = Path(sys.argv[6])
+output_json_path = Path(sys.argv[7])
 
 summary_re = re.compile(r"^ci_benchmark_gate_summary_(\d{8}T\d{6}Z)\.md$")
 recommend_re = re.compile(r"^monitor_policy_recommendations_(\d{8}T\d{6}Z)\.json$")
@@ -209,6 +233,70 @@ def parse_recommendation(path: Path):
     }
 
 
+def normalize_decision(text: str) -> str:
+    value = (text or "").strip().lower()
+    if "approved" in value:
+        return "approved"
+    if "reject" in value:
+        return "rejected"
+    if "withdraw" in value:
+        return "withdrawn"
+    if "defer" in value:
+        return "deferred"
+    if "pending" in value:
+        return "pending"
+    return "unknown"
+
+
+def parse_changelog(path: Path):
+    text = path.read_text(encoding="utf-8")
+    header_re = re.compile(r"^###\s+(MONPOL-\d{3})\s+\(([^)]+)\)\s*$", re.MULTILINE)
+    headers = list(header_re.finditer(text))
+    entries = []
+    for idx, match in enumerate(headers):
+        start = match.start()
+        end = headers[idx + 1].start() if idx + 1 < len(headers) else len(text)
+        block = text[start:end]
+        decision_match = re.search(r"^- \*\*Decision\*\*:\s*(.+)$", block, re.MULTILINE)
+        raw_decision = decision_match.group(1).strip() if decision_match else "n/a"
+        entries.append(
+            {
+                "proposal_id": match.group(1),
+                "date": match.group(2),
+                "raw_decision": raw_decision,
+                "decision": normalize_decision(raw_decision),
+            }
+        )
+    return entries
+
+
+def parse_signoff(path: Path):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    records = payload.get("records", [])
+    if not isinstance(records, list):
+        records = []
+    normalized = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        proposal_id = str(record.get("proposal_id", "")).strip()
+        decision = normalize_decision(str(record.get("decision", "")).strip())
+        owner = str(record.get("owner", "")).strip() or "n/a"
+        approved_at = str(record.get("approved_at_utc", "")).strip() or "n/a"
+        reviewers = record.get("reviewers", [])
+        reviewer_count = len(reviewers) if isinstance(reviewers, list) else 0
+        normalized.append(
+            {
+                "proposal_id": proposal_id,
+                "decision": decision,
+                "owner": owner,
+                "approved_at_utc": approved_at,
+                "reviewer_count": reviewer_count,
+            }
+        )
+    return normalized
+
+
 summary_paths = []
 recommend_paths = []
 
@@ -225,6 +313,30 @@ recommend_paths.sort(key=lambda p: recommend_re.match(p.name).group(1))
 
 summaries = [parse_summary(path) for path in summary_paths[-lookback_runs:]]
 recommendations = [parse_recommendation(path) for path in recommend_paths[-lookback_recommendations:]]
+changelog_entries = parse_changelog(changelog_path)
+signoff_records = parse_signoff(signoff_path)
+signoff_by_id = {record["proposal_id"]: record for record in signoff_records if record["proposal_id"]}
+
+signoff_decision_counts = {}
+for record in signoff_records:
+    decision = record["decision"]
+    signoff_decision_counts[decision] = signoff_decision_counts.get(decision, 0) + 1
+
+approved_entries = [entry for entry in changelog_entries if entry["decision"] == "approved"]
+approved_with_signoff = [
+    entry["proposal_id"] for entry in approved_entries if entry["proposal_id"] in signoff_by_id
+]
+approved_missing_signoff = [
+    entry["proposal_id"] for entry in approved_entries if entry["proposal_id"] not in signoff_by_id
+]
+
+latest_signoff_record = None
+for record in signoff_records:
+    current = record.get("approved_at_utc", "n/a")
+    if current == "n/a":
+        continue
+    if latest_signoff_record is None or current > latest_signoff_record.get("approved_at_utc", "n/a"):
+        latest_signoff_record = record
 
 bench_health = {}
 for summary in summaries:
@@ -290,6 +402,38 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write(f"- Strict status unknown runs: {strict_unknown_runs}\n")
     fh.write(f"- Runs with monitor drift cases: {monitor_drift_runs}\n")
     fh.write(f"- Runs with monitor failure/timeout/missing-report cases: {monitor_failure_runs}\n\n")
+
+    fh.write("## MONPOL Signoff Telemetry\n\n")
+    fh.write(f"- Changelog MONPOL entries: {len(changelog_entries)}\n")
+    fh.write(f"- Changelog approved entries: {len(approved_entries)}\n")
+    fh.write(f"- Approved entries with signoff metadata: {len(approved_with_signoff)}\n")
+    fh.write(f"- Approved entries missing signoff metadata: {len(approved_missing_signoff)}\n")
+    if signoff_decision_counts:
+        ordered = ", ".join(
+            f"{decision}={count}" for decision, count in sorted(signoff_decision_counts.items())
+        )
+        fh.write(f"- Signoff decision distribution: {ordered}\n")
+    else:
+        fh.write("- Signoff decision distribution: none\n")
+    if latest_signoff_record:
+        fh.write(
+            f"- Latest signoff record: `{latest_signoff_record.get('proposal_id', 'n/a')}` "
+            f"({latest_signoff_record.get('decision', 'n/a')}, {latest_signoff_record.get('approved_at_utc', 'n/a')})\n\n"
+        )
+    else:
+        fh.write("- Latest signoff record: none\n\n")
+
+    fh.write("| Proposal | Decision | Owner | Reviewers | approved_at_utc |\n")
+    fh.write("|---|---|---|---:|---|\n")
+    if signoff_records:
+        for record in sorted(signoff_records, key=lambda item: (item.get("proposal_id", ""), item.get("approved_at_utc", ""))):
+            fh.write(
+                f"| `{record.get('proposal_id', 'n/a')}` | {record.get('decision', 'n/a')} | "
+                f"{record.get('owner', 'n/a')} | {record.get('reviewer_count', 0)} | {record.get('approved_at_utc', 'n/a')} |\n"
+            )
+    else:
+        fh.write("| _none_ | n/a | n/a | 0 | n/a |\n")
+    fh.write("\n")
 
     fh.write("## Monitor Benchmark Health\n\n")
     fh.write(
@@ -378,6 +522,15 @@ dashboard_json = {
         "strict_unknown_runs": strict_unknown_runs,
         "runs_with_monitor_drift": monitor_drift_runs,
         "runs_with_monitor_failures": monitor_failure_runs,
+    },
+    "signoff_telemetry": {
+        "changelog_entries": changelog_entries,
+        "signoff_records": signoff_records,
+        "signoff_decision_counts": signoff_decision_counts,
+        "approved_entries": [entry["proposal_id"] for entry in approved_entries],
+        "approved_with_signoff": approved_with_signoff,
+        "approved_missing_signoff": approved_missing_signoff,
+        "latest_signoff_record": latest_signoff_record,
     },
     "bench_health": bench_health,
     "recent_runs": summaries,
