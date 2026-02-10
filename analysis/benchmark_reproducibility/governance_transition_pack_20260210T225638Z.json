@@ -1,0 +1,127 @@
+{
+  "artifact_status": [
+    {
+      "exists": true,
+      "kind": "ci_summary",
+      "path": "analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "recommendation_md",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "recommendation_json",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "dashboard_md",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T225637Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "dashboard_json",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T225637Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "proposal_md",
+      "path": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260210T225638Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "proposal_json",
+      "path": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260210T225638Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "scaffold_md",
+      "path": "analysis/benchmark_reproducibility/monpol_changelog_scaffold_MONPOL-002_20260210T225638Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "scaffold_json",
+      "path": "analysis/benchmark_reproducibility/monpol_changelog_scaffold_MONPOL-002_20260210T225638Z.json"
+    }
+  ],
+  "ci_policy": {
+    "monitor_benches": [
+      {
+        "bench": "timer_queue_benchmark",
+        "threshold_pct": "60"
+      },
+      {
+        "bench": "directory_entry_cache_benchmark",
+        "threshold_pct": "25"
+      }
+    ],
+    "monitor_budget_seconds": "240",
+    "monitor_case_timeout_seconds": "150",
+    "strict_bench": "path_lookup_cache_benchmark",
+    "strict_threshold_pct": "50"
+  },
+  "docs_status": [
+    {
+      "exists": true,
+      "path": "docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md"
+    }
+  ],
+  "generated_at_utc": "2026-02-10T22:56:38Z",
+  "monpol_registry": {
+    "changelog_path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+    "entry_count": 1,
+    "latest_date": "2026-02-10",
+    "latest_id": "MONPOL-001"
+  },
+  "readiness_checks": {
+    "artifacts_ready": true,
+    "changelog_has_entries": true,
+    "ci_workflow_present": true,
+    "docs_ready": true,
+    "scripts_ready": true
+  },
+  "script_status": [
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/run_benchmark_ci_gate.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/recommend_monitor_policy.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/build_monitor_policy_dashboard.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/generate_monitor_threshold_proposal.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/scaffold_monpol_changelog_entry.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/check_monitor_threshold_governance.sh"
+    }
+  ],
+  "source_analysis_dir": "analysis/benchmark_reproducibility",
+  "workflow_path": ".github/workflows/ci.yml"
+}

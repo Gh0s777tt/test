@@ -215,7 +215,15 @@
   - [x] Validate dashboard + proposal + transition pack chain end-to-end
   - [x] Publish Day 1 transition report and evidence
 
+- [x] Day 2: MONPOL Changelog Scaffold Automation
+  - [x] Add scaffold generator from proposal JSON to changelog-ready snippet
+  - [x] Integrate scaffold generation into CI artifact chain
+  - [x] Align step ordering so transition pack captures scaffold readiness
+  - [x] Validate end-to-end chain (dashboard -> proposal -> scaffold -> transition pack)
+  - [x] Publish Day 2 report and evidence
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
-- Week 10 Progress: 1 milestone day complete
-- Next: Week 10 Day 2 - automate MONPOL changelog-entry scaffolding for approved proposals
+- Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
+- Week 10 Progress: 2 milestone days complete
+- Next: Week 10 Day 3 - add reviewer-signoff metadata validation for approved MONPOL records

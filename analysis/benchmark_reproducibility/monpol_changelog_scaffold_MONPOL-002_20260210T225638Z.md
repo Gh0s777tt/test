@@ -1,0 +1,27 @@
+# MONPOL Changelog Entry Scaffold: `MONPOL-002`
+
+**Source proposal**: `analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260210T225638Z.json`  
+**Target changelog**: `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`  
+**Generated at (UTC)**: 2026-02-10T22:56:38Z
+
+## Suggested changelog entry
+
+### MONPOL-002 (2026-02-10)
+
+- **Scope**: Threshold policy decision scaffold generated from MONPOL proposal draft.
+- **Decision**: _pending reviewer approval_
+- **Changes**:
+  - `directory_entry_cache_benchmark`: `25.0%` -> `18.24%` (tighten)
+- **Rationale**:
+  - `directory_entry_cache_benchmark`: action `tighten`, drift reports `0`, drift rate `0.0%`.
+  - `timer_queue_benchmark`: action `hold`, drift reports `2`, drift rate `50.0%`.
+- **Evidence**:
+  - `analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json`
+  - `analysis/benchmark_reproducibility/monitor_policy_dashboard_20260210T225637Z.json`
+  - `analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md`
+  - `analysis/benchmark_reproducibility/directory_entry_cache_benchmark_20260210T143955Z.md`
+  - `analysis/benchmark_reproducibility/timer_queue_benchmark_20260210T143840Z.md`
+- **Proposal Source**:
+  - `analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260210T225638Z.json`
+  - generated at: `2026-02-10T22:56:38Z`
+- **Reviewer / Owner**: _to be assigned_

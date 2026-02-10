@@ -159,6 +159,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 9 policy drift dashboard and governance**: `../WEEK_9_DAY_9_POLICY_DRIFT_DASHBOARD_AND_GOVERNANCE.md`
 - **Week 9 Day 10 MONPOL proposal template automation**: `../WEEK_9_DAY_10_MONPOL_PROPOSAL_TEMPLATE_AUTOMATION.md`
 - **Week 10 Day 1 governance toolchain transition pack**: `../WEEK_10_DAY_1_GOVERNANCE_TOOLCHAIN_TRANSITION_PACK.md`
+- **Week 10 Day 2 MONPOL changelog scaffold automation**: `../WEEK_10_DAY_2_MONPOL_CHANGELOG_SCAFFOLD_AUTOMATION.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 
