@@ -53,3 +53,7 @@ This project targets:
 
 - Provenance must be verified before release
 - Verification failures block deployment
+
+Current automation:
+- `Generate Provenance` workflow creates and signs provenance artifacts
+- `Verify Provenance` workflow validates signatures and digest consistency

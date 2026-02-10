@@ -1,15 +1,79 @@
 name: Verify Provenance
 
 on:
-  release:
-    types: [created]
+  workflow_run:
+    workflows: ["Generate Provenance"]
+    types:
+      - completed
 
 jobs:
   verify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
 
     steps:
-      - name: Verify Provenance
+      - name: Download provenance bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: provenance-bundle
+          path: provenance-bundle
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+
+      - name: Verify signatures
+        env:
+          COSIGN_EXPERIMENTAL: 1
         run: |
-          echo "Verifying provenance..."
-          exit 0
+          cd provenance-bundle
+          cosign verify-blob \
+            --certificate provenance.json.pem \
+            --signature provenance.json.sig \
+            provenance.json
+
+          cosign verify-blob \
+            --certificate source.tar.gz.pem \
+            --signature source.tar.gz.sig \
+            source.tar.gz
+
+      - name: Verify digest and metadata consistency
+        run: |
+          cd provenance-bundle
+
+          # Validate checksum file and archive digest match.
+          expected_sha="$(cat source.tar.gz.sha256)"
+          actual_sha="$(sha256sum source.tar.gz | awk '{print $1}')"
+          if [ "$expected_sha" != "$actual_sha" ]; then
+            echo "Digest mismatch between source.tar.gz and source.tar.gz.sha256"
+            exit 1
+          fi
+
+          # Validate provenance JSON matches computed digest.
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          with open("provenance.json", "r", encoding="utf-8") as fh:
+              data = json.load(fh)
+
+          expected = Path("source.tar.gz.sha256").read_text(encoding="utf-8").strip()
+          observed = data.get("artifact", {}).get("sha256")
+          if observed != expected:
+              raise SystemExit(
+                  f"Provenance digest mismatch: json={observed!r}, expected={expected!r}"
+              )
+          PY
+
+      - name: Verification summary
+        run: |
+          {
+            echo "## Provenance verification passed";
+            echo "";
+            echo "- Workflow run: ${{ github.event.workflow_run.id }}";
+            echo "- Head SHA: ${{ github.event.workflow_run.head_sha }}";
+          } >> "$GITHUB_STEP_SUMMARY"
