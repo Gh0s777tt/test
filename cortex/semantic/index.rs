@@ -13,3 +13,9 @@ impl SemanticIndex {
         self.data.insert(id.into(), embedding);
     }
 }
+
+impl Default for SemanticIndex {
+    fn default() -> Self {
+        Self::new()
+    }
+}

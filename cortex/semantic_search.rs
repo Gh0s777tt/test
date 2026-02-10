@@ -16,7 +16,7 @@ impl SemanticIndex {
         for t in tokens {
             self.index
                 .entry(t.to_string())
-                .or_insert(vec![])
+                .or_default()
                 .push(id.to_string());
         }
     }
@@ -33,5 +33,11 @@ impl SemanticIndex {
             }
         }
         result
+    }
+}
+
+impl Default for SemanticIndex {
+    fn default() -> Self {
+        Self::new()
     }
 }

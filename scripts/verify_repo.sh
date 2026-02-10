@@ -145,29 +145,40 @@ if [[ "$MODE" == "full" ]]; then
 fi
 popd >/dev/null
 
-if [[ -f "security/Cargo.toml" ]]; then
-  pushd security >/dev/null
+run_optional_crate_checks() {
+  local crate_dir="$1"
+  local crate_label="$2"
+
+  if [[ ! -f "${crate_dir}/Cargo.toml" ]]; then
+    return
+  fi
+
+  pushd "$crate_dir" >/dev/null
   if cargo check --locked >/dev/null; then
-    pass "security crate cargo check --locked passed"
+    pass "${crate_label} cargo check --locked passed"
   else
-    fail "security crate cargo check --locked failed"
+    fail "${crate_label} cargo check --locked failed"
   fi
 
   if [[ "$MODE" == "full" ]]; then
     if cargo test --locked >/dev/null; then
-      pass "security crate cargo test --locked passed"
+      pass "${crate_label} cargo test --locked passed"
     else
-      fail "security crate cargo test --locked failed"
+      fail "${crate_label} cargo test --locked failed"
     fi
 
     if cargo clippy --locked -- -D warnings >/dev/null; then
-      pass "security crate cargo clippy strict mode passed"
+      pass "${crate_label} cargo clippy strict mode passed"
     else
-      fail "security crate cargo clippy strict mode failed"
+      fail "${crate_label} cargo clippy strict mode failed"
     fi
   fi
   popd >/dev/null
-fi
+}
+
+run_optional_crate_checks "security" "security crate"
+run_optional_crate_checks "cortex" "cortex crate"
+run_optional_crate_checks "cytadela" "cytadela crate"
 
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"
 TAG_COUNT="$(git tag | wc -l | tr -d ' ')"
