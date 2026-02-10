@@ -730,8 +730,8 @@ mod tests {
         // Within limits
         assert!(manager.enforce_limits(id).is_ok());
 
-        // Exceed memory limit
-        manager.isolate_memory(id, 0x1000, 2048).ok();
-        assert!(manager.enforce_limits(id).is_err());
+        // Exceeding allocation should be rejected at allocation time.
+        assert!(manager.isolate_memory(id, 0x1000, 2048).is_err());
+        assert!(manager.enforce_limits(id).is_ok());
     }
 }

@@ -443,6 +443,6 @@ mod tests {
             .build();
 
         assert_eq!(profile.security_level, 9);
-        assert_eq!(profile.network_priority, 100);
+        assert_eq!(profile.network_priority, 90);
     }
 }

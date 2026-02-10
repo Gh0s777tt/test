@@ -261,10 +261,11 @@ impl RecoveryManager {
 
             let current_time = self.current_time.load(Ordering::SeqCst);
             let elapsed = current_time - watchdog.last_reset;
+            let timeout_us = watchdog.timeout_ms.saturating_mul(1000);
 
-            if elapsed > watchdog.timeout_ms {
+            if elapsed > timeout_us {
                 return HealthStatus::Failed;
-            } else if elapsed > watchdog.timeout_ms / 2 {
+            } else if elapsed > timeout_us / 2 {
                 return HealthStatus::Degraded;
             }
         }

@@ -192,7 +192,7 @@ mod tests {
         let keys = CascadeKeys::new(
             &[1u8; KEY_SIZE],
             &[2u8; KEY_SIZE],
-            &[3u8; KEY_SIZE]
+            &[4u8; KEY_SIZE]
         );
         
         vault.initialize(keys);

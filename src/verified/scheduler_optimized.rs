@@ -309,32 +309,32 @@ impl PriorityBitmap {
     /// - Postcondition: no higher priority has tasks
     /// 
     /// # Performance
-    /// - Time Complexity: O(1) using leading_zeros()
+    /// - Time Complexity: O(1) using trailing_zeros()
     /// - Before: O(256) linear search
     /// - Improvement: 256x faster
     pub fn find_highest_priority(&self) -> Option<u8> {
         // Check bitmap_0 (priorities 0-63) - highest priority
         if self.bitmap_0 != 0 {
-            let leading_zeros = self.bitmap_0.leading_zeros();
-            return Some((63 - leading_zeros) as u8);
+            let trailing_zeros = self.bitmap_0.trailing_zeros();
+            return Some(trailing_zeros as u8);
         }
         
         // Check bitmap_1 (priorities 64-127)
         if self.bitmap_1 != 0 {
-            let leading_zeros = self.bitmap_1.leading_zeros();
-            return Some(64 + (63 - leading_zeros) as u8);
+            let trailing_zeros = self.bitmap_1.trailing_zeros();
+            return Some(64 + trailing_zeros as u8);
         }
         
         // Check bitmap_2 (priorities 128-191)
         if self.bitmap_2 != 0 {
-            let leading_zeros = self.bitmap_2.leading_zeros();
-            return Some(128 + (63 - leading_zeros) as u8);
+            let trailing_zeros = self.bitmap_2.trailing_zeros();
+            return Some(128 + trailing_zeros as u8);
         }
         
         // Check bitmap_3 (priorities 192-255)
         if self.bitmap_3 != 0 {
-            let leading_zeros = self.bitmap_3.leading_zeros();
-            return Some(192 + (63 - leading_zeros) as u8);
+            let trailing_zeros = self.bitmap_3.trailing_zeros();
+            return Some(192 + trailing_zeros as u8);
         }
         
         None

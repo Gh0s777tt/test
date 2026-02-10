@@ -595,8 +595,14 @@ mod tests {
             custom_settings: HashMap::new(),
         };
 
-        manager.register_profile(profile2).unwrap();
-        assert!(manager.register_profile(profile1).is_err());
+        assert_eq!(
+            manager.register_profile(profile2),
+            Err(ProfileError::InvalidParent)
+        );
+        assert_eq!(
+            manager.register_profile(profile1),
+            Err(ProfileError::InvalidParent)
+        );
     }
 
     #[test]

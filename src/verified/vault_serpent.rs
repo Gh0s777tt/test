@@ -357,7 +357,8 @@ mod tests {
     #[test]
     fn test_decrypt_wrong_key() {
         let key1 = [0x42u8; 32];
-        let key2 = [0x43u8; 32];
+        let mut key2 = [0x43u8; 32];
+        key2[16..].fill(0x99);
         let plaintext = b"Test message";
         
         let ciphertext = encrypt_serpent256_cbc(&key1, plaintext).unwrap();

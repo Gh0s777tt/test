@@ -645,7 +645,7 @@ impl GpuBackend for MetalBackend {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "macos"))]
 mod tests {
     use super::*;
     
