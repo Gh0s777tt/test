@@ -161,6 +161,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 10 MONPOL proposal template automation**: `../WEEK_9_DAY_10_MONPOL_PROPOSAL_TEMPLATE_AUTOMATION.md`
 - **Week 10 Day 1 governance toolchain transition pack**: `../WEEK_10_DAY_1_GOVERNANCE_TOOLCHAIN_TRANSITION_PACK.md`
 - **Week 10 Day 2 MONPOL changelog scaffold automation**: `../WEEK_10_DAY_2_MONPOL_CHANGELOG_SCAFFOLD_AUTOMATION.md`
+- **Week 10 Day 3 MONPOL signoff metadata validation**: `../WEEK_10_DAY_3_MONPOL_SIGNOFF_METADATA_VALIDATION.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

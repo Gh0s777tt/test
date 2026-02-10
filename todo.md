@@ -222,8 +222,16 @@
   - [x] Validate end-to-end chain (dashboard -> proposal -> scaffold -> transition pack)
   - [x] Publish Day 2 report and evidence
 
+- [x] Day 3: MONPOL Reviewer Signoff Metadata Validation
+  - [x] Add signoff metadata registry and validation script
+  - [x] Integrate signoff validation into CI and repo verification
+  - [x] Extend governance gate behavior for approved decisions
+  - [x] Include signoff awareness in scaffold/template/transition outputs
+  - [x] Validate end-to-end chain and publish Day 3 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
-- Week 10 Progress: 2 milestone days complete
-- Next: Week 10 Day 3 - add reviewer-signoff metadata validation for approved MONPOL records
+- Week 10 Day 3: ✅ COMPLETE (reviewer-signoff metadata validation + governance integration + evidence)
+- Week 10 Progress: 3 milestone days complete
+- Next: Week 10 Day 4 - add signoff review-status telemetry in governance artifacts
