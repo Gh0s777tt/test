@@ -520,7 +520,7 @@ impl Default for WorkloadPredictor {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;
 

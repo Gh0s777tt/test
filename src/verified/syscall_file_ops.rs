@@ -93,7 +93,7 @@ impl FilePermissions {
 }
 
 /// File metadata (stat structure)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileStat {
     /// File type
     pub file_type: FileType,
