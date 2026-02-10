@@ -1,21 +1,66 @@
-name: Release Signing
+name: Release Signing and Provenance
 
 on:
   release:
     types: [published]
 
 jobs:
-  sign-source-archive:
+  sign-and-publish-assets:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+      contents: write
+      actions: read
     steps:
-      - name: Checkout source
+      - name: Checkout source at release tag
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
-      - name: Create source archive
-        run: tar -czf vantis-source.tar.gz --exclude=".git" .
+      - name: Build source archive and digest
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          ARCHIVE="vantis-source-${TAG_NAME}.tar.gz"
+          tar -czf "${ARCHIVE}" --exclude=".git" .
+          sha256sum "${ARCHIVE}" | awk '{print $1}' > "${ARCHIVE}.sha256"
+          echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
+          echo "ARCHIVE_SHA256=$(cat "${ARCHIVE}.sha256")" >> "$GITHUB_ENV"
+
+      - name: Generate release provenance JSON
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          TARGET_COMMITISH: ${{ github.event.release.target_commitish }}
+        run: |
+          python3 - <<'PY'
+          import datetime
+          import json
+          import os
+
+          provenance = {
+              "schema": "https://slsa.dev/provenance/v1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "release": {
+                  "tag": os.environ["TAG_NAME"],
+                  "target_commitish": os.environ.get("TARGET_COMMITISH", ""),
+                  "release_id": os.environ["GITHUB_RUN_ID"],
+              },
+              "artifact": {
+                  "name": os.environ["ARCHIVE"],
+                  "sha256": os.environ["ARCHIVE_SHA256"],
+              },
+              "builder": {
+                  "platform": "github-actions",
+                  "workflow": os.environ["GITHUB_WORKFLOW"],
+                  "runner_os": os.environ["RUNNER_OS"],
+              },
+              "generated_at_utc": datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+          }
+
+          with open("release-provenance.json", "w", encoding="utf-8") as fh:
+              json.dump(provenance, fh, indent=2, sort_keys=True)
+              fh.write("\n")
+          PY
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1
@@ -23,17 +68,79 @@ jobs:
       - name: Sign source archive
         run: |
           cosign sign-blob --yes \
-            vantis-source.tar.gz \
-            --output-signature vantis-source.tar.gz.sig \
-            --output-certificate vantis-source.tar.gz.pem
+            "${ARCHIVE}" \
+            --output-signature "${ARCHIVE}.sig" \
+            --output-certificate "${ARCHIVE}.pem"
         env:
           COSIGN_EXPERIMENTAL: 1
 
-      - name: Upload signed artifacts
+      - name: Sign release provenance
+        run: |
+          cosign sign-blob --yes \
+            release-provenance.json \
+            --output-signature release-provenance.json.sig \
+            --output-certificate release-provenance.json.pem
+        env:
+          COSIGN_EXPERIMENTAL: 1
+
+      - name: Verify local signatures and digest before publish
+        run: |
+          cosign verify-blob \
+            --certificate "${ARCHIVE}.pem" \
+            --signature "${ARCHIVE}.sig" \
+            "${ARCHIVE}"
+
+          cosign verify-blob \
+            --certificate release-provenance.json.pem \
+            --signature release-provenance.json.sig \
+            release-provenance.json
+
+          # Digest consistency check
+          computed="$(sha256sum "${ARCHIVE}" | awk '{print $1}')"
+          if [ "$computed" != "$ARCHIVE_SHA256" ]; then
+            echo "Archive digest mismatch."
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+          import os
+
+          with open("release-provenance.json", "r", encoding="utf-8") as fh:
+              data = json.load(fh)
+
+          observed = data.get("artifact", {}).get("sha256")
+          expected = os.environ["ARCHIVE_SHA256"]
+          if observed != expected:
+              raise SystemExit(
+                  f"Provenance digest mismatch: json={observed!r}, expected={expected!r}"
+              )
+          PY
+
+      - name: Publish signed assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          gh release upload "${TAG_NAME}" \
+            "${ARCHIVE}" \
+            "${ARCHIVE}.sha256" \
+            "${ARCHIVE}.sig" \
+            "${ARCHIVE}.pem" \
+            release-provenance.json \
+            release-provenance.json.sig \
+            release-provenance.json.pem \
+            --clobber
+
+      - name: Upload signed artifacts (CI bundle)
         uses: actions/upload-artifact@v4
         with:
-          name: release-signature
+          name: release-signature-bundle
           path: |
-            vantis-source.tar.gz
-            vantis-source.tar.gz.sig
-            vantis-source.tar.gz.pem
+            ${{ env.ARCHIVE }}
+            ${{ env.ARCHIVE }}.sha256
+            ${{ env.ARCHIVE }}.sig
+            ${{ env.ARCHIVE }}.pem
+            release-provenance.json
+            release-provenance.json.sig
+            release-provenance.json.pem

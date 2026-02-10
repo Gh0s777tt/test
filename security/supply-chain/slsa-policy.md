@@ -57,3 +57,7 @@ This project targets:
 Current automation:
 - `Generate Provenance` workflow creates and signs provenance artifacts
 - `Verify Provenance` workflow validates signatures and digest consistency
+- `Release Signing and Provenance` workflow publishes signed release assets
+
+Operational checklist:
+- See `security/supply-chain/EVIDENCE_PACK_CHECKLIST.md` before release approval

@@ -33,6 +33,13 @@ Provenance is generated and verified by GitHub Actions workflows:
   - Verifies signatures for provenance and source archive
   - Verifies checksum and JSON consistency (`artifact.sha256`)
 
+- `.github/workflows/release.yml`
+  - Rebuilds source archive for release tag
+  - Generates `release-provenance.json`
+  - Signs archive and release provenance with keyless Sigstore
+  - Verifies signatures and digest consistency before publishing
+  - Uploads signed assets directly to GitHub Release
+
 Bundle files:
 - `provenance.json`
 - `provenance.json.sig`
@@ -41,3 +48,12 @@ Bundle files:
 - `source.tar.gz.sha256`
 - `source.tar.gz.sig`
 - `source.tar.gz.pem`
+
+Release bundle files:
+- `vantis-source-<tag>.tar.gz`
+- `vantis-source-<tag>.tar.gz.sha256`
+- `vantis-source-<tag>.tar.gz.sig`
+- `vantis-source-<tag>.tar.gz.pem`
+- `release-provenance.json`
+- `release-provenance.json.sig`
+- `release-provenance.json.pem`
