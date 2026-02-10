@@ -153,6 +153,7 @@ See [../history/](../history/) for:
 - **Week 9 Day 6 monitored scenario expansion and runtime budget**: `../WEEK_9_DAY_6_MONITORED_SCENARIO_EXPANSION_AND_RUNTIME_BUDGET.md`
 - **Week 9 Day 7 monitor noise stabilization and threshold recalibration**: `../WEEK_9_DAY_7_MONITOR_NOISE_STABILIZATION_AND_THRESHOLD_RECALIBRATION.md`
 - **Week 9 Day 8 monitor policy automation**: `../WEEK_9_DAY_8_MONITOR_POLICY_AUTOMATION.md`
+- **Week 9 Day 9 policy drift dashboard and governance**: `../WEEK_9_DAY_9_POLICY_DRIFT_DASHBOARD_AND_GOVERNANCE.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 
 ---

@@ -180,6 +180,13 @@
   - [x] Validate recommendation output locally
   - [x] Publish Day 8 report
 
+- [x] Day 9: Policy Drift Dashboarding and Threshold Governance
+  - [x] Add rolling policy drift dashboard generator (md + json)
+  - [x] Add monitor threshold governance gate script for PRs
+  - [x] Add governance changelog registry for threshold decisions
+  - [x] Integrate dashboard and governance gate into CI benchmark job
+  - [x] Validate local generation/verification and publish Day 9 report
+
 ## Week 9-10 Current Status
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
@@ -189,5 +196,6 @@
 - Week 9 Day 6: ✅ COMPLETE (multi-monitor expansion + runtime budget controls + evidence)
 - Week 9 Day 7: ✅ COMPLETE (monitor drift signaling + per-scenario threshold recalibration + evidence)
 - Week 9 Day 8: ✅ COMPLETE (rolling policy recommendation automation + CI integration + evidence)
-- Week 9 Progress: 8 milestone days complete
-- Next: Week 9 Day 9 - add policy drift dashboards and threshold-change governance
+- Week 9 Day 9: ✅ COMPLETE (policy drift dashboard + threshold governance gate + evidence)
+- Week 9 Progress: 9 milestone days complete
+- Next: Week 9 Day 10 - automate governance-ready threshold change proposal templates

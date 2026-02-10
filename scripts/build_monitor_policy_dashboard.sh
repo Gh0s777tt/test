@@ -164,11 +164,19 @@ def parse_summary(path: Path):
 
     monitor_cases = [case for case in cases if case["stage"] == "monitor"]
     strict_cases = [case for case in cases if case["stage"] == "strict"]
-    monitor_drift = sum(1 for case in monitor_cases if case["status"] == "drift")
+    monitor_case_drift = sum(1 for case in monitor_cases if case["status"] == "drift")
+    monitor_metric_drift = sum(
+        1
+        for metric in metrics
+        if metric["stage"] == "monitor"
+        and metric["over_threshold"].isdigit()
+        and int(metric["over_threshold"]) > 0
+    )
+    monitor_drift = max(monitor_case_drift, monitor_metric_drift)
     monitor_failures = sum(
         1 for case in monitor_cases if case["status"] in {"failed", "timeout", "missing_report"}
     )
-    strict_status = strict_cases[0]["status"] if strict_cases else "n/a"
+    strict_status = strict_cases[0]["status"] if strict_cases else "unknown"
     duration_sum = 0
     for case in cases:
         raw = case["duration_s"]
@@ -259,7 +267,10 @@ if latest_recommendation:
     for item in latest_recommendation["recommendations"]:
         latest_recommendation_map[item.get("bench", "")] = item
 
-strict_fail_runs = sum(1 for item in summaries if item["strict_status"] != "pass")
+strict_fail_runs = sum(
+    1 for item in summaries if item["strict_status"] in {"failed", "timeout", "missing_report"}
+)
+strict_unknown_runs = sum(1 for item in summaries if item["strict_status"] == "unknown")
 monitor_drift_runs = sum(1 for item in summaries if item["monitor_drift_count"] > 0)
 monitor_failure_runs = sum(1 for item in summaries if item["monitor_failure_count"] > 0)
 
@@ -276,6 +287,7 @@ with output_path.open("w", encoding="utf-8") as fh:
 
     fh.write("## Health Summary\n\n")
     fh.write(f"- Strict non-pass runs: {strict_fail_runs}\n")
+    fh.write(f"- Strict status unknown runs: {strict_unknown_runs}\n")
     fh.write(f"- Runs with monitor drift cases: {monitor_drift_runs}\n")
     fh.write(f"- Runs with monitor failure/timeout/missing-report cases: {monitor_failure_runs}\n\n")
 
@@ -363,6 +375,7 @@ dashboard_json = {
     "lookback_recommendations": lookback_recommendations,
     "health_summary": {
         "strict_non_pass_runs": strict_fail_runs,
+        "strict_unknown_runs": strict_unknown_runs,
         "runs_with_monitor_drift": monitor_drift_runs,
         "runs_with_monitor_failures": monitor_failure_runs,
     },
