@@ -10,6 +10,7 @@ TRACE_MD="governance/TRACEABILITY.md"
 TRACE_CSV="governance/certification/do-178c/traceability-matrix.csv"
 
 errors=0
+declare -A seen_req_ids=()
 
 pass() { echo "OK  $1"; }
 fail() { echo "ERR $1"; errors=$((errors + 1)); }
@@ -53,12 +54,22 @@ if [[ -f "$TRACE_MD" ]]; then
         continue
       fi
 
+      if [[ ! "$req_id" =~ ^REQ-[A-Z]+-[0-9]{3}$ ]]; then
+        fail "Invalid requirement ID format: $req_id"
+      elif [[ -n "${seen_req_ids[$req_id]:-}" ]]; then
+        fail "Duplicate requirement ID: $req_id"
+      else
+        seen_req_ids[$req_id]=1
+      fi
+
       while IFS= read -r impl; do
         impl="$(echo "$impl" | xargs)"
         [[ -z "$impl" ]] && continue
         check_path_exists "$impl"
       done < <(echo "$impl_field" | tr ',' '\n')
     done <<< "$rows"
+
+    pass "Validated ${#seen_req_ids[@]} unique requirement IDs"
   fi
 fi
 

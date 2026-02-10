@@ -36,6 +36,7 @@ Provenance is generated and verified by GitHub Actions workflows:
 - `.github/workflows/release.yml`
   - Rebuilds source archive for release tag
   - Generates `release-provenance.json`
+  - Generates `analysis/EVIDENCE_PACK.md` via `scripts/generate_evidence_pack.sh`
   - Signs archive and release provenance with keyless Sigstore
   - Verifies signatures and digest consistency before publishing
   - Uploads signed assets directly to GitHub Release
@@ -57,3 +58,4 @@ Release bundle files:
 - `release-provenance.json`
 - `release-provenance.json.sig`
 - `release-provenance.json.pem`
+- `analysis/EVIDENCE_PACK.md`

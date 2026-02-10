@@ -17,6 +17,9 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Require successful provenance verification for release commit
         env:
           GH_TOKEN: ${{ github.token }}
@@ -89,6 +92,9 @@ jobs:
               fh.write("\n")
           PY
 
+      - name: Generate evidence pack snapshot
+        run: ./scripts/generate_evidence_pack.sh
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1
 
@@ -157,6 +163,7 @@ jobs:
             release-provenance.json \
             release-provenance.json.sig \
             release-provenance.json.pem \
+            analysis/EVIDENCE_PACK.md \
             --clobber
 
       - name: Upload signed artifacts (CI bundle)
@@ -171,3 +178,4 @@ jobs:
             release-provenance.json
             release-provenance.json.sig
             release-provenance.json.pem
+            analysis/EVIDENCE_PACK.md

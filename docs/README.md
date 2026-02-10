@@ -126,6 +126,7 @@ See [../history/](../history/) for:
 - **Verifying**: `development/FORMAL_VERIFICATION_GUIDE.md`
 - **Auditing Git refs**: `../scripts/audit_git_refs.sh`
 - **Checking traceability**: `../scripts/check_traceability.sh`
+- **Enforcing requirement IDs**: `../scripts/check_requirement_ids.sh`
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
 
 ---

@@ -44,6 +44,7 @@ This checklist defines the minimum evidence required for a release candidate.
 ## 4. Governance and traceability
 
 - [ ] `./scripts/check_traceability.sh` passed
+- [ ] `./scripts/check_requirement_ids.sh` passed (or skipped for non-critical PR scope)
 - [ ] `analysis/EVIDENCE_PACK.md` generated (`./scripts/generate_evidence_pack.sh`)
 - [ ] Security-impacting changes include traceability reference
 - [ ] Threat model reviewed for new attack surface

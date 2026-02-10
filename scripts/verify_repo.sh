@@ -192,6 +192,16 @@ else
   warn "scripts/check_traceability.sh is missing or not executable"
 fi
 
+if [[ -x "scripts/check_requirement_ids.sh" ]]; then
+  if ./scripts/check_requirement_ids.sh >/dev/null; then
+    pass "requirement-id check passed or skipped"
+  else
+    fail "requirement-id check failed"
+  fi
+else
+  warn "scripts/check_requirement_ids.sh is missing or not executable"
+fi
+
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"
 TAG_COUNT="$(git tag | wc -l | tr -d ' ')"
 COMMITS_COUNT="$(git rev-list --count HEAD | tr -d ' ')"

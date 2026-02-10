@@ -143,6 +143,18 @@ jobs:
       - name: Run traceability consistency check
         run: ./scripts/check_traceability.sh
 
+  requirement-id-gate:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce requirement IDs for critical changes
+        run: ./scripts/check_requirement_ids.sh
+
   markdown-links:
     runs-on: ubuntu-latest
     steps:

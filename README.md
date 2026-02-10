@@ -144,6 +144,9 @@ maintenance scripts from `scripts/`:
 # Governance traceability consistency check
 ./scripts/check_traceability.sh
 
+# Pull-request requirement-ID gate for critical paths
+./scripts/check_requirement_ids.sh
+
 # Generate evidence pack snapshot (use --full for tests)
 ./scripts/generate_evidence_pack.sh
 
