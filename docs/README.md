@@ -37,6 +37,7 @@ Developer guides and best practices (20 documents)
 - [Code Review Guidelines](development/CODE_REVIEW_AND_OPTIMIZATION.md) - Review standards
 - [Optimization Guide](development/OPTIMIZATION_IMPLEMENTATION_PLAN.md) - Performance optimization
 - [Repository Analysis](development/REPOSITORY_ANALYSIS.md) - Repository structure
+- [Repository Maintenance Scripts](../README.md#-repository-maintenance--audit) - Audit and hygiene automation
 - And more...
 
 ### 🔌 [API](api/)
@@ -123,6 +124,7 @@ See [../history/](../history/) for:
 - **Contributing**: `../CONTRIBUTING.md` and `development/DEVELOPER_ONBOARDING.md`
 - **Deploying**: `operations/DEPLOYMENT_INSTRUCTIONS.md`
 - **Verifying**: `development/FORMAL_VERIFICATION_GUIDE.md`
+- **Auditing Git refs**: `../scripts/audit_git_refs.sh`
 
 ---
 
@@ -144,6 +146,6 @@ Documentation improvements are always welcome! See:
 
 ---
 
-**Last Updated**: February 9, 2025  
-**Documentation Version**: 1.0  
+**Last Updated**: February 10, 2026  
+**Documentation Version**: 1.1  
 **Project Version**: v0.5.0 (500 functions)

@@ -79,6 +79,7 @@
 - [🏗️ Architecture](#-architecture-schematics)
 - [📊 Benchmarks](#-performance-metrics-vs-linux)
 - [🚀 Installation](#-installation)
+- [🧹 Repository Maintenance](#-repository-maintenance--audit)
 - [🎮 Gaming](#-gaming-support)
 - [🔒 Security](#-security-fortress)
 - [🗺️ Roadmap](#-trajectory-roadmap)
@@ -121,6 +122,32 @@ make build
 # Run in QEMU
 make run
 ```
+
+## 🧹 REPOSITORY MAINTENANCE & AUDIT
+
+To keep the repository clean, reproducible, and easy to work with, use the
+maintenance scripts from `scripts/`:
+
+```bash
+# Quick repository health verification
+./scripts/verify_repo.sh
+
+# Full verification (includes test + clippy)
+./scripts/verify_repo.sh --full
+
+# Generate branch/tag/release audit report
+./scripts/audit_git_refs.sh
+
+# Dependency analysis for src/verified
+./scripts/analyze_dependencies.sh
+
+# Cleanup build artifacts and temp files
+./scripts/cleanup.sh
+```
+
+Generated reports:
+- `analysis/GIT_REFS_AUDIT.md`
+- `analysis/dependencies/summary.txt`
 
 ---
 

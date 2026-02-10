@@ -1,6 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # VANTIS HEADER INJECTOR
 # Usage: ./scripts/add_license.sh
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 
 HEADER="/*
  * Copyright (c) 2026 VANTIS CORP.
@@ -11,9 +16,14 @@ HEADER="/*
  * CODE IS LAW.
  */"
 
-find src -name "*.rs" | while read filename; do
-  if ! grep -q "VANTIS CORP" "$filename"; then
+rg --files src -g '*.rs' | while IFS= read -r filename; do
+  if ! rg -q "VANTIS CORP" "$filename"; then
     echo "Stamping $filename..."
-    echo "$HEADER" | cat - "$filename" > temp && mv temp "$filename"
+    tmp="$(mktemp)"
+    {
+      echo "$HEADER"
+      cat "$filename"
+    } > "$tmp"
+    mv "$tmp" "$filename"
   fi
 done

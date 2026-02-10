@@ -1,40 +1,33 @@
-#!/bin/bash
-# VANTIS OS Benchmark Runner
-# Runs comprehensive benchmarks and generates reports
+#!/usr/bin/env bash
+# Run benchmark suite for src/verified.
+# Usage:
+#   ./scripts/run_benchmarks.sh
 
-set -e
+set -euo pipefail
 
-echo "🚀 VANTIS OS Benchmark Suite"
-echo "=============================="
-echo ""
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT/src/verified"
 
-# Colors for output
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "cargo is required but not installed." >&2
+  exit 1
+fi
 
-# Navigate to verified directory
-cd "$(dirname "$0")/../src/verified"
+echo "== Running VantisOS benchmarks =="
 
-echo -e "${BLUE}📊 Running Scheduler Benchmarks...${NC}"
-echo ""
-cargo bench --bench scheduler_benchmark -- --save-baseline scheduler_baseline
+BENCHES=(
+  "scheduler_benchmark:scheduler_baseline"
+  "filesystem_benchmark:filesystem_baseline"
+)
 
-echo ""
-echo -e "${BLUE}📊 Running Filesystem Benchmarks...${NC}"
-echo ""
-cargo bench --bench filesystem_benchmark -- --save-baseline filesystem_baseline
+for item in "${BENCHES[@]}"; do
+  bench="${item%%:*}"
+  baseline="${item##*:}"
+  echo
+  echo "Running benchmark: $bench (baseline: $baseline)"
+  cargo bench --bench "$bench" -- --save-baseline "$baseline"
+done
 
-echo ""
-echo -e "${GREEN}✅ Benchmarks Complete!${NC}"
-echo ""
-echo "📈 Results saved to: target/criterion/"
-echo ""
-echo "To view HTML reports:"
-echo "  - Scheduler: target/criterion/scheduler_decision/report/index.html"
-echo "  - Filesystem: target/criterion/block_allocation/report/index.html"
-echo ""
-echo "To compare with baseline:"
-echo "  cargo bench --bench scheduler_benchmark -- --baseline scheduler_baseline"
-echo "  cargo bench --bench filesystem_benchmark -- --baseline filesystem_baseline"
+echo
+echo "Benchmarks finished."
+echo "Reports: src/verified/target/criterion/"

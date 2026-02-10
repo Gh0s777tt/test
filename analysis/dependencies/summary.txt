@@ -1,0 +1,8 @@
+Rust files under src/: 73
+Total Rust lines under src/: 40225
+std dependencies: 19
+alloc dependencies: 2
+core dependencies: 1
+external dependencies: 18
+internal dependencies: 14
+Cargo [dependencies] entries: 13

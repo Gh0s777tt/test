@@ -1,9 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==========================================
 # 🔮 VANTIS OS: INITIALIZATION PROTOCOL
 # ==========================================
 
-set -e
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 
 echo -e "\033[0;32m"
 echo "   _    __            _   _      "
@@ -24,9 +27,17 @@ echo "✅ Rust toolchain detected."
 # 2. Install Pre-commit hooks
 if [ -f ".pre-commit-config.yaml" ]; then
     echo ">> Installing Security Hooks..."
-    pip install pre-commit
-    pre-commit install
-    echo "✅ Hooks installed. You are now protected."
+    if command -v python3 &> /dev/null; then
+        python3 -m pip install --user pre-commit
+    else
+        echo "⚠️ Python3 not found. Cannot install pre-commit automatically."
+    fi
+    if command -v pre-commit &> /dev/null; then
+        pre-commit install
+        echo "✅ Hooks installed. You are now protected."
+    else
+        echo "⚠️ pre-commit command not found in PATH."
+    fi
 else
     echo "⚠️ No pre-commit config found. Skipping."
 fi
