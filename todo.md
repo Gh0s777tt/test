@@ -166,6 +166,13 @@
   - [x] Validate full strict+monitor execution in CI-like mode
   - [x] Publish Day 6 report
 
+- [x] Day 7: Monitor Noise Stabilization and Threshold Recalibration
+  - [x] Add per-scenario monitor threshold overrides
+  - [x] Add explicit monitor drift case status signaling
+  - [x] Recalibrate timer queue monitor threshold for shared CI runners
+  - [x] Validate strict+monitor gate with calibrated thresholds
+  - [x] Publish Day 7 report
+
 ## Week 9-10 Current Status
 - Week 9 Day 1: ✅ COMPLETE (IPC benchmark migrated to current IPC APIs)
 - Week 9 Day 2: ✅ COMPLETE (reproducibility runner + policy + evidence report)
@@ -173,5 +180,6 @@
 - Week 9 Day 4: ✅ COMPLETE (CI reproducibility gate + strict local validation)
 - Week 9 Day 5: ✅ COMPLETE (threshold calibration + dual-stage scenario gate + evidence)
 - Week 9 Day 6: ✅ COMPLETE (multi-monitor expansion + runtime budget controls + evidence)
-- Week 9 Progress: 6 milestone days complete
-- Next: Week 9 Day 7 - stabilize noisy monitor metrics and recalibrate monitor thresholds
+- Week 9 Day 7: ✅ COMPLETE (monitor drift signaling + per-scenario threshold recalibration + evidence)
+- Week 9 Progress: 7 milestone days complete
+- Next: Week 9 Day 8 - automate monitor policy recommendations from rolling evidence
