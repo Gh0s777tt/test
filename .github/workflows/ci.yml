@@ -4,8 +4,11 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-lint:
+  quality-gate:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,8 +23,24 @@ jobs:
       - name: Cargo check
         run: cargo check --locked
 
-      - name: Build release
-        run: cargo build --locked --release
+      - name: Cargo test (build-only)
+        run: cargo test --locked --no-run
 
-      - name: Clippy (non-blocking warnings)
-        run: cargo clippy
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+  markdown-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Check Markdown links (offline)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: true
+          args: >
+            --offline
+            --no-progress
+            README.md
+            docs/README.md
