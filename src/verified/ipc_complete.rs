@@ -43,9 +43,10 @@
 //! assert_eq!(received.data(), b"Hello, World!");
 //! ```
 
-use std::collections::{HashMap, VecDeque, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock, Mutex};
 use std::time::{Duration, Instant};
+use rand::RngCore;
 
 // Re-export individual property modules for advanced usage
 pub use crate::ipc_message_integrity::*;
@@ -65,6 +66,9 @@ pub const MAX_TOTAL_MEMORY: usize = 256 * 1024 * 1024;
 
 /// Maximum wait time for operations (1 second)
 pub const MAX_WAIT_TIME: Duration = Duration::from_secs(1);
+
+/// Maximum attempts when generating a unique capability token.
+const MAX_TOKEN_GENERATION_ATTEMPTS: usize = 32;
 
 /// Process ID type
 pub type ProcessId = u64;
@@ -351,6 +355,24 @@ impl IpcSystem {
             stats: Arc::new(Mutex::new(IpcStats::default())),
         }
     }
+
+    /// Generate a random, non-zero capability token that is unique among active capabilities.
+    fn generate_unique_token(
+        caps: &HashMap<CapabilityId, CapabilityInfo>,
+    ) -> Result<u64, IpcError> {
+        let mut rng = rand::thread_rng();
+
+        for _ in 0..MAX_TOKEN_GENERATION_ATTEMPTS {
+            let token = rng.next_u64();
+            if token != 0 && caps.values().all(|info| info.token != token) {
+                return Ok(token);
+            }
+        }
+
+        Err(IpcError::SystemError(
+            "Failed to generate unique capability token".to_string(),
+        ))
+    }
     
     /// Create capability for process communication
     ///
@@ -368,9 +390,9 @@ impl IpcSystem {
         let cap_id = *next_id;
         *next_id += 1;
         
-        // Generate unforgeable token (in production, use cryptographic RNG)
-        let token = cap_id ^ 0xDEADBEEFCAFEBABE;
-        
+        let mut caps = self.capabilities.write().unwrap();
+        let token = Self::generate_unique_token(&caps)?;
+
         let info = CapabilityInfo {
             sender,
             receiver,
@@ -379,7 +401,6 @@ impl IpcSystem {
             revoked: false,
         };
         
-        let mut caps = self.capabilities.write().unwrap();
         caps.insert(cap_id, info);
         
         Ok((cap_id, token))
@@ -556,6 +577,7 @@ impl Default for IpcSystem {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
     
     #[test]
     fn test_complete_message_creation() {
@@ -592,6 +614,26 @@ mod tests {
         
         assert!(cap_id > 0);
         assert!(token != 0);
+    }
+
+    #[test]
+    fn test_capability_token_not_legacy_xor_pattern() {
+        let ipc = IpcSystem::new();
+        let (cap_id, token) = ipc.create_capability(1, 2).unwrap();
+
+        // Prevent regressions to predictable token generation.
+        assert_ne!(token, cap_id ^ 0xDEADBEEFCAFEBABE);
+    }
+
+    #[test]
+    fn test_capability_token_uniqueness_under_load() {
+        let ipc = IpcSystem::new();
+        let mut seen = HashSet::new();
+
+        for receiver in 2..258 {
+            let (_, token) = ipc.create_capability(1, receiver).unwrap();
+            assert!(seen.insert(token), "Duplicate token generated: {token}");
+        }
     }
     
     #[test]
