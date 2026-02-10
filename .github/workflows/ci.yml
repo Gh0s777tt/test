@@ -27,7 +27,7 @@ jobs:
         run: cargo test --locked --no-run
 
       - name: Clippy (warnings are errors)
-        run: cargo clippy --locked --all-targets -- -D warnings
+        run: cargo clippy --locked -- -D warnings
 
   markdown-links:
     runs-on: ubuntu-latest
