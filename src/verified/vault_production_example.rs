@@ -23,6 +23,11 @@
 //! - Unique IV per encryption
 //! - Constant-time operations where possible
 
+use crate::vault_aes::{decrypt_aes256_cbc, encrypt_aes256_cbc};
+use crate::vault_serpent::{decrypt_serpent256_cbc, encrypt_serpent256_cbc};
+use crate::vault_twofish::{decrypt_twofish256_cbc, encrypt_twofish256_cbc};
+use rand::RngCore;
+
 // Note: These imports will work once dependencies are added to Cargo.toml
 /*
 use aes::Aes256;
@@ -50,19 +55,8 @@ type Aes256CbcDec = cbc::Decryptor<Aes256>;
 /// assert_eq!(iv.len(), 16);
 /// ```
 pub fn generate_secure_iv() -> [u8; 16] {
-    // Production implementation:
-    /*
     let mut iv = [0u8; 16];
     rand::thread_rng().fill_bytes(&mut iv);
-    iv
-    */
-    
-    // Placeholder for demonstration:
-    use core::sync::atomic::{AtomicU64, Ordering};
-    static COUNTER: AtomicU64 = AtomicU64::new(1);
-    let counter = COUNTER.fetch_add(1, Ordering::SeqCst);
-    let mut iv = [0u8; 16];
-    iv[0..8].copy_from_slice(&counter.to_le_bytes());
     iv
 }
 
@@ -93,42 +87,7 @@ pub fn generate_secure_iv() -> [u8; 16] {
 /// let ciphertext = aes_encrypt_production(plaintext, &key)?;
 /// ```
 pub fn aes_encrypt_production(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>, &'static str> {
-    // Production implementation with RustCrypto:
-    /*
-    // Generate random IV
-    let iv = generate_secure_iv();
-    
-    // Create cipher instance
-    let cipher = Aes256CbcEnc::new(key.into(), &iv.into());
-    
-    // Encrypt with PKCS#7 padding
-    let ciphertext = cipher.encrypt_padded_vec_mut::<Pkcs7>(data);
-    
-    // Prepend IV to ciphertext
-    let mut result = Vec::with_capacity(16 + ciphertext.len());
-    result.extend_from_slice(&iv);
-    result.extend_from_slice(&ciphertext);
-    
-    Ok(result)
-    */
-    
-    // Placeholder implementation:
-    let iv = generate_secure_iv();
-    let mut result = Vec::with_capacity(16 + data.len() + 16);
-    result.extend_from_slice(&iv);
-    
-    // Simple XOR for demonstration (NOT SECURE)
-    for (i, &byte) in data.iter().enumerate() {
-        result.push(byte ^ key[i % 32] ^ iv[i % 16]);
-    }
-    
-    // Add padding
-    let padding_len = 16 - (data.len() % 16);
-    for _ in 0..padding_len {
-        result.push(padding_len as u8);
-    }
-    
-    Ok(result)
+    encrypt_aes256_cbc(key, data).map_err(|_| "AES encryption failed")
 }
 
 /// Production AES-256-CBC decryption
@@ -146,51 +105,7 @@ pub fn aes_encrypt_production(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>, &'
 /// - Constant-time padding removal (in production)
 /// - Fails securely on invalid ciphertext
 pub fn aes_decrypt_production(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>, &'static str> {
-    // Production implementation with RustCrypto:
-    /*
-    if data.len() < 16 {
-        return Err("Invalid ciphertext: too short");
-    }
-    
-    // Extract IV from beginning
-    let (iv, ciphertext) = data.split_at(16);
-    
-    // Create cipher instance
-    let cipher = Aes256CbcDec::new(key.into(), iv.into());
-    
-    // Decrypt and remove PKCS#7 padding
-    let plaintext = cipher
-        .decrypt_padded_vec_mut::<Pkcs7>(ciphertext)
-        .map_err(|_| "Decryption failed")?;
-    
-    Ok(plaintext)
-    */
-    
-    // Placeholder implementation:
-    if data.len() < 16 {
-        return Err("Invalid ciphertext: too short");
-    }
-    
-    let (iv, ciphertext) = data.split_at(16);
-    let mut plaintext = Vec::with_capacity(ciphertext.len());
-    
-    // Simple XOR for demonstration (NOT SECURE)
-    for (i, &byte) in ciphertext.iter().enumerate() {
-        plaintext.push(byte ^ key[i % 32] ^ iv[i % 16]);
-    }
-    
-    // Remove padding
-    if plaintext.is_empty() {
-        return Err("Empty plaintext");
-    }
-    
-    let padding_len = plaintext[plaintext.len() - 1] as usize;
-    if padding_len == 0 || padding_len > 16 || padding_len > plaintext.len() {
-        return Err("Invalid padding");
-    }
-    
-    plaintext.truncate(plaintext.len() - padding_len);
-    Ok(plaintext)
+    decrypt_aes256_cbc(key, data).map_err(|_| "AES decryption failed")
 }
 
 // ============================================================================
@@ -222,15 +137,16 @@ impl ProductionVault {
     /// Plaintext → AES → Twofish → Serpent → Ciphertext
     pub fn encrypt(&self, data: &[u8]) -> Result<Vec<u8>, &'static str> {
         // Layer 1: AES-256-CBC
-        let encrypted = aes_encrypt_production(data, &self.aes_key)?;
+        let encrypted = encrypt_aes256_cbc(&self.aes_key, data)
+            .map_err(|_| "AES encryption failed")?;
         
-        // Layer 2: Twofish-256-CBC (would use twofish_encrypt_production)
-        // For now, using AES as placeholder
-        let encrypted = aes_encrypt_production(&encrypted, &self.twofish_key)?;
+        // Layer 2: Twofish-256-CBC
+        let encrypted = encrypt_twofish256_cbc(&self.twofish_key, &encrypted)
+            .map_err(|_| "Twofish encryption failed")?;
         
-        // Layer 3: Serpent-256-CBC (would use serpent_encrypt_production)
-        // For now, using AES as placeholder
-        let encrypted = aes_encrypt_production(&encrypted, &self.serpent_key)?;
+        // Layer 3: Serpent-256-CBC
+        let encrypted = encrypt_serpent256_cbc(&self.serpent_key, &encrypted)
+            .map_err(|_| "Serpent encryption failed")?;
         
         Ok(encrypted)
     }
@@ -241,13 +157,16 @@ impl ProductionVault {
     /// Ciphertext → Serpent → Twofish → AES → Plaintext
     pub fn decrypt(&self, data: &[u8]) -> Result<Vec<u8>, &'static str> {
         // Layer 3: Serpent-256-CBC (reverse order)
-        let decrypted = aes_decrypt_production(data, &self.serpent_key)?;
+        let decrypted = decrypt_serpent256_cbc(&self.serpent_key, data)
+            .map_err(|_| "Serpent decryption failed")?;
         
         // Layer 2: Twofish-256-CBC
-        let decrypted = aes_decrypt_production(&decrypted, &self.twofish_key)?;
+        let decrypted = decrypt_twofish256_cbc(&self.twofish_key, &decrypted)
+            .map_err(|_| "Twofish decryption failed")?;
         
         // Layer 1: AES-256-CBC
-        let decrypted = aes_decrypt_production(&decrypted, &self.aes_key)?;
+        let decrypted = decrypt_aes256_cbc(&self.aes_key, &decrypted)
+            .map_err(|_| "AES decryption failed")?;
         
         Ok(decrypted)
     }
