@@ -9,6 +9,8 @@
 
 
 
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 use std::time::Duration;
 
 /// Timer ID type
@@ -114,6 +116,19 @@ pub enum TimeOpError {
 /// Time operation result type
 pub type TimeOpResult<T> = Result<T, TimeOpError>;
 
+/// Timer scheduling queue entry (ordered by deadline).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+struct TimerScheduleEntry {
+    deadline_ns: u64,
+    timer_id: TimerId,
+    epoch: u64,
+}
+
+fn duration_to_ns(duration: Duration) -> u64 {
+    let nanos = duration.as_nanos();
+    nanos.min(u64::MAX as u128) as u64
+}
+
 /// Timer entry
 #[derive(Debug, Clone)]
 struct TimerEntry {
@@ -122,16 +137,22 @@ struct TimerEntry {
     /// Callback function (optional)
     #[allow(dead_code)]
     callback: Option<TimerCallback>,
+    /// Next expiration deadline in monotonic nanoseconds.
+    deadline_ns: u64,
+    /// Monotonic version used to invalidate stale heap entries.
+    epoch: u64,
 }
 
 /// Timer manager
 pub struct TimerManager {
     /// Active timers
     timers: Vec<Option<TimerEntry>>,
-    /// Next timer ID
-    next_id: TimerId,
     /// System timer resolution
     resolution: TimerResolution,
+    /// Monotonic scheduler time in nanoseconds.
+    current_time_ns: u64,
+    /// Min-heap of timer deadlines.
+    schedule_heap: BinaryHeap<Reverse<TimerScheduleEntry>>,
 }
 
 impl TimerManager {
@@ -139,8 +160,9 @@ impl TimerManager {
     pub fn new() -> Self {
         Self {
             timers: vec![None; 256], // Support up to 256 timers
-            next_id: 1,
             resolution: TimerResolution::default_resolution(),
+            current_time_ns: 0,
+            schedule_heap: BinaryHeap::new(),
         }
     }
     
@@ -148,8 +170,9 @@ impl TimerManager {
     pub fn with_resolution(resolution: TimerResolution) -> Self {
         Self {
             timers: vec![None; 256],
-            next_id: 1,
             resolution,
+            current_time_ns: 0,
+            schedule_heap: BinaryHeap::new(),
         }
     }
     
@@ -176,12 +199,14 @@ impl TimerManager {
     }
     
     /// Allocate timer ID
-    fn alloc_timer(&mut self, entry: TimerEntry) -> TimeOpResult<TimerId> {
+    fn alloc_timer(&mut self, mut entry: TimerEntry) -> TimeOpResult<TimerId> {
         // Find free slot
         for i in 1..self.timers.len() {
             if self.timers[i].is_none() {
+                let timer_id = i as TimerId;
+                entry.info.id = timer_id;
                 self.timers[i] = Some(entry);
-                return Ok(i as TimerId);
+                return Ok(timer_id);
             }
         }
         
@@ -200,6 +225,108 @@ impl TimerManager {
         
         self.timers[id as usize] = None;
         Ok(())
+    }
+
+    fn push_schedule_entry(&mut self, timer_id: TimerId, deadline_ns: u64, epoch: u64) {
+        self.schedule_heap.push(Reverse(TimerScheduleEntry {
+            deadline_ns,
+            timer_id,
+            epoch,
+        }));
+    }
+
+    fn is_schedule_entry_valid(&self, entry: TimerScheduleEntry) -> bool {
+        if entry.timer_id == 0 || entry.timer_id as usize >= self.timers.len() {
+            return false;
+        }
+        let Some(timer) = self.timers[entry.timer_id as usize].as_ref() else {
+            return false;
+        };
+        timer.info.state == TimerState::Active
+            && timer.deadline_ns == entry.deadline_ns
+            && timer.epoch == entry.epoch
+    }
+
+    fn cleanup_stale_schedule_entries(&mut self) {
+        while let Some(Reverse(entry)) = self.schedule_heap.peek().copied() {
+            if self.is_schedule_entry_valid(entry) {
+                break;
+            }
+            self.schedule_heap.pop();
+        }
+    }
+
+    fn schedule_timer(&mut self, timer_id: TimerId) -> TimeOpResult<()> {
+        let (deadline_ns, epoch) = {
+            let timer = self.get_timer(timer_id)?;
+            (timer.deadline_ns, timer.epoch)
+        };
+        self.push_schedule_entry(timer_id, deadline_ns, epoch);
+        Ok(())
+    }
+
+    /// Current monotonic scheduler time.
+    pub fn current_time_ns(&self) -> u64 {
+        self.current_time_ns
+    }
+
+    /// Advance scheduler time and collect expired timer IDs.
+    ///
+    /// This uses a min-heap deadline queue with lazy stale-entry cleanup.
+    pub fn advance_time_and_collect_expired(&mut self, delta: Duration) -> Vec<TimerId> {
+        self.current_time_ns = self.current_time_ns.saturating_add(duration_to_ns(delta));
+        let mut expired = Vec::new();
+
+        loop {
+            self.cleanup_stale_schedule_entries();
+            let Some(Reverse(next)) = self.schedule_heap.peek().copied() else {
+                break;
+            };
+            if next.deadline_ns > self.current_time_ns {
+                break;
+            }
+            self.schedule_heap.pop();
+
+            let mut reschedule: Option<(TimerId, u64, u64)> = None;
+            if let Some(timer) = self
+                .timers
+                .get_mut(next.timer_id as usize)
+                .and_then(|slot| slot.as_mut())
+            {
+                if timer.info.state != TimerState::Active
+                    || timer.deadline_ns != next.deadline_ns
+                    || timer.epoch != next.epoch
+                {
+                    continue;
+                }
+
+                timer.info.fire_count = timer.info.fire_count.saturating_add(1);
+                expired.push(next.timer_id);
+                if let Some(callback) = timer.callback {
+                    callback(next.timer_id);
+                }
+
+                match timer.info.mode {
+                    TimerMode::OneShot => {
+                        timer.info.state = TimerState::Inactive;
+                        timer.info.remaining = Duration::from_nanos(0);
+                    }
+                    TimerMode::Periodic => {
+                        let interval_ns = duration_to_ns(timer.info.interval);
+                        timer.deadline_ns = timer.deadline_ns.saturating_add(interval_ns);
+                        timer.info.remaining = timer.info.interval;
+                        timer.epoch = timer.epoch.saturating_add(1);
+                        reschedule = Some((next.timer_id, timer.deadline_ns, timer.epoch));
+                    }
+                }
+            }
+
+            if let Some((timer_id, deadline_ns, epoch)) = reschedule {
+                self.push_schedule_entry(timer_id, deadline_ns, epoch);
+            }
+        }
+
+        expired
     }
 }
 
@@ -234,7 +361,7 @@ pub fn sys_set_timer(
     callback: Option<TimerCallback>,
 ) -> TimeOpResult<TimerId> {
     // Validate interval
-    let interval_ns = interval.as_nanos() as u64;
+    let interval_ns = duration_to_ns(interval);
     
     if interval_ns < manager.resolution.min_interval_ns {
         return Err(TimeOpError::InvalidInterval);
@@ -246,7 +373,7 @@ pub fn sys_set_timer(
     
     // Create timer info
     let info = TimerInfo {
-        id: manager.next_id,
+        id: 0, // set during allocation to slot-backed timer ID
         interval,
         mode,
         state: TimerState::Active,
@@ -258,11 +385,13 @@ pub fn sys_set_timer(
     let entry = TimerEntry {
         info,
         callback,
+        deadline_ns: manager.current_time_ns.saturating_add(interval_ns),
+        epoch: 1,
     };
     
     // Allocate timer
     let timer_id = manager.alloc_timer(entry)?;
-    manager.next_id += 1;
+    manager.schedule_timer(timer_id)?;
     
     Ok(timer_id)
 }
@@ -313,13 +442,17 @@ pub fn sys_pause_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
 ) -> TimeOpResult<()> {
+    let current_time_ns = manager.current_time_ns;
     let timer = manager.get_timer_mut(timer_id)?;
     
     if timer.info.state != TimerState::Active {
         return Err(TimeOpError::TimerNotActive);
     }
     
+    let remaining_ns = timer.deadline_ns.saturating_sub(current_time_ns);
+    timer.info.remaining = Duration::from_nanos(remaining_ns);
     timer.info.state = TimerState::Paused;
+    timer.epoch = timer.epoch.saturating_add(1);
     
     Ok(())
 }
@@ -343,14 +476,22 @@ pub fn sys_resume_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
 ) -> TimeOpResult<()> {
-    let timer = manager.get_timer_mut(timer_id)?;
-    
-    if timer.info.state != TimerState::Paused {
-        return Err(TimeOpError::InvalidArgument);
-    }
-    
-    timer.info.state = TimerState::Active;
-    
+    let current_time_ns = manager.current_time_ns;
+    let (deadline_ns, epoch) = {
+        let timer = manager.get_timer_mut(timer_id)?;
+
+        if timer.info.state != TimerState::Paused {
+            return Err(TimeOpError::InvalidArgument);
+        }
+
+        let remaining_ns = duration_to_ns(timer.info.remaining);
+        timer.deadline_ns = current_time_ns.saturating_add(remaining_ns);
+        timer.info.state = TimerState::Active;
+        timer.epoch = timer.epoch.saturating_add(1);
+        (timer.deadline_ns, timer.epoch)
+    };
+
+    manager.push_schedule_entry(timer_id, deadline_ns, epoch);
     Ok(())
 }
 
@@ -529,6 +670,69 @@ mod tests {
         assert!(sys_get_timer_info(&manager, timer1).is_ok());
         assert!(sys_get_timer_info(&manager, timer2).is_ok());
         assert!(sys_get_timer_info(&manager, timer3).is_ok());
+    }
+
+    #[test]
+    fn test_advance_time_expires_one_shot_in_deadline_order() {
+        let mut manager = TimerManager::new();
+        let t1 = sys_set_timer(&mut manager, Duration::from_millis(300), TimerMode::OneShot, None)
+            .unwrap();
+        let t2 = sys_set_timer(&mut manager, Duration::from_millis(100), TimerMode::OneShot, None)
+            .unwrap();
+        let t3 = sys_set_timer(&mut manager, Duration::from_millis(200), TimerMode::OneShot, None)
+            .unwrap();
+
+        let first = manager.advance_time_and_collect_expired(Duration::from_millis(100));
+        assert_eq!(first, vec![t2]);
+
+        let second = manager.advance_time_and_collect_expired(Duration::from_millis(100));
+        assert_eq!(second, vec![t3]);
+
+        let third = manager.advance_time_and_collect_expired(Duration::from_millis(100));
+        assert_eq!(third, vec![t1]);
+    }
+
+    #[test]
+    fn test_periodic_timer_reschedules_on_advance() {
+        let mut manager = TimerManager::new();
+        let tid = sys_set_timer(&mut manager, Duration::from_millis(50), TimerMode::Periodic, None)
+            .unwrap();
+
+        let first = manager.advance_time_and_collect_expired(Duration::from_millis(50));
+        assert_eq!(first, vec![tid]);
+        let info = sys_get_timer_info(&manager, tid).unwrap();
+        assert_eq!(info.state, TimerState::Active);
+        assert_eq!(info.fire_count, 1);
+
+        let second = manager.advance_time_and_collect_expired(Duration::from_millis(50));
+        assert_eq!(second, vec![tid]);
+        let info = sys_get_timer_info(&manager, tid).unwrap();
+        assert_eq!(info.fire_count, 2);
+    }
+
+    #[test]
+    fn test_pause_resume_preserves_remaining_time_across_time_advance() {
+        let mut manager = TimerManager::new();
+        let tid = sys_set_timer(&mut manager, Duration::from_millis(100), TimerMode::OneShot, None)
+            .unwrap();
+
+        let expired = manager.advance_time_and_collect_expired(Duration::from_millis(40));
+        assert!(expired.is_empty());
+
+        sys_pause_timer(&mut manager, tid).unwrap();
+        let paused = sys_get_timer_info(&manager, tid).unwrap();
+        assert_eq!(paused.state, TimerState::Paused);
+        assert_eq!(paused.remaining, Duration::from_millis(60));
+
+        // Time passes while paused, timer should not expire.
+        let expired = manager.advance_time_and_collect_expired(Duration::from_millis(1000));
+        assert!(expired.is_empty());
+
+        sys_resume_timer(&mut manager, tid).unwrap();
+        let expired = manager.advance_time_and_collect_expired(Duration::from_millis(59));
+        assert!(expired.is_empty());
+        let expired = manager.advance_time_and_collect_expired(Duration::from_millis(1));
+        assert_eq!(expired, vec![tid]);
     }
     
     #[test]

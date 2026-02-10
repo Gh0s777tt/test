@@ -39,6 +39,7 @@ SYSCALL_BENCHES=(
   "path_lookup_cache_benchmark:path_lookup_cache_day7"
   "fd_allocator_benchmark:fd_allocator_day7"
   "directory_entry_cache_benchmark:directory_entry_cache_day11"
+  "timer_queue_benchmark:timer_queue_day12"
 )
 
 BENCHES=()

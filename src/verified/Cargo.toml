@@ -134,3 +134,8 @@ path = "../../benches/fd_allocator_benchmark.rs"
 name = "directory_entry_cache_benchmark"
 harness = false
 path = "../../benches/directory_entry_cache_benchmark.rs"
+
+[[bench]]
+name = "timer_queue_benchmark"
+harness = false
+path = "../../benches/timer_queue_benchmark.rs"
