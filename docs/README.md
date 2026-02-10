@@ -12,7 +12,7 @@ System architecture and design documents
 - [Hardware Documentation](architecture/hardware.md) - Hardware compatibility
 
 ### 💻 [Implementation](implementation/)
-Implementation guides for core components (19 documents)
+Implementation guides for core components (20 documents)
 - [Direct Metal Implementation](implementation/DIRECT_METAL_IMPLEMENTATION.md) - GPU access layer
 - [Flux Engine](implementation/FLUX_ENGINE_COMPLETE.md) - Wayland compositor
 - [Neural Scheduler](implementation/NEURAL_SCHEDULER_IMPLEMENTATION.md) - AI-based scheduler
@@ -21,6 +21,7 @@ Implementation guides for core components (19 documents)
 - [Vantis Vault](implementation/VANTIS_VAULT_IMPLEMENTATION.md) - Cryptography
 - [VantisFS](implementation/VANTISFS_COMPLETE.md) - File system
 - [Syscall Interface Guide](implementation/SYSCALL_INTERFACE_GUIDE.md) - Practical syscall usage and troubleshooting
+- [Microkernel Architecture](implementation/MICROKERNEL_ARCHITECTURE.md) - Layering, boundaries, and IPC-centric design rationale
 - And more...
 
 ### 🚀 [Operations](operations/)
@@ -132,6 +133,7 @@ See [../history/](../history/) for:
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`
 - **Week 7 Day 8 syscall interface guide**: `implementation/SYSCALL_INTERFACE_GUIDE.md`
+- **Week 7 Day 9 microkernel architecture**: `implementation/MICROKERNEL_ARCHITECTURE.md`
 
 ---
 

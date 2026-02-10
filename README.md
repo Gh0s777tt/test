@@ -726,6 +726,7 @@ gantt
 - 🔧 [Developer Onboarding](docs/development/DEVELOPER_ONBOARDING.md) - For contributors
 - 📖 [API Documentation](docs/api/API_DOCUMENTATION.md) - Complete API reference
 - 🧭 [Syscall Interface Guide](docs/implementation/SYSCALL_INTERFACE_GUIDE.md) - Practical syscall usage, status, and troubleshooting
+- 🏗️ [Microkernel Architecture](docs/implementation/MICROKERNEL_ARCHITECTURE.md) - Layered design, IPC-centric model, and monolithic comparison
 
 ### 📂 Documentation Structure
 
@@ -735,7 +736,7 @@ System design and architecture documents
 - Hardware compatibility
 
 #### 💻 [Implementation](docs/implementation/)
-Detailed implementation guides (19 documents)
+Detailed implementation guides (20 documents)
 - Direct Metal (GPU access)
 - Flux Engine (Wayland compositor)
 - Neural Scheduler (AI scheduler)
@@ -744,6 +745,7 @@ Detailed implementation guides (19 documents)
 - Vantis Vault (Cryptography)
 - VantisFS (File system)
 - Syscall Interface Guide (runtime status + examples)
+- Microkernel Architecture (boundaries + design rationale)
 
 #### 🚀 [Operations](docs/operations/)
 Deployment and operational guides
