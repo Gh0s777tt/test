@@ -569,7 +569,7 @@ instruments -t "Time Profiler" make qemu
 
 ## Next Steps
 
-1. **Read the Architecture**: Review [ARCHITECTURE.md](ARCHITECTURE.md)
+1. **Read the Architecture**: Review [ARCHITECTURE.md](../ARCHITECTURE.md)
 2. **Check Open Issues**: Find issues labeled "good first issue"
 3. **Join Discord**: Connect with other developers
 4. **Start Small**: Begin with documentation or tests
@@ -579,13 +579,13 @@ instruments -t "Time Profiler" make qemu
 
 ## Code of Conduct
 
-Please read and follow our [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
+Please read and follow our [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ---
 
 ## License
 
-VANTIS OS is licensed under the MIT License. See [LICENSE](../LICENSE) for details.
+VANTIS OS is licensed under the MIT License. See [LICENSE](../../LICENSE) for details.
 
 ---
 

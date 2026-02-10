@@ -296,7 +296,7 @@ VANTIS OS is progressing according to the Grand Masterplan v5.0. We have complet
    - Bug reporting
 
 ### How to Contribute
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for detailed guidelines.
 
 ---
 

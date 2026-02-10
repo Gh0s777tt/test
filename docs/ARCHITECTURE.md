@@ -13,7 +13,7 @@
 ## 📋 Spis Treści
 
 - [🎯 Przegląd Architektury](#-przegląd-architektury)
-- [🏛️ Warna Architektura Systemu](️-warstwa-architektura-systemu)
+- [🏛️ Warstwa Architektura Systemu](#-warstwa-architektura-systemu)
 - [⚙️ Komponenty Rdzenia](#-komponenty-rdzenia)
 - [🛡️ Architektura Bezpieczeństwa](#-architektura-bezpieczeństwa)
 - [🎮 Architektura Gaming](#-architektura-gaming)

@@ -294,9 +294,9 @@ View results in GitHub Actions tab.
 ## 📚 Resources
 
 ### Documentation
-- [Formal Verification Guide](docs/FORMAL_VERIFICATION_GUIDE.md)
-- [Verification Examples](docs/VERIFICATION_EXAMPLES.md)
-- [Developer Onboarding](docs/DEVELOPER_ONBOARDING.md)
+- [Formal Verification Guide](FORMAL_VERIFICATION_GUIDE.md)
+- [Verification Examples](../VERIFICATION_EXAMPLES.md)
+- [Developer Onboarding](DEVELOPER_ONBOARDING.md)
 
 ### Tools
 - [Verus](https://github.com/verus-lang/verus) - Deductive verification
@@ -373,7 +373,7 @@ EAL 7+ Requirements:
 - 📚 Docs: https://docs.vantis.dev/verification
 
 ### Contributing
-- See [CONTRIBUTING.md](CONTRIBUTING.md)
+- See [CONTRIBUTING.md](../../CONTRIBUTING.md)
 - Check [good first issue](https://github.com/vantisCorp/VantisOS/labels/good%20first%20issue)
 - Join verification discussions
 

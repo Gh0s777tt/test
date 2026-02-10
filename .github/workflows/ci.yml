@@ -57,3 +57,9 @@ jobs:
             docs/translations/README_PL.md
             docs/translations/README_RU.md
             docs/translations/README_ZH.md
+            CONTRIBUTING.md
+            docs/ARCHITECTURE.md
+            docs/DEVELOPER_ONBOARDING.md
+            docs/development/DEVELOPER_ONBOARDING.md
+            docs/development/PROGRESS_REPORT.md
+            docs/development/VERIFICATION_SETUP_COMPLETE.md

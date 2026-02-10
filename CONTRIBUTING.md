@@ -384,7 +384,7 @@ blok kodu
 
 > Cytat
 
-[Link](url) ![Obraz](url)
+[Link](https://example.com) ![Obraz](https://example.com/image.png)
 
 ```
 

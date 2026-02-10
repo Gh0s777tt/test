@@ -579,7 +579,7 @@ instruments -t "Time Profiler" make qemu
 
 ## Code of Conduct
 
-Please read and follow our [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
+Please read and follow our [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ---
 
