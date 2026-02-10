@@ -1,0 +1,163 @@
+ Downloading crates ...
+  Downloaded crossbeam-utils v0.8.21
+  Downloaded criterion-plot v0.5.0
+  Downloaded crossbeam-deque v0.8.6
+  Downloaded half v2.7.1
+  Downloaded tinytemplate v1.2.1
+  Downloaded once_cell v1.21.3
+  Downloaded crossbeam-epoch v0.9.18
+  Downloaded num-traits v0.2.19
+  Downloaded itertools v0.10.5
+  Downloaded rayon-core v1.13.0
+  Downloaded memchr v2.8.0
+  Downloaded criterion v0.5.1
+  Downloaded plotters v0.3.7
+  Downloaded serde_json v1.0.149
+  Downloaded regex v1.12.3
+  Downloaded rayon v1.11.0
+  Downloaded clap_builder v4.5.57
+  Downloaded aho-corasick v1.1.4
+  Downloaded regex-syntax v0.8.9
+  Downloaded regex-automata v0.4.14
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.44
+   Compiling typenum v1.19.0
+   Compiling syn v2.0.114
+   Compiling cfg-if v1.0.4
+   Compiling zerocopy v0.8.39
+   Compiling generic-array v0.14.7
+   Compiling libc v0.2.180
+   Compiling serde_core v1.0.228
+   Compiling block-padding v0.3.3
+   Compiling crossbeam-utils v0.8.21
+   Compiling inout v0.1.4
+   Compiling zerocopy-derive v0.8.39
+   Compiling crypto-common v0.1.7
+   Compiling serde v1.0.228
+   Compiling cipher v0.4.4
+   Compiling serde_derive v1.0.228
+   Compiling zmij v1.0.20
+   Compiling autocfg v1.5.0
+   Compiling crossbeam-epoch v0.9.18
+   Compiling num-traits v0.2.19
+   Compiling getrandom v0.2.17
+   Compiling rayon-core v1.13.0
+   Compiling serde_json v1.0.149
+   Compiling either v1.15.0
+   Compiling rand_core v0.6.4
+   Compiling crossbeam-deque v0.8.6
+   Compiling half v2.7.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling memchr v2.8.0
+   Compiling anstyle v1.0.13
+   Compiling itoa v1.0.17
+   Compiling regex-syntax v0.8.9
+   Compiling clap_lex v0.7.7
+   Compiling ciborium-io v0.2.2
+   Compiling plotters-backend v0.3.7
+   Compiling plotters-svg v0.3.7
+   Compiling ciborium-ll v0.2.2
+   Compiling clap_builder v4.5.57
+   Compiling regex-automata v0.4.14
+   Compiling rand_chacha v0.3.1
+   Compiling itertools v0.10.5
+   Compiling cast v0.3.0
+   Compiling byteorder v1.5.0
+   Compiling cpufeatures v0.2.17
+   Compiling same-file v1.0.6
+   Compiling walkdir v2.5.0
+   Compiling criterion-plot v0.5.0
+   Compiling aes v0.8.4
+   Compiling serpent v0.5.1
+   Compiling rayon v1.11.0
+   Compiling plotters v0.3.7
+   Compiling rand v0.8.5
+   Compiling tinytemplate v1.2.1
+   Compiling regex v1.12.3
+   Compiling clap v4.5.57
+   Compiling ciborium v0.2.2
+   Compiling twofish v0.7.1
+   Compiling cbc v0.1.2
+   Compiling is-terminal v0.4.17
+   Compiling oorandom v11.1.5
+   Compiling once_cell v1.21.3
+   Compiling anes v0.1.6
+   Compiling hex v0.4.3
+   Compiling criterion v0.5.1
+   Compiling vantis-verified v0.1.0 (/workspace/VantisOS/src/verified)
+warning: unused import: `vantis_verified::direct_metal_backend::*`
+   --> tests/direct_metal_backend_tests.rs:368:9
+    |
+368 |     use vantis_verified::direct_metal_backend::*;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `backends`
+  --> tests/direct_metal_backend_tests.rs:12:13
+   |
+12 |         let backends = BackendFactory::available_backends();
+   |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_backends`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `errors`
+   --> tests/direct_metal_backend_tests.rs:118:13
+    |
+118 |         let errors = vec![
+    |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_errors`
+
+warning: `vantis-verified` (test "direct_metal_backend_tests") generated 3 warnings (run `cargo fix --test "direct_metal_backend_tests" -p vantis-verified` to apply 3 suggestions)
+    Finished `release` profile [optimized] target(s) in 45.43s
+     Running unittests lib.rs (target/release/deps/vantis_verified-3f18b3517228f2b0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/direct_metal_backend_tests.rs (target/release/deps/direct_metal_backend_tests-bfcdf288b3532565)
+
+running 11 tests
+test backend_integration_tests::test_backend_capabilities_clone ... ok
+test backend_integration_tests::test_backend_config_custom ... ok
+test backend_integration_tests::test_backend_config_default ... ok
+test backend_integration_tests::test_backend_error_variants ... ok
+test backend_integration_tests::test_backend_factory_available_backends ... ok
+test backend_integration_tests::test_device_info_clone ... ok
+test backend_integration_tests::test_device_type_variants ... ok
+test backend_integration_tests::test_memory_type_variants ... ok
+test backend_integration_tests::test_pipeline_type_variants ... ok
+test cross_backend_tests::test_backend_factory_preferences ... ok
+test cross_backend_tests::test_backend_trait_consistency ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/sentinel_tests.rs (target/release/deps/sentinel_tests-cb0fc56bb1891dd7)
+
+running 10 tests
+test sentinel_integration_tests::test_capability_based_security ... ok
+test sentinel_integration_tests::test_complete_driver_lifecycle ... ok
+test sentinel_integration_tests::test_dma_and_interrupt_handling ... ok
+test sentinel_integration_tests::test_hardware_detection_and_driver_matching ... ok
+test sentinel_integration_tests::test_driver_fault_recovery ... ok
+test sentinel_integration_tests::test_hot_reload ... ok
+test sentinel_integration_tests::test_ipc_communication ... ok
+test sentinel_integration_tests::test_sandbox_resource_limits ... FAILED
+test sentinel_integration_tests::test_state_preservation_and_restoration ... ok
+test sentinel_integration_tests::test_watchdog_timeout_detection ... ok
+
+failures:
+
+---- sentinel_integration_tests::test_sandbox_resource_limits stdout ----
+
+thread 'sentinel_integration_tests::test_sandbox_resource_limits' (13875) panicked at tests/sentinel_tests.rs:193:9:
+assertion failed: sandbox_mgr.enforce_limits(sandbox_id).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    sentinel_integration_tests::test_sandbox_resource_limits
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test sentinel_tests`
