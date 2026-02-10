@@ -120,6 +120,7 @@ struct TimerEntry {
     /// Timer information
     info: TimerInfo,
     /// Callback function (optional)
+    #[allow(dead_code)]
     callback: Option<TimerCallback>,
 }
 

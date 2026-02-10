@@ -192,7 +192,20 @@ verus! {
         {
             self.data.len()
         }
+
+        /// Check whether buffer is empty
+        pub fn is_empty(&self) -> (result: bool)
+            ensures result == (self.size == 0),
+        {
+            self.data.is_empty()
+        }
     }
+}
+
+#[cfg(not(feature = "verus"))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BufferError {
+    Full,
 }
 
 #[cfg(not(feature = "verus"))]
@@ -212,17 +225,21 @@ impl VerifiedBuffer {
         }
     }
     
-    pub fn push(&mut self, value: u8) -> Result<(), ()> {
+    pub fn push(&mut self, value: u8) -> Result<(), BufferError> {
         if self.data.len() < self.capacity {
             self.data.push(value);
             Ok(())
         } else {
-            Err(())
+            Err(BufferError::Full)
         }
     }
     
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 }
 

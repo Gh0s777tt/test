@@ -211,7 +211,7 @@ impl CreatorProfileBuilder {
     ///
     /// # Function 5/8
     pub fn with_memory_preallocate(mut self, gb: u32) -> Result<Self, ProfileError> {
-        if gb < 1 || gb > 64 {
+        if !(1..=64).contains(&gb) {
             return Err(ProfileError::ValidationFailed(
                 "Memory pre-allocation must be between 1-64 GB".to_string()
             ));
@@ -228,7 +228,7 @@ impl CreatorProfileBuilder {
     ///
     /// # Function 6/8
     pub fn with_preview_cache(mut self, gb: u32) -> Result<Self, ProfileError> {
-        if gb < 1 || gb > 32 {
+        if !(1..=32).contains(&gb) {
             return Err(ProfileError::ValidationFailed(
                 "Preview cache must be between 1-32 GB".to_string()
             ));
@@ -245,7 +245,7 @@ impl CreatorProfileBuilder {
     ///
     /// # Function 7/8
     pub fn with_autosave_interval(mut self, seconds: u32) -> Result<Self, ProfileError> {
-        if seconds < 60 || seconds > 3600 {
+        if !(60..=3600).contains(&seconds) {
             return Err(ProfileError::ValidationFailed(
                 "Auto-save interval must be between 60-3600 seconds".to_string()
             ));

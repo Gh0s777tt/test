@@ -755,6 +755,12 @@ impl WaylandServer {
     }
 }
 
+impl Default for WaylandServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

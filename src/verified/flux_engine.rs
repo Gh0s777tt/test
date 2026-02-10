@@ -441,6 +441,12 @@ impl FluxEngine {
     }
 }
 
+impl Default for FluxEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

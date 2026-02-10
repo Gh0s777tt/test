@@ -264,7 +264,7 @@ pub struct SchedulerStatistics {
 #[cfg(not(feature = "verus"))]
 pub struct NeuralSchedulerIntegration {
     neural_scheduler: NeuralScheduler,
-    predictors: Vec<WorkloadPredictor>,
+    _predictors: Vec<WorkloadPredictor>,
     gaming_mode: bool,
     adjustments_made: u64,
     gaming_threads_detected: u64,
@@ -275,7 +275,7 @@ impl NeuralSchedulerIntegration {
     pub fn new() -> Self {
         Self {
             neural_scheduler: NeuralScheduler::new(),
-            predictors: Vec::new(),
+            _predictors: Vec::new(),
             gaming_mode: false,
             adjustments_made: 0,
             gaming_threads_detected: 0,
@@ -309,6 +309,13 @@ impl NeuralSchedulerIntegration {
 
     pub fn get_stats(&self) -> (u64, u64) {
         (self.adjustments_made, self.gaming_threads_detected)
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+impl Default for NeuralSchedulerIntegration {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

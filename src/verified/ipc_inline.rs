@@ -226,7 +226,7 @@ impl MessageInline {
 #[derive(Debug, Clone)]
 pub struct MessageQueueInline {
     /// Process ID this queue belongs to
-    pid: Pid,
+    _pid: Pid,
     /// Messages in queue (sorted by priority)
     messages: Vec<MessageInline>,
     /// Maximum queue size
@@ -242,7 +242,7 @@ impl MessageQueueInline {
     /// Create new message queue
     pub fn new(pid: Pid, max_size: usize) -> Self {
         MessageQueueInline {
-            pid,
+            _pid: pid,
             messages: Vec::new(),
             max_size,
             total_received: 0,

@@ -11,6 +11,8 @@
 //! - Shader compilation and caching
 //! - iOS/macOS compatibility
 
+#![allow(dead_code)]
+
 use crate::direct_metal_backend::{
     GpuBackend, BackendType, BackendCapabilities, BackendConfig, BackendResult,
     BackendError, DeviceInfo, DeviceType, MemoryType, PipelineType,
@@ -251,6 +253,12 @@ impl MetalBackend {
             MemoryType::HostCached => MetalStorageMode::Managed,
             MemoryType::Unified => MetalStorageMode::Shared,
         }
+    }
+}
+
+impl Default for MetalBackend {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

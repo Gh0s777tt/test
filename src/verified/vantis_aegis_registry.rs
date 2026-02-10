@@ -58,7 +58,7 @@ pub enum RegistryValue {
 #[derive(Debug, Clone)]
 pub struct RegistryKey {
     /// Key path
-    path: String,
+    _path: String,
     /// Key values
     values: HashMap<String, RegistryValue>,
     /// Subkeys
@@ -69,7 +69,7 @@ impl RegistryKey {
     /// Create a new registry key
     pub fn new(path: String) -> Self {
         Self {
-            path,
+            _path: path,
             values: HashMap::new(),
             subkeys: HashMap::new(),
         }

@@ -139,7 +139,7 @@ pub struct SyscallTranslator {
     /// NT API emulator
     nt_api: &'static NtApiEmulator,
     /// Registry emulator
-    registry: &'static RegistryEmulator,
+    _registry: &'static RegistryEmulator,
 }
 
 impl SyscallTranslator {
@@ -147,7 +147,7 @@ impl SyscallTranslator {
     pub fn new() -> Self {
         Self {
             nt_api: NtApiEmulator::instance(),
-            registry: RegistryEmulator::instance(),
+            _registry: RegistryEmulator::instance(),
         }
     }
     

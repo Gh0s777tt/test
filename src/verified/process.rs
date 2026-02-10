@@ -129,6 +129,12 @@ impl CpuTime {
     }
 }
 
+impl Default for CpuTime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Memory statistics
 #[derive(Debug, Clone, Copy)]
 pub struct MemoryStats {
@@ -147,6 +153,12 @@ impl MemoryStats {
             rss_size: 0,
             shared_size: 0,
         }
+    }
+}
+
+impl Default for MemoryStats {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -488,6 +500,12 @@ impl ProcessTable {
     /// Get process count
     pub fn process_count(&self) -> usize {
         self.processes.iter().filter(|p| p.is_some()).count()
+    }
+}
+
+impl Default for ProcessTable {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

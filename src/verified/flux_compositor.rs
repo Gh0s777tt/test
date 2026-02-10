@@ -534,6 +534,12 @@ impl Compositor {
     }
 }
 
+impl Default for Compositor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

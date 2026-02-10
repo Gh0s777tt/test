@@ -123,7 +123,7 @@ impl GpuMemory {
 #[derive(Debug)]
 pub struct CommandBuffer {
     commands: Vec<GpuCommand>,
-    device: GpuDevice,
+    _device: GpuDevice,
 }
 
 impl CommandBuffer {
@@ -131,7 +131,7 @@ impl CommandBuffer {
     pub fn new(device: GpuDevice) -> Self {
         Self {
             commands: Vec::new(),
-            device,
+            _device: device,
         }
     }
 
@@ -232,7 +232,7 @@ impl GpuCommand {
 #[derive(Debug)]
 pub struct GpuFence {
     signaled: bool,
-    device: GpuDevice,
+    _device: GpuDevice,
 }
 
 impl GpuFence {
@@ -240,7 +240,7 @@ impl GpuFence {
     pub fn new(device: GpuDevice) -> Self {
         Self {
             signaled: false,
-            device,
+            _device: device,
         }
     }
 
@@ -270,7 +270,7 @@ impl GpuFence {
 pub struct GpuPipeline {
     pipeline_id: u32,
     pipeline_type: PipelineType,
-    device: GpuDevice,
+    _device: GpuDevice,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -288,7 +288,7 @@ impl GpuPipeline {
         Self {
             pipeline_id,
             pipeline_type,
-            device,
+            _device: device,
         }
     }
 
@@ -315,7 +315,7 @@ impl GpuPipeline {
 /// GPU scheduler for managing GPU workloads
 #[derive(Debug)]
 pub struct GpuScheduler {
-    device: GpuDevice,
+    _device: GpuDevice,
     pending_commands: Vec<CommandBuffer>,
 }
 
@@ -323,7 +323,7 @@ impl GpuScheduler {
     /// Create a new GPU scheduler
     pub fn new(device: GpuDevice) -> Self {
         Self {
-            device,
+            _device: device,
             pending_commands: Vec::new(),
         }
     }
@@ -421,6 +421,12 @@ impl GpuStats {
         self.memory_freed = 0;
         self.fences_created = 0;
         self.pipelines_created = 0;
+    }
+}
+
+impl Default for GpuStats {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

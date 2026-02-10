@@ -83,7 +83,7 @@ pub fn encrypt_twofish256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8
     let padded_len = plaintext.len() + padding_len;
     let mut buffer = vec![0u8; padded_len];
     buffer[..plaintext.len()].copy_from_slice(plaintext);
-    for i in plaintext.len()..padded_len { buffer[i] = padding_len as u8; }
+    buffer[plaintext.len()..].fill(padding_len as u8);
     for chunk in buffer.chunks_exact_mut(block_size) { encryptor.encrypt_block_mut(Block::<Twofish>::from_mut_slice(chunk)); }
     let ciphertext = buffer;
     
@@ -125,7 +125,7 @@ pub fn decrypt_twofish256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Tw
     let (iv, ciphertext) = data.split_at(16);
     
     // Create decryptor
-    let mut decryptor = TwofishCbcDec::new(key.into(), iv.try_into().unwrap());
+    let mut decryptor = TwofishCbcDec::new(key.into(), iv.into());
     
     // Decrypt and remove padding
     let mut buffer = ciphertext.to_vec();
@@ -134,7 +134,12 @@ pub fn decrypt_twofish256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, Tw
     if buffer.is_empty() { return Err(TwofishError::DecryptionFailed); }
     let padding_len = buffer[buffer.len() - 1] as usize;
     if padding_len == 0 || padding_len > block_size || padding_len > buffer.len() { return Err(TwofishError::DecryptionFailed); }
-    for i in (buffer.len() - padding_len)..buffer.len() { if buffer[i] != padding_len as u8 { return Err(TwofishError::DecryptionFailed); } }
+    if !buffer[(buffer.len() - padding_len)..]
+        .iter()
+        .all(|&byte| byte == padding_len as u8)
+    {
+        return Err(TwofishError::DecryptionFailed);
+    }
     buffer.truncate(buffer.len() - padding_len);
     
     Ok(buffer)
@@ -167,7 +172,7 @@ pub fn encrypt_twofish256_cbc_with_iv(
     let padded_len = plaintext.len() + padding_len;
     let mut buffer = vec![0u8; padded_len];
     buffer[..plaintext.len()].copy_from_slice(plaintext);
-    for i in plaintext.len()..padded_len { buffer[i] = padding_len as u8; }
+    buffer[plaintext.len()..].fill(padding_len as u8);
     for chunk in buffer.chunks_exact_mut(block_size) { encryptor.encrypt_block_mut(Block::<Twofish>::from_mut_slice(chunk)); }
     let ciphertext = buffer;
     

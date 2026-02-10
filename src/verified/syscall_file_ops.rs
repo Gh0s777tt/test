@@ -176,6 +176,7 @@ pub type FileOpResult<T> = Result<T, FileOpError>;
 #[derive(Debug, Clone)]
 struct FileEntry {
     /// File path
+    #[allow(dead_code)]
     path: PathBuf,
     /// Current position
     position: u64,
@@ -192,6 +193,7 @@ pub struct FileTable {
     /// Open files
     files: Vec<Option<FileEntry>>,
     /// Next file descriptor
+    #[allow(dead_code)]
     next_fd: FileDescriptor,
 }
 
@@ -227,6 +229,7 @@ impl FileTable {
     }
     
     /// Allocate file descriptor
+    #[allow(dead_code)]
     fn alloc_fd(&mut self, entry: FileEntry) -> FileOpResult<FileDescriptor> {
         // Find free slot
         for i in self.next_fd as usize..self.files.len() {
@@ -240,6 +243,7 @@ impl FileTable {
     }
     
     /// Free file descriptor
+    #[allow(dead_code)]
     fn free_fd(&mut self, fd: FileDescriptor) -> FileOpResult<()> {
         if fd < 0 || fd as usize >= self.files.len() {
             return Err(FileOpError::InvalidFd);

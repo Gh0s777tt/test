@@ -9,7 +9,7 @@ mod backend_integration_tests {
     
     #[test]
     fn test_backend_factory_available_backends() {
-        let backends = BackendFactory::available_backends();
+        let _backends = BackendFactory::available_backends();
         
         // Should have at least one backend on supported platforms
         #[cfg(any(feature = "vulkan", all(target_os = "macos", feature = "metal")))]
@@ -17,11 +17,11 @@ mod backend_integration_tests {
         
         // Vulkan should be available if feature is enabled
         #[cfg(feature = "vulkan")]
-        assert!(backends.contains(&BackendType::Vulkan));
+        assert!(_backends.contains(&BackendType::Vulkan));
         
         // Metal should be available on macOS if feature is enabled
         #[cfg(all(target_os = "macos", feature = "metal"))]
-        assert!(backends.contains(&BackendType::Metal));
+        assert!(_backends.contains(&BackendType::Metal));
     }
     
     #[test]
@@ -115,7 +115,7 @@ mod backend_integration_tests {
     
     #[test]
     fn test_backend_error_variants() {
-        let errors = vec![
+        let _errors = vec![
             BackendError::NoDeviceFound,
             BackendError::UnsupportedPlatform,
             BackendError::InitializationFailed("test".to_string()),
@@ -365,6 +365,7 @@ mod metal_backend_tests {
 
 #[cfg(test)]
 mod cross_backend_tests {
+    #[cfg(any(feature = "vulkan", all(target_os = "macos", feature = "metal")))]
     use vantis_verified::direct_metal_backend::*;
     
     /// Test that both backends implement the same interface

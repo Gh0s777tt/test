@@ -513,6 +513,13 @@ impl WorkloadPredictor {
     }
 }
 
+#[cfg(not(feature = "verus"))]
+impl Default for WorkloadPredictor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -170,7 +170,7 @@ impl GamerProfileBuilder {
     ///
     /// # Function 4/8
     pub fn with_input_polling_rate(mut self, rate: u32) -> Result<Self, ProfileError> {
-        if rate < 125 || rate > 8000 {
+        if !(125..=8000).contains(&rate) {
             return Err(ProfileError::ValidationFailed(
                 "Input polling rate must be between 125-8000 Hz".to_string()
             ));
@@ -199,7 +199,7 @@ impl GamerProfileBuilder {
     ///
     /// # Function 6/8
     pub fn with_target_fps(mut self, fps: u32) -> Result<Self, ProfileError> {
-        if fps < 30 || fps > 500 {
+        if !(30..=500).contains(&fps) {
             return Err(ProfileError::ValidationFailed(
                 "Target FPS must be between 30-500".to_string()
             ));

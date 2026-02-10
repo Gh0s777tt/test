@@ -11,6 +11,8 @@
 //! - Command buffer pooling
 //! - Pipeline caching
 
+#![allow(dead_code)]
+
 use crate::direct_metal_backend::{
     GpuBackend, BackendType, BackendCapabilities, BackendConfig, BackendResult,
     BackendError, DeviceInfo, DeviceType, MemoryType, PipelineType,
@@ -337,6 +339,12 @@ impl VulkanBackend {
         // In real implementation, this would query actual available memory
         // For now, assume 80% is available
         (self.get_total_memory(physical_device) as f64 * 0.8) as u64
+    }
+}
+
+impl Default for VulkanBackend {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
