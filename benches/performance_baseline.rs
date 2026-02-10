@@ -3,8 +3,7 @@
 //! Simple benchmarks to establish baseline performance metrics
 //! without requiring full VantisOS module compilation.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use std::time::Duration;
+use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 
 // ============================================================================
 // SYSCALL OVERHEAD SIMULATION

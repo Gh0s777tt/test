@@ -1,276 +1,475 @@
-//! Simple Syscall Performance Benchmark
-//! 
-//! This benchmark measures the performance of individual syscall operations
-//! without requiring the full VantisOS library to compile.
+//! Syscall-focused benchmark suite with stateful workloads.
+//!
+//! Day 3 hardening note:
+//! - avoids constant-only synthetic paths,
+//! - uses real typed syscall modules where available,
+//! - adds mixed sequences to reduce optimizer artifacts.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-// Mock syscall implementations for benchmarking
-// These simulate the overhead and operations without full OS integration
+use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
+use vantis_verified::process::Pid;
+use vantis_verified::syscall::{SyscallArgs, SyscallContext, SyscallHandler, SyscallNumber};
+use vantis_verified::syscall_advanced_ops::{sys_dup, sys_dup2, sys_ioctl, sys_pipe, FdTable, IoctlRequest};
+use vantis_verified::syscall_dir_ops::{
+    sys_chdir_with_cache, sys_getcwd_with_cache, sys_mkdir_with_cache, sys_rmdir_with_cache,
+    DirectoryEntryPathCache, WorkingDirectory,
+};
+use vantis_verified::syscall_file_ops::{
+    sys_rename_with_cache, sys_stat_with_cache, sys_unlink_with_cache, FileStatPathCache,
+};
+use vantis_verified::syscall_time_ops::{
+    sys_cancel_timer, sys_get_timer_info, sys_get_timer_resolution, sys_pause_timer,
+    sys_resume_timer, sys_set_timer, TimerManager, TimerMode,
+};
 
 #[derive(Debug, Clone, Copy)]
-enum SyscallNumber {
-    Read = 0,
-    Write = 1,
-    Open = 2,
-    Close = 3,
-    Seek = 34,
-    Stat = 35,
-    Fstat = 36,
-    Unlink = 37,
-    Rename = 38,
-    Mkdir = 50,
-    Rmdir = 51,
-    Chdir = 52,
-    Getcwd = 53,
-    Dup = 60,
-    Dup2 = 61,
-    Pipe = 62,
-    Ioctl = 63,
-    SetTimer = 70,
-    CancelTimer = 71,
-    PauseTimer = 72,
-    ResumeTimer = 73,
-    GetTimerInfo = 74,
-    GetTimerResolution = 75,
+enum SeekOriginSim {
+    Start,
+    Current,
+    End,
 }
 
-// Simulate syscall overhead
-fn syscall_overhead() -> Duration {
-    let start = std::time::Instant::now();
-    // Simulate minimal syscall overhead (context switch, validation)
-    black_box(42);
-    start.elapsed()
+#[derive(Debug, Clone, Copy)]
+struct SeekState {
+    position: i64,
+    size: i64,
 }
 
-// File operation benchmarks
-fn bench_file_operations(c: &mut Criterion) {
-    let mut group = c.benchmark_group("file_operations");
-    
-    // Seek operation
-    group.bench_function("seek", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate seek: validate fd, update position
-            let fd = black_box(3);
-            let offset = black_box(1024);
-            let _result = fd + offset;
-        });
-    });
-    
-    // Stat operation
-    group.bench_function("stat", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate stat: path lookup, read inode
-            let path = black_box("/tmp/test.txt");
-            let _len = path.len();
-        });
-    });
-    
-    // Fstat operation
-    group.bench_function("fstat", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate fstat: validate fd, read inode
-            let fd = black_box(3);
-            let _result = fd * 2;
-        });
-    });
-    
-    // Unlink operation
-    group.bench_function("unlink", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate unlink: path lookup, remove entry
-            let path = black_box("/tmp/test.txt");
-            let _len = path.len();
-        });
-    });
-    
-    // Rename operation
-    group.bench_function("rename", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate rename: two path lookups, update entry
-            let old_path = black_box("/tmp/old.txt");
-            let new_path = black_box("/tmp/new.txt");
-            let _len = old_path.len() + new_path.len();
-        });
-    });
-    
-    group.finish();
+fn seek_simulated(
+    state: &mut SeekState,
+    offset: i64,
+    origin: SeekOriginSim,
+) -> Result<u64, &'static str> {
+    let base = match origin {
+        SeekOriginSim::Start => 0,
+        SeekOriginSim::Current => state.position,
+        SeekOriginSim::End => state.size,
+    };
+    let next = base.checked_add(offset).ok_or("overflow")?;
+    if next < 0 {
+        return Err("invalid offset");
+    }
+    state.position = next;
+    Ok(next as u64)
 }
 
-// Directory operation benchmarks
-fn bench_directory_operations(c: &mut Criterion) {
-    let mut group = c.benchmark_group("directory_operations");
-    
-    // Mkdir operation
-    group.bench_function("mkdir", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate mkdir: path lookup, create directory entry
-            let path = black_box("/tmp/newdir");
-            let mode = black_box(0o755);
-            let _result = path.len() + mode;
-        });
-    });
-    
-    // Rmdir operation
-    group.bench_function("rmdir", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate rmdir: path lookup, check empty, remove
-            let path = black_box("/tmp/olddir");
-            let _len = path.len();
-        });
-    });
-    
-    // Chdir operation
-    group.bench_function("chdir", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate chdir: path lookup, validate, update current
-            let path = black_box("/home/user");
-            let _len = path.len();
-        });
-    });
-    
-    // Getcwd operation
-    group.bench_function("getcwd", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate getcwd: read current path
-            let _path = black_box("/home/user/project");
-        });
-    });
-    
-    group.finish();
+fn pid(id: u32) -> Pid {
+    Pid::new(id).expect("pid must be non-zero")
 }
 
-// Advanced operation benchmarks
-fn bench_advanced_operations(c: &mut Criterion) {
-    let mut group = c.benchmark_group("advanced_operations");
-    
-    // Dup operation
-    group.bench_function("dup", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate dup: validate fd, find free fd, copy entry
-            let fd = black_box(3);
-            let _new_fd = fd + 1;
-        });
-    });
-    
-    // Dup2 operation
-    group.bench_function("dup2", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate dup2: validate fds, close target, copy entry
-            let old_fd = black_box(3);
-            let new_fd = black_box(5);
-            let _result = old_fd + new_fd;
-        });
-    });
-    
-    // Pipe operation
-    group.bench_function("pipe", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate pipe: allocate buffer, create two fds
-            let _buffer_size = black_box(4096);
-        });
-    });
-    
-    // Ioctl operation
-    group.bench_function("ioctl", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate ioctl: validate fd, dispatch to device
-            let fd = black_box(3);
-            let request = black_box(0x5401); // TCGETS
-            let _result = fd + request;
-        });
-    });
-    
-    group.finish();
-}
-
-// Timer operation benchmarks
-fn bench_timer_operations(c: &mut Criterion) {
-    let mut group = c.benchmark_group("timer_operations");
-    
-    // SetTimer operation
-    group.bench_function("set_timer", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate set_timer: allocate timer, configure, add to queue
-            let interval_ms = black_box(100);
-            let _result = interval_ms * 2;
-        });
-    });
-    
-    // CancelTimer operation
-    group.bench_function("cancel_timer", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate cancel_timer: find timer, remove from queue
-            let timer_id = black_box(42);
-            let _result = timer_id + 1;
-        });
-    });
-    
-    // PauseTimer operation
-    group.bench_function("pause_timer", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate pause_timer: find timer, update state
-            let timer_id = black_box(42);
-            let _result = timer_id + 1;
-        });
-    });
-    
-    // ResumeTimer operation
-    group.bench_function("resume_timer", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate resume_timer: find timer, update state
-            let timer_id = black_box(42);
-            let _result = timer_id + 1;
-        });
-    });
-    
-    // GetTimerInfo operation
-    group.bench_function("get_timer_info", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate get_timer_info: find timer, read state
-            let timer_id = black_box(42);
-            let _result = timer_id + 1;
-        });
-    });
-    
-    // GetTimerResolution operation
-    group.bench_function("get_timer_resolution", |b| {
-        b.iter(|| {
-            let _overhead = syscall_overhead();
-            // Simulate get_timer_resolution: read system constant
-            let _resolution = black_box(1_000_000); // 1ms in nanoseconds
-        });
-    });
-    
-    group.finish();
-}
-
-// Syscall overhead benchmark
 fn bench_syscall_overhead(c: &mut Criterion) {
+    let caller = pid(42);
     c.bench_function("syscall_overhead", |b| {
         b.iter(|| {
-            syscall_overhead()
+            let context = SyscallContext::new(caller, SyscallNumber::GetPid, SyscallArgs::zero());
+            black_box(SyscallHandler::dispatch(black_box(&context)).expect("getpid should succeed"))
         });
     });
+}
+
+fn bench_file_operations(c: &mut Criterion) {
+    let mut group = c.benchmark_group("file_operations");
+
+    group.bench_function("seek", |b| {
+        b.iter_batched(
+            || SeekState {
+                position: 256,
+                size: 4096,
+            },
+            |mut state| {
+                let from_start = seek_simulated(
+                    &mut state,
+                    black_box(128),
+                    black_box(SeekOriginSim::Start),
+                )
+                .expect("seek simulation from start should succeed");
+                let from_current = seek_simulated(
+                    &mut state,
+                    black_box(128),
+                    black_box(SeekOriginSim::Current),
+                )
+                .expect("seek simulation from current should succeed");
+                let from_end = seek_simulated(
+                    &mut state,
+                    black_box(-64),
+                    black_box(SeekOriginSim::End),
+                )
+                .expect("seek simulation from end should succeed");
+                black_box((from_start, from_current, from_end));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("stat", |b| {
+        b.iter_batched(
+            || FileStatPathCache::new(128),
+            |mut cache| {
+                black_box(
+                    sys_stat_with_cache(Path::new("/tmp/bench-stat"), &mut cache)
+                        .expect("stat should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("fstat", |b| {
+        let mut cache = FileStatPathCache::new(128);
+        let hot_path = PathBuf::from("/tmp/bench-fstat");
+        sys_stat_with_cache(hot_path.as_path(), &mut cache).expect("cache warmup should succeed");
+
+        b.iter(|| {
+            black_box(
+                sys_stat_with_cache(black_box(hot_path.as_path()), &mut cache)
+                    .expect("cached stat should succeed"),
+            );
+        });
+    });
+
+    group.bench_function("unlink", |b| {
+        b.iter_batched(
+            || {
+                let mut cache = FileStatPathCache::new(128);
+                let path = PathBuf::from("/tmp/bench-unlink");
+                sys_stat_with_cache(path.as_path(), &mut cache).expect("cache warmup should succeed");
+                (cache, path)
+            },
+            |(mut cache, path)| {
+                black_box(sys_unlink_with_cache(path.as_path(), &mut cache).expect("unlink should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("rename", |b| {
+        b.iter_batched(
+            || {
+                let mut cache = FileStatPathCache::new(128);
+                let old_path = PathBuf::from("/tmp/bench-old");
+                let new_path = PathBuf::from("/tmp/bench-new");
+                sys_stat_with_cache(old_path.as_path(), &mut cache).expect("cache warmup should succeed");
+                (cache, old_path, new_path)
+            },
+            |(mut cache, old_path, new_path)| {
+                black_box(
+                    sys_rename_with_cache(old_path.as_path(), new_path.as_path(), &mut cache)
+                        .expect("rename should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.finish();
+}
+
+fn bench_directory_operations(c: &mut Criterion) {
+    let mut group = c.benchmark_group("directory_operations");
+
+    group.bench_function("mkdir", |b| {
+        b.iter_batched(
+            || DirectoryEntryPathCache::new(128),
+            |mut cache| {
+                black_box(
+                    sys_mkdir_with_cache(Path::new("/tmp/newdir"), Some(0o755), &mut cache)
+                        .expect("mkdir should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("rmdir", |b| {
+        b.iter_batched(
+            || {
+                let mut cache = DirectoryEntryPathCache::new(128);
+                let target = Path::new("/tmp/olddir");
+                sys_mkdir_with_cache(target, Some(0o755), &mut cache).expect("mkdir setup should succeed");
+                cache
+            },
+            |mut cache| {
+                black_box(
+                    sys_rmdir_with_cache(Path::new("/tmp/olddir"), &mut cache)
+                        .expect("rmdir should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("chdir", |b| {
+        b.iter_batched(
+            || (WorkingDirectory::new(), DirectoryEntryPathCache::new(128)),
+            |(mut wd, mut cache)| {
+                black_box(
+                    sys_chdir_with_cache(&mut wd, Path::new("/home/user"), &mut cache)
+                        .expect("chdir should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("getcwd", |b| {
+        b.iter_batched(
+            || {
+                let mut wd = WorkingDirectory::new();
+                let mut cache = DirectoryEntryPathCache::new(128);
+                sys_chdir_with_cache(&mut wd, Path::new("/home/user/project"), &mut cache)
+                    .expect("chdir setup should succeed");
+                let buf = [0u8; 256];
+                (wd, cache, buf)
+            },
+            |(wd, mut cache, mut buf)| {
+                let size = buf.len();
+                black_box(
+                    sys_getcwd_with_cache(&wd, &mut buf, size, &mut cache)
+                        .expect("getcwd should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.finish();
+}
+
+fn bench_advanced_operations(c: &mut Criterion) {
+    let mut group = c.benchmark_group("advanced_operations");
+
+    group.bench_function("dup", |b| {
+        b.iter_batched(
+            FdTable::new,
+            |mut table| {
+                black_box(sys_dup(&mut table, 1).expect("dup should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("dup2", |b| {
+        b.iter_batched(
+            || {
+                let mut table = FdTable::new();
+                let _ = sys_dup(&mut table, 1).expect("dup setup should succeed");
+                table
+            },
+            |mut table| {
+                black_box(sys_dup2(&mut table, 2, 3).expect("dup2 should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("pipe", |b| {
+        b.iter_batched(
+            FdTable::new,
+            |mut table| {
+                black_box(sys_pipe(&mut table).expect("pipe should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("ioctl", |b| {
+        b.iter_batched(
+            FdTable::new,
+            |table| {
+                black_box(
+                    sys_ioctl(&table, 1, IoctlRequest::Tcgets as u32, None)
+                        .expect("ioctl should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.finish();
+}
+
+fn bench_timer_operations(c: &mut Criterion) {
+    let mut group = c.benchmark_group("timer_operations");
+
+    group.bench_function("set_timer", |b| {
+        b.iter_batched(
+            TimerManager::new,
+            |mut manager| {
+                black_box(
+                    sys_set_timer(
+                        &mut manager,
+                        Duration::from_millis(100),
+                        TimerMode::OneShot,
+                        None,
+                    )
+                    .expect("set_timer should succeed"),
+                );
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("cancel_timer", |b| {
+        b.iter_batched(
+            || {
+                let mut manager = TimerManager::new();
+                let tid = sys_set_timer(
+                    &mut manager,
+                    Duration::from_millis(100),
+                    TimerMode::OneShot,
+                    None,
+                )
+                .expect("set_timer setup should succeed");
+                (manager, tid)
+            },
+            |(mut manager, tid)| {
+                black_box(sys_cancel_timer(&mut manager, tid).expect("cancel_timer should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("pause_timer", |b| {
+        b.iter_batched(
+            || {
+                let mut manager = TimerManager::new();
+                let tid = sys_set_timer(
+                    &mut manager,
+                    Duration::from_millis(100),
+                    TimerMode::Periodic,
+                    None,
+                )
+                .expect("set_timer setup should succeed");
+                (manager, tid)
+            },
+            |(mut manager, tid)| {
+                black_box(sys_pause_timer(&mut manager, tid).expect("pause_timer should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("resume_timer", |b| {
+        b.iter_batched(
+            || {
+                let mut manager = TimerManager::new();
+                let tid = sys_set_timer(
+                    &mut manager,
+                    Duration::from_millis(100),
+                    TimerMode::Periodic,
+                    None,
+                )
+                .expect("set_timer setup should succeed");
+                sys_pause_timer(&mut manager, tid).expect("pause setup should succeed");
+                (manager, tid)
+            },
+            |(mut manager, tid)| {
+                black_box(sys_resume_timer(&mut manager, tid).expect("resume_timer should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("get_timer_info", |b| {
+        b.iter_batched(
+            || {
+                let mut manager = TimerManager::new();
+                let tid = sys_set_timer(
+                    &mut manager,
+                    Duration::from_millis(100),
+                    TimerMode::OneShot,
+                    None,
+                )
+                .expect("set_timer setup should succeed");
+                (manager, tid)
+            },
+            |(manager, tid)| {
+                black_box(sys_get_timer_info(&manager, tid).expect("get_timer_info should succeed"));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("get_timer_resolution", |b| {
+        let manager = TimerManager::new();
+        b.iter(|| {
+            black_box(sys_get_timer_resolution(black_box(&manager)));
+        });
+    });
+
+    group.finish();
+}
+
+fn bench_mixed_workloads(c: &mut Criterion) {
+    let mut group = c.benchmark_group("mixed_workloads");
+
+    group.bench_function("file_dir_fd_sequence", |b| {
+        b.iter_batched(
+            || {
+                (
+                    FileStatPathCache::new(128),
+                    DirectoryEntryPathCache::new(128),
+                    WorkingDirectory::new(),
+                    FdTable::new(),
+                )
+            },
+            |(mut file_cache, mut dir_cache, mut wd, mut fd_table)| {
+                let old_path = Path::new("/tmp/mixed-old");
+                let new_path = Path::new("/tmp/mixed-new");
+                let dir = Path::new("/tmp/mixed-dir");
+                let mut cwd_buf = [0u8; 128];
+                let cwd_size = cwd_buf.len();
+
+                let stat = sys_stat_with_cache(old_path, &mut file_cache).expect("stat should succeed");
+                sys_rename_with_cache(old_path, new_path, &mut file_cache).expect("rename should succeed");
+                sys_unlink_with_cache(new_path, &mut file_cache).expect("unlink should succeed");
+
+                sys_mkdir_with_cache(dir, Some(0o755), &mut dir_cache).expect("mkdir should succeed");
+                sys_chdir_with_cache(&mut wd, dir, &mut dir_cache).expect("chdir should succeed");
+                let cwd_len = sys_getcwd_with_cache(&wd, &mut cwd_buf, cwd_size, &mut dir_cache)
+                    .expect("getcwd should succeed");
+
+                let dup_fd = sys_dup(&mut fd_table, 1).expect("dup should succeed");
+                let pipe = sys_pipe(&mut fd_table).expect("pipe should succeed");
+                let ioctl_code = sys_ioctl(&fd_table, 1, IoctlRequest::Tcgets as u32, None)
+                    .expect("ioctl should succeed");
+
+                black_box((
+                    stat.size,
+                    cwd_len,
+                    dup_fd,
+                    pipe.read_fd + pipe.write_fd,
+                    ioctl_code,
+                ));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("timer_sequence", |b| {
+        b.iter_batched(
+            TimerManager::new,
+            |mut manager| {
+                let tid = sys_set_timer(
+                    &mut manager,
+                    Duration::from_millis(50),
+                    TimerMode::Periodic,
+                    None,
+                )
+                .expect("set_timer should succeed");
+                sys_pause_timer(&mut manager, tid).expect("pause should succeed");
+                sys_resume_timer(&mut manager, tid).expect("resume should succeed");
+                let info = sys_get_timer_info(&manager, tid).expect("info should succeed");
+                sys_cancel_timer(&mut manager, tid).expect("cancel should succeed");
+                black_box((info.fire_count, info.remaining));
+            },
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.finish();
 }
 
 criterion_group!(
@@ -279,6 +478,7 @@ criterion_group!(
     bench_file_operations,
     bench_directory_operations,
     bench_advanced_operations,
-    bench_timer_operations
+    bench_timer_operations,
+    bench_mixed_workloads
 );
 criterion_main!(benches);
