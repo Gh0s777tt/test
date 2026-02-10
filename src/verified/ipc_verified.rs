@@ -10,13 +10,8 @@
 //! 3. **Deadlock Freedom**: No circular wait conditions
 //! 4. **Capability Correctness**: Capability propagation is secure
 //! 5. **Resource Bounds**: Message queues have bounded size
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use core::mem;

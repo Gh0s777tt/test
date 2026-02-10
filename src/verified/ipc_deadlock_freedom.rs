@@ -9,13 +9,8 @@
 //! 2. **Progress Guarantee**: Every process can eventually make progress
 //! 3. **Timeout Mechanisms**: Bounded waiting times prevent indefinite blocking
 //! 4. **Resource Ordering**: Consistent resource acquisition order
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -465,7 +460,8 @@ impl DeadlockFreeIpcManager {
 // FORMAL PROOFS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+verus! {
+
 pub proof fn theorem_no_circular_wait()
     ensures(
         forall|graph: WaitGraph|
@@ -481,10 +477,8 @@ pub proof fn theorem_no_circular_wait()
     // 5. Therefore, no circular wait exists
 }
 
-#[cfg(feature = "verus")]
 spec fn exists_circular_wait(graph: WaitGraph, p: Pid) -> bool;
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_progress_guarantee()
     ensures(
         forall|manager: DeadlockFreeIpcManager, p: Pid|
@@ -499,10 +493,8 @@ pub proof fn theorem_progress_guarantee()
     // 4. Therefore, every process eventually makes progress
 }
 
-#[cfg(feature = "verus")]
 spec fn eventually_makes_progress(manager: DeadlockFreeIpcManager, p: Pid) -> bool;
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_timeout_bounded()
     ensures(
         forall|tracker: TimeoutTracker, p: Pid, duration: Duration|
@@ -517,7 +509,6 @@ pub proof fn theorem_timeout_bounded()
     // 4. Therefore, timeout eventually occurs
 }
 
-#[cfg(feature = "verus")]
 spec fn eventually(condition: bool) -> bool;
 
 // ============================================================================
@@ -681,3 +672,5 @@ mod kani_verification {
         assert!(result.is_ok());
     }
 }
+
+} // verus!

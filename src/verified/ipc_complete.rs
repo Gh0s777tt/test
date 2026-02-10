@@ -42,6 +42,8 @@
 //! let received = ipc.receive(receiver_pid)?;
 //! assert_eq!(received.data(), b"Hello, World!");
 //! ```
+use vstd::prelude::*;
+
 
 use std::collections::{HashMap, VecDeque, HashSet};
 use std::sync::{Arc, RwLock, Mutex};

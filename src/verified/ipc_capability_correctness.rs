@@ -9,13 +9,8 @@
 //! 2. **No Forgery**: Capabilities cannot be forged or duplicated
 //! 3. **Revocation**: Capabilities can be revoked
 //! 4. **No Privilege Escalation**: Processes cannot gain unauthorized capabilities
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use std::collections::{HashMap, HashSet};
@@ -413,7 +408,8 @@ impl CapabilityManager {
 // FORMAL PROOFS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+verus! {
+
 pub proof fn theorem_secure_propagation()
     ensures(
         forall|manager: CapabilityManager, granter: Pid, grantee: Pid, cap_type: CapabilityType|
@@ -428,7 +424,6 @@ pub proof fn theorem_secure_propagation()
     // 4. Therefore, granter has Grant capability
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_no_forgery()
     ensures(
         forall|manager: CapabilityManager, token: CapabilityToken|
@@ -444,10 +439,8 @@ pub proof fn theorem_no_forgery()
     // 5. Therefore, no forgery is possible
 }
 
-#[cfg(feature = "verus")]
 spec fn exists_valid_capability(manager: CapabilityManager, token: CapabilityToken) -> bool;
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_revocation_effective()
     ensures(
         forall|manager: CapabilityManager, token: CapabilityToken|
@@ -462,10 +455,8 @@ pub proof fn theorem_revocation_effective()
     // 4. Therefore, revocation is effective
 }
 
-#[cfg(feature = "verus")]
 spec fn is_valid(manager: CapabilityManager, token: CapabilityToken) -> bool;
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_no_privilege_escalation()
     ensures(
         forall|manager: CapabilityManager, process: Pid, cap_type: CapabilityType|
@@ -481,7 +472,6 @@ pub proof fn theorem_no_privilege_escalation()
     // 5. Therefore, no privilege escalation is possible
 }
 
-#[cfg(feature = "verus")]
 spec fn was_granted(manager: CapabilityManager, process: Pid, cap_type: CapabilityType) -> bool;
 
 // ============================================================================
@@ -709,3 +699,5 @@ mod kani_verification {
         assert!(!result || forged_token.secret == 12345);
     }
 }
+
+} // verus!

@@ -9,13 +9,8 @@
 //! 2. **Bounded Message Size**: Messages never exceed MAX_MESSAGE_SIZE (4KB)
 //! 3. **Memory Safety**: Total IPC memory never exceeds MAX_IPC_MEMORY (256MB)
 //! 4. **No Resource Exhaustion**: System remains responsive under load
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use std::collections::{HashMap, VecDeque};
@@ -430,7 +425,8 @@ impl BoundedIpcManager {
 // FORMAL PROOFS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+verus! {
+
 pub proof fn theorem_bounded_queue_size()
     ensures(
         forall|queue: BoundedQueue|
@@ -445,7 +441,6 @@ pub proof fn theorem_bounded_queue_size()
     // 5. Therefore, len() <= MAX_QUEUE_SIZE is maintained
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_bounded_message_size()
     ensures(
         forall|msg: BoundedMessage|
@@ -459,7 +454,6 @@ pub proof fn theorem_bounded_message_size()
     // 4. Therefore, all well-formed messages have size <= MAX_MESSAGE_SIZE
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_bounded_total_memory()
     ensures(
         forall|manager: BoundedIpcManager|
@@ -474,7 +468,6 @@ pub proof fn theorem_bounded_total_memory()
     // 5. Therefore, total_memory() <= MAX_IPC_MEMORY is maintained
 }
 
-#[cfg(feature = "verus")]
 pub proof fn theorem_memory_accounting_correct()
     ensures(
         forall|queue: BoundedQueue|
@@ -688,3 +681,5 @@ mod kani_verification {
         assert!(manager.total_memory_runtime() <= MAX_IPC_MEMORY);
     }
 }
+
+} // verus!

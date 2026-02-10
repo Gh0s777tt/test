@@ -25,13 +25,8 @@
 //! │   (CRC32)     │  │  (Limits)     │  │ (Capabilities)│
 //! └───────────────┘  └───────────────┘  └───────────────┘
 //! ```
-
-#[cfg(feature = "verus")]
-use builtin::*;
-#[cfg(feature = "verus")]
-use builtin_macros::*;
-#[cfg(feature = "verus")]
 use vstd::prelude::*;
+
 
 use super::process::Pid;
 use std::collections::{HashMap, VecDeque};
@@ -177,7 +172,8 @@ impl VerifiedMessage {
     }
 }
 
-#[cfg(feature = "verus")]
+verus! {
+
 spec fn compute_checksum_spec(data: Seq<u8>) -> u32;
 
 // ============================================================================
@@ -741,3 +737,5 @@ mod tests {
         assert!(msg.read_data(Pid::new(2)).is_err());
     }
 }
+
+} // verus!
