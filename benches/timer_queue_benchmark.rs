@@ -24,10 +24,10 @@ fn bench_timer_queue_set(c: &mut Criterion) {
         );
     });
 
-    group.bench_function("set_timer_batch_256", |b| {
+    group.bench_function("set_timer_batch_255", |b| {
         b.iter(|| {
             let mut manager = TimerManager::new();
-            for idx in 1..=256u64 {
+            for idx in 1..=255u64 {
                 let interval = Duration::from_micros(idx * 10);
                 black_box(sys_set_timer(
                     &mut manager,
