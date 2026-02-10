@@ -180,6 +180,9 @@ maintenance scripts from `scripts/`:
 # Generate governance-ready threshold proposal draft (MONPOL)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 
+# Generate Week 9 governance transition pack (md + json)
+./scripts/generate_governance_transition_pack.sh
+
 # Validate monitor threshold governance rules (PR-aware, auto-skip outside PR payloads)
 ./scripts/check_monitor_threshold_governance.sh
 

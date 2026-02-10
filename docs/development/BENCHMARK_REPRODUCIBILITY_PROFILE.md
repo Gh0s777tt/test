@@ -117,6 +117,9 @@ Current repository integration:
   and recommendation snapshots into a drift dashboard artifact.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links.
+- CI runs `scripts/generate_governance_transition_pack.sh` to publish a packaged
+  transition snapshot (toolchain components, evidence status, CI policy baseline)
+  for Week 10 rollout tracking.
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -167,6 +170,12 @@ Generate governance-ready MONPOL proposal draft:
 ./scripts/generate_monitor_threshold_proposal.sh \
   --bench timer_queue_benchmark \
   --bench directory_entry_cache_benchmark
+```
+
+Generate governance transition pack:
+
+```bash
+./scripts/generate_governance_transition_pack.sh
 ```
 
 Canonical governance template:

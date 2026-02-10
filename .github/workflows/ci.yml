@@ -242,6 +242,11 @@ jobs:
           --bench timer_queue_benchmark
           --bench directory_entry_cache_benchmark
 
+      - name: Generate governance transition pack
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_governance_transition_pack.sh
+
       - name: Upload reproducibility report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
