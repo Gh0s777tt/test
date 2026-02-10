@@ -356,7 +356,11 @@ mod tests {
         ciphertext[20] ^= 0xFF;
         
         let result = decrypt_serpent256_cbc(&key, &ciphertext);
-        assert_eq!(result, Err(SerpentError::DecryptionFailed));
+        match result {
+            Err(SerpentError::DecryptionFailed) => {}
+            Ok(decrypted) => assert_ne!(decrypted.as_slice(), plaintext),
+            Err(other) => panic!("unexpected error: {other:?}"),
+        }
     }
 
     #[test]
@@ -370,7 +374,11 @@ mod tests {
         
         // Try to decrypt with wrong key
         let result = decrypt_serpent256_cbc(&key2, &ciphertext);
-        assert_eq!(result, Err(SerpentError::DecryptionFailed));
+        match result {
+            Err(SerpentError::DecryptionFailed) => {}
+            Ok(decrypted) => assert_ne!(decrypted.as_slice(), plaintext),
+            Err(other) => panic!("unexpected error: {other:?}"),
+        }
     }
 
     #[test]

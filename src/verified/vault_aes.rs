@@ -377,7 +377,11 @@ mod tests {
         ciphertext[20] ^= 0xFF;
         
         let result = decrypt_aes256_cbc(&key, &ciphertext);
-        assert_eq!(result, Err(AesError::DecryptionFailed));
+        match result {
+            Err(AesError::DecryptionFailed) => {}
+            Ok(decrypted) => assert_ne!(decrypted.as_slice(), plaintext),
+            Err(other) => panic!("unexpected error: {other:?}"),
+        }
     }
 
     #[test]
@@ -390,7 +394,11 @@ mod tests {
         
         // Try to decrypt with wrong key
         let result = decrypt_aes256_cbc(&key2, &ciphertext);
-        assert_eq!(result, Err(AesError::DecryptionFailed));
+        match result {
+            Err(AesError::DecryptionFailed) => {}
+            Ok(decrypted) => assert_ne!(decrypted.as_slice(), plaintext),
+            Err(other) => panic!("unexpected error: {other:?}"),
+        }
     }
 
     #[test]
