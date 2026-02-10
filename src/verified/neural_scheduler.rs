@@ -374,45 +374,82 @@ impl NeuralScheduler {
 // Non-Verus version of the same code (without formal verification)
 #[cfg(not(feature = "verus"))]
 pub const MAX_TRACKED_THREADS: usize = 256;
+#[cfg(not(feature = "verus"))]
+pub const INPUT_FEATURES: usize = 8;
+#[cfg(not(feature = "verus"))]
+pub const HIDDEN_LAYER_1_SIZE: usize = 16;
+#[cfg(not(feature = "verus"))]
+pub const HIDDEN_LAYER_2_SIZE: usize = 16;
+#[cfg(not(feature = "verus"))]
+pub const LEARNING_RATE_SCALED: i32 = 10;
 
 #[cfg(not(feature = "verus"))]
 pub struct NeuralScheduler {
-    weights_l1: [[i32; 16]; 8],
-    weights_l2: [[i32; 16]; 16],
-    weights_output: [i32; 16],
-    bias_l1: [i32; 16],
-    bias_l2: [i32; 16],
-    bias_output: i32,
-    thread_history: [ThreadFeatures; MAX_TRACKED_THREADS],
+    weights: NeuralWeights,
+    thread_features: [ThreadFeatures; MAX_TRACKED_THREADS],
+    num_threads: usize,
+    decisions_made: u64,
+    correct_predictions: u64,
     next_thread_index: usize,
 }
 
 #[cfg(not(feature = "verus"))]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ThreadFeatures {
     pub priority: u8,
-    pub cpu_time_us: u64,
-    pub io_wait_us: u64,
-    pub voluntary_switches: u64,
-    pub involuntary_switches: u64,
-    pub avg_cpu_burst_us: u64,
+    pub cpu_time_us: u32,
+    pub io_wait_us: u32,
+    pub voluntary_switches: u32,
+    pub involuntary_switches: u32,
+    pub avg_cpu_burst_us: u32,
     pub is_interactive: u8,
     pub is_gaming: u8,
 }
 
 #[cfg(not(feature = "verus"))]
 impl ThreadFeatures {
+    pub const fn new() -> Self {
+        ThreadFeatures {
+            priority: 128,
+            cpu_time_us: 0,
+            io_wait_us: 0,
+            voluntary_switches: 0,
+            involuntary_switches: 0,
+            avg_cpu_burst_us: 0,
+            is_interactive: 0,
+            is_gaming: 0,
+        }
+    }
+
     pub fn to_input_array(&self) -> [i32; 8] {
         [
-            self.priority as i32,
-            (self.cpu_time_us / 1000) as i32,
-            (self.io_wait_us / 1000) as i32,
-            self.voluntary_switches as i32,
-            self.involuntary_switches as i32,
-            (self.avg_cpu_burst_us / 1000) as i32,
-            self.is_interactive as i32,
-            self.is_gaming as i32,
+            (self.priority as i32 - 128) * 1000 / 128,
+            (self.cpu_time_us as i32 - 5000) * 1000 / 5000,
+            (self.io_wait_us as i32 - 5000) * 1000 / 5000,
+            (self.voluntary_switches as i32 - 50) * 1000 / 50,
+            (self.involuntary_switches as i32 - 50) * 1000 / 50,
+            (self.avg_cpu_burst_us as i32 - 5000) * 1000 / 5000,
+            if self.is_interactive == 1 { 1000 } else { -1000 },
+            if self.is_gaming == 1 { 1000 } else { -1000 },
         ]
+    }
+}
+
+#[cfg(not(feature = "verus"))]
+pub struct NeuralWeights {
+    pub input_to_hidden1: [[i32; HIDDEN_LAYER_1_SIZE]; INPUT_FEATURES],
+    pub hidden1_to_hidden2: [[i32; HIDDEN_LAYER_2_SIZE]; HIDDEN_LAYER_1_SIZE],
+    pub hidden2_to_output: [i32; HIDDEN_LAYER_2_SIZE],
+}
+
+#[cfg(not(feature = "verus"))]
+impl NeuralWeights {
+    pub const fn new() -> Self {
+        NeuralWeights {
+            input_to_hidden1: [[10; HIDDEN_LAYER_1_SIZE]; INPUT_FEATURES],
+            hidden1_to_hidden2: [[10; HIDDEN_LAYER_2_SIZE]; HIDDEN_LAYER_1_SIZE],
+            hidden2_to_output: [10; HIDDEN_LAYER_2_SIZE],
+        }
     }
 }
 
@@ -420,53 +457,116 @@ impl ThreadFeatures {
 impl NeuralScheduler {
     pub fn new() -> Self {
         Self {
-            weights_l1: [[0; 16]; 8],
-            weights_l2: [[0; 16]; 16],
-            weights_output: [0; 16],
-            bias_l1: [0; 16],
-            bias_l2: [0; 16],
-            bias_output: 0,
-            thread_history: [ThreadFeatures {
-                priority: 0,
-                cpu_time_us: 0,
-                io_wait_us: 0,
-                voluntary_switches: 0,
-                involuntary_switches: 0,
-                avg_cpu_burst_us: 0,
-                is_interactive: 0,
-                is_gaming: 0,
-            }; MAX_TRACKED_THREADS],
+            weights: NeuralWeights::new(),
+            thread_features: [ThreadFeatures::new(); MAX_TRACKED_THREADS],
+            num_threads: 0,
+            decisions_made: 0,
+            correct_predictions: 0,
             next_thread_index: 0,
         }
     }
 
-    pub fn predict_priority(&self, features: &ThreadFeatures) -> i8 {
+    pub fn relu(x: i32) -> i32 {
+        if x > 0 { x } else { 0 }
+    }
+
+    pub fn sigmoid(x: i32) -> i32 {
+        if x >= 0 {
+            1000 * x / (1000 + x)
+        } else {
+            1000 * x / (1000 - x)
+        }
+    }
+
+    pub fn forward_propagate(&self, features: &ThreadFeatures) -> i8 {
         let input = features.to_input_array();
-        let mut hidden1 = [0i32; 16];
+
+        let mut hidden1 = [0i32; HIDDEN_LAYER_1_SIZE];
         for (i, hidden1_val) in hidden1.iter_mut().enumerate() {
-            let mut sum = self.bias_l1[i];
+            let mut sum = 0i64;
             for (j, input_val) in input.iter().enumerate() {
-                sum += *input_val * self.weights_l1[j][i] / 1000;
+                sum += (*input_val as i64) * (self.weights.input_to_hidden1[j][i] as i64);
             }
-            *hidden1_val = if sum > 0 { sum } else { 0 };
+            *hidden1_val = Self::relu((sum / 1000) as i32);
         }
-        let mut hidden2 = [0i32; 16];
+
+        let mut hidden2 = [0i32; HIDDEN_LAYER_2_SIZE];
         for (i, hidden2_val) in hidden2.iter_mut().enumerate() {
-            let mut sum = self.bias_l2[i];
+            let mut sum = 0i64;
             for (j, hidden1_val) in hidden1.iter().enumerate() {
-                sum += *hidden1_val * self.weights_l2[j][i] / 1000;
+                sum += (*hidden1_val as i64) * (self.weights.hidden1_to_hidden2[j][i] as i64);
             }
-            *hidden2_val = if sum > 0 { sum } else { 0 };
+            *hidden2_val = Self::relu((sum / 1000) as i32);
         }
-        let mut output = self.bias_output;
+
+        let mut output_sum = 0i64;
         for (i, hidden2_val) in hidden2.iter().enumerate() {
-            output += *hidden2_val * self.weights_output[i] / 1000;
+            output_sum += (*hidden2_val as i64) * (self.weights.hidden2_to_output[i] as i64);
         }
-        if output > 20 { 20 } else if output < -20 { -20 } else { output as i8 }
+        let activated = Self::sigmoid((output_sum / 1000) as i32);
+        ((activated - 500) / 4) as i8
+    }
+
+    pub fn predict_priority(&self, features: &ThreadFeatures) -> i8 {
+        self.forward_propagate(features)
+    }
+
+    pub fn update_thread(&mut self, thread_id: usize, features: ThreadFeatures) -> bool {
+        if thread_id >= MAX_TRACKED_THREADS {
+            return false;
+        }
+
+        self.thread_features[thread_id] = features;
+        if thread_id >= self.num_threads {
+            self.num_threads = thread_id + 1;
+        }
+        true
+    }
+
+    pub fn get_priority_adjustment(&mut self, thread_id: usize) -> i8 {
+        if thread_id >= self.num_threads {
+            return 0;
+        }
+
+        let adjustment = self.forward_propagate(&self.thread_features[thread_id]);
+        self.decisions_made += 1;
+        adjustment
+    }
+
+    pub fn detect_gaming_workload(features: &ThreadFeatures) -> bool {
+        features.is_gaming == 1 || (features.cpu_time_us > 8000 && features.io_wait_us < 1000)
+    }
+
+    pub fn detect_interactive_workload(features: &ThreadFeatures) -> bool {
+        features.is_interactive == 1
+            || (features.voluntary_switches > 50 && features.avg_cpu_burst_us < 5000)
+    }
+
+    pub fn get_accuracy(&self) -> u32 {
+        if self.decisions_made == 0 {
+            return 0;
+        }
+        let accuracy = ((self.correct_predictions * 100) / self.decisions_made) as u32;
+        if accuracy > 100 { 100 } else { accuracy }
+    }
+
+    pub fn record_correct_prediction(&mut self) {
+        self.correct_predictions += 1;
+    }
+
+    pub fn get_num_threads(&self) -> usize {
+        self.num_threads
+    }
+
+    pub fn get_decisions_made(&self) -> u64 {
+        self.decisions_made
     }
 
     pub fn record_thread(&mut self, features: ThreadFeatures) {
-        self.thread_history[self.next_thread_index] = features;
+        self.thread_features[self.next_thread_index] = features;
+        if self.num_threads < MAX_TRACKED_THREADS {
+            self.num_threads += 1;
+        }
         self.next_thread_index = (self.next_thread_index + 1) % MAX_TRACKED_THREADS;
     }
 
@@ -474,9 +574,9 @@ impl NeuralScheduler {
         let predicted = self.predict_priority(features);
         let error = actual_priority - predicted;
         if error.abs() > 2 {
-            let learning_rate = 10;
-            for i in 0..16 {
-                self.weights_output[i] += error as i32 * learning_rate / 100;
+            for i in 0..HIDDEN_LAYER_2_SIZE {
+                self.weights.hidden2_to_output[i] +=
+                    error as i32 * LEARNING_RATE_SCALED / 100;
             }
         }
     }
@@ -489,7 +589,7 @@ impl Default for NeuralScheduler {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
