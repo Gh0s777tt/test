@@ -5,7 +5,7 @@
 
 #[cfg(test)]
 mod backend_integration_tests {
-    use crate::direct_metal_backend::*;
+    use vantis_verified::direct_metal_backend::*;
     
     #[test]
     fn test_backend_factory_available_backends() {
@@ -180,7 +180,7 @@ mod backend_integration_tests {
 
 #[cfg(all(test, feature = "vulkan"))]
 mod vulkan_backend_tests {
-    use crate::direct_metal_backend::*;
+    use vantis_verified::direct_metal_backend::*;
     use crate::direct_metal_vulkan::VulkanBackend;
     
     #[test]
@@ -271,7 +271,7 @@ mod vulkan_backend_tests {
 
 #[cfg(all(test, target_os = "macos", feature = "metal"))]
 mod metal_backend_tests {
-    use crate::direct_metal_backend::*;
+    use vantis_verified::direct_metal_backend::*;
     use crate::direct_metal_metal::MetalBackend;
     
     #[test]
@@ -365,7 +365,7 @@ mod metal_backend_tests {
 
 #[cfg(test)]
 mod cross_backend_tests {
-    use crate::direct_metal_backend::*;
+    use vantis_verified::direct_metal_backend::*;
     
     /// Test that both backends implement the same interface
     #[test]

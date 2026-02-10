@@ -2,9 +2,9 @@
 
 #[cfg(test)]
 mod vantis_aegis_integration_tests {
-    use crate::vantis_aegis_nt_api::*;
-    use crate::vantis_aegis_registry::*;
-    use crate::vantis_aegis_syscall::*;
+    use vantis_verified::vantis_aegis_nt_api::*;
+    use vantis_verified::vantis_aegis_registry::*;
+    use vantis_verified::vantis_aegis_syscall::*;
     
     // ========================================================================
     // NT API TESTS

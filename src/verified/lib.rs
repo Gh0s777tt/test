@@ -58,7 +58,7 @@ pub mod sentinel_recovery;
 pub mod sentinel_fingerprint;
 pub mod sentinel_api;
 // Temporarily disabled due to string escaping issues
-// pub mod vantis_aegis;
-// pub mod vantis_aegis_nt_api;
-// pub mod vantis_aegis_registry;
-// pub mod vantis_aegis_syscall;
+pub mod vantis_aegis;
+pub mod vantis_aegis_nt_api;
+pub mod vantis_aegis_registry;
+pub mod vantis_aegis_syscall;

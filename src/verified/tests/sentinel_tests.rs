@@ -4,12 +4,12 @@
 
 #[cfg(test)]
 mod sentinel_integration_tests {
-    use crate::sentinel::*;
-    use crate::sentinel_sandbox::*;
-    use crate::sentinel_lifecycle::*;
-    use crate::sentinel_recovery::*;
-    use crate::sentinel_fingerprint::*;
-    use crate::sentinel_api::*;
+    use vantis_verified::sentinel::*;
+    use vantis_verified::sentinel_sandbox::*;
+    use vantis_verified::sentinel_lifecycle::*;
+    use vantis_verified::sentinel_recovery::*;
+    use vantis_verified::sentinel_fingerprint::*;
+    use vantis_verified::sentinel_api::*;
 
     #[test]
     fn test_complete_driver_lifecycle() {
