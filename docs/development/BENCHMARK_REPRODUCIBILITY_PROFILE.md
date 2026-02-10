@@ -111,6 +111,8 @@ Current repository integration:
   benchmark duration on shared runners.
 - monitor benchmark targets support per-case threshold overrides via
   `--monitor-bench <name:pct>` or `--monitor-threshold <name:pct>`.
+- CI also runs `scripts/recommend_monitor_policy.sh` to generate advisory rolling
+  threshold recommendations for monitor scenarios.
 - all markdown reports are uploaded as CI artifacts.
 - strict threshold is intentionally conservative on shared runners and should be
   tightened as dedicated benchmarking infrastructure is introduced.
@@ -127,5 +129,18 @@ Example CI-like command:
   --monitor-budget-seconds 240 \
   --monitor-case-timeout-seconds 150 \
   --baseline-prefix ci_repro
+```
+
+Generate rolling policy recommendations from existing evidence:
+
+```bash
+./scripts/recommend_monitor_policy.sh \
+  --bench timer_queue_benchmark \
+  --bench directory_entry_cache_benchmark \
+  --lookback 6 \
+  --min-samples 2 \
+  --headroom-pct 15 \
+  --floor-pct 5 \
+  --ceil-pct 80
 ```
 

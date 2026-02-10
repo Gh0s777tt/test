@@ -132,6 +132,7 @@ See [../history/](../history/) for:
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
 - **Running reproducibility benchmark profile**: `../scripts/benchmark_reproducibility.sh`
 - **Running CI-style benchmark gate locally**: `../scripts/run_benchmark_ci_gate.sh`
+- **Generating rolling monitor policy recommendations**: `../scripts/recommend_monitor_policy.sh`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Benchmark reproducibility guide**: `development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`
 - **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`

@@ -171,6 +171,9 @@ maintenance scripts from `scripts/`:
 # Run CI-like benchmark gate locally (strict + monitor)
 ./scripts/run_benchmark_ci_gate.sh --runs 2 --strict-threshold-pct 50 --monitor-bench timer_queue_benchmark:60 --monitor-bench directory_entry_cache_benchmark:25 --monitor-budget-seconds 240 --monitor-case-timeout-seconds 150
 
+# Generate rolling monitor policy recommendations from evidence
+./scripts/recommend_monitor_policy.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark --lookback 6 --min-samples 2 --headroom-pct 15 --floor-pct 5 --ceil-pct 80
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```

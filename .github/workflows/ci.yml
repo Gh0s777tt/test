@@ -213,10 +213,24 @@ jobs:
           --monitor-case-timeout-seconds 150
           --baseline-prefix ci_repro
 
+      - name: Generate rolling monitor policy recommendations
+        if: ${{ always() }}
+        run: >
+          ./scripts/recommend_monitor_policy.sh
+          --bench timer_queue_benchmark
+          --bench directory_entry_cache_benchmark
+          --lookback 6
+          --min-samples 2
+          --headroom-pct 15
+          --floor-pct 5
+          --ceil-pct 80
+
       - name: Upload reproducibility report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-reproducibility-report
-          path: analysis/benchmark_reproducibility/*.md
+          path: |
+            analysis/benchmark_reproducibility/*.md
+            analysis/benchmark_reproducibility/*.json
           if-no-files-found: warn
