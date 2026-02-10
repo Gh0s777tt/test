@@ -200,10 +200,10 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Run strict reproducibility check (timer queue)
+      - name: Run strict reproducibility check (path lookup cache)
         run: >
           ./scripts/benchmark_reproducibility.sh
-          --bench timer_queue_benchmark
+          --bench path_lookup_cache_benchmark
           --runs 2
           --spread-threshold-pct 10
           --strict
@@ -214,5 +214,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-reproducibility-report
-          path: analysis/benchmark_reproducibility/timer_queue_benchmark_*.md
+          path: analysis/benchmark_reproducibility/path_lookup_cache_benchmark_*.md
           if-no-files-found: warn
