@@ -56,6 +56,7 @@ pub enum RegistryValue {
 
 /// Registry key structure
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct RegistryKey {
     /// Key path
     path: String,

@@ -258,6 +258,7 @@ pub struct SchedulerStatistics {
 
 // Non-Verus version (without formal verification)
 #[cfg(not(feature = "verus"))]
+#[allow(dead_code)]
 pub struct NeuralSchedulerIntegration {
     neural_scheduler: NeuralScheduler,
     predictors: Vec<WorkloadPredictor>,

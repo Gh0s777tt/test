@@ -198,6 +198,7 @@ impl SchedTask {
 
 /// Run queue for a specific priority level
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct RunQueue {
     priority: SchedPriority,
     tasks: Vec<SchedTask>,

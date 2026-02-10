@@ -134,6 +134,7 @@ impl ThreadInformationClass {
 }
 
 /// System call translator
+#[allow(dead_code)]
 pub struct SyscallTranslator {
     /// NT API emulator
     nt_api: &'static NtApiEmulator,

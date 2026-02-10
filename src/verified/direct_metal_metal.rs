@@ -11,6 +11,8 @@
 //! - Shader compilation and caching
 //! - iOS/macOS compatibility
 
+#![allow(dead_code)]
+
 use crate::direct_metal_backend::{
     GpuBackend, BackendType, BackendCapabilities, BackendConfig, BackendResult,
     BackendError, DeviceInfo, DeviceType, MemoryType, PipelineType,
@@ -52,6 +54,7 @@ pub struct MetalBackend {
 
 /// Metal device information
 #[derive(Clone)]
+#[allow(dead_code)]
 struct MetalDeviceInfo {
     /// Device handle (in real implementation, this would be MTLDevice)
     handle: u64,
@@ -73,6 +76,7 @@ struct MetalDeviceInfo {
     supports_mesh_shaders: bool,
 }
 
+#[allow(dead_code)]
 /// Metal logical device
 struct MetalDevice {
     /// Device handle
@@ -84,6 +88,7 @@ struct MetalDevice {
     /// Shader library
     library: Option<u64>,
 }
+#[allow(dead_code)]
 
 /// Metal buffer (represents GPU memory in Metal's unified memory model)
 struct MetalBuffer {
@@ -106,6 +111,7 @@ struct MetalBuffer {
 // 2. The Metal backend ensures proper synchronization
 unsafe impl Send for MetalBuffer {}
 unsafe impl Sync for MetalBuffer {}
+#[allow(dead_code)]
 
 /// Metal storage mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -117,6 +123,7 @@ enum MetalStorageMode {
     /// Private to GPU
     Private,
     /// Memoryless (tile memory, iOS only)
+#[allow(dead_code)]
     Memoryless,
 }
 
@@ -129,6 +136,7 @@ struct MetalCommandBuffer {
     /// Recording state
     recording: bool,
     /// Current encoder
+#[allow(dead_code)]
     current_encoder: Option<MetalEncoder>,
 }
 
@@ -138,6 +146,7 @@ enum MetalEncoder {
     /// Render command encoder
     Render(u64),
     /// Compute command encoder
+#[allow(dead_code)]
     Compute(u64),
     /// Blit command encoder
     Blit(u64),
@@ -149,6 +158,7 @@ struct MetalFence {
     id: u64,
     /// Device ID
     device_id: GpuDeviceId,
+#[allow(dead_code)]
     /// Signaled state
     signaled: bool,
     /// Associated command buffer (if any)

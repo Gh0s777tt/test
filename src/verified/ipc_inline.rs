@@ -224,6 +224,7 @@ impl MessageInline {
 
 /// Message queue with inline storage optimization
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct MessageQueueInline {
     /// Process ID this queue belongs to
     pid: Pid,

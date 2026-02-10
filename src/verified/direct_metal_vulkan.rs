@@ -11,6 +11,8 @@
 //! - Command buffer pooling
 //! - Pipeline caching
 
+#![allow(dead_code)]
+
 use crate::direct_metal_backend::{
     GpuBackend, BackendType, BackendCapabilities, BackendConfig, BackendResult,
     BackendError, DeviceInfo, DeviceType, MemoryType, PipelineType,
@@ -53,6 +55,7 @@ pub struct VulkanBackend {
 }
 
 /// Vulkan instance wrapper
+#[allow(dead_code)]
 struct VulkanInstance {
     /// Instance handle (in real implementation, this would be ash::Instance)
     handle: u64,
@@ -61,6 +64,7 @@ struct VulkanInstance {
 }
 
 /// Vulkan physical device
+#[allow(dead_code)]
 #[derive(Clone)]
 struct VulkanPhysicalDevice {
     /// Device handle
@@ -71,6 +75,7 @@ struct VulkanPhysicalDevice {
     queue_families: Vec<VulkanQueueFamily>,
 }
 
+#[allow(dead_code)]
 /// Vulkan device properties
 #[derive(Clone)]
 struct VulkanDeviceProperties {
@@ -98,6 +103,7 @@ struct VulkanMemoryHeap {
     /// Device local flag
     device_local: bool,
 }
+#[allow(dead_code)]
 
 /// Vulkan queue family
 #[derive(Clone)]
@@ -111,6 +117,7 @@ struct VulkanQueueFamily {
     /// Supports compute
     compute: bool,
     /// Supports transfer
+#[allow(dead_code)]
     transfer: bool,
 }
 
@@ -126,6 +133,7 @@ struct VulkanDevice {
     compute_queue: Option<u64>,
     /// Transfer queue
     transfer_queue: Option<u64>,
+#[allow(dead_code)]
     /// Command pool
     command_pool: u64,
 }
@@ -145,6 +153,7 @@ struct VulkanMemory {
 }
 
 // SAFETY: VulkanMemory is safe to send between threads because:
+#[allow(dead_code)]
 // 1. The mapped_ptr is only used within synchronized contexts
 // 2. The Vulkan backend ensures proper synchronization
 unsafe impl Send for VulkanMemory {}
@@ -154,6 +163,7 @@ unsafe impl Sync for VulkanMemory {}
 struct VulkanCommandBuffer {
     /// Command buffer handle
     handle: u64,
+#[allow(dead_code)]
     /// Device ID
     device_id: GpuDeviceId,
     /// Recording state
@@ -163,6 +173,7 @@ struct VulkanCommandBuffer {
 /// Vulkan fence
 struct VulkanFence {
     /// Fence handle
+#[allow(dead_code)]
     handle: u64,
     /// Device ID
     device_id: GpuDeviceId,

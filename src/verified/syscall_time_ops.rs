@@ -116,6 +116,7 @@ pub type TimeOpResult<T> = Result<T, TimeOpError>;
 
 /// Timer entry
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct TimerEntry {
     /// Timer information
     info: TimerInfo,
