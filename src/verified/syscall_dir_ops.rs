@@ -616,14 +616,15 @@ mod tests {
     #[test]
     fn test_directory_cache_stats_repeated_chdir() {
         reset_directory_entry_cache();
+        let baseline = directory_entry_cache_stats();
 
         let mut wd = WorkingDirectory::new();
         assert!(sys_chdir(&mut wd, Path::new("/usr")).is_ok()); // miss
         assert!(sys_chdir(&mut wd, Path::new("/usr")).is_ok()); // hit
 
         let stats = directory_entry_cache_stats();
-        assert_eq!(stats.misses, 1);
-        assert_eq!(stats.hits, 1);
+        assert_eq!(stats.misses.saturating_sub(baseline.misses), 1);
+        assert_eq!(stats.hits.saturating_sub(baseline.hits), 1);
     }
 
     #[test]
