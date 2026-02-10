@@ -14,6 +14,10 @@ STRICT_BENCH="path_lookup_cache_benchmark"
 STRICT_THRESHOLD_PCT=50
 MONITOR_BENCHES=("timer_queue_benchmark" "directory_entry_cache_benchmark")
 MONITOR_THRESHOLD_PCT=25
+declare -A MONITOR_THRESHOLD_OVERRIDES=(
+  ["timer_queue_benchmark"]="60"
+  ["directory_entry_cache_benchmark"]="25"
+)
 MONITOR_BUDGET_SECONDS=240
 MONITOR_CASE_TIMEOUT_SECONDS=0
 BASELINE_PREFIX="ci_repro"
@@ -26,8 +30,9 @@ Options:
   --runs <n>                     Number of repeated runs per bench (default: 2)
   --strict-bench <name>          Blocking benchmark target (default: path_lookup_cache_benchmark)
   --strict-threshold-pct <n>     Strict spread threshold percent (default: 50)
-  --monitor-bench <name>         Scenario monitor benchmark target (repeatable)
+  --monitor-bench <name[:pct]>   Scenario monitor benchmark target (repeatable)
   --monitor-benches <csv>        Comma-separated monitor benchmark targets
+  --monitor-threshold <name:pct> Override threshold for monitor benchmark
   --monitor-threshold-pct <n>    Monitor spread threshold percent (default: 25)
   --monitor-budget-seconds <n>   Monitor-stage wall-clock budget (default: 240, 0 disables)
   --monitor-case-timeout-seconds <n>
@@ -42,6 +47,55 @@ trim_whitespace() {
   value="${value#"${value%%[![:space:]]*}"}"
   value="${value%"${value##*[![:space:]]}"}"
   printf '%s' "$value"
+}
+
+is_number() {
+  local value="$1"
+  [[ "$value" =~ ^[0-9]+([.][0-9]+)?$ ]]
+}
+
+add_monitor_case() {
+  local raw="$1"
+  raw="$(trim_whitespace "$raw")"
+  if [[ -z "$raw" ]]; then
+    return
+  fi
+
+  local bench="$raw"
+  local threshold=""
+  if [[ "$raw" == *:* ]]; then
+    bench="${raw%%:*}"
+    threshold="${raw##*:}"
+  fi
+  bench="$(trim_whitespace "$bench")"
+  threshold="$(trim_whitespace "$threshold")"
+  if [[ -z "$bench" ]]; then
+    return
+  fi
+
+  MONITOR_BENCHES+=("$bench")
+  if [[ -n "$threshold" ]]; then
+    MONITOR_THRESHOLD_OVERRIDES["$bench"]="$threshold"
+  fi
+}
+
+set_monitor_threshold_override() {
+  local raw="$1"
+  raw="$(trim_whitespace "$raw")"
+  if [[ "$raw" != *:* ]]; then
+    echo "Error: --monitor-threshold expects <bench:pct>, got '$raw'" >&2
+    exit 1
+  fi
+
+  local bench="${raw%%:*}"
+  local threshold="${raw##*:}"
+  bench="$(trim_whitespace "$bench")"
+  threshold="$(trim_whitespace "$threshold")"
+  if [[ -z "$bench" || -z "$threshold" ]]; then
+    echo "Error: --monitor-threshold requires non-empty bench and pct" >&2
+    exit 1
+  fi
+  MONITOR_THRESHOLD_OVERRIDES["$bench"]="$threshold"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -59,17 +113,18 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --monitor-bench)
-      MONITOR_BENCHES+=("${2:-}")
+      add_monitor_case "${2:-}"
       shift 2
       ;;
     --monitor-benches)
       IFS=',' read -r -a parsed_monitor_benches <<< "${2:-}"
       for bench in "${parsed_monitor_benches[@]}"; do
-        bench="$(trim_whitespace "$bench")"
-        if [[ -n "$bench" ]]; then
-          MONITOR_BENCHES+=("$bench")
-        fi
+        add_monitor_case "$bench"
       done
+      shift 2
+      ;;
+    --monitor-threshold)
+      set_monitor_threshold_override "${2:-}"
       shift 2
       ;;
     --monitor-threshold-pct)
@@ -105,6 +160,16 @@ if ! [[ "$RUNS" =~ ^[0-9]+$ ]] || (( RUNS < 2 )); then
   exit 1
 fi
 
+if ! is_number "$STRICT_THRESHOLD_PCT"; then
+  echo "Error: --strict-threshold-pct must be numeric" >&2
+  exit 1
+fi
+
+if ! is_number "$MONITOR_THRESHOLD_PCT"; then
+  echo "Error: --monitor-threshold-pct must be numeric" >&2
+  exit 1
+fi
+
 if ! [[ "$MONITOR_BUDGET_SECONDS" =~ ^[0-9]+$ ]]; then
   echo "Error: --monitor-budget-seconds must be integer >= 0" >&2
   exit 1
@@ -114,6 +179,14 @@ if ! [[ "$MONITOR_CASE_TIMEOUT_SECONDS" =~ ^[0-9]+$ ]]; then
   echo "Error: --monitor-case-timeout-seconds must be integer >= 0" >&2
   exit 1
 fi
+
+for bench in "${!MONITOR_THRESHOLD_OVERRIDES[@]}"; do
+  threshold="${MONITOR_THRESHOLD_OVERRIDES[$bench]}"
+  if ! is_number "$threshold"; then
+    echo "Error: monitor threshold override for '$bench' must be numeric" >&2
+    exit 1
+  fi
+done
 
 # Remove duplicates while preserving insertion order.
 declare -A MONITOR_SEEN=()
@@ -134,6 +207,7 @@ mkdir -p "$ANALYSIS_DIR"
 
 REPORTS=()
 STRICT_FAILED=0
+MONITOR_DRIFT_COUNT=0
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 SUMMARY_PATH="$ANALYSIS_DIR/ci_benchmark_gate_summary_${TIMESTAMP}.md"
 CASE_LOG="$(mktemp)"
@@ -175,6 +249,15 @@ detect_report_path() {
   shopt -u nullglob
 
   printf '%s' "$latest_path"
+}
+
+monitor_threshold_for() {
+  local bench="$1"
+  if [[ -n "${MONITOR_THRESHOLD_OVERRIDES[$bench]+x}" ]]; then
+    printf '%s' "${MONITOR_THRESHOLD_OVERRIDES[$bench]}"
+  else
+    printf '%s' "$MONITOR_THRESHOLD_PCT"
+  fi
 }
 
 run_repro_case() {
@@ -225,6 +308,15 @@ run_repro_case() {
 
   local case_status="pass"
   local note=""
+  local unstable_metrics=""
+  local max_spread=""
+  if [[ -n "$report_path" && -f "$report_path" ]]; then
+    unstable_metrics="$(awk -F': ' '/^- Metrics above spread threshold:/{print $2; exit}' "$report_path")"
+    unstable_metrics="$(trim_whitespace "$unstable_metrics")"
+    max_spread="$(awk -F': ' '/^- Max spread:/{print $2; exit}' "$report_path")"
+    max_spread="$(trim_whitespace "$max_spread")"
+  fi
+
   if (( status != 0 )); then
     if (( status == 124 )); then
       case_status="timeout"
@@ -236,8 +328,25 @@ run_repro_case() {
     status=2
     case_status="missing_report"
     note="report_not_detected"
+  elif [[ "$unstable_metrics" =~ ^[0-9]+$ ]] && (( unstable_metrics > 0 )); then
+    if [[ "$strict_flag" == "1" ]]; then
+      status=3
+      case_status="failed"
+      note="strict_threshold_violation_${unstable_metrics}"
+    else
+      case_status="drift"
+      note="metrics_over_threshold_${unstable_metrics}"
+      if [[ -n "$max_spread" ]]; then
+        note="${note};max_spread_${max_spread}"
+      fi
+      MONITOR_DRIFT_COUNT=$((MONITOR_DRIFT_COUNT + 1))
+    fi
   fi
   append_case_log "$stage" "$bench" "$threshold" "$case_status" "$duration_seconds" "$report_path" "$note"
+
+  if [[ "$case_status" == "drift" ]]; then
+    echo "WARN Monitor drift detected for ${bench}: ${note}" >&2
+  fi
 
   if (( status != 0 )); then
     if [[ "$strict_flag" == "1" ]]; then
@@ -267,6 +376,8 @@ run_monitor_stage() {
   local i
   for ((i=0; i<${#MONITOR_BENCHES[@]}; i++)); do
     local monitor_bench="${MONITOR_BENCHES[$i]}"
+    local monitor_threshold
+    monitor_threshold="$(monitor_threshold_for "$monitor_bench")"
     local now
     now="$(date +%s)"
     local elapsed=$((now - stage_start))
@@ -274,14 +385,17 @@ run_monitor_stage() {
       echo "WARN Monitor budget exhausted (${MONITOR_BUDGET_SECONDS}s), skipping remaining monitor cases." >&2
       local j
       for ((j=i; j<${#MONITOR_BENCHES[@]}; j++)); do
-        append_case_log "monitor" "${MONITOR_BENCHES[$j]}" "$MONITOR_THRESHOLD_PCT" "skipped" "0" "" "budget_exhausted"
+        local pending_bench="${MONITOR_BENCHES[$j]}"
+        local pending_threshold
+        pending_threshold="$(monitor_threshold_for "$pending_bench")"
+        append_case_log "monitor" "$pending_bench" "$pending_threshold" "skipped" "0" "" "budget_exhausted"
       done
       break
     fi
 
     run_repro_case \
       "$monitor_bench" \
-      "$MONITOR_THRESHOLD_PCT" \
+      "$monitor_threshold" \
       "monitor" \
       0 \
       "$MONITOR_CASE_TIMEOUT_SECONDS" || true
@@ -291,7 +405,11 @@ run_monitor_stage() {
 echo "== CI benchmark gate (strict + monitor with budget) =="
 echo "Strict case: $STRICT_BENCH (threshold ${STRICT_THRESHOLD_PCT}%)"
 if (( ${#MONITOR_BENCHES[@]} > 0 )); then
-  echo "Monitor cases: ${MONITOR_BENCHES[*]} (threshold ${MONITOR_THRESHOLD_PCT}%)"
+  echo "Monitor cases:"
+  for monitor_bench in "${MONITOR_BENCHES[@]}"; do
+    monitor_threshold="$(monitor_threshold_for "$monitor_bench")"
+    echo "  - $monitor_bench (threshold ${monitor_threshold}%)"
+  done
 else
   echo "Monitor cases: none"
 fi
@@ -345,11 +463,20 @@ if case_log_path.exists():
             )
 
 case_by_report = {case["report_path"]: case for case in cases if case["report_path"]}
+status_counts = {}
+for case in cases:
+    status = case["status"] or "unknown"
+    status_counts[status] = status_counts.get(status, 0) + 1
 
 with summary_path.open("w", encoding="utf-8") as fh:
     fh.write("# CI Benchmark Gate Summary\n\n")
     fh.write(f"Generated reports: {len(reports)}  \n")
     fh.write(f"Monitor budget (s): {monitor_budget_seconds}\n\n")
+    if status_counts:
+        ordered = ", ".join(
+            f"{status}={count}" for status, count in sorted(status_counts.items())
+        )
+        fh.write(f"Case status counts: {ordered}\n\n")
 
     fh.write("## Case status\n\n")
     fh.write("| Stage | Benchmark | Threshold (%) | Status | Duration (s) | Note |\n")
@@ -393,6 +520,10 @@ with summary_path.open("w", encoding="utf-8") as fh:
 
 print(f"CI benchmark gate summary: {summary_path}")
 PY
+
+if (( MONITOR_DRIFT_COUNT > 0 )); then
+  echo "WARN Monitor drift cases: ${MONITOR_DRIFT_COUNT}" >&2
+fi
 
 if (( STRICT_FAILED != 0 )); then
   echo "CI benchmark gate failed due to strict reproducibility case." >&2

@@ -169,7 +169,7 @@ maintenance scripts from `scripts/`:
 ./scripts/benchmark_reproducibility.sh --bench timer_queue_benchmark --runs 2
 
 # Run CI-like benchmark gate locally (strict + monitor)
-./scripts/run_benchmark_ci_gate.sh --runs 2 --strict-threshold-pct 50 --monitor-bench timer_queue_benchmark --monitor-bench directory_entry_cache_benchmark --monitor-threshold-pct 25 --monitor-budget-seconds 240 --monitor-case-timeout-seconds 150
+./scripts/run_benchmark_ci_gate.sh --runs 2 --strict-threshold-pct 50 --monitor-bench timer_queue_benchmark:60 --monitor-bench directory_entry_cache_benchmark:25 --monitor-budget-seconds 240 --monitor-case-timeout-seconds 150
 
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh

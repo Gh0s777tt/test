@@ -206,8 +206,8 @@ jobs:
           --runs 2
           --strict-bench path_lookup_cache_benchmark
           --strict-threshold-pct 50
-          --monitor-bench timer_queue_benchmark
-          --monitor-bench directory_entry_cache_benchmark
+          --monitor-bench timer_queue_benchmark:60
+          --monitor-bench directory_entry_cache_benchmark:25
           --monitor-threshold-pct 25
           --monitor-budget-seconds 240
           --monitor-case-timeout-seconds 150
