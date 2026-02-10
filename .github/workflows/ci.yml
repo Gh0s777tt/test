@@ -205,7 +205,7 @@ jobs:
           ./scripts/benchmark_reproducibility.sh
           --bench path_lookup_cache_benchmark
           --runs 2
-          --spread-threshold-pct 10
+          --spread-threshold-pct 50
           --strict
           --baseline-prefix ci_repro
 

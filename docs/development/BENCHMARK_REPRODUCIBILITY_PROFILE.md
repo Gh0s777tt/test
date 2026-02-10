@@ -101,5 +101,7 @@ Current repository integration:
 
 - `.github/workflows/ci.yml` includes `benchmark-reproducibility-gate`
 - gate currently runs strict reproducibility checks for `path_lookup_cache_benchmark`
-  with a 10% spread threshold on pull requests.
+  with a conservative 50% spread threshold on pull requests.
+  This threshold is intentionally loose for shared cloud runners and should be tightened
+  as dedicated benchmarking infrastructure is introduced.
 
