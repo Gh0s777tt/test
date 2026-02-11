@@ -104,7 +104,7 @@ require_cmd mkfs.vfat
 require_cmd mkfs.ext4
 require_cmd mmd
 require_cmd mcopy
-require_cmd sfdisk
+require_cmd parted
 require_cmd rustc
 require_cmd busybox
 require_cmd rg
@@ -185,8 +185,10 @@ build_installed_system_image() {
   rm -f "$raw_img" "$gz_img" "$esp_img" "$data_img"
   truncate -s "$disk_bytes" "$raw_img"
 
-  printf 'label: dos\nunit: sectors\n\n%s,%s,c,*\n%s,%s,83\n' \
-    "$esp_start" "$esp_sectors" "$data_start" "$data_sectors" | sfdisk "$raw_img" >/dev/null
+  parted -s "$raw_img" unit s mklabel msdos
+  parted -s "$raw_img" unit s mkpart primary fat32 "${esp_start}s" "$((esp_start + esp_sectors - 1))s"
+  parted -s "$raw_img" set 1 boot on
+  parted -s "$raw_img" unit s mkpart primary ext4 "${data_start}s" "$((data_start + data_sectors - 1))s"
 
   truncate -s "$esp_bytes" "$esp_img"
   mkfs.vfat -F 32 -n VANTIS_BOOT "$esp_img" >/dev/null
@@ -202,7 +204,7 @@ build_installed_system_image() {
   mcopy -i "$esp_img" "$stamp_file" ::/install_stamp.txt
 
   truncate -s "$data_bytes" "$data_img"
-  mkfs.ext4 -F -L VANTIS_DATA "$data_img" >/dev/null
+  mkfs.ext4 -F -L VANTIS_DATA -O ^64bit,^metadata_csum "$data_img" >/dev/null
 
   dd if="$esp_img" of="$raw_img" bs="$sector_size" seek="$esp_start" conv=notrunc status=none
   dd if="$data_img" of="$raw_img" bs="$sector_size" seek="$data_start" conv=notrunc status=none
