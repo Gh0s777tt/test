@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70537216` bytes
+- Size: `70561792` bytes
 - SHA-256:
-  `5337e70ec25464d87ea30f742e761ff1acfa9d0ad52701dc77bcb5dd227312e9`
+  `b290ae953221639ba274299056c2f2eca4f12521e59fcbee57bd72ed4206eb33`
 
 ## Build command
 
@@ -22,15 +22,15 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T220602Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T223554Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T220657Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T223649Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T221037Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T224029Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -43,7 +43,8 @@ Observed runtime behavior:
 - `ai` command returns `Cortex: system ready (offline)`,
 - `exit` no longer causes kernel panic; shell session is restarted by PID1,
 - installer command writes a prebuilt bootable system image to target disk,
-- installed disk boots to the same `vantis>` shell successfully.
+- installed disk boots to the same `vantis>` shell successfully,
+- installed mode performs first-boot setup and reports completion telemetry.
 
 ## Reproduce
 
