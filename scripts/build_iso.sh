@@ -558,4 +558,57 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     echo "Installed boot log: $BOOT_LOG" >&2
     exit 1
   fi
+
+  REBOOT_LOG="$ANALYSIS_DIR/iso_installed_reboot_$(date -u +%Y%m%dT%H%M%SZ).log"
+  REBOOT_RC=0
+  if [[ -n "$OVMF_CODE" && -n "$OVMF_VARS" ]]; then
+    OVMF_VARS_COPY_REBOOT="$WORK_DIR/OVMF_VARS_INSTALL_REBOOT.fd"
+    cp "$OVMF_VARS" "$OVMF_VARS_COPY_REBOOT"
+    {
+      sleep 14
+      echo "firstboot"
+      sleep 1
+      echo "config show"
+      sleep 1
+    } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
+      -machine q35 \
+      -m 1024 \
+      -serial mon:stdio \
+      -display none \
+      -no-reboot \
+      -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
+      -drive if=pflash,format=raw,file="$OVMF_VARS_COPY_REBOOT" \
+      -drive file="$INSTALL_DISK",if=virtio,format=qcow2 >"$REBOOT_LOG" 2>&1 || REBOOT_RC=$?
+  else
+    {
+      sleep 14
+      echo "firstboot"
+      sleep 1
+      echo "config show"
+      sleep 1
+    } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
+      -m 1024 \
+      -serial mon:stdio \
+      -display none \
+      -no-reboot \
+      -drive file="$INSTALL_DISK",if=virtio,format=qcow2 >"$REBOOT_LOG" 2>&1 || REBOOT_RC=$?
+  fi
+  if [[ "$REBOOT_RC" != "0" && "$REBOOT_RC" != "124" ]]; then
+    echo "Error: installed-disk reboot validation failed (qemu code=$REBOOT_RC)" >&2
+    echo "Installed reboot log: $REBOOT_LOG" >&2
+    exit 1
+  fi
+  if rg -q '\[VANTIS\] persistent storage active:' "$REBOOT_LOG" \
+    && rg -q '\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$REBOOT_LOG" \
+    && rg -q 'first_boot: done' "$REBOOT_LOG" \
+    && rg -q 'hostname=vantis-lab' "$REBOOT_LOG" \
+    && rg -q 'user=operator' "$REBOOT_LOG" \
+    && rg -q 'profile=wraith' "$REBOOT_LOG"; then
+    echo "Installer reboot validation passed: persisted config survived reboot"
+    echo "Installed reboot log: $REBOOT_LOG"
+  else
+    echo "Error: installed reboot did not preserve expected persisted config" >&2
+    echo "Installed reboot log: $REBOOT_LOG" >&2
+    exit 1
+  fi
 fi
