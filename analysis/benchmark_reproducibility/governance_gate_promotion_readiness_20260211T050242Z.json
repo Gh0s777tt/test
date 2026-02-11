@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "description": "Drill samples in rolling window >= 3",
+      "id": "drill_sample_sufficient",
+      "passed": true,
+      "target": ">= 3",
+      "value": 4
+    },
+    {
+      "description": "Drill pass rate (%) >= 95.00",
+      "id": "drill_pass_rate_ok",
+      "passed": true,
+      "target": ">= 95.00",
+      "value": 100.0
+    },
+    {
+      "description": "Blocked handoff count <= 0",
+      "id": "blocked_handoff_limit_ok",
+      "passed": true,
+      "target": "<= 0",
+      "value": 0
+    },
+    {
+      "description": "Breach-detected route count <= 0",
+      "id": "breach_detected_limit_ok",
+      "passed": true,
+      "target": "<= 0",
+      "value": 0
+    }
+  ],
+  "generated_at_utc": "2026-02-11T05:02:42Z",
+  "inputs": {
+    "analysis_dir": "analysis/benchmark_reproducibility",
+    "explicit_breach_route_json": "n/a",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+    "window_days_override": "n/a"
+  },
+  "latest_artifacts": {
+    "latest_breach_route_json": "analysis/benchmark_reproducibility/monitor_drift_breach_route_20260211T050242Z.json",
+    "latest_drill_json": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T050242Z.json",
+    "latest_handoff_json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T050242Z.json"
+  },
+  "overall_ready": true,
+  "pilot_checklist": [
+    {
+      "description": "Promotion policy JSON is readable and parsed.",
+      "details": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+      "id": "promotion_policy_loaded",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Enforced-mode governance controls are explicitly defined.",
+      "details": "required keys: enforce_on_breach, require_pr_mitigation, require_breach_ack_token",
+      "id": "enforced_controls_defined",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest canonical breach-route artifact is present.",
+      "details": "analysis/benchmark_reproducibility/monitor_drift_breach_route_20260211T050242Z.json",
+      "id": "latest_breach_route_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest canonical handoff artifact is present.",
+      "details": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T050242Z.json",
+      "id": "latest_handoff_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest canonical drill artifact is present.",
+      "details": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T050242Z.json",
+      "id": "latest_drill_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Promotion readiness thresholds are satisfied.",
+      "details": "recommended_mode=enforced",
+      "id": "readiness_thresholds_met",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest breach route does not indicate immediate blocking state.",
+      "details": "would_block_in_active_mode=no",
+      "id": "current_route_not_blocking",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest handoff status is not blocked.",
+      "details": "overall_status=ready",
+      "id": "current_handoff_not_blocked",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Operator pilot acknowledgment token supplied.",
+      "details": "expected=PILOT-ACK, provided=no",
+      "id": "operator_ack_token",
+      "required": false,
+      "status": "advisory"
+    }
+  ],
+  "pilot_go_no_go": "go",
+  "pilot_required_failures": [],
+  "policy": {
+    "active_mode": "advisory",
+    "enforced_controls_defined": true,
+    "pilot_expected_ack_token": "PILOT-ACK"
+  },
+  "recommended_mode": "enforced",
+  "telemetry_summary": {
+    "blocked_handoff_count": 0,
+    "breach_detected_count": 0,
+    "breach_route_samples": 3,
+    "breach_skipped": 0,
+    "breach_would_block_count": 0,
+    "drill_pass_count": 4,
+    "drill_pass_rate_pct": 100.0,
+    "drill_samples": 4,
+    "drill_skipped": 0,
+    "handoff_samples": 5,
+    "handoff_skipped": 0,
+    "window_start_utc": "2026-01-28T05:02:42Z"
+  },
+  "thresholds": {
+    "max_blocked_handoff_count": 0,
+    "max_breach_detected_count": 0,
+    "min_drill_pass_rate_pct": 95.0,
+    "min_drill_samples": 3,
+    "window_days": 14
+  }
+}

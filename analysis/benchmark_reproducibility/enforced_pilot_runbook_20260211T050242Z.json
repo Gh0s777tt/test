@@ -1,0 +1,114 @@
+{
+  "consecutive_counters": {
+    "consecutive_blocked_handoffs": 0,
+    "consecutive_blocking_breach_routes": 0,
+    "consecutive_failed_drills": 0,
+    "consecutive_not_ready_assessments": 0
+  },
+  "generated_at_utc": "2026-02-11T05:02:42Z",
+  "guardrail_breaches": [],
+  "guardrails_ok": true,
+  "inputs": {
+    "analysis_dir": "analysis/benchmark_reproducibility",
+    "breach_route_json": "analysis/benchmark_reproducibility/monitor_drift_breach_route_20260211T050242Z.json",
+    "drill_json": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T050242Z.json",
+    "handoff_json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T050242Z.json",
+    "pilot_mode_arg": "auto",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+    "readiness_json": "analysis/benchmark_reproducibility/governance_gate_promotion_readiness_20260211T050242Z.json"
+  },
+  "operator_decision": "go",
+  "policy": {
+    "active_mode_from_policy": "advisory",
+    "active_mode_used": "advisory",
+    "expected_ops_ack_token": "PILOT-ACK",
+    "guardrails": {
+      "auto_revert_to_advisory_on_guardrail_breach": true,
+      "max_consecutive_blocked_handoffs": 0,
+      "max_consecutive_blocking_breach_routes": 0,
+      "max_consecutive_failed_drills": 0,
+      "max_consecutive_not_ready_assessments": 0,
+      "require_ops_ack_token": false,
+      "require_pilot_go_signal": true,
+      "require_readiness_ready": true
+    },
+    "required_checks": [
+      "promotion_policy_loaded",
+      "enforced_controls_defined",
+      "latest_breach_route_present",
+      "latest_handoff_present",
+      "latest_drill_present",
+      "readiness_thresholds_met",
+      "current_route_not_blocking",
+      "current_handoff_not_blocked"
+    ]
+  },
+  "preflight_checks": [
+    {
+      "details": "analysis/benchmark_reproducibility/governance_gate_promotion_readiness_20260211T050242Z.json",
+      "id": "readiness_artifact_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "details": "all required checks passed",
+      "id": "required_readiness_checks_passed",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "details": "overall_ready=yes",
+      "id": "readiness_ready",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "details": "pilot_go_no_go=go",
+      "id": "readiness_go_signal",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "details": "overall_status=ready",
+      "id": "handoff_ready",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "details": "overall_status=pass",
+      "id": "drill_pass",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "details": "expected=PILOT-ACK, provided=no",
+      "id": "ops_ack_token",
+      "required": false,
+      "status": "advisory"
+    }
+  ],
+  "preflight_ok": true,
+  "preflight_required_failures": [],
+  "recommended_action": "promote_to_enforced_pilot",
+  "rollback_recommended": false,
+  "runbook_stage": "preflight",
+  "selected_stage": {
+    "actions": [
+      "Confirm promotion readiness artifact reports overall_ready and pilot_go_no_go=go.",
+      "Confirm latest release handoff is ready and latest drill status is pass.",
+      "Verify rollback guardrail thresholds and required checks from policy."
+    ],
+    "description": "Validate readiness and evidence before entering enforced pilot mode.",
+    "stage": "preflight"
+  },
+  "telemetry_snapshot": {
+    "breach_detected": false,
+    "breach_sources": [],
+    "breach_would_block_in_active_mode": false,
+    "drill_status": "pass",
+    "handoff_status": "ready",
+    "readiness_overall_ready": true,
+    "readiness_pilot_go": true,
+    "readiness_recommended_mode": "enforced"
+  }
+}

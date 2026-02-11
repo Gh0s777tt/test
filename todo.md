@@ -274,6 +274,12 @@
   - [x] Integrate promotion readiness artifact into CI, transition pack, and repo verification
   - [x] Validate full chain and publish Day 10 report
 
+- [x] Day 11: Enforced Pilot Execution Runbook and Rollback Guardrails
+  - [x] Add enforced pilot execution runbook generator from governance telemetry
+  - [x] Add machine-readable rollback guardrails and execution stages in promotion policy
+  - [x] Integrate runbook guardrails into CI, transition pack, governance gate, and repo verification
+  - [x] Validate full chain and publish Day 11 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
@@ -285,5 +291,6 @@
 - Week 10 Day 8: ✅ COMPLETE (strict handoff enforcement + release-readiness drill dry-run + readiness telemetry)
 - Week 10 Day 9: ✅ COMPLETE (breach evidence routing + promotion-aware governance gate strategy + evidence)
 - Week 10 Day 10: ✅ COMPLETE (promotion readiness scorecard + enforced pilot checklist + evidence)
-- Week 10 Progress: 10 milestone days complete
-- Next: Week 10 Day 11 - enforced pilot execution runbook and rollback guardrails
+- Week 10 Day 11: ✅ COMPLETE (enforced pilot runbook + rollback guardrails + evidence)
+- Week 10 Progress: 11 milestone days complete
+- Next: Week 10 Day 12 - enforced pilot burn-in telemetry SLO and rollback postmortem template

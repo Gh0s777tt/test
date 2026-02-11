@@ -1,0 +1,34 @@
+{
+  "expected_blocked_exit_code": 2,
+  "generated_at_utc": "2026-02-11T05:02:42Z",
+  "inputs": {
+    "real_escalation_json": "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T050242Z.json",
+    "simulated_escalation_json": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T050242Z.json"
+  },
+  "overall_status": "pass",
+  "require_transition_pack": false,
+  "scenarios": [
+    {
+      "actual_exit_code": 0,
+      "description": "Strict handoff against latest real escalation artifact.",
+      "expected_exit_code": 0,
+      "name": "strict_baseline_real",
+      "outputs": {
+        "json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_baseline_20260211T050242Z.json",
+        "markdown": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_baseline_20260211T050242Z.md"
+      },
+      "status": "pass"
+    },
+    {
+      "actual_exit_code": 2,
+      "description": "Strict handoff against simulated escalated artifact with missing governance artifacts.",
+      "expected_exit_code": 2,
+      "name": "strict_blocked_simulated_escalated",
+      "outputs": {
+        "json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T050242Z.json",
+        "markdown": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T050242Z.md"
+      },
+      "status": "pass"
+    }
+  ]
+}

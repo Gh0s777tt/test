@@ -1,0 +1,23 @@
+{
+  "changelog_entries": [
+    {
+      "date": "2026-02-10",
+      "decision": "unknown",
+      "proposal_id": "MONPOL-001",
+      "raw_decision": "n/a"
+    }
+  ],
+  "changelog_path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+  "errors": [],
+  "generated_at_utc": "2026-02-11T05:03:18Z",
+  "signoff_metadata_path": "governance/performance/MONPOL_SIGNOFFS.json",
+  "signoff_records": [],
+  "summary": {
+    "approved_changelog_entries": 0,
+    "changelog_entries": 1,
+    "errors": 0,
+    "signoff_records": 0,
+    "warnings": 0
+  },
+  "warnings": []
+}
