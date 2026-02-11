@@ -13,10 +13,23 @@ vantis> firstboot
 first_boot: done
 welcome: Welcome to VantisOS installed mode.
 vantis> config show
-first_boot_unix_utc=1770850526
-hostname=vantis-50526
+first_boot_unix_utc=1770851090
+hostname=vantis-51090
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=core
 user=vantis
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 297486 (timeout)
+vantis> config set hostname vantis-lab
+config updated: hostname=vantis-lab
+vantis> config set user operator
+config updated: user=operator
+vantis> config set profile wraith
+config updated: profile=wraith
+vantis> config show
+first_boot_unix_utc=1770851090
+hostname=vantis-lab
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=wraith
+user=operator
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 299324 (timeout)

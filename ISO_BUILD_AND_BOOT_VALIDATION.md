@@ -10,7 +10,7 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 - ISO path: `build/VantisOS-live.iso`
 - Size: `70590464` bytes
 - SHA-256:
-  `b6ff52de693036fccceb51745d0012b462f9db9a5635488d298896ee87489678`
+  `a9b2b665400a0de7dc53961753eee6249e53d4a1721e34146c14346f5c45907b`
 
 ## Build command
 
@@ -22,15 +22,15 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T225030Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T225939Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T225130Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T230054Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T225520Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T230444Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -45,9 +45,12 @@ Observed runtime behavior:
 - installer command writes a prebuilt bootable system image to target disk,
 - installed disk boots to the same `vantis>` shell successfully,
 - installed mode performs first-boot setup and reports completion telemetry,
-- installed shell validates first-boot status and shows generated config values via:
+- installed shell validates first-boot status and generated config values via:
   - `firstboot`
-  - `config show`.
+  - `config show`,
+  - `config set hostname vantis-lab`,
+  - `config set user operator`,
+  - `config set profile wraith`.
 
 ## Reproduce
 
