@@ -303,7 +303,6 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       else
         warn "monitor drift breach route generation skipped (handoff/drill prerequisites unavailable)"
       fi
-      rm -f "$TMP_BREACH_ROUTE_MD" "$TMP_BREACH_ROUTE_JSON"
     else
       warn "scripts/route_monitor_drift_breach_evidence.sh is missing or not executable"
     fi
@@ -337,6 +336,7 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       warn "scripts/generate_enforced_pilot_runbook.sh is missing or not executable"
     fi
 
+    rm -f "$TMP_BREACH_ROUTE_MD" "$TMP_BREACH_ROUTE_JSON"
     rm -f "$TMP_PROMOTION_READINESS_MD" "$TMP_PROMOTION_READINESS_JSON"
 
     rm -f "$TMP_HANDOFF_MD" "$TMP_HANDOFF_JSON"
