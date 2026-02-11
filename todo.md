@@ -254,6 +254,13 @@
   - [x] Integrate handoff checklist into CI, transition pack, and repo verification
   - [x] Validate full chain and publish Day 7 report
 
+- [x] Day 8: Strict Release-Readiness Enforcement Dry-Run
+  - [x] Enforce strict handoff checklist mode in CI path
+  - [x] Add strict release-readiness drill automation (pass + expected blocked fail)
+  - [x] Extend transition pack readiness with drill telemetry
+  - [x] Integrate drill verification into repository verification workflow
+  - [x] Validate full chain and publish Day 8 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
@@ -262,5 +269,6 @@
 - Week 10 Day 5: ✅ COMPLETE (proposal-to-merge latency telemetry + historical trend visibility + evidence)
 - Week 10 Day 6: ✅ COMPLETE (monitor drift escalation policy + CI automation + governance integration + evidence)
 - Week 10 Day 7: ✅ COMPLETE (owner/SLA escalation registry + release handoff checklist automation + evidence)
-- Week 10 Progress: 7 milestone days complete
-- Next: Week 10 Day 8 - strict-mode escalation drills and release-readiness enforcement dry-run
+- Week 10 Day 8: ✅ COMPLETE (strict handoff enforcement + release-readiness drill dry-run + readiness telemetry)
+- Week 10 Progress: 8 milestone days complete
+- Next: Week 10 Day 9 - escalation breach evidence routing and governance gate promotion strategy

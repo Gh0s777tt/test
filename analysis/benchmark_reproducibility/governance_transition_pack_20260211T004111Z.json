@@ -1,0 +1,443 @@
+{
+  "artifact_status": [
+    {
+      "exists": true,
+      "kind": "ci_summary",
+      "path": "analysis/benchmark_reproducibility/ci_benchmark_gate_summary_20260210T143639Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "recommendation_md",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "recommendation_json",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_recommendations_20260210T150630Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "dashboard_md",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260211T004110Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "dashboard_json",
+      "path": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260211T004110Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "proposal_md",
+      "path": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260211T004111Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "proposal_json",
+      "path": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260211T004111Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "scaffold_md",
+      "path": "analysis/benchmark_reproducibility/monpol_changelog_scaffold_MONPOL-002_20260211T004111Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "scaffold_json",
+      "path": "analysis/benchmark_reproducibility/monpol_changelog_scaffold_MONPOL-002_20260211T004111Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "signoff_validation_md",
+      "path": "analysis/benchmark_reproducibility/monpol_signoff_validation_20260211T004110Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "signoff_validation_json",
+      "path": "analysis/benchmark_reproducibility/monpol_signoff_validation_20260211T004110Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "escalation_md",
+      "path": "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T004111Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "escalation_json",
+      "path": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T004111Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "handoff_md",
+      "path": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T004111Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "handoff_json",
+      "path": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T004111Z.json"
+    },
+    {
+      "exists": true,
+      "kind": "release_readiness_drill_md",
+      "path": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T004111Z.md"
+    },
+    {
+      "exists": true,
+      "kind": "release_readiness_drill_json",
+      "path": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T004111Z.json"
+    }
+  ],
+  "ci_policy": {
+    "monitor_benches": [
+      {
+        "bench": "timer_queue_benchmark",
+        "threshold_pct": "60"
+      },
+      {
+        "bench": "directory_entry_cache_benchmark",
+        "threshold_pct": "25"
+      }
+    ],
+    "monitor_budget_seconds": "240",
+    "monitor_case_timeout_seconds": "150",
+    "strict_bench": "path_lookup_cache_benchmark",
+    "strict_threshold_pct": "50"
+  },
+  "docs_status": [
+    {
+      "exists": true,
+      "path": "docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json"
+    },
+    {
+      "exists": true,
+      "path": "governance/performance/MONPOL_SIGNOFFS.json"
+    }
+  ],
+  "escalation_telemetry": {
+    "critical_benches": [],
+    "escalated_benches": [
+      "simulated_release_readiness_benchmark"
+    ],
+    "fail_on_level": "none",
+    "fail_triggered": false,
+    "generated_at_utc": "2026-02-11T00:41:11Z",
+    "level_counts": {
+      "critical": 0,
+      "escalated": 1,
+      "normal": 0,
+      "watch": 0
+    },
+    "next_drill_due_utc": "2026-02-18T00:41:11Z",
+    "overall_level": "escalated",
+    "overall_owner_profile": {
+      "backup_owner": "Release Engineering Lead",
+      "drill_cadence_days": 7,
+      "owner": "Performance Incident Owner",
+      "release_handoff_required": true,
+      "response_sla_hours": 24,
+      "source_level": "escalated"
+    },
+    "owners_config_source": "/workspace/governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+    "rows": [
+      {
+        "backup_owner": "Release Engineering Lead",
+        "bench": "simulated_release_readiness_benchmark",
+        "consecutive_drift": 2,
+        "drift_count_window": 3,
+        "drift_rate_pct": 42.0,
+        "drill_cadence_days": 7,
+        "failure_count_window": 1,
+        "failure_rate_pct": 12.0,
+        "latest_status": "drift",
+        "level": "escalated",
+        "owner": "Performance Incident Owner",
+        "release_handoff_required": true,
+        "required_action": "Open/update MONPOL proposal with owner and mitigation plan.",
+        "response_sla_hours": 24,
+        "samples": 5,
+        "triggers": [
+          "simulated_dry_run"
+        ]
+      }
+    ],
+    "source": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T004111Z.json",
+    "window": {
+      "configured_runs": 5,
+      "evaluated_runs": 5
+    }
+  },
+  "generated_at_utc": "2026-02-11T00:41:11Z",
+  "handoff_telemetry": {
+    "generated_at_utc": "2026-02-11T00:41:11Z",
+    "items": [
+      {
+        "description": "Escalation policy document is present.",
+        "details": "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md",
+        "id": "policy_doc_present",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "description": "Escalation owner/SLA registry JSON is present.",
+        "details": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+        "id": "owners_registry_present",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "description": "Escalation assessment artifact is available.",
+        "details": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T004111Z.json",
+        "id": "escalation_artifact_present",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "description": "Overall escalation owner and SLA are defined.",
+        "details": "owner=Performance Incident Owner, sla_hours=24",
+        "id": "overall_owner_assigned",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "description": "Next escalation drill due time is defined.",
+        "details": "next_drill_due_utc=2026-02-18T00:41:11Z",
+        "id": "drill_due_defined",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "description": "Latest monitor policy dashboard artifact is present.",
+        "details": "n/a",
+        "id": "dashboard_artifact_present",
+        "required": true,
+        "status": "fail"
+      },
+      {
+        "description": "MONPOL proposal artifact present when release handoff is required.",
+        "details": "n/a",
+        "id": "proposal_artifact_present",
+        "required": true,
+        "status": "fail"
+      },
+      {
+        "description": "Governance transition pack artifact present when release handoff is required.",
+        "details": "n/a",
+        "id": "transition_pack_present",
+        "required": false,
+        "status": "advisory"
+      },
+      {
+        "description": "Signoff validation artifact present when release handoff is required.",
+        "details": "n/a",
+        "id": "signoff_validation_present",
+        "required": true,
+        "status": "fail"
+      }
+    ],
+    "next_drill_due_utc": "2026-02-18T00:41:11Z",
+    "overall_level": "escalated",
+    "overall_owner_profile": {
+      "backup_owner": "Release Engineering Lead",
+      "drill_cadence_days": 7,
+      "owner": "Performance Incident Owner",
+      "release_handoff_required": true,
+      "response_sla_hours": 24,
+      "source_level": "escalated"
+    },
+    "overall_status": "blocked",
+    "release_handoff_required": true,
+    "require_transition_pack": false,
+    "required_failures": [
+      {
+        "description": "Latest monitor policy dashboard artifact is present.",
+        "details": "n/a",
+        "id": "dashboard_artifact_present",
+        "required": true,
+        "status": "fail"
+      },
+      {
+        "description": "MONPOL proposal artifact present when release handoff is required.",
+        "details": "n/a",
+        "id": "proposal_artifact_present",
+        "required": true,
+        "status": "fail"
+      },
+      {
+        "description": "Signoff validation artifact present when release handoff is required.",
+        "details": "n/a",
+        "id": "signoff_validation_present",
+        "required": true,
+        "status": "fail"
+      }
+    ],
+    "source": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T004111Z.json",
+    "strict_mode": true
+  },
+  "latency_telemetry": {
+    "chronology_errors": [],
+    "invalid_merge_dates": [],
+    "latest_ok_entry": null,
+    "missing_proposal_artifacts": [
+      "MONPOL-001"
+    ],
+    "rows": [
+      {
+        "decision": "unknown",
+        "first_proposal_generated_at_utc": "n/a",
+        "latency_days": null,
+        "merge_date": "2026-02-10",
+        "proposal_file": "n/a",
+        "proposal_history_files": 0,
+        "proposal_id": "MONPOL-001",
+        "status": "missing_proposal_artifact"
+      }
+    ],
+    "summary": {
+      "chronology_error_count": 0,
+      "entries_evaluated": 1,
+      "invalid_merge_date_count": 0,
+      "latency_samples": 0,
+      "max_latency_days": null,
+      "median_latency_days": null,
+      "missing_proposal_artifact_count": 1,
+      "p90_latency_days": null,
+      "proposal_artifacts_discovered": 9,
+      "proposal_artifacts_skipped": 0
+    }
+  },
+  "monpol_registry": {
+    "changelog_path": "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+    "entry_count": 1,
+    "latest_date": "2026-02-10",
+    "latest_id": "MONPOL-001"
+  },
+  "readiness_checks": {
+    "approved_entries_have_signoff": true,
+    "artifacts_ready": true,
+    "changelog_has_entries": true,
+    "ci_workflow_present": true,
+    "docs_ready": true,
+    "escalation_artifact_present": true,
+    "escalation_owners_present": true,
+    "escalation_policy_present": true,
+    "handoff_artifact_present": true,
+    "handoff_not_blocked": false,
+    "latency_telemetry_present": true,
+    "release_readiness_drill_passed": true,
+    "release_readiness_drill_present": true,
+    "scripts_ready": true
+  },
+  "release_readiness_drill_telemetry": {
+    "expected_blocked_exit_code": 2,
+    "generated_at_utc": "2026-02-11T00:41:11Z",
+    "inputs": {
+      "real_escalation_json": "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T004111Z.json",
+      "simulated_escalation_json": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T004111Z.json"
+    },
+    "overall_status": "pass",
+    "require_transition_pack": false,
+    "scenarios": [
+      {
+        "actual_exit_code": 0,
+        "description": "Strict handoff against latest real escalation artifact.",
+        "expected_exit_code": 0,
+        "name": "strict_baseline_real",
+        "outputs": {
+          "json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_baseline_20260211T004111Z.json",
+          "markdown": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_baseline_20260211T004111Z.md"
+        },
+        "status": "pass"
+      },
+      {
+        "actual_exit_code": 2,
+        "description": "Strict handoff against simulated escalated artifact with missing governance artifacts.",
+        "expected_exit_code": 2,
+        "name": "strict_blocked_simulated_escalated",
+        "outputs": {
+          "json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T004111Z.json",
+          "markdown": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T004111Z.md"
+        },
+        "status": "pass"
+      }
+    ],
+    "source": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T004111Z.json"
+  },
+  "script_status": [
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/run_benchmark_ci_gate.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/recommend_monitor_policy.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/build_monitor_policy_dashboard.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/evaluate_monitor_drift_escalation.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/generate_monitor_threshold_proposal.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/scaffold_monpol_changelog_entry.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/generate_monitor_drift_release_handoff.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/run_monitor_drift_release_readiness_drill.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/validate_monpol_signoff_metadata.sh"
+    },
+    {
+      "executable": true,
+      "exists": true,
+      "path": "scripts/check_monitor_threshold_governance.sh"
+    }
+  ],
+  "signoff_telemetry": {
+    "approved_entries": [],
+    "approved_missing_signoff": [],
+    "approved_with_signoff": [],
+    "decision_counts": {},
+    "latest_signoff_record": null,
+    "record_count": 0,
+    "signoff_path": "governance/performance/MONPOL_SIGNOFFS.json"
+  },
+  "source_analysis_dir": "analysis/benchmark_reproducibility",
+  "workflow_path": ".github/workflows/ci.yml"
+}

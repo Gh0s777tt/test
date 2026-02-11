@@ -1,0 +1,114 @@
+{
+  "escalation_artifact": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T004111Z.json",
+  "generated_at_utc": "2026-02-11T00:41:11Z",
+  "items": [
+    {
+      "description": "Escalation policy document is present.",
+      "details": "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md",
+      "id": "policy_doc_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Escalation owner/SLA registry JSON is present.",
+      "details": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+      "id": "owners_registry_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Escalation assessment artifact is available.",
+      "details": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T004111Z.json",
+      "id": "escalation_artifact_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Overall escalation owner and SLA are defined.",
+      "details": "owner=Performance Incident Owner, sla_hours=24",
+      "id": "overall_owner_assigned",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Next escalation drill due time is defined.",
+      "details": "next_drill_due_utc=2026-02-18T00:41:11Z",
+      "id": "drill_due_defined",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest monitor policy dashboard artifact is present.",
+      "details": "n/a",
+      "id": "dashboard_artifact_present",
+      "required": true,
+      "status": "fail"
+    },
+    {
+      "description": "MONPOL proposal artifact present when release handoff is required.",
+      "details": "n/a",
+      "id": "proposal_artifact_present",
+      "required": true,
+      "status": "fail"
+    },
+    {
+      "description": "Governance transition pack artifact present when release handoff is required.",
+      "details": "n/a",
+      "id": "transition_pack_present",
+      "required": false,
+      "status": "advisory"
+    },
+    {
+      "description": "Signoff validation artifact present when release handoff is required.",
+      "details": "n/a",
+      "id": "signoff_validation_present",
+      "required": true,
+      "status": "fail"
+    }
+  ],
+  "latest_artifacts": {
+    "dashboard_json": "n/a",
+    "proposal_json": "n/a",
+    "signoff_validation_json": "n/a",
+    "transition_pack_json": "n/a"
+  },
+  "next_drill_due_utc": "2026-02-18T00:41:11Z",
+  "overall_level": "escalated",
+  "overall_owner_profile": {
+    "backup_owner": "Release Engineering Lead",
+    "drill_cadence_days": 7,
+    "owner": "Performance Incident Owner",
+    "release_handoff_required": true,
+    "response_sla_hours": 24,
+    "source_level": "escalated"
+  },
+  "overall_status": "blocked",
+  "owners_registry": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+  "policy_doc": "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md",
+  "release_handoff_required": true,
+  "require_transition_pack": false,
+  "required_failures": [
+    {
+      "description": "Latest monitor policy dashboard artifact is present.",
+      "details": "n/a",
+      "id": "dashboard_artifact_present",
+      "required": true,
+      "status": "fail"
+    },
+    {
+      "description": "MONPOL proposal artifact present when release handoff is required.",
+      "details": "n/a",
+      "id": "proposal_artifact_present",
+      "required": true,
+      "status": "fail"
+    },
+    {
+      "description": "Signoff validation artifact present when release handoff is required.",
+      "details": "n/a",
+      "id": "signoff_validation_present",
+      "required": true,
+      "status": "fail"
+    }
+  ],
+  "strict_mode": true
+}
