@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70590464` bytes
+- Size: `70907904` bytes
 - SHA-256:
-  `a9b2b665400a0de7dc53961753eee6249e53d4a1721e34146c14346f5c45907b`
+  `ed8c588eeb2fb83ecb2226dda283d0e02b9a8cb95fc85e1f836f7d449282d716`
 
 ## Build command
 
@@ -22,15 +22,15 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T225939Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T232305Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T230054Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T232430Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T230444Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T232830Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -45,6 +45,7 @@ Observed runtime behavior:
 - installer command writes a prebuilt bootable system image to target disk,
 - installed disk boots to the same `vantis>` shell successfully,
 - installed mode performs first-boot setup and reports completion telemetry,
+- installed mode mounts persistent storage from `LABEL=VANTIS_DATA` (`/dev/vda2` in smoke run),
 - installed shell validates first-boot status and generated config values via:
   - `firstboot`
   - `config show`,
