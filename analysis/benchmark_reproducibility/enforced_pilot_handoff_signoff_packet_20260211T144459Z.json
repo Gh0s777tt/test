@@ -1,0 +1,137 @@
+{
+  "closure": {
+    "closure_required": false,
+    "overall_ready": true,
+    "packet_status": "not_required",
+    "recommended_action": "collect_for_reference",
+    "rollback_required": false,
+    "runbook_action": "promote_to_enforced_pilot",
+    "runbook_stage": "preflight",
+    "target_monpol_id": "MONPOL-001"
+  },
+  "criteria": [
+    {
+      "description": "Runbook artifact is present.",
+      "id": "runbook_artifact_present",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Burn-in SLO artifact is present.",
+      "id": "burn_in_artifact_present",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Postmortem artifact aligns with rollback requirement when configured.",
+      "id": "postmortem_alignment",
+      "passed": true,
+      "required": false,
+      "target": "yes",
+      "value": "no"
+    },
+    {
+      "description": "Burn-in SLO status passes for non-rollback closure when configured.",
+      "id": "burn_in_pass_for_closure",
+      "passed": true,
+      "required": true,
+      "target": "pass",
+      "value": "pass"
+    },
+    {
+      "description": "Signoff record exists for target MONPOL proposal.",
+      "id": "signoff_record_present",
+      "passed": true,
+      "required": false,
+      "target": "yes",
+      "value": "no"
+    },
+    {
+      "description": "Signoff count meets minimum threshold (1).",
+      "id": "signoff_count_threshold",
+      "passed": true,
+      "required": false,
+      "target": ">= 1",
+      "value": 0
+    },
+    {
+      "description": "Owner signoff is present when required.",
+      "id": "owner_signoff_present",
+      "passed": true,
+      "required": false,
+      "target": "yes",
+      "value": "no"
+    },
+    {
+      "description": "Required reviewer roles are covered.",
+      "id": "required_roles_covered",
+      "passed": true,
+      "required": false,
+      "target": "Performance Incident Owner,Release Engineering",
+      "value": "none"
+    },
+    {
+      "description": "Signoff decision is approved for closure.",
+      "id": "signoff_decision_approved",
+      "passed": true,
+      "required": false,
+      "target": "approved",
+      "value": "n/a"
+    }
+  ],
+  "generated_at_utc": "2026-02-11T14:44:59Z",
+  "inputs": {
+    "analysis_dir": "analysis/benchmark_reproducibility",
+    "breach_route_json": "analysis/benchmark_reproducibility/monitor_drift_breach_route_20260211T142342Z.json",
+    "burn_in_json": "analysis/benchmark_reproducibility/enforced_pilot_burn_in_slo_20260211T144459Z.json",
+    "drill_json": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T142342Z.json",
+    "handoff_json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T142341Z.json",
+    "postmortem_json": "analysis/benchmark_reproducibility/enforced_pilot_rollback_postmortem_20260211T144459Z.json",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+    "readiness_json": "analysis/benchmark_reproducibility/governance_gate_promotion_readiness_20260211T144459Z.json",
+    "runbook_json": "analysis/benchmark_reproducibility/enforced_pilot_runbook_20260211T144459Z.json",
+    "signoff_json": "governance/performance/MONPOL_SIGNOFFS.json"
+  },
+  "policy": {
+    "always_require_handoff_signoff": false,
+    "min_signoff_count": 1,
+    "require_burn_in_pass_for_closure": true,
+    "require_owner_signoff": true,
+    "require_postmortem_for_closure": true,
+    "require_signoff_packet_on_rollback": true,
+    "required_roles": [
+      "Performance Incident Owner",
+      "Release Engineering"
+    ]
+  },
+  "required_failures": [],
+  "signoff": {
+    "decision": "n/a",
+    "missing_required_roles": [
+      "Performance Incident Owner",
+      "Release Engineering"
+    ],
+    "owner": "n/a",
+    "owner_present": false,
+    "record_present": false,
+    "required_roles": [
+      "Performance Incident Owner",
+      "Release Engineering"
+    ],
+    "reviewer_roles_present": [],
+    "signoff_count": 0
+  },
+  "snapshot": {
+    "breach_detected": false,
+    "burn_in_status": "pass",
+    "drill_status": "pass",
+    "handoff_status": "ready",
+    "postmortem_required": false,
+    "postmortem_status": "not_required",
+    "readiness_overall_ready": true
+  }
+}
