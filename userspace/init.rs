@@ -41,16 +41,32 @@ fn mount_persistent_storage(persist_spec: &str) -> bool {
     let _ = fs::create_dir_all("/home");
     let _ = fs::create_dir_all("/var");
 
-    match Command::new("mount").args([persist_dev.as_str(), "/persist"]).status() {
-        Ok(status) if status.success() => {}
-        Ok(_) => {
-            eprintln!("[VANTIS] failed to mount persistent device: {persist_dev}");
-            return false;
-        }
-        Err(err) => {
-            eprintln!("[VANTIS] mount command unavailable: {err}");
-            return false;
-        }
+    let auto_mount = Command::new("mount")
+        .args([persist_dev.as_str(), "/persist"])
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false);
+    let vfat_mount = if auto_mount {
+        true
+    } else {
+        Command::new("mount")
+            .args(["-t", "vfat", persist_dev.as_str(), "/persist"])
+            .status()
+            .map(|status| status.success())
+            .unwrap_or(false)
+    };
+    let ext_mount = if auto_mount || vfat_mount {
+        true
+    } else {
+        Command::new("mount")
+            .args(["-t", "ext4", persist_dev.as_str(), "/persist"])
+            .status()
+            .map(|status| status.success())
+            .unwrap_or(false)
+    };
+    if !(auto_mount || vfat_mount || ext_mount) {
+        eprintln!("[VANTIS] failed to mount persistent device: {persist_dev}");
+        return false;
     }
 
     let _ = fs::create_dir_all("/persist/home");
