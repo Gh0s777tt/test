@@ -268,6 +268,12 @@
   - [x] Integrate breach routing and promotion checks into CI, transition pack, and repo verification
   - [x] Validate full chain and publish Day 9 report
 
+- [x] Day 10: Promotion-Mode Readiness Criteria and Enforced Pilot Rollout Checklist
+  - [x] Add readiness scorecard automation from rolling drill/handoff/breach telemetry
+  - [x] Add machine-readable promotion readiness thresholds and pilot checklist config
+  - [x] Integrate promotion readiness artifact into CI, transition pack, and repo verification
+  - [x] Validate full chain and publish Day 10 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
@@ -278,5 +284,6 @@
 - Week 10 Day 7: ✅ COMPLETE (owner/SLA escalation registry + release handoff checklist automation + evidence)
 - Week 10 Day 8: ✅ COMPLETE (strict handoff enforcement + release-readiness drill dry-run + readiness telemetry)
 - Week 10 Day 9: ✅ COMPLETE (breach evidence routing + promotion-aware governance gate strategy + evidence)
-- Week 10 Progress: 9 milestone days complete
-- Next: Week 10 Day 10 - promotion-mode readiness criteria and enforced pilot rollout checklist
+- Week 10 Day 10: ✅ COMPLETE (promotion readiness scorecard + enforced pilot checklist + evidence)
+- Week 10 Progress: 10 milestone days complete
+- Next: Week 10 Day 11 - enforced pilot execution runbook and rollback guardrails

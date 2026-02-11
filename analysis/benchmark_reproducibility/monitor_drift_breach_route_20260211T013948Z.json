@@ -1,0 +1,45 @@
+{
+  "breach_detected": false,
+  "breach_sources": [],
+  "classification": {
+    "drill_status": "pass",
+    "escalation_level": "normal",
+    "handoff_status": "ready"
+  },
+  "evidence_bundle": [
+    "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T013948Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T013948Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T013948Z.json"
+  ],
+  "generated_at_utc": "2026-02-11T01:39:48Z",
+  "inputs": {
+    "drill_json": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T013948Z.json",
+    "escalation_json": "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T013948Z.json",
+    "handoff_json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T013948Z.json",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json"
+  },
+  "latest_monpol_id": "MONPOL-001",
+  "owner_snapshot": {
+    "backup_owner": "Performance Working Group",
+    "owner": "Benchmark Governance Automation",
+    "response_sla_hours": 168
+  },
+  "promotion": {
+    "active_mode": "advisory",
+    "enforce_on_breach": false,
+    "policy_mode": "advisory",
+    "require_breach_ack_token": false,
+    "require_pr_mitigation": false,
+    "would_block_in_active_mode": false
+  },
+  "recommended_actions": [
+    "Continue routine governance cadence; no active breach route."
+  ],
+  "recommended_policy_id": "MONPOL-BREACH",
+  "routing_targets": [
+    "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+    "docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md",
+    "governance/performance/MONPOL_SIGNOFFS.json",
+    "pull_request_metadata"
+  ]
+}

@@ -1,0 +1,260 @@
+{
+  "bench_health": {
+    "directory_entry_cache_benchmark": {
+      "drift": 0,
+      "drift_rate_pct": 0.0,
+      "failure_rate_pct": 0.0,
+      "failures": 0,
+      "latest_status": "pass",
+      "latest_threshold_pct": "25",
+      "latest_timestamp": "20260210T143639Z",
+      "samples": 2,
+      "timeouts": 0
+    },
+    "timer_queue_benchmark": {
+      "drift": 0,
+      "drift_rate_pct": 0.0,
+      "failure_rate_pct": 0.0,
+      "failures": 0,
+      "latest_status": "pass",
+      "latest_threshold_pct": "60",
+      "latest_timestamp": "20260210T143639Z",
+      "samples": 2,
+      "timeouts": 0
+    }
+  },
+  "health_summary": {
+    "runs_with_monitor_drift": 1,
+    "runs_with_monitor_failures": 0,
+    "strict_non_pass_runs": 0,
+    "strict_unknown_runs": 1
+  },
+  "latency_telemetry": {
+    "chronology_errors": [],
+    "invalid_merge_dates": [],
+    "latest_ok_entry": null,
+    "missing_proposal_artifacts": [
+      "MONPOL-001"
+    ],
+    "rows": [
+      {
+        "decision": "unknown",
+        "first_proposal_generated_at_utc": "n/a",
+        "latency_days": null,
+        "merge_date": "2026-02-10",
+        "proposal_file": "n/a",
+        "proposal_history_files": 0,
+        "proposal_id": "MONPOL-001",
+        "status": "missing_proposal_artifact"
+      }
+    ],
+    "summary": {
+      "chronology_error_count": 0,
+      "entries_evaluated": 1,
+      "invalid_merge_date_count": 0,
+      "latency_samples": 0,
+      "max_latency_days": null,
+      "median_latency_days": null,
+      "missing_proposal_artifact_count": 1,
+      "p90_latency_days": null,
+      "proposal_artifacts_discovered": 10,
+      "proposal_artifacts_skipped": 0
+    }
+  },
+  "latest_recommendation": {
+    "file": "monitor_policy_recommendations_20260210T150630Z.json",
+    "headroom_pct": 15.0,
+    "lookback": 6,
+    "min_samples": 2,
+    "recommendations": [
+      {
+        "action": "tighten",
+        "bench": "directory_entry_cache_benchmark",
+        "drift_rate_pct": 0.0,
+        "drift_reports": 0,
+        "latest_report": "directory_entry_cache_benchmark_20260210T143955Z.md",
+        "latest_threshold_pct": 25.0,
+        "max_spread_peak_pct": 15.86,
+        "p75_median_spread_pct": 0.741,
+        "p90_max_spread_pct": 15.86,
+        "recommended_threshold_pct": 18.24,
+        "samples": 2
+      },
+      {
+        "action": "hold",
+        "bench": "timer_queue_benchmark",
+        "drift_rate_pct": 50.0,
+        "drift_reports": 2,
+        "latest_report": "timer_queue_benchmark_20260210T143840Z.md",
+        "latest_threshold_pct": 60.0,
+        "max_spread_peak_pct": 51.073,
+        "p75_median_spread_pct": 3.739,
+        "p90_max_spread_pct": 51.073,
+        "recommended_threshold_pct": 58.73,
+        "samples": 4
+      }
+    ],
+    "timestamp": "20260210T150630Z"
+  },
+  "lookback_recommendations": 6,
+  "lookback_runs": 10,
+  "recent_runs": [
+    {
+      "cases": [],
+      "duration_total_s": 0,
+      "file": "ci_benchmark_gate_summary_20260210T105039Z.md",
+      "metrics": [],
+      "monitor_case_count": 0,
+      "monitor_drift_count": 0,
+      "monitor_failure_count": 0,
+      "status_counts": {},
+      "strict_status": "unknown",
+      "timestamp": "20260210T105039Z"
+    },
+    {
+      "cases": [
+        {
+          "bench": "path_lookup_cache_benchmark",
+          "duration_s": "114",
+          "note": "",
+          "stage": "strict",
+          "status": "pass",
+          "threshold_pct": "50"
+        },
+        {
+          "bench": "timer_queue_benchmark",
+          "duration_s": "73",
+          "note": "",
+          "stage": "monitor",
+          "status": "pass",
+          "threshold_pct": "25"
+        },
+        {
+          "bench": "directory_entry_cache_benchmark",
+          "duration_s": "139",
+          "note": "",
+          "stage": "monitor",
+          "status": "pass",
+          "threshold_pct": "25"
+        }
+      ],
+      "duration_total_s": 326,
+      "file": "ci_benchmark_gate_summary_20260210T111835Z.md",
+      "metrics": [
+        {
+          "max_spread_pct": "41.725%",
+          "median_spread_pct": "5.763%",
+          "metrics": "6",
+          "over_threshold": "0",
+          "report": "path_lookup_cache_benchmark_20260210T111835Z.md",
+          "stage": "strict"
+        },
+        {
+          "max_spread_pct": "51.073%",
+          "median_spread_pct": "5.265%",
+          "metrics": "4",
+          "over_threshold": "1",
+          "report": "timer_queue_benchmark_20260210T112029Z.md",
+          "stage": "monitor"
+        },
+        {
+          "max_spread_pct": "3.558%",
+          "median_spread_pct": "0.741%",
+          "metrics": "7",
+          "over_threshold": "0",
+          "report": "directory_entry_cache_benchmark_20260210T112142Z.md",
+          "stage": "monitor"
+        }
+      ],
+      "monitor_case_count": 2,
+      "monitor_drift_count": 1,
+      "monitor_failure_count": 0,
+      "status_counts": {},
+      "strict_status": "pass",
+      "timestamp": "20260210T111835Z"
+    },
+    {
+      "cases": [
+        {
+          "bench": "path_lookup_cache_benchmark",
+          "duration_s": "121",
+          "note": "",
+          "stage": "strict",
+          "status": "pass",
+          "threshold_pct": "50"
+        },
+        {
+          "bench": "timer_queue_benchmark",
+          "duration_s": "75",
+          "note": "",
+          "stage": "monitor",
+          "status": "pass",
+          "threshold_pct": "60"
+        },
+        {
+          "bench": "directory_entry_cache_benchmark",
+          "duration_s": "136",
+          "note": "",
+          "stage": "monitor",
+          "status": "pass",
+          "threshold_pct": "25"
+        }
+      ],
+      "duration_total_s": 332,
+      "file": "ci_benchmark_gate_summary_20260210T143639Z.md",
+      "metrics": [
+        {
+          "max_spread_pct": "30.318%",
+          "median_spread_pct": "6.687%",
+          "metrics": "6",
+          "over_threshold": "0",
+          "report": "path_lookup_cache_benchmark_20260210T143639Z.md",
+          "stage": "strict"
+        },
+        {
+          "max_spread_pct": "7.940%",
+          "median_spread_pct": "3.739%",
+          "metrics": "4",
+          "over_threshold": "0",
+          "report": "timer_queue_benchmark_20260210T143840Z.md",
+          "stage": "monitor"
+        },
+        {
+          "max_spread_pct": "15.860%",
+          "median_spread_pct": "0.353%",
+          "metrics": "7",
+          "over_threshold": "0",
+          "report": "directory_entry_cache_benchmark_20260210T143955Z.md",
+          "stage": "monitor"
+        }
+      ],
+      "monitor_case_count": 2,
+      "monitor_drift_count": 0,
+      "monitor_failure_count": 0,
+      "status_counts": {
+        "pass": 3
+      },
+      "strict_status": "pass",
+      "timestamp": "20260210T143639Z"
+    }
+  ],
+  "recommendation_snapshots_analyzed": 1,
+  "runs_analyzed": 3,
+  "signoff_telemetry": {
+    "approved_entries": [],
+    "approved_missing_signoff": [],
+    "approved_with_signoff": [],
+    "changelog_entries": [
+      {
+        "date": "2026-02-10",
+        "decision": "unknown",
+        "proposal_id": "MONPOL-001",
+        "raw_decision": "n/a"
+      }
+    ],
+    "latest_signoff_record": null,
+    "signoff_decision_counts": {},
+    "signoff_records": []
+  },
+  "source_directory": "/workspace/analysis/benchmark_reproducibility"
+}
