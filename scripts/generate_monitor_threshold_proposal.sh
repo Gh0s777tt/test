@@ -108,7 +108,7 @@ fi
 
 if [[ -z "$ESCALATION_JSON" ]]; then
   shopt -s nullglob
-  escalation_candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_*.json)
+  escalation_candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_[0-9]*.json)
   shopt -u nullglob
   if (( ${#escalation_candidates[@]} > 0 )); then
     readarray -t sorted_escalation < <(printf '%s\n' "${escalation_candidates[@]}" | sort)

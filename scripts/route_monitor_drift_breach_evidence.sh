@@ -92,7 +92,7 @@ fi
 
 if [[ -z "$ESCALATION_JSON" ]]; then
   shopt -s nullglob
-  candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_*.json)
+  candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_[0-9]*.json)
   shopt -u nullglob
   if (( ${#candidates[@]} > 0 )); then
     readarray -t sorted < <(printf '%s\n' "${candidates[@]}" | sort)
@@ -102,7 +102,7 @@ fi
 
 if [[ -z "$HANDOFF_JSON" ]]; then
   shopt -s nullglob
-  candidates=("$ANALYSIS_DIR"/monitor_drift_release_handoff_*.json)
+  candidates=("$ANALYSIS_DIR"/monitor_drift_release_handoff_[0-9]*.json)
   shopt -u nullglob
   if (( ${#candidates[@]} > 0 )); then
     readarray -t sorted < <(printf '%s\n' "${candidates[@]}" | sort)
@@ -112,7 +112,7 @@ fi
 
 if [[ -z "$DRILL_JSON" ]]; then
   shopt -s nullglob
-  candidates=("$ANALYSIS_DIR"/monitor_drift_release_readiness_drill_*.json)
+  candidates=("$ANALYSIS_DIR"/monitor_drift_release_readiness_drill_[0-9]*.json)
   shopt -u nullglob
   if (( ${#candidates[@]} > 0 )); then
     readarray -t sorted < <(printf '%s\n' "${candidates[@]}" | sort)

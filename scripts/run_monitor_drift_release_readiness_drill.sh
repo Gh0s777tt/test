@@ -113,10 +113,10 @@ fi
 
 if [[ -z "$ESCALATION_JSON" ]]; then
   shopt -s nullglob
-  escalation_candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_*.json)
+  escalation_candidates=("$ANALYSIS_DIR"/monitor_drift_escalation_[0-9]*.json)
   shopt -u nullglob
   if (( ${#escalation_candidates[@]} == 0 )); then
-    echo "Error: no monitor_drift_escalation_*.json found in $ANALYSIS_DIR" >&2
+    echo "Error: no canonical monitor_drift_escalation_<timestamp>.json found in $ANALYSIS_DIR" >&2
     exit 1
   fi
   readarray -t sorted_escalation < <(printf '%s\n' "${escalation_candidates[@]}" | sort)
