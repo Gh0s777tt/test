@@ -483,6 +483,14 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "config show"
       sleep 1
+      echo "config set hostname vantis-lab"
+      sleep 1
+      echo "config set user operator"
+      sleep 1
+      echo "config set profile wraith"
+      sleep 1
+      echo "config show"
+      sleep 1
     } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
       -machine q35 \
       -m 1024 \
@@ -496,6 +504,14 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     {
       sleep 14
       echo "firstboot"
+      sleep 1
+      echo "config show"
+      sleep 1
+      echo "config set hostname vantis-lab"
+      sleep 1
+      echo "config set user operator"
+      sleep 1
+      echo "config set profile wraith"
       sleep 1
       echo "config show"
       sleep 1
@@ -516,7 +532,13 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q 'first_boot: done' "$BOOT_LOG" \
     && rg -q 'profile=core' "$BOOT_LOG" \
     && rg -q 'hostname=vantis-' "$BOOT_LOG" \
-    && rg -q 'user=vantis' "$BOOT_LOG"; then
+    && rg -q 'user=vantis' "$BOOT_LOG" \
+    && rg -q 'config updated: hostname=vantis-lab' "$BOOT_LOG" \
+    && rg -q 'config updated: user=operator' "$BOOT_LOG" \
+    && rg -q 'config updated: profile=wraith' "$BOOT_LOG" \
+    && rg -q 'hostname=vantis-lab' "$BOOT_LOG" \
+    && rg -q 'user=operator' "$BOOT_LOG" \
+    && rg -q 'profile=wraith' "$BOOT_LOG"; then
     echo "Installer smoke passed: installed disk booted to Vantis shell"
     echo "Installer log: $INSTALL_LOG"
     echo "Installed boot log: $BOOT_LOG"
