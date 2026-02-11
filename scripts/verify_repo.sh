@@ -270,6 +270,21 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       warn "scripts/generate_monitor_drift_release_handoff.sh is missing or not executable"
     fi
 
+    if [[ -x "scripts/run_monitor_drift_release_readiness_drill.sh" ]]; then
+      TMP_DRILL_MD="$(mktemp /tmp/vantis_release_readiness_drill_verify_XXXXXX.md)"
+      TMP_DRILL_JSON="$(mktemp /tmp/vantis_release_readiness_drill_verify_XXXXXX.json)"
+      TMP_DRILL_SCENARIOS="$(mktemp -d /tmp/vantis_release_readiness_drill_scenarios_XXXXXX)"
+      if ./scripts/run_monitor_drift_release_readiness_drill.sh --escalation-json "$TMP_ESCALATION_JSON" --output "$TMP_DRILL_MD" --output-json "$TMP_DRILL_JSON" --scenario-output-dir "$TMP_DRILL_SCENARIOS" >/dev/null; then
+        pass "monitor drift release-readiness drill passed"
+      else
+        fail "monitor drift release-readiness drill failed"
+      fi
+      rm -f "$TMP_DRILL_MD" "$TMP_DRILL_JSON"
+      rm -rf "$TMP_DRILL_SCENARIOS"
+    else
+      warn "scripts/run_monitor_drift_release_readiness_drill.sh is missing or not executable"
+    fi
+
     rm -f "$TMP_ESCALATION_MD" "$TMP_ESCALATION_JSON"
   fi
 else

@@ -12,6 +12,7 @@ ESCALATION_JSON=""
 OWNERS_JSON="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json"
 POLICY_DOC="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md"
 STRICT=0
+REQUIRE_TRANSITION_PACK=0
 OUTPUT_PATH=""
 OUTPUT_JSON_PATH=""
 
@@ -25,6 +26,7 @@ Options:
   --owners-json <path>        Escalation owner/SLA registry JSON path
   --policy-doc <path>         Escalation policy markdown path
   --strict                    Exit non-zero when required checklist items fail
+  --require-transition-pack   Require transition pack artifact in strict checklist
   --output <path>             Output markdown path
   --output-json <path>        Output JSON path
   -h, --help                  Show this help
@@ -51,6 +53,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --strict)
       STRICT=1
+      shift
+      ;;
+    --require-transition-pack)
+      REQUIRE_TRANSITION_PACK=1
       shift
       ;;
     --output)
@@ -97,7 +103,7 @@ if [[ -z "$OUTPUT_JSON_PATH" ]]; then
   OUTPUT_JSON_PATH="${OUTPUT_PATH%.md}.json"
 fi
 
-python3 - "$ROOT" "$ANALYSIS_DIR" "$ESCALATION_JSON" "$OWNERS_JSON" "$POLICY_DOC" "$STRICT" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$ESCALATION_JSON" "$OWNERS_JSON" "$POLICY_DOC" "$STRICT" "$REQUIRE_TRANSITION_PACK" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import sys
 from datetime import datetime, timezone
@@ -109,8 +115,9 @@ escalation_path_raw = sys.argv[3].strip()
 owners_path = Path(sys.argv[4])
 policy_doc_path = Path(sys.argv[5])
 strict = bool(int(sys.argv[6]))
-output_path = Path(sys.argv[7])
-output_json_path = Path(sys.argv[8])
+require_transition_pack = bool(int(sys.argv[7]))
+output_path = Path(sys.argv[8])
+output_json_path = Path(sys.argv[9])
 
 
 def rel(path: Path) -> str:
@@ -254,7 +261,7 @@ add_item(
 add_item(
     "transition_pack_present",
     "Governance transition pack artifact present when release handoff is required.",
-    release_handoff_required,
+    release_handoff_required and require_transition_pack,
     bool(latest_transition_json),
     rel(latest_transition_json) if latest_transition_json else "n/a",
 )
@@ -286,6 +293,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write(f"- Response SLA (hours): {overall_owner_profile.get('response_sla_hours', 'n/a')}\n")
     fh.write(f"- Drill cadence (days): {overall_owner_profile.get('drill_cadence_days', 'n/a')}\n")
     fh.write(f"- Release handoff required: {'yes' if release_handoff_required else 'no'}\n")
+    fh.write(f"- Transition pack required by checklist: {'yes' if require_transition_pack else 'no'}\n")
     fh.write(f"- Next drill due (UTC): {next_drill_due_utc}\n\n")
 
     fh.write("## Checklist\n\n")
@@ -316,6 +324,7 @@ payload = {
     "overall_owner_profile": overall_owner_profile,
     "next_drill_due_utc": next_drill_due_utc,
     "release_handoff_required": release_handoff_required,
+    "require_transition_pack": require_transition_pack,
     "latest_artifacts": {
         "dashboard_json": rel(latest_dashboard_json) if latest_dashboard_json else "n/a",
         "proposal_json": rel(latest_proposal_json) if latest_proposal_json else "n/a",

@@ -180,8 +180,11 @@ maintenance scripts from `scripts/`:
 # Evaluate monitor drift escalation policy from latest dashboard telemetry
 ./scripts/evaluate_monitor_drift_escalation.sh --window-runs 5
 
-# Generate release handoff checklist from escalation telemetry
-./scripts/generate_monitor_drift_release_handoff.sh
+# Generate strict release handoff checklist from escalation telemetry
+./scripts/generate_monitor_drift_release_handoff.sh --strict
+
+# Rehearse strict release-readiness enforcement (pass + expected blocked fail)
+./scripts/run_monitor_drift_release_readiness_drill.sh
 
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark

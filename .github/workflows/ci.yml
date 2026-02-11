@@ -267,6 +267,12 @@ jobs:
         if: ${{ always() }}
         run: >
           ./scripts/generate_monitor_drift_release_handoff.sh
+          --strict
+
+      - name: Run release-readiness strict drill dry-run
+        if: ${{ always() }}
+        run: >
+          ./scripts/run_monitor_drift_release_readiness_drill.sh
 
       - name: Generate governance transition pack
         if: ${{ always() }}

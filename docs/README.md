@@ -136,6 +136,7 @@ See [../history/](../history/) for:
 - **Building monitor policy drift dashboard (includes signoff + proposal-to-merge latency telemetry)**: `../scripts/build_monitor_policy_dashboard.sh`
 - **Evaluating monitor drift escalation policy**: `../scripts/evaluate_monitor_drift_escalation.sh`
 - **Generating monitor drift release handoff checklist**: `../scripts/generate_monitor_drift_release_handoff.sh`
+- **Running strict release-readiness drill dry-run**: `../scripts/run_monitor_drift_release_readiness_drill.sh`
 - **Generating governance-ready threshold proposal draft (includes signoff + latency telemetry)**: `../scripts/generate_monitor_threshold_proposal.sh`
 - **Generating Week 9 governance transition pack (includes signoff review-status + latency telemetry)**: `../scripts/generate_governance_transition_pack.sh`
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
@@ -168,6 +169,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 5 proposal-to-merge latency telemetry**: `../WEEK_10_DAY_5_PROPOSAL_TO_MERGE_LATENCY_TELEMETRY.md`
 - **Week 10 Day 6 monitor drift escalation policy rollout**: `../WEEK_10_DAY_6_MONITOR_DRIFT_ESCALATION_POLICY.md`
 - **Week 10 Day 7 escalation owner/SLA drills and release handoff checklist**: `../WEEK_10_DAY_7_ESCALATION_OWNER_SLA_AND_HANDOFF.md`
+- **Week 10 Day 8 strict release-readiness enforcement dry-run**: `../WEEK_10_DAY_8_RELEASE_READINESS_ENFORCEMENT_DRY_RUN.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

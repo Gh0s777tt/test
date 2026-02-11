@@ -123,6 +123,9 @@ Current repository integration:
 - CI runs `scripts/generate_monitor_drift_release_handoff.sh` to publish
   owner/SLA-aware release handoff checklist artifacts driven by the latest
   escalation assessment.
+- CI runs `scripts/run_monitor_drift_release_readiness_drill.sh` to rehearse
+  strict-mode release-readiness enforcement (`strict pass` + `expected blocked
+  strict failure`) and publish dry-run artifacts.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -206,6 +209,12 @@ Generate monitor drift release handoff checklist:
 
 ```bash
 ./scripts/generate_monitor_drift_release_handoff.sh
+```
+
+Run strict release-readiness drill dry-run:
+
+```bash
+./scripts/run_monitor_drift_release_readiness_drill.sh
 ```
 
 Generate governance-ready MONPOL proposal draft:

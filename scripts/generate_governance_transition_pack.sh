@@ -504,10 +504,36 @@ def parse_handoff_payload(path: Path):
         "overall_owner_profile": payload.get("overall_owner_profile", {}),
         "next_drill_due_utc": str(payload.get("next_drill_due_utc", "n/a")),
         "release_handoff_required": bool(payload.get("release_handoff_required", False)),
+        "require_transition_pack": bool(payload.get("require_transition_pack", False)),
         "strict_mode": bool(payload.get("strict_mode", False)),
         "items": items,
         "required_failures": required_failures,
         "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+    }
+
+
+def parse_release_readiness_drill_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    scenarios = payload.get("scenarios", [])
+    if not isinstance(scenarios, list):
+        scenarios = []
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "overall_status": str(payload.get("overall_status", "n/a")),
+        "require_transition_pack": bool(payload.get("require_transition_pack", False)),
+        "expected_blocked_exit_code": payload.get("expected_blocked_exit_code", "n/a"),
+        "inputs": payload.get("inputs", {}),
+        "scenarios": scenarios,
     }
 
 
@@ -526,6 +552,8 @@ latest_escalation_md = latest("monitor_drift_escalation_*.md")
 latest_escalation_json = latest("monitor_drift_escalation_*.json")
 latest_handoff_md = latest("monitor_drift_release_handoff_*.md")
 latest_handoff_json = latest("monitor_drift_release_handoff_*.json")
+latest_release_readiness_drill_md = latest("monitor_drift_release_readiness_drill_*.md")
+latest_release_readiness_drill_json = latest("monitor_drift_release_readiness_drill_*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -546,6 +574,11 @@ signoff_by_id = {record["proposal_id"]: record for record in signoff_records if 
 latency_telemetry = collect_latency_telemetry(monpol_entries, analysis_dir)
 escalation_telemetry = parse_escalation_payload(latest_escalation_json) if latest_escalation_json else {}
 handoff_telemetry = parse_handoff_payload(latest_handoff_json) if latest_handoff_json else {}
+release_readiness_drill_telemetry = (
+    parse_release_readiness_drill_payload(latest_release_readiness_drill_json)
+    if latest_release_readiness_drill_json
+    else {}
+)
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -570,6 +603,7 @@ scripts_required = [
     root / "scripts/generate_monitor_threshold_proposal.sh",
     root / "scripts/scaffold_monpol_changelog_entry.sh",
     root / "scripts/generate_monitor_drift_release_handoff.sh",
+    root / "scripts/run_monitor_drift_release_readiness_drill.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -654,6 +688,16 @@ artifact_status = [
         "path": rel(latest_handoff_json) if latest_handoff_json else "n/a",
         "exists": bool(latest_handoff_json),
     },
+    {
+        "kind": "release_readiness_drill_md",
+        "path": rel(latest_release_readiness_drill_md) if latest_release_readiness_drill_md else "n/a",
+        "exists": bool(latest_release_readiness_drill_md),
+    },
+    {
+        "kind": "release_readiness_drill_json",
+        "path": rel(latest_release_readiness_drill_json) if latest_release_readiness_drill_json else "n/a",
+        "exists": bool(latest_release_readiness_drill_json),
+    },
 ]
 
 readiness_checks = {
@@ -669,6 +713,9 @@ readiness_checks = {
     "escalation_artifact_present": bool(latest_escalation_json),
     "handoff_artifact_present": bool(latest_handoff_json),
     "handoff_not_blocked": bool(latest_handoff_json) and handoff_telemetry.get("overall_status", "n/a") != "blocked",
+    "release_readiness_drill_present": bool(latest_release_readiness_drill_json),
+    "release_readiness_drill_passed": bool(latest_release_readiness_drill_json)
+    and release_readiness_drill_telemetry.get("overall_status", "n/a") == "pass",
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -885,6 +932,41 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("- Handoff artifact: not available\n")
         fh.write("- Overall handoff status: n/a\n\n")
 
+    fh.write("## Release Readiness Drill Snapshot\n\n")
+    if release_readiness_drill_telemetry:
+        fh.write(
+            f"- Drill artifact: `{release_readiness_drill_telemetry.get('source', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Drill generated at (UTC): {release_readiness_drill_telemetry.get('generated_at_utc', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Drill overall status: **{release_readiness_drill_telemetry.get('overall_status', 'n/a')}**\n"
+        )
+        fh.write(
+            f"- Transition-pack requirement in drill: "
+            f"{'yes' if release_readiness_drill_telemetry.get('require_transition_pack') else 'no'}\n"
+        )
+        fh.write(
+            f"- Expected blocked exit code: `{release_readiness_drill_telemetry.get('expected_blocked_exit_code', 'n/a')}`\n\n"
+        )
+
+        fh.write("| Scenario | Expected exit | Actual exit | Status |\n")
+        fh.write("|---|---:|---:|---|\n")
+        scenarios = release_readiness_drill_telemetry.get("scenarios", [])
+        if scenarios:
+            for item in scenarios:
+                fh.write(
+                    f"| `{item.get('name', 'n/a')}` | {item.get('expected_exit_code', 'n/a')} | "
+                    f"{item.get('actual_exit_code', 'n/a')} | {item.get('status', 'n/a')} |\n"
+                )
+        else:
+            fh.write("| _none_ | n/a | n/a | n/a |\n")
+        fh.write("\n")
+    else:
+        fh.write("- Drill artifact: not available\n")
+        fh.write("- Drill overall status: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -896,6 +978,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("3. Review signoff telemetry weekly for drift and decision latency.\n")
     fh.write("4. Track policy change latency (proposal -> merge) in dashboard trends.\n")
     fh.write("5. Operationalize escalation policy with owner/SLA drills.\n")
+    fh.write("6. Rehearse strict release-readiness enforcement using drill artifacts.\n")
     fh.write("\n")
 
 transition_json = {
@@ -924,6 +1007,7 @@ transition_json = {
     "latency_telemetry": latency_telemetry,
     "escalation_telemetry": escalation_telemetry,
     "handoff_telemetry": handoff_telemetry,
+    "release_readiness_drill_telemetry": release_readiness_drill_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")
