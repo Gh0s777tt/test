@@ -130,6 +130,7 @@ See [../history/](../history/) for:
 - **Checking traceability**: `../scripts/check_traceability.sh`
 - **Enforcing requirement IDs**: `../scripts/check_requirement_ids.sh`
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
+- **Building bootable live ISO (optional QEMU smoke test)**: `../scripts/build_iso.sh`
 - **Running reproducibility benchmark profile**: `../scripts/benchmark_reproducibility.sh`
 - **Running CI-style benchmark gate locally**: `../scripts/run_benchmark_ci_gate.sh`
 - **Generating rolling monitor policy recommendations**: `../scripts/recommend_monitor_policy.sh`
@@ -184,6 +185,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 12 enforced pilot burn-in telemetry SLO + rollback postmortem template**: `../WEEK_10_DAY_12_ENFORCED_PILOT_BURN_IN_SLO_AND_ROLLBACK_POSTMORTEM_TEMPLATE.md`
 - **Week 10 Day 13 enforced pilot incident closure governance + handoff signoff packet**: `../WEEK_10_DAY_13_INCIDENT_CLOSURE_GOVERNANCE_AND_HANDOFF_SIGNOFF_PACKET.md`
 - **Week 10 Day 14 enforced pilot closure audit + governance rollout summary**: `../WEEK_10_DAY_14_CLOSURE_AUDIT_AND_GOVERNANCE_ROLLOUT_SUMMARY.md`
+- **ISO build and boot validation report**: `../ISO_BUILD_AND_BOOT_VALIDATION.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

@@ -1,0 +1,11 @@
+[VANTIS] initramfs boot sequence started
+[VANTIS] WRAITH MODE ACTIVE
+vantis> ai
+Cortex: system ready (offline)
+
+vantis> exit
+[VANTIS] shell session ended, restarting...
+vantis> ai
+Cortex: system ready (offline)
+
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 277735 (timeout)
