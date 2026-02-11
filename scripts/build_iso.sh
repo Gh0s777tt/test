@@ -317,7 +317,9 @@ cat >"$INSTALLED_GRUB_CFG_PATH" <<'INSTGRUB'
 set timeout=0
 set default=0
 terminal_output console
-search --file --set=root /EFI/BOOT/BOOTX64.EFI
+insmod part_msdos
+insmod fat
+set root=(hd0,msdos1)
 
 menuentry "VantisOS Installed" {
     linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_DATA
@@ -327,6 +329,7 @@ INSTGRUB
 cp "$INSTALLED_GRUB_CFG_PATH" "$INSTALLED_RUNTIME_GRUB_CFG_PATH"
 grub-mkstandalone \
   -O x86_64-efi \
+  --modules="part_msdos fat normal linux search" \
   -o "$INSTALLED_EFI_PATH" \
   "boot/grub/grub.cfg=$INSTALLED_GRUB_CFG_PATH" >/dev/null
 
