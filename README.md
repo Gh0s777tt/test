@@ -201,6 +201,9 @@ maintenance scripts from `scripts/`:
 # Scaffold rollback postmortem template for enforced pilot
 ./scripts/scaffold_enforced_pilot_rollback_postmortem.sh
 
+# Generate incident-closure handoff signoff packet for enforced pilot
+./scripts/generate_enforced_pilot_handoff_signoff_packet.sh
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 

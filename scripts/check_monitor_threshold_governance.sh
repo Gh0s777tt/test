@@ -13,6 +13,7 @@
 # - docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md is part of changed files
 # - optional promotion-aware breach requirements when mode is enforced:
 #   - BREACH-ACK token and mitigation notes in PR metadata/body
+#   - incident-closure handoff signoff packet presence for rollback-triggered paths
 
 set -euo pipefail
 
@@ -25,6 +26,7 @@ BREACH_ROUTE_JSON=""
 PILOT_RUNBOOK_JSON=""
 BURN_IN_SLO_JSON=""
 ROLLBACK_POSTMORTEM_JSON=""
+HANDOFF_SIGNOFF_PACKET_JSON=""
 PROMOTION_MODE="auto"
 
 usage() {
@@ -38,6 +40,8 @@ Options:
   --pilot-runbook-json <path>       Enforced pilot runbook JSON artifact path (default: newest enforced_pilot_runbook_*.json)
   --burn-in-slo-json <path>         Burn-in SLO JSON artifact path (default: newest enforced_pilot_burn_in_slo_*.json)
   --rollback-postmortem-json <path> Rollback postmortem JSON artifact path (default: newest enforced_pilot_rollback_postmortem_*.json)
+  --handoff-signoff-packet-json <path>
+                                   Handoff signoff packet JSON artifact path (default: newest enforced_pilot_handoff_signoff_packet_*.json)
   --promotion-mode <auto|advisory|enforced>
   -h, --help                        Show this help
 USAGE
@@ -67,6 +71,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --rollback-postmortem-json)
       ROLLBACK_POSTMORTEM_JSON="${2:-}"
+      shift 2
+      ;;
+    --handoff-signoff-packet-json)
+      HANDOFF_SIGNOFF_PACKET_JSON="${2:-}"
       shift 2
       ;;
     --promotion-mode)
@@ -354,6 +362,16 @@ if [[ -z "$ROLLBACK_POSTMORTEM_JSON" ]]; then
   fi
 fi
 
+if [[ -z "$HANDOFF_SIGNOFF_PACKET_JSON" ]]; then
+  shopt -s nullglob
+  HANDOFF_SIGNOFF_CANDIDATES=("$ANALYSIS_DIR"/enforced_pilot_handoff_signoff_packet_[0-9]*.json)
+  shopt -u nullglob
+  if (( ${#HANDOFF_SIGNOFF_CANDIDATES[@]} > 0 )); then
+    readarray -t SORTED_HANDOFF_SIGNOFF_CANDIDATES < <(printf '%s\n' "${HANDOFF_SIGNOFF_CANDIDATES[@]}" | sort)
+    HANDOFF_SIGNOFF_PACKET_JSON="${SORTED_HANDOFF_SIGNOFF_CANDIDATES[${#SORTED_HANDOFF_SIGNOFF_CANDIDATES[@]}-1]}"
+  fi
+fi
+
 BREACH_DETECTED="no"
 BREACH_SOURCES="none"
 ROUTE_WOULD_BLOCK="no"
@@ -465,6 +483,38 @@ else
   info "Rollback postmortem artifact not available for enforced pilot checks."
 fi
 
+HANDOFF_PACKET_REQUIRED="no"
+HANDOFF_PACKET_STATUS="n/a"
+HANDOFF_PACKET_READY="no"
+HANDOFF_PACKET_ACTION="n/a"
+if [[ -n "$HANDOFF_SIGNOFF_PACKET_JSON" && -f "$HANDOFF_SIGNOFF_PACKET_JSON" ]]; then
+  readarray -t HANDOFF_PACKET_META < <(python3 - "$HANDOFF_SIGNOFF_PACKET_JSON" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+closure = payload.get("closure", {})
+if not isinstance(closure, dict):
+    closure = {}
+
+print("yes" if bool(closure.get("closure_required", False)) else "no")
+print(str(closure.get("packet_status", "n/a")))
+print("yes" if bool(closure.get("overall_ready", False)) else "no")
+print(str(closure.get("recommended_action", "n/a")))
+PY
+  )
+  HANDOFF_PACKET_REQUIRED="${HANDOFF_PACKET_META[0]:-no}"
+  HANDOFF_PACKET_STATUS="${HANDOFF_PACKET_META[1]:-n/a}"
+  HANDOFF_PACKET_READY="${HANDOFF_PACKET_META[2]:-no}"
+  HANDOFF_PACKET_ACTION="${HANDOFF_PACKET_META[3]:-n/a}"
+  info "Handoff signoff packet artifact: ${HANDOFF_SIGNOFF_PACKET_JSON}"
+  info "Handoff signoff summary: required=${HANDOFF_PACKET_REQUIRED}, status=${HANDOFF_PACKET_STATUS}, ready=${HANDOFF_PACKET_READY}, action=${HANDOFF_PACKET_ACTION}"
+else
+  info "Handoff signoff packet artifact not available for incident-closure checks."
+fi
+
 if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
   if [[ "$ENFORCE_ON_BREACH" == "yes" ]]; then
     if [[ -z "$BREACH_ROUTE_JSON" || ! -f "$BREACH_ROUTE_JSON" ]]; then
@@ -491,6 +541,12 @@ if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
     fail "Enforced pilot burn-in SLO failed; rollback or mitigation required before continuing enforced mode."
   fi
   if [[ "$RUNBOOK_ROLLBACK_RECOMMENDED" == "yes" ]]; then
+    if [[ -z "$HANDOFF_SIGNOFF_PACKET_JSON" || ! -f "$HANDOFF_SIGNOFF_PACKET_JSON" ]]; then
+      fail "Rollback recommended under enforced mode: handoff signoff packet artifact is required."
+    fi
+    if [[ "$HANDOFF_PACKET_REQUIRED" != "yes" ]]; then
+      fail "Rollback recommended but handoff signoff packet is not marked as required."
+    fi
     if [[ -n "$ROLLBACK_POSTMORTEM_JSON" && -f "$ROLLBACK_POSTMORTEM_JSON" ]]; then
       if [[ "$POSTMORTEM_REQUIRED" != "yes" ]]; then
         fail "Rollback recommended but rollback postmortem artifact is not marked required."
@@ -499,6 +555,9 @@ if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
       fail "Rollback recommended under enforced mode: rollback postmortem artifact is required."
     fi
     fail "Enforced pilot rollback guardrail triggered (runbook action: ${RUNBOOK_RECOMMENDED_ACTION})."
+  fi
+  if [[ "$HANDOFF_PACKET_REQUIRED" == "yes" && "$HANDOFF_PACKET_READY" != "yes" ]]; then
+    fail "Incident closure handoff signoff packet is required but not ready (${HANDOFF_PACKET_STATUS})."
   fi
 fi
 

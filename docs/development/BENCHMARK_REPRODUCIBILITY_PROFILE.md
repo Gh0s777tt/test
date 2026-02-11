@@ -139,6 +139,9 @@ Current repository integration:
   pilot burn-in SLO status from rolling runbook telemetry.
 - CI runs `scripts/scaffold_enforced_pilot_rollback_postmortem.sh` to maintain
   rollback postmortem scaffold readiness and required incident sections.
+- CI runs `scripts/generate_enforced_pilot_handoff_signoff_packet.sh` to publish
+  incident-closure handoff signoff packet status, closure requirement, and
+  signoff role coverage.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -153,6 +156,7 @@ Current repository integration:
   changelog decisions have matching reviewer signoff metadata in
   `governance/performance/MONPOL_SIGNOFFS.json`.
 - transition pack readiness additionally tracks `approved_entries_have_signoff`
+  plus enforced-pilot closure packet readiness (`handoff_signoff_packet_ready_or_not_required`)
   to expose governance completeness at a glance.
 - latency telemetry highlights changelog entries that do not yet have matching
   proposal artifacts, so policy-cycle evidence gaps are visible in CI artifacts.
@@ -261,6 +265,12 @@ Scaffold enforced pilot rollback postmortem:
 
 ```bash
 ./scripts/scaffold_enforced_pilot_rollback_postmortem.sh
+```
+
+Generate enforced pilot incident-closure handoff signoff packet:
+
+```bash
+./scripts/generate_enforced_pilot_handoff_signoff_packet.sh
 ```
 
 Run monitor-threshold governance gate with explicit promotion mode:

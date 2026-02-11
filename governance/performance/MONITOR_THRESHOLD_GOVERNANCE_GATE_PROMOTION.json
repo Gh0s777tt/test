@@ -72,6 +72,18 @@
         "Approvals"
       ]
     },
+    "incident_closure": {
+      "require_signoff_packet_on_rollback": true,
+      "always_require_handoff_signoff": false,
+      "require_owner_signoff": true,
+      "require_postmortem_for_closure": true,
+      "require_burn_in_pass_for_closure": true,
+      "min_signoff_count": 1,
+      "required_roles": [
+        "Performance Incident Owner",
+        "Release Engineering"
+      ]
+    },
     "execution_stages": [
       {
         "stage": "preflight",

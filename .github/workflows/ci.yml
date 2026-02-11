@@ -299,6 +299,11 @@ jobs:
         run: >
           ./scripts/scaffold_enforced_pilot_rollback_postmortem.sh
 
+      - name: Generate enforced pilot incident closure handoff signoff packet
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_enforced_pilot_handoff_signoff_packet.sh
+
       - name: Enforce monitor threshold governance (promotion-aware)
         if: ${{ always() }}
         run: >

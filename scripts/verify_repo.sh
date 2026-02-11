@@ -266,6 +266,8 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
     TMP_BURN_IN_SLO_JSON=""
     TMP_POSTMORTEM_MD=""
     TMP_POSTMORTEM_JSON=""
+    TMP_HANDOFF_SIGNOFF_PACKET_MD=""
+    TMP_HANDOFF_SIGNOFF_PACKET_JSON=""
     if ./scripts/evaluate_monitor_drift_escalation.sh --dashboard-json "$LATEST_DASHBOARD" --output "$TMP_ESCALATION_MD" --output-json "$TMP_ESCALATION_JSON" >/dev/null; then
       pass "monitor drift escalation evaluation passed"
     else
@@ -369,11 +371,28 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       warn "scripts/scaffold_enforced_pilot_rollback_postmortem.sh is missing or not executable"
     fi
 
+    if [[ -x "scripts/generate_enforced_pilot_handoff_signoff_packet.sh" ]]; then
+      TMP_HANDOFF_SIGNOFF_PACKET_MD="$(mktemp /tmp/vantis_enforced_pilot_handoff_signoff_packet_verify_XXXXXX.md)"
+      TMP_HANDOFF_SIGNOFF_PACKET_JSON="$(mktemp /tmp/vantis_enforced_pilot_handoff_signoff_packet_verify_XXXXXX.json)"
+      if [[ -n "$TMP_PILOT_RUNBOOK_JSON" && -f "$TMP_PILOT_RUNBOOK_JSON" && -n "$TMP_BURN_IN_SLO_JSON" && -f "$TMP_BURN_IN_SLO_JSON" && -n "$TMP_POSTMORTEM_JSON" && -f "$TMP_POSTMORTEM_JSON" && -n "$TMP_PROMOTION_READINESS_JSON" && -f "$TMP_PROMOTION_READINESS_JSON" && -n "$TMP_BREACH_ROUTE_JSON" && -f "$TMP_BREACH_ROUTE_JSON" && -n "$TMP_HANDOFF_JSON" && -f "$TMP_HANDOFF_JSON" && -n "$TMP_DRILL_JSON" && -f "$TMP_DRILL_JSON" ]]; then
+        if ./scripts/generate_enforced_pilot_handoff_signoff_packet.sh --runbook-json "$TMP_PILOT_RUNBOOK_JSON" --burn-in-json "$TMP_BURN_IN_SLO_JSON" --postmortem-json "$TMP_POSTMORTEM_JSON" --readiness-json "$TMP_PROMOTION_READINESS_JSON" --breach-route-json "$TMP_BREACH_ROUTE_JSON" --handoff-json "$TMP_HANDOFF_JSON" --drill-json "$TMP_DRILL_JSON" --output "$TMP_HANDOFF_SIGNOFF_PACKET_MD" --output-json "$TMP_HANDOFF_SIGNOFF_PACKET_JSON" >/dev/null; then
+          pass "incident closure handoff signoff packet generation passed"
+        else
+          fail "incident closure handoff signoff packet generation failed"
+        fi
+      else
+        warn "incident closure handoff signoff packet generation skipped (runbook/burn-in/postmortem/readiness/breach/handoff/drill prerequisites unavailable)"
+      fi
+    else
+      warn "scripts/generate_enforced_pilot_handoff_signoff_packet.sh is missing or not executable"
+    fi
+
     rm -f "$TMP_BREACH_ROUTE_MD" "$TMP_BREACH_ROUTE_JSON"
     rm -f "$TMP_PROMOTION_READINESS_MD" "$TMP_PROMOTION_READINESS_JSON"
     rm -f "$TMP_PILOT_RUNBOOK_MD" "$TMP_PILOT_RUNBOOK_JSON"
     rm -f "$TMP_BURN_IN_SLO_MD" "$TMP_BURN_IN_SLO_JSON"
     rm -f "$TMP_POSTMORTEM_MD" "$TMP_POSTMORTEM_JSON"
+    rm -f "$TMP_HANDOFF_SIGNOFF_PACKET_MD" "$TMP_HANDOFF_SIGNOFF_PACKET_JSON"
 
     rm -f "$TMP_HANDOFF_MD" "$TMP_HANDOFF_JSON"
     rm -f "$TMP_DRILL_MD" "$TMP_DRILL_JSON"

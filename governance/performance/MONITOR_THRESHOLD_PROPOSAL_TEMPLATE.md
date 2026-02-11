@@ -59,6 +59,8 @@ Describe which monitor benchmarks are affected and why this proposal is needed.
 - `analysis/benchmark_reproducibility/enforced_pilot_burn_in_slo_<timestamp>.json`
 - `analysis/benchmark_reproducibility/enforced_pilot_rollback_postmortem_<timestamp>.md`
 - `analysis/benchmark_reproducibility/enforced_pilot_rollback_postmortem_<timestamp>.json`
+- `analysis/benchmark_reproducibility/enforced_pilot_handoff_signoff_packet_<timestamp>.md`
+- `analysis/benchmark_reproducibility/enforced_pilot_handoff_signoff_packet_<timestamp>.json`
 - latest `ci_benchmark_gate_summary_<timestamp>.md`
 - benchmark report(s) referenced by proposal
 
