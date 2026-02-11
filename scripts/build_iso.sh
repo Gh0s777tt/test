@@ -165,7 +165,16 @@ echo "Packing initrd..."
   find . -print0 | cpio --null -o --format=newc | gzip -9 >"$INITRD_PATH"
 )
 
-cp "$KERNEL_PATH" "$ISO_ROOT/boot/vmlinuz"
+if [[ -r "$KERNEL_PATH" ]]; then
+  cp "$KERNEL_PATH" "$ISO_ROOT/boot/vmlinuz"
+elif command -v sudo >/dev/null 2>&1 && sudo -n test -r "$KERNEL_PATH"; then
+  sudo cp "$KERNEL_PATH" "$ISO_ROOT/boot/vmlinuz"
+  sudo chown "$(id -u):$(id -g)" "$ISO_ROOT/boot/vmlinuz"
+else
+  echo "Error: kernel image is not readable: $KERNEL_PATH" >&2
+  exit 1
+fi
+
 cp "$INITRD_PATH" "$ISO_ROOT/boot/initrd.img"
 
 cat >"$GRUB_CFG_PATH" <<'GRUBCFG'
