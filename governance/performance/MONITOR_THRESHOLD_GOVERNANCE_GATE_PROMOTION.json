@@ -31,6 +31,45 @@
       "readiness_thresholds_met",
       "current_route_not_blocking",
       "current_handoff_not_blocked"
+    ],
+    "rollback_guardrails": {
+      "max_consecutive_blocking_breach_routes": 0,
+      "max_consecutive_blocked_handoffs": 0,
+      "max_consecutive_failed_drills": 0,
+      "max_consecutive_not_ready_assessments": 0,
+      "require_readiness_ready": true,
+      "require_pilot_go_signal": true,
+      "require_ops_ack_token": false,
+      "auto_revert_to_advisory_on_guardrail_breach": true
+    },
+    "execution_stages": [
+      {
+        "stage": "preflight",
+        "description": "Validate readiness and evidence before entering enforced pilot mode.",
+        "actions": [
+          "Confirm promotion readiness artifact reports overall_ready and pilot_go_no_go=go.",
+          "Confirm latest release handoff is ready and latest drill status is pass.",
+          "Verify rollback guardrail thresholds and required checks from policy."
+        ]
+      },
+      {
+        "stage": "enforced_pilot",
+        "description": "Operate promotion-aware governance gate in enforced mode with continuous telemetry review.",
+        "actions": [
+          "Run promotion-aware threshold governance gate for threshold-affecting PRs.",
+          "Track consecutive blocking breach/handoff/drill/not-ready counters.",
+          "Attach runbook and transition-pack artifacts to MONPOL evidence."
+        ]
+      },
+      {
+        "stage": "rollback",
+        "description": "Rollback to advisory mode when any guardrail threshold is breached.",
+        "actions": [
+          "Switch promotion active_mode to advisory and document rollback rationale.",
+          "Publish rollback evidence in MONPOL changelog and transition pack.",
+          "Open mitigation follow-up before re-attempting enforced pilot."
+        ]
+      }
     ]
   },
   "promotion_plan": [

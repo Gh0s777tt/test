@@ -192,6 +192,9 @@ maintenance scripts from `scripts/`:
 # Evaluate governance gate promotion readiness and enforced pilot checklist
 ./scripts/evaluate_governance_gate_promotion_readiness.sh
 
+# Generate enforced pilot execution runbook and rollback guardrails snapshot
+./scripts/generate_enforced_pilot_runbook.sh
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 

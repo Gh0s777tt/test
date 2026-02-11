@@ -256,6 +256,10 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
     TMP_DRILL_MD=""
     TMP_DRILL_JSON=""
     TMP_DRILL_SCENARIOS=""
+    TMP_BREACH_ROUTE_MD=""
+    TMP_BREACH_ROUTE_JSON=""
+    TMP_PROMOTION_READINESS_MD=""
+    TMP_PROMOTION_READINESS_JSON=""
     if ./scripts/evaluate_monitor_drift_escalation.sh --dashboard-json "$LATEST_DASHBOARD" --output "$TMP_ESCALATION_MD" --output-json "$TMP_ESCALATION_JSON" >/dev/null; then
       pass "monitor drift escalation evaluation passed"
     else
@@ -312,10 +316,28 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       else
         fail "governance gate promotion readiness assessment failed"
       fi
-      rm -f "$TMP_PROMOTION_READINESS_MD" "$TMP_PROMOTION_READINESS_JSON"
     else
       warn "scripts/evaluate_governance_gate_promotion_readiness.sh is missing or not executable"
     fi
+
+    if [[ -x "scripts/generate_enforced_pilot_runbook.sh" ]]; then
+      TMP_PILOT_RUNBOOK_MD="$(mktemp /tmp/vantis_enforced_pilot_runbook_verify_XXXXXX.md)"
+      TMP_PILOT_RUNBOOK_JSON="$(mktemp /tmp/vantis_enforced_pilot_runbook_verify_XXXXXX.json)"
+      if [[ -n "$TMP_PROMOTION_READINESS_JSON" && -f "$TMP_PROMOTION_READINESS_JSON" && -n "$TMP_BREACH_ROUTE_JSON" && -f "$TMP_BREACH_ROUTE_JSON" && -n "$TMP_HANDOFF_JSON" && -f "$TMP_HANDOFF_JSON" && -n "$TMP_DRILL_JSON" && -f "$TMP_DRILL_JSON" ]]; then
+        if ./scripts/generate_enforced_pilot_runbook.sh --readiness-json "$TMP_PROMOTION_READINESS_JSON" --breach-route-json "$TMP_BREACH_ROUTE_JSON" --handoff-json "$TMP_HANDOFF_JSON" --drill-json "$TMP_DRILL_JSON" --output "$TMP_PILOT_RUNBOOK_MD" --output-json "$TMP_PILOT_RUNBOOK_JSON" >/dev/null; then
+          pass "enforced pilot execution runbook generation passed"
+        else
+          fail "enforced pilot execution runbook generation failed"
+        fi
+      else
+        warn "enforced pilot execution runbook generation skipped (promotion readiness/breach/handoff/drill prerequisites unavailable)"
+      fi
+      rm -f "$TMP_PILOT_RUNBOOK_MD" "$TMP_PILOT_RUNBOOK_JSON"
+    else
+      warn "scripts/generate_enforced_pilot_runbook.sh is missing or not executable"
+    fi
+
+    rm -f "$TMP_PROMOTION_READINESS_MD" "$TMP_PROMOTION_READINESS_JSON"
 
     rm -f "$TMP_HANDOFF_MD" "$TMP_HANDOFF_JSON"
     rm -f "$TMP_DRILL_MD" "$TMP_DRILL_JSON"

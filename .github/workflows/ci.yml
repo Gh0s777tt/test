@@ -284,6 +284,11 @@ jobs:
         run: >
           ./scripts/evaluate_governance_gate_promotion_readiness.sh
 
+      - name: Generate enforced pilot execution runbook
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_enforced_pilot_runbook.sh
+
       - name: Enforce monitor threshold governance (promotion-aware)
         if: ${{ always() }}
         run: >

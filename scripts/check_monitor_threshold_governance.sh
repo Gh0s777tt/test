@@ -22,6 +22,7 @@ cd "$ROOT"
 ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
 PROMOTION_POLICY_JSON="$ROOT/governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json"
 BREACH_ROUTE_JSON=""
+PILOT_RUNBOOK_JSON=""
 PROMOTION_MODE="auto"
 
 usage() {
@@ -32,6 +33,7 @@ Options:
   --analysis-dir <path>             Analysis directory (default: analysis/benchmark_reproducibility)
   --promotion-policy-json <path>    Governance gate promotion policy JSON path
   --breach-route-json <path>        Breach route JSON artifact path (default: newest monitor_drift_breach_route_*.json)
+  --pilot-runbook-json <path>       Enforced pilot runbook JSON artifact path (default: newest enforced_pilot_runbook_*.json)
   --promotion-mode <auto|advisory|enforced>
   -h, --help                        Show this help
 USAGE
@@ -49,6 +51,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --breach-route-json)
       BREACH_ROUTE_JSON="${2:-}"
+      shift 2
+      ;;
+    --pilot-runbook-json)
+      PILOT_RUNBOOK_JSON="${2:-}"
       shift 2
       ;;
     --promotion-mode)
@@ -306,6 +312,16 @@ if [[ -z "$BREACH_ROUTE_JSON" ]]; then
   fi
 fi
 
+if [[ -z "$PILOT_RUNBOOK_JSON" ]]; then
+  shopt -s nullglob
+  RUNBOOK_CANDIDATES=("$ANALYSIS_DIR"/enforced_pilot_runbook_[0-9]*.json)
+  shopt -u nullglob
+  if (( ${#RUNBOOK_CANDIDATES[@]} > 0 )); then
+    readarray -t SORTED_RUNBOOK_CANDIDATES < <(printf '%s\n' "${RUNBOOK_CANDIDATES[@]}" | sort)
+    PILOT_RUNBOOK_JSON="${SORTED_RUNBOOK_CANDIDATES[${#SORTED_RUNBOOK_CANDIDATES[@]}-1]}"
+  fi
+fi
+
 BREACH_DETECTED="no"
 BREACH_SOURCES="none"
 ROUTE_WOULD_BLOCK="no"
@@ -343,6 +359,32 @@ else
   info "Breach route artifact not available for promotion-aware checks."
 fi
 
+RUNBOOK_ROLLBACK_RECOMMENDED="no"
+RUNBOOK_RECOMMENDED_ACTION="n/a"
+RUNBOOK_STAGE="n/a"
+if [[ -n "$PILOT_RUNBOOK_JSON" && -f "$PILOT_RUNBOOK_JSON" ]]; then
+  readarray -t RUNBOOK_META < <(python3 - "$PILOT_RUNBOOK_JSON" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+
+print("yes" if bool(payload.get("rollback_recommended", False)) else "no")
+print(str(payload.get("recommended_action", "n/a")))
+print(str(payload.get("runbook_stage", "n/a")))
+PY
+  )
+  RUNBOOK_ROLLBACK_RECOMMENDED="${RUNBOOK_META[0]:-no}"
+  RUNBOOK_RECOMMENDED_ACTION="${RUNBOOK_META[1]:-n/a}"
+  RUNBOOK_STAGE="${RUNBOOK_META[2]:-n/a}"
+  info "Enforced pilot runbook artifact: ${PILOT_RUNBOOK_JSON}"
+  info "Runbook summary: stage=${RUNBOOK_STAGE}, action=${RUNBOOK_RECOMMENDED_ACTION}, rollback=${RUNBOOK_ROLLBACK_RECOMMENDED}"
+else
+  info "Enforced pilot runbook artifact not available for rollback-guardrail checks."
+fi
+
 if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
   if [[ "$ENFORCE_ON_BREACH" == "yes" ]]; then
     if [[ -z "$BREACH_ROUTE_JSON" || ! -f "$BREACH_ROUTE_JSON" ]]; then
@@ -364,6 +406,9 @@ if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
     else
       info "No active breach detected; enforced promotion controls satisfied."
     fi
+  fi
+  if [[ "$RUNBOOK_ROLLBACK_RECOMMENDED" == "yes" ]]; then
+    fail "Enforced pilot rollback guardrail triggered (runbook action: ${RUNBOOK_RECOMMENDED_ACTION})."
   fi
 fi
 

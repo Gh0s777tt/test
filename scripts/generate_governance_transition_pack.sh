@@ -625,6 +625,44 @@ def parse_promotion_readiness_payload(path: Path):
     }
 
 
+def parse_enforced_pilot_runbook_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    preflight_checks = payload.get("preflight_checks", [])
+    if not isinstance(preflight_checks, list):
+        preflight_checks = []
+    preflight_failures = payload.get("preflight_required_failures", [])
+    if not isinstance(preflight_failures, list):
+        preflight_failures = []
+    guardrail_breaches = payload.get("guardrail_breaches", [])
+    if not isinstance(guardrail_breaches, list):
+        guardrail_breaches = []
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "runbook_stage": str(payload.get("runbook_stage", "n/a")),
+        "recommended_action": str(payload.get("recommended_action", "n/a")),
+        "operator_decision": str(payload.get("operator_decision", "n/a")),
+        "rollback_recommended": bool(payload.get("rollback_recommended", False)),
+        "preflight_ok": bool(payload.get("preflight_ok", False)),
+        "guardrails_ok": bool(payload.get("guardrails_ok", False)),
+        "preflight_checks": preflight_checks,
+        "preflight_required_failures": preflight_failures,
+        "guardrail_breaches": guardrail_breaches,
+        "consecutive_counters": payload.get("consecutive_counters", {}),
+        "policy": payload.get("policy", {}),
+        "telemetry_snapshot": payload.get("telemetry_snapshot", {}),
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -646,6 +684,8 @@ latest_breach_route_md = latest("monitor_drift_breach_route_[0-9]*.md")
 latest_breach_route_json = latest("monitor_drift_breach_route_[0-9]*.json")
 latest_promotion_readiness_md = latest("governance_gate_promotion_readiness_[0-9]*.md")
 latest_promotion_readiness_json = latest("governance_gate_promotion_readiness_[0-9]*.json")
+latest_enforced_pilot_runbook_md = latest("enforced_pilot_runbook_[0-9]*.md")
+latest_enforced_pilot_runbook_json = latest("enforced_pilot_runbook_[0-9]*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -681,6 +721,11 @@ promotion_readiness_telemetry = (
     if latest_promotion_readiness_json
     else {}
 )
+enforced_pilot_runbook_telemetry = (
+    parse_enforced_pilot_runbook_payload(latest_enforced_pilot_runbook_json)
+    if latest_enforced_pilot_runbook_json
+    else {}
+)
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -708,6 +753,7 @@ scripts_required = [
     root / "scripts/run_monitor_drift_release_readiness_drill.sh",
     root / "scripts/route_monitor_drift_breach_evidence.sh",
     root / "scripts/evaluate_governance_gate_promotion_readiness.sh",
+    root / "scripts/generate_enforced_pilot_runbook.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -824,6 +870,16 @@ artifact_status = [
         "path": rel(latest_promotion_readiness_json) if latest_promotion_readiness_json else "n/a",
         "exists": bool(latest_promotion_readiness_json),
     },
+    {
+        "kind": "enforced_pilot_runbook_md",
+        "path": rel(latest_enforced_pilot_runbook_md) if latest_enforced_pilot_runbook_md else "n/a",
+        "exists": bool(latest_enforced_pilot_runbook_md),
+    },
+    {
+        "kind": "enforced_pilot_runbook_json",
+        "path": rel(latest_enforced_pilot_runbook_json) if latest_enforced_pilot_runbook_json else "n/a",
+        "exists": bool(latest_enforced_pilot_runbook_json),
+    },
 ]
 
 readiness_checks = {
@@ -852,6 +908,11 @@ readiness_checks = {
     and bool(promotion_readiness_telemetry.get("overall_ready", False)),
     "promotion_pilot_go": bool(latest_promotion_readiness_json)
     and promotion_readiness_telemetry.get("pilot_go_no_go", "no-go") == "go",
+    "enforced_pilot_runbook_present": bool(latest_enforced_pilot_runbook_json),
+    "enforced_pilot_rollback_not_required": bool(latest_enforced_pilot_runbook_json)
+    and not bool(enforced_pilot_runbook_telemetry.get("rollback_recommended", False)),
+    "enforced_pilot_preflight_ok": bool(latest_enforced_pilot_runbook_json)
+    and bool(enforced_pilot_runbook_telemetry.get("preflight_ok", False)),
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -1206,6 +1267,69 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("- Readiness artifact: not available\n")
         fh.write("- Overall readiness: n/a\n\n")
 
+    fh.write("## Enforced Pilot Runbook Snapshot\n\n")
+    if enforced_pilot_runbook_telemetry:
+        counters = enforced_pilot_runbook_telemetry.get("consecutive_counters", {})
+        telemetry = enforced_pilot_runbook_telemetry.get("telemetry_snapshot", {})
+        fh.write(
+            f"- Runbook artifact: `{enforced_pilot_runbook_telemetry.get('source', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Generated at (UTC): {enforced_pilot_runbook_telemetry.get('generated_at_utc', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Stage: `{enforced_pilot_runbook_telemetry.get('runbook_stage', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Recommended action: `{enforced_pilot_runbook_telemetry.get('recommended_action', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Operator decision: `{enforced_pilot_runbook_telemetry.get('operator_decision', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Rollback recommended: **{yes_no(bool(enforced_pilot_runbook_telemetry.get('rollback_recommended', False)))}**\n"
+        )
+        fh.write(
+            f"- Preflight OK: `{yes_no(bool(enforced_pilot_runbook_telemetry.get('preflight_ok', False)))}`\n"
+        )
+        fh.write(
+            f"- Guardrails OK: `{yes_no(bool(enforced_pilot_runbook_telemetry.get('guardrails_ok', False)))}`\n"
+        )
+        fh.write(
+            f"- Snapshot statuses: handoff={telemetry.get('handoff_status', 'n/a')}, "
+            f"drill={telemetry.get('drill_status', 'n/a')}, "
+            f"breach_detected={yes_no(bool(telemetry.get('breach_detected', False)))}\n\n"
+        )
+
+        fh.write("| Counter | Value |\n")
+        fh.write("|---|---:|\n")
+        fh.write(
+            f"| `consecutive_blocking_breach_routes` | {counters.get('consecutive_blocking_breach_routes', 'n/a')} |\n"
+        )
+        fh.write(
+            f"| `consecutive_blocked_handoffs` | {counters.get('consecutive_blocked_handoffs', 'n/a')} |\n"
+        )
+        fh.write(
+            f"| `consecutive_failed_drills` | {counters.get('consecutive_failed_drills', 'n/a')} |\n"
+        )
+        fh.write(
+            f"| `consecutive_not_ready_assessments` | {counters.get('consecutive_not_ready_assessments', 'n/a')} |\n"
+        )
+        fh.write("\n")
+
+        breaches = enforced_pilot_runbook_telemetry.get("guardrail_breaches", [])
+        if breaches:
+            fh.write("Guardrail breaches:\n")
+            for item in breaches:
+                fh.write(
+                    f"- `{item.get('id', 'n/a')}` value={item.get('value', 'n/a')} "
+                    f"threshold={item.get('threshold', 'n/a')}\n"
+                )
+            fh.write("\n")
+    else:
+        fh.write("- Runbook artifact: not available\n")
+        fh.write("- Rollback recommended: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -1220,6 +1344,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("6. Rehearse strict release-readiness enforcement using drill artifacts.\n")
     fh.write("7. Route breach evidence and promote governance gate from advisory to enforced when ready.\n")
     fh.write("8. Track promotion readiness scorecard and maintain enforced pilot checklist evidence.\n")
+    fh.write("9. Execute enforced pilot runbook and apply rollback guardrails on breach signals.\n")
     fh.write("\n")
 
 transition_json = {
@@ -1251,6 +1376,7 @@ transition_json = {
     "release_readiness_drill_telemetry": release_readiness_drill_telemetry,
     "breach_route_telemetry": breach_route_telemetry,
     "promotion_readiness_telemetry": promotion_readiness_telemetry,
+    "enforced_pilot_runbook_telemetry": enforced_pilot_runbook_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

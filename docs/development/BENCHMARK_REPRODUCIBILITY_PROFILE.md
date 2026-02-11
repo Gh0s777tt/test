@@ -132,6 +132,9 @@ Current repository integration:
 - CI runs `scripts/evaluate_governance_gate_promotion_readiness.sh` to publish
   readiness scorecard and enforced pilot rollout checklist (`go` / `no-go`)
   from rolling drill/handoff/breach telemetry.
+- CI runs `scripts/generate_enforced_pilot_runbook.sh` to publish enforced-pilot
+  execution runbook and rollback guardrail decisions (`continue` vs `rollback`)
+  from latest readiness + breach/handoff/drill evidence.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -236,6 +239,12 @@ Evaluate governance gate promotion readiness:
 
 ```bash
 ./scripts/evaluate_governance_gate_promotion_readiness.sh
+```
+
+Generate enforced pilot execution runbook:
+
+```bash
+./scripts/generate_enforced_pilot_runbook.sh
 ```
 
 Run monitor-threshold governance gate with explicit promotion mode:
