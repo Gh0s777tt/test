@@ -311,6 +311,7 @@ cat >"$INSTALLED_GRUB_CFG_PATH" <<'INSTGRUB'
 set timeout=0
 set default=0
 terminal_output console
+search --file --set=root /EFI/BOOT/BOOTX64.EFI
 
 menuentry "VantisOS Installed" {
     linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed
