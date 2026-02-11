@@ -280,6 +280,12 @@
   - [x] Integrate runbook guardrails into CI, transition pack, governance gate, and repo verification
   - [x] Validate full chain and publish Day 11 report
 
+- [x] Day 12: Enforced Pilot Burn-In Telemetry SLO and Rollback Postmortem Template
+  - [x] Add burn-in SLO evaluator from rolling enforced-pilot runbook telemetry
+  - [x] Add policy-driven rollback postmortem scaffold template and trigger conditions
+  - [x] Integrate burn-in/postmortem artifacts into CI, transition pack, governance gate, proposal evidence, and repo verification
+  - [x] Validate full chain and publish Day 12 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
@@ -292,5 +298,6 @@
 - Week 10 Day 9: ✅ COMPLETE (breach evidence routing + promotion-aware governance gate strategy + evidence)
 - Week 10 Day 10: ✅ COMPLETE (promotion readiness scorecard + enforced pilot checklist + evidence)
 - Week 10 Day 11: ✅ COMPLETE (enforced pilot runbook + rollback guardrails + evidence)
-- Week 10 Progress: 11 milestone days complete
-- Next: Week 10 Day 12 - enforced pilot burn-in telemetry SLO and rollback postmortem template
+- Week 10 Day 12: ✅ COMPLETE (burn-in SLO telemetry + rollback postmortem scaffold + evidence)
+- Week 10 Progress: 12 milestone days complete
+- Next: Week 10 Day 13 - enforced pilot incident closure governance and handoff signoff packet

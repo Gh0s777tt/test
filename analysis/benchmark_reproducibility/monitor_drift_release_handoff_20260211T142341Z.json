@@ -1,0 +1,92 @@
+{
+  "escalation_artifact": "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T142341Z.json",
+  "generated_at_utc": "2026-02-11T14:23:42Z",
+  "items": [
+    {
+      "description": "Escalation policy document is present.",
+      "details": "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md",
+      "id": "policy_doc_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Escalation owner/SLA registry JSON is present.",
+      "details": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+      "id": "owners_registry_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Escalation assessment artifact is available.",
+      "details": "analysis/benchmark_reproducibility/monitor_drift_escalation_20260211T142341Z.json",
+      "id": "escalation_artifact_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Overall escalation owner and SLA are defined.",
+      "details": "owner=Benchmark Governance Automation, sla_hours=168",
+      "id": "overall_owner_assigned",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Next escalation drill due time is defined.",
+      "details": "next_drill_due_utc=2026-03-13T14:23:41Z",
+      "id": "drill_due_defined",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "Latest monitor policy dashboard artifact is present.",
+      "details": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260211T142341Z.json",
+      "id": "dashboard_artifact_present",
+      "required": true,
+      "status": "pass"
+    },
+    {
+      "description": "MONPOL proposal artifact present when release handoff is required.",
+      "details": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260211T142341Z.json",
+      "id": "proposal_artifact_present",
+      "required": false,
+      "status": "pass"
+    },
+    {
+      "description": "Governance transition pack artifact present when release handoff is required.",
+      "details": "analysis/benchmark_reproducibility/governance_transition_pack_20260211T050242Z.json",
+      "id": "transition_pack_present",
+      "required": false,
+      "status": "pass"
+    },
+    {
+      "description": "Signoff validation artifact present when release handoff is required.",
+      "details": "analysis/benchmark_reproducibility/monpol_signoff_validation_20260211T142341Z.json",
+      "id": "signoff_validation_present",
+      "required": false,
+      "status": "pass"
+    }
+  ],
+  "latest_artifacts": {
+    "dashboard_json": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260211T142341Z.json",
+    "proposal_json": "analysis/benchmark_reproducibility/monitor_threshold_proposal_MONPOL-002_20260211T142341Z.json",
+    "signoff_validation_json": "analysis/benchmark_reproducibility/monpol_signoff_validation_20260211T142341Z.json",
+    "transition_pack_json": "analysis/benchmark_reproducibility/governance_transition_pack_20260211T050242Z.json"
+  },
+  "next_drill_due_utc": "2026-03-13T14:23:41Z",
+  "overall_level": "normal",
+  "overall_owner_profile": {
+    "backup_owner": "Performance Working Group",
+    "drill_cadence_days": 30,
+    "owner": "Benchmark Governance Automation",
+    "release_handoff_required": false,
+    "response_sla_hours": 168,
+    "source_level": "normal"
+  },
+  "overall_status": "ready",
+  "owners_registry": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+  "policy_doc": "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md",
+  "release_handoff_required": false,
+  "require_transition_pack": false,
+  "required_failures": [],
+  "strict_mode": true
+}

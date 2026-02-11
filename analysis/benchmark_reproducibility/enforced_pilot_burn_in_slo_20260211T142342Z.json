@@ -1,0 +1,88 @@
+{
+  "burn_in_slo": {
+    "allowed_latest_runbook_stages": [
+      "preflight",
+      "enforced_pilot"
+    ],
+    "max_breach_detected_events": 0,
+    "max_guardrail_breach_events": 0,
+    "max_preflight_failures": 0,
+    "max_rollback_recommendations": 0,
+    "min_samples": 1,
+    "require_latest_operator_decision_go": true,
+    "window_artifacts": 5
+  },
+  "criteria": [
+    {
+      "description": "Burn-in runbook samples >= 1",
+      "id": "samples_sufficient",
+      "passed": true,
+      "target": ">= 1",
+      "value": 2
+    },
+    {
+      "description": "Rollback recommendations <= 0",
+      "id": "rollback_recommendations_within_limit",
+      "passed": true,
+      "target": "<= 0",
+      "value": 0
+    },
+    {
+      "description": "Guardrail breach events <= 0",
+      "id": "guardrail_breach_events_within_limit",
+      "passed": true,
+      "target": "<= 0",
+      "value": 0
+    },
+    {
+      "description": "Preflight failures <= 0",
+      "id": "preflight_failures_within_limit",
+      "passed": true,
+      "target": "<= 0",
+      "value": 0
+    },
+    {
+      "description": "Breach-detected runbook snapshots <= 0",
+      "id": "breach_detected_events_within_limit",
+      "passed": true,
+      "target": "<= 0",
+      "value": 0
+    },
+    {
+      "description": "Latest runbook stage is allowed by burn-in policy.",
+      "id": "latest_stage_allowed",
+      "passed": true,
+      "target": "preflight,enforced_pilot",
+      "value": "preflight"
+    },
+    {
+      "description": "Latest operator decision is go when required.",
+      "id": "latest_operator_decision_go",
+      "passed": true,
+      "target": "go",
+      "value": "go"
+    }
+  ],
+  "generated_at_utc": "2026-02-11T14:23:42Z",
+  "inputs": {
+    "analysis_dir": "analysis/benchmark_reproducibility",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+    "window_artifacts_override": "n/a"
+  },
+  "overall_status": "pass",
+  "required_failures": [],
+  "telemetry_summary": {
+    "breach_detected_events": 0,
+    "guardrail_breach_events": 0,
+    "latest_operator_decision": "go",
+    "latest_stage": "preflight",
+    "preflight_failures": 0,
+    "rollback_recommendations": 0,
+    "safe_rate_pct": 100.0,
+    "samples": 2
+  },
+  "window_artifacts": [
+    "analysis/benchmark_reproducibility/enforced_pilot_runbook_20260211T050242Z.json",
+    "analysis/benchmark_reproducibility/enforced_pilot_runbook_20260211T142342Z.json"
+  ]
+}

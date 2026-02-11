@@ -1,0 +1,51 @@
+{
+  "evidence_bundle": [
+    "analysis/benchmark_reproducibility/enforced_pilot_runbook_20260211T142342Z.json",
+    "analysis/benchmark_reproducibility/enforced_pilot_burn_in_slo_20260211T142342Z.json",
+    "analysis/benchmark_reproducibility/governance_gate_promotion_readiness_20260211T142342Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_breach_route_20260211T142342Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T142341Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T142342Z.json"
+  ],
+  "generated_at_utc": "2026-02-11T14:23:42Z",
+  "inputs": {
+    "analysis_dir": "analysis/benchmark_reproducibility",
+    "breach_route_json": "analysis/benchmark_reproducibility/monitor_drift_breach_route_20260211T142342Z.json",
+    "burn_in_json": "analysis/benchmark_reproducibility/enforced_pilot_burn_in_slo_20260211T142342Z.json",
+    "drill_json": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T142342Z.json",
+    "handoff_json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_20260211T142341Z.json",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+    "readiness_json": "analysis/benchmark_reproducibility/governance_gate_promotion_readiness_20260211T142342Z.json",
+    "runbook_json": "analysis/benchmark_reproducibility/enforced_pilot_runbook_20260211T142342Z.json"
+  },
+  "required": false,
+  "snapshot": {
+    "breach_detected": false,
+    "burn_in_overall_status": "pass",
+    "drill_overall_status": "pass",
+    "handoff_overall_status": "ready",
+    "readiness_overall_ready": true
+  },
+  "status": "not_required",
+  "template_sections": [
+    "Incident Summary",
+    "Impact Assessment",
+    "Timeline",
+    "Detection and Guardrail Trigger",
+    "Immediate Mitigation",
+    "Root Cause",
+    "Corrective Actions",
+    "Follow-up Verification",
+    "Approvals"
+  ],
+  "trigger": {
+    "guardrail_breaches": [],
+    "required_on_actions": [
+      "rollback_to_advisory",
+      "hold_enforced_and_triage"
+    ],
+    "rollback_recommended": false,
+    "runbook_action": "promote_to_enforced_pilot",
+    "runbook_stage": "preflight"
+  }
+}
