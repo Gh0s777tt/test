@@ -105,11 +105,15 @@ fn run_first_boot_setup(persistent_active: bool) {
     let _ = fs::write("/home/.vantis_system_profile.conf", &profile);
     let _ = fs::write("/home/.vantis_welcome.txt", welcome);
     let _ = fs::write("/home/.vantis_first_boot_done", format!("completed_unix_utc={now}\n"));
+    let _ = fs::remove_file("/home/.vantis_onboarding_done");
+    let _ = fs::write("/home/.vantis_onboarding_pending", "pending\n");
 
     if persistent_active {
         let _ = fs::create_dir_all("/persist/vantis");
         let _ = fs::write("/persist/vantis/system_profile.conf", profile);
         let _ = fs::write("/persist/vantis/first_boot_done", format!("completed_unix_utc={now}\n"));
+        let _ = fs::remove_file("/persist/vantis/onboarding_done");
+        let _ = fs::write("/persist/vantis/onboarding_pending", "pending\n");
     }
 
     println!("[VANTIS] FIRST BOOT SETUP COMPLETE");
@@ -159,6 +163,9 @@ fn main() {
             println!("[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE");
         } else {
             run_first_boot_setup(persistent_active);
+        }
+        if !Path::new("/home/.vantis_onboarding_done").exists() {
+            println!("[VANTIS] ONBOARDING PENDING: run `onboard`");
         }
         if !persistent_active {
             println!("[VANTIS] persistent storage unavailable; setup is volatile");

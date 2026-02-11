@@ -1,10 +1,65 @@
 use std::collections::BTreeMap;
+use std::fs;
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::Command;
-use std::fs;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 const PROFILE_PATH: &str = "/home/.vantis_system_profile.conf";
+const WELCOME_PATH: &str = "/home/.vantis_welcome.txt";
+const FIRSTBOOT_MARKER_PATH: &str = "/home/.vantis_first_boot_done";
+const ONBOARDING_DONE_PATH: &str = "/home/.vantis_onboarding_done";
+
+fn unix_now() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
+
+fn ensure_profile_defaults(map: &mut BTreeMap<String, String>) {
+    if !map.contains_key("profile") {
+        map.insert("profile".to_string(), "core".to_string());
+    }
+    if !map.contains_key("user") {
+        map.insert("user".to_string(), "vantis".to_string());
+    }
+    if !map.contains_key("hostname") {
+        map.insert("hostname".to_string(), "vantis-node".to_string());
+    }
+    if !map.contains_key("mode") {
+        map.insert("mode".to_string(), "installed".to_string());
+    }
+}
+
+fn serialize_profile_config(map: &BTreeMap<String, String>) -> String {
+    let order = [
+        "profile",
+        "user",
+        "hostname",
+        "mode",
+        "first_boot_unix_utc",
+        "notes",
+    ];
+    let mut out = String::new();
+    for key in order {
+        if let Some(value) = map.get(key) {
+            out.push_str(key);
+            out.push('=');
+            out.push_str(value);
+            out.push('\n');
+        }
+    }
+    for (key, value) in map {
+        if !order.iter().any(|known| *known == key.as_str()) {
+            out.push_str(key);
+            out.push('=');
+            out.push_str(value);
+            out.push('\n');
+        }
+    }
+    out
+}
 
 fn read_profile_config() -> BTreeMap<String, String> {
     let mut map = BTreeMap::new();
@@ -26,49 +81,202 @@ fn read_profile_config() -> BTreeMap<String, String> {
 }
 
 fn write_profile_config(mut map: BTreeMap<String, String>) -> Result<(), String> {
-    if !map.contains_key("profile") {
-        map.insert("profile".to_string(), "core".to_string());
-    }
-    if !map.contains_key("user") {
-        map.insert("user".to_string(), "vantis".to_string());
-    }
-    if !map.contains_key("hostname") {
-        map.insert("hostname".to_string(), "vantis-node".to_string());
-    }
-    if !map.contains_key("mode") {
-        map.insert("mode".to_string(), "installed".to_string());
-    }
-
-    let order = [
-        "profile",
-        "user",
-        "hostname",
-        "mode",
-        "first_boot_unix_utc",
-        "notes",
-    ];
-    let mut out = String::new();
-    for key in order {
-        if let Some(value) = map.get(key) {
-            out.push_str(key);
-            out.push('=');
-            out.push_str(value);
-            out.push('\n');
-        }
-    }
-    for (key, value) in &map {
-        if !order.contains(&key.as_str()) {
-            out.push_str(key);
-            out.push('=');
-            out.push_str(value);
-            out.push('\n');
-        }
-    }
+    ensure_profile_defaults(&mut map);
+    let out = serialize_profile_config(&map);
 
     if let Err(err) = fs::create_dir_all("/home") {
         return Err(format!("failed to prepare /home: {err}"));
     }
-    fs::write(PROFILE_PATH, out).map_err(|err| format!("failed to write profile config: {err}"))
+    fs::write(PROFILE_PATH, &out).map_err(|err| format!("failed to write profile config: {err}"))?;
+
+    if Path::new("/persist").exists() {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::write("/persist/vantis/system_profile.conf", out);
+    }
+    Ok(())
+}
+
+fn write_welcome_message(map: &BTreeMap<String, String>) {
+    let user = map
+        .get("user")
+        .cloned()
+        .unwrap_or_else(|| "vantis".to_string());
+    let hostname = map
+        .get("hostname")
+        .cloned()
+        .unwrap_or_else(|| "vantis-node".to_string());
+    let profile = map
+        .get("profile")
+        .cloned()
+        .unwrap_or_else(|| "core".to_string());
+    let first_boot = map
+        .get("first_boot_unix_utc")
+        .map(|value| format!("First boot unix timestamp: {value}\n"))
+        .unwrap_or_default();
+    let text = format!(
+        "Welcome to VantisOS installed mode.\n{first_boot}User: {user}\nHost: {hostname}\nProfile: {profile}\n"
+    );
+
+    let _ = fs::write(WELCOME_PATH, &text);
+    if Path::new("/persist").exists() {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::write("/persist/vantis/welcome.txt", text);
+    }
+}
+
+fn normalize_profile(value: &str) -> Option<String> {
+    let normalized = value.trim().to_ascii_lowercase();
+    match normalized.as_str() {
+        "core" | "gamer" | "wraith" | "server" => Some(normalized),
+        _ => None,
+    }
+}
+
+fn normalize_identifier(value: &str) -> Option<String> {
+    let normalized = value.trim();
+    if normalized.is_empty() || normalized.len() > 63 {
+        return None;
+    }
+    if normalized
+        .chars()
+        .all(|ch| ch.is_ascii_alphanumeric() || ch == '-' || ch == '_' || ch == '.')
+    {
+        Some(normalized.to_string())
+    } else {
+        None
+    }
+}
+
+fn apply_profile_update(map: &mut BTreeMap<String, String>, key: &str, value: &str) -> Result<(), String> {
+    match key {
+        "profile" => {
+            let Some(normalized) = normalize_profile(value) else {
+                return Err("profile must be one of: core, gamer, wraith, server".to_string());
+            };
+            map.insert("profile".to_string(), normalized);
+            Ok(())
+        }
+        "user" | "hostname" => {
+            let Some(normalized) = normalize_identifier(value) else {
+                return Err(format!(
+                    "{key} must use only [A-Za-z0-9._-] and be 1..63 chars"
+                ));
+            };
+            map.insert(key.to_string(), normalized);
+            Ok(())
+        }
+        _ => Err(format!("config key not supported: {key}")),
+    }
+}
+
+fn mark_onboarding_done(source: &str) {
+    let stamp = format!("completed_unix_utc={}\nsource={source}\n", unix_now());
+    let _ = fs::write(ONBOARDING_DONE_PATH, &stamp);
+    if Path::new("/persist").exists() {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::write("/persist/vantis/onboarding_done", stamp);
+    }
+}
+
+fn prompt_with_default(prompt: &str, default: &str) -> Result<String, String> {
+    print!("{prompt} [{default}]: ");
+    io::stdout()
+        .flush()
+        .map_err(|err| format!("failed to flush prompt: {err}"))?;
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .map_err(|err| format!("failed to read input: {err}"))?;
+    let trimmed = input.trim();
+    if trimmed.is_empty() {
+        Ok(default.to_string())
+    } else {
+        Ok(trimmed.to_string())
+    }
+}
+
+fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
+    let mut map = read_profile_config();
+    ensure_profile_defaults(&mut map);
+
+    let mut source = "interactive";
+    if args.is_empty() {
+        println!("[VANTIS] onboarding wizard started");
+        let default_hostname = map
+            .get("hostname")
+            .cloned()
+            .unwrap_or_else(|| "vantis-node".to_string());
+        let default_user = map
+            .get("user")
+            .cloned()
+            .unwrap_or_else(|| "vantis".to_string());
+        let default_profile = map
+            .get("profile")
+            .cloned()
+            .unwrap_or_else(|| "core".to_string());
+
+        let hostname = prompt_with_default("hostname", &default_hostname)?;
+        let user = prompt_with_default("user", &default_user)?;
+        let profile = prompt_with_default("profile (core|gamer|wraith|server)", &default_profile)?;
+
+        apply_profile_update(&mut map, "hostname", &hostname)?;
+        apply_profile_update(&mut map, "user", &user)?;
+        apply_profile_update(&mut map, "profile", &profile)?;
+    } else {
+        source = "non_interactive";
+        let mut idx = 0usize;
+        let mut changed = false;
+        while idx < args.len() {
+            match args[idx] {
+                "--hostname" => {
+                    if idx + 1 >= args.len() {
+                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                    }
+                    apply_profile_update(&mut map, "hostname", args[idx + 1])?;
+                    changed = true;
+                    idx += 2;
+                }
+                "--user" => {
+                    if idx + 1 >= args.len() {
+                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                    }
+                    apply_profile_update(&mut map, "user", args[idx + 1])?;
+                    changed = true;
+                    idx += 2;
+                }
+                "--profile" => {
+                    if idx + 1 >= args.len() {
+                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                    }
+                    apply_profile_update(&mut map, "profile", args[idx + 1])?;
+                    changed = true;
+                    idx += 2;
+                }
+                "--help" | "-h" => {
+                    return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                }
+                other => {
+                    return Err(format!("unknown onboarding option: {other}"));
+                }
+            }
+        }
+        if !changed {
+            return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+        }
+    }
+
+    write_profile_config(map.clone())?;
+    write_welcome_message(&map);
+    mark_onboarding_done(source);
+
+    let profile = map.get("profile").cloned().unwrap_or_default();
+    let user = map.get("user").cloned().unwrap_or_default();
+    let hostname = map.get("hostname").cloned().unwrap_or_default();
+    println!("[VANTIS] ONBOARDING COMPLETE");
+    println!("profile={profile}");
+    println!("user={user}");
+    println!("hostname={hostname}");
+    Ok(())
 }
 
 pub fn start() {
@@ -96,6 +304,8 @@ pub fn start() {
                 println!("  ai                         - run Cortex offline readiness check");
                 println!("  install <disk> --yes       - install bootable VantisOS to target disk");
                 println!("  firstboot                  - show first-boot setup status");
+                println!("  onboard [flags]            - run first-boot onboarding wizard");
+                println!("      flags: --hostname --user --profile");
                 println!("  config show                - print current installed profile config");
                 println!("  config set <k> <v>         - set profile/user/hostname");
                 println!("  reboot                     - reboot machine");
@@ -106,14 +316,18 @@ pub fn start() {
                 Err(err) => eprintln!("failed to run vantis: {err}"),
             },
             "firstboot" => {
-                let marker = "/home/.vantis_first_boot_done";
-                if Path::new(marker).exists() {
+                if Path::new(FIRSTBOOT_MARKER_PATH).exists() {
                     println!("first_boot: done");
                 } else {
                     println!("first_boot: pending");
                 }
+                if Path::new(ONBOARDING_DONE_PATH).exists() {
+                    println!("onboarding: done");
+                } else {
+                    println!("onboarding: pending");
+                }
 
-                match fs::read_to_string("/home/.vantis_welcome.txt") {
+                match fs::read_to_string(WELCOME_PATH) {
                     Ok(content) => {
                         let line = content.lines().next().unwrap_or_default();
                         if !line.is_empty() {
@@ -121,6 +335,12 @@ pub fn start() {
                         }
                     }
                     Err(_) => println!("welcome: n/a"),
+                }
+            }
+            "onboard" => {
+                let args: Vec<&str> = parts.collect();
+                if let Err(err) = run_onboarding(args) {
+                    eprintln!("{err}");
                 }
             }
             "config" => {
@@ -150,22 +370,19 @@ pub fn start() {
                             eprintln!("usage: config set <profile|user|hostname> <value>");
                             continue;
                         }
-                        if key != "profile" && key != "user" && key != "hostname" {
-                            eprintln!("config key not supported: {key}");
+                        let mut map = read_profile_config();
+                        ensure_profile_defaults(&mut map);
+                        if let Err(err) = apply_profile_update(&mut map, key, &value) {
+                            eprintln!("{err}");
                             continue;
                         }
-                        if key == "profile" {
-                            let allowed = ["core", "gamer", "wraith", "server"];
-                            if !allowed.contains(&value.as_str()) {
-                                eprintln!("profile must be one of: core, gamer, wraith, server");
-                                continue;
-                            }
-                        }
-
-                        let mut map = read_profile_config();
-                        map.insert(key.to_string(), value.clone());
                         match write_profile_config(map) {
-                            Ok(_) => println!("config updated: {key}={value}"),
+                            Ok(_) => {
+                                let refreshed = read_profile_config();
+                                write_welcome_message(&refreshed);
+                                mark_onboarding_done("config_set");
+                                println!("config updated: {key}={value}");
+                            }
                             Err(err) => eprintln!("{err}"),
                         }
                     }
