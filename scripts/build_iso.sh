@@ -314,7 +314,7 @@ terminal_output console
 search --file --set=root /EFI/BOOT/BOOTX64.EFI
 
 menuentry "VantisOS Installed" {
-    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed
+    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_BOOT
     initrd /initrd.img
 }
 INSTGRUB
@@ -480,12 +480,13 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     echo "Installed boot log: $BOOT_LOG" >&2
     exit 1
   fi
-  if rg -q '\[VANTIS\] WRAITH MODE ACTIVE|vantis> ' "$BOOT_LOG"; then
+  if rg -q '\[VANTIS\] WRAITH MODE ACTIVE|vantis> ' "$BOOT_LOG" \
+    && rg -q '\[VANTIS\] FIRST BOOT SETUP COMPLETE|\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$BOOT_LOG"; then
     echo "Installer smoke passed: installed disk booted to Vantis shell"
     echo "Installer log: $INSTALL_LOG"
     echo "Installed boot log: $BOOT_LOG"
   else
-    echo "Error: installed disk did not reach shell prompt" >&2
+    echo "Error: installed disk did not satisfy first-boot validation checks" >&2
     echo "Installed boot log: $BOOT_LOG" >&2
     exit 1
   fi
