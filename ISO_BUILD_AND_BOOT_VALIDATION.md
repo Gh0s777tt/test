@@ -10,7 +10,7 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 - ISO path: `build/VantisOS-live.iso`
 - Size: `70907904` bytes
 - SHA-256:
-  `ed8c588eeb2fb83ecb2226dda283d0e02b9a8cb95fc85e1f836f7d449282d716`
+  `eb8f3622217780bf51d9112b0e72208cf8ced52e791e2902f2b8254525e832a3`
 
 ## Build command
 
@@ -22,15 +22,19 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T232305Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T233239Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T232430Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T233404Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T232830Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T233804Z.log`
+
+Installed disk reboot persistence validation log:
+
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260211T233929Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -51,7 +55,11 @@ Observed runtime behavior:
   - `config show`,
   - `config set hostname vantis-lab`,
   - `config set user operator`,
-  - `config set profile wraith`.
+  - `config set profile wraith`,
+- second installed boot confirms persistence (`FIRST BOOT SETUP ALREADY COMPLETE`) and retained:
+  - `hostname=vantis-lab`
+  - `user=operator`
+  - `profile=wraith`.
 
 ## Reproduce
 

@@ -27,7 +27,7 @@ Options:
   --output <path>              Output ISO path (default: build/VantisOS-live.iso)
   --kernel <path>              Kernel image path (default: /boot/vmlinuz or latest /boot/vmlinuz-*)
   --run-qemu-smoke             Boot ISO in QEMU and verify interactive shell prompt
-  --run-installer-smoke        Run installer flow in QEMU and verify installed-disk boot
+  --run-installer-smoke        Run installer flow in QEMU and verify installed-disk boot + reboot persistence
   --qemu-timeout <seconds>     Timeout for smoke boot test (default: 45)
   --installer-timeout <sec>    Timeout for installer session (default: 120)
   -h, --help                   Show this help
