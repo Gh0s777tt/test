@@ -138,6 +138,7 @@ See [../history/](../history/) for:
 - **Generating monitor drift release handoff checklist**: `../scripts/generate_monitor_drift_release_handoff.sh`
 - **Running strict release-readiness drill dry-run**: `../scripts/run_monitor_drift_release_readiness_drill.sh`
 - **Routing escalation breach evidence snapshot**: `../scripts/route_monitor_drift_breach_evidence.sh`
+- **Evaluating governance gate promotion readiness scorecard**: `../scripts/evaluate_governance_gate_promotion_readiness.sh`
 - **Generating governance-ready threshold proposal draft (includes signoff + latency telemetry)**: `../scripts/generate_monitor_threshold_proposal.sh`
 - **Generating Week 9 governance transition pack (includes signoff review-status + latency telemetry)**: `../scripts/generate_governance_transition_pack.sh`
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
@@ -173,6 +174,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 7 escalation owner/SLA drills and release handoff checklist**: `../WEEK_10_DAY_7_ESCALATION_OWNER_SLA_AND_HANDOFF.md`
 - **Week 10 Day 8 strict release-readiness enforcement dry-run**: `../WEEK_10_DAY_8_RELEASE_READINESS_ENFORCEMENT_DRY_RUN.md`
 - **Week 10 Day 9 escalation breach evidence routing + gate promotion strategy**: `../WEEK_10_DAY_9_BREACH_EVIDENCE_ROUTING_AND_GATE_PROMOTION.md`
+- **Week 10 Day 10 promotion readiness criteria + enforced pilot checklist**: `../WEEK_10_DAY_10_PROMOTION_READINESS_AND_ENFORCED_PILOT_CHECKLIST.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

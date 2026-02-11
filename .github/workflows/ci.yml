@@ -279,6 +279,11 @@ jobs:
         run: >
           ./scripts/route_monitor_drift_breach_evidence.sh
 
+      - name: Evaluate governance gate promotion readiness
+        if: ${{ always() }}
+        run: >
+          ./scripts/evaluate_governance_gate_promotion_readiness.sh
+
       - name: Enforce monitor threshold governance (promotion-aware)
         if: ${{ always() }}
         run: >

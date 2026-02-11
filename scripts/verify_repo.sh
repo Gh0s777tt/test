@@ -304,6 +304,19 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       warn "scripts/route_monitor_drift_breach_evidence.sh is missing or not executable"
     fi
 
+    if [[ -x "scripts/evaluate_governance_gate_promotion_readiness.sh" ]]; then
+      TMP_PROMOTION_READINESS_MD="$(mktemp /tmp/vantis_gate_promotion_readiness_verify_XXXXXX.md)"
+      TMP_PROMOTION_READINESS_JSON="$(mktemp /tmp/vantis_gate_promotion_readiness_verify_XXXXXX.json)"
+      if ./scripts/evaluate_governance_gate_promotion_readiness.sh --output "$TMP_PROMOTION_READINESS_MD" --output-json "$TMP_PROMOTION_READINESS_JSON" >/dev/null; then
+        pass "governance gate promotion readiness assessment passed"
+      else
+        fail "governance gate promotion readiness assessment failed"
+      fi
+      rm -f "$TMP_PROMOTION_READINESS_MD" "$TMP_PROMOTION_READINESS_JSON"
+    else
+      warn "scripts/evaluate_governance_gate_promotion_readiness.sh is missing or not executable"
+    fi
+
     rm -f "$TMP_HANDOFF_MD" "$TMP_HANDOFF_JSON"
     rm -f "$TMP_DRILL_MD" "$TMP_DRILL_JSON"
     if [[ -n "$TMP_DRILL_SCENARIOS" ]]; then

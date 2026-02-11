@@ -129,6 +129,9 @@ Current repository integration:
 - CI runs `scripts/route_monitor_drift_breach_evidence.sh` to publish
   breach-classification evidence routing and governance-gate promotion snapshot
   (`advisory` vs `enforced` mode context).
+- CI runs `scripts/evaluate_governance_gate_promotion_readiness.sh` to publish
+  readiness scorecard and enforced pilot rollout checklist (`go` / `no-go`)
+  from rolling drill/handoff/breach telemetry.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -227,6 +230,12 @@ Route escalation breach evidence snapshot:
 
 ```bash
 ./scripts/route_monitor_drift_breach_evidence.sh
+```
+
+Evaluate governance gate promotion readiness:
+
+```bash
+./scripts/evaluate_governance_gate_promotion_readiness.sh
 ```
 
 Run monitor-threshold governance gate with explicit promotion mode:

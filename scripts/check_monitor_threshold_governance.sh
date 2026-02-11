@@ -298,7 +298,7 @@ info "Promotion controls: enforce_on_breach=${ENFORCE_ON_BREACH}, require_pr_mit
 
 if [[ -z "$BREACH_ROUTE_JSON" ]]; then
   shopt -s nullglob
-  ROUTE_CANDIDATES=("$ANALYSIS_DIR"/monitor_drift_breach_route_*.json)
+  ROUTE_CANDIDATES=("$ANALYSIS_DIR"/monitor_drift_breach_route_[0-9]*.json)
   shopt -u nullglob
   if (( ${#ROUTE_CANDIDATES[@]} > 0 )); then
     readarray -t SORTED_ROUTE_CANDIDATES < <(printf '%s\n' "${ROUTE_CANDIDATES[@]}" | sort)

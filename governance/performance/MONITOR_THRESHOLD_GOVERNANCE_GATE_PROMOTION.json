@@ -13,6 +13,26 @@
       "require_breach_ack_token": true
     }
   },
+  "readiness_thresholds": {
+    "window_days": 14,
+    "min_drill_samples": 3,
+    "min_drill_pass_rate_pct": 95,
+    "max_blocked_handoff_count": 0,
+    "max_breach_detected_count": 0
+  },
+  "pilot_rollout": {
+    "ops_ack_token": "PILOT-ACK",
+    "required_checks": [
+      "promotion_policy_loaded",
+      "enforced_controls_defined",
+      "latest_breach_route_present",
+      "latest_handoff_present",
+      "latest_drill_present",
+      "readiness_thresholds_met",
+      "current_route_not_blocking",
+      "current_handoff_not_blocked"
+    ]
+  },
   "promotion_plan": [
     {
       "phase": "phase_0_baseline",

@@ -28,6 +28,8 @@ Key fields:
 - `modes.<mode>.enforce_on_breach`
 - `modes.<mode>.require_pr_mitigation`
 - `modes.<mode>.require_breach_ack_token`
+- `readiness_thresholds.*`
+- `pilot_rollout.*`
 
 ---
 
@@ -62,12 +64,35 @@ Readiness criteria are tracked in the JSON policy file and transition-pack telem
 
 ---
 
-## 5) Related Artifacts and Automation
+## 5) Readiness Scorecard and Pilot Checklist
+
+Readiness is assessed with:
+
+- `scripts/evaluate_governance_gate_promotion_readiness.sh`
+
+Outputs:
+
+- `analysis/benchmark_reproducibility/governance_gate_promotion_readiness_<timestamp>.md`
+- `analysis/benchmark_reproducibility/governance_gate_promotion_readiness_<timestamp>.json`
+
+Assessment includes:
+
+- rolling drill pass-rate criteria,
+- blocked-handoff and breach-detected limits,
+- enforced pilot checklist (`go` / `no-go`) with required checks.
+
+---
+
+## 6) Related Artifacts and Automation
 
 - Breach evidence route:
   - `scripts/route_monitor_drift_breach_evidence.sh`
   - `analysis/benchmark_reproducibility/monitor_drift_breach_route_<timestamp>.md`
   - `analysis/benchmark_reproducibility/monitor_drift_breach_route_<timestamp>.json`
+- Promotion readiness scorecard:
+  - `scripts/evaluate_governance_gate_promotion_readiness.sh`
+  - `analysis/benchmark_reproducibility/governance_gate_promotion_readiness_<timestamp>.md`
+  - `analysis/benchmark_reproducibility/governance_gate_promotion_readiness_<timestamp>.json`
 - Governance gate:
   - `scripts/check_monitor_threshold_governance.sh`
 - Transition pack telemetry:
@@ -75,7 +100,7 @@ Readiness criteria are tracked in the JSON policy file and transition-pack telem
 
 ---
 
-## 6) Revision
+## 7) Revision
 
 - Version: `1`
 - Last updated: `2026-02-11`

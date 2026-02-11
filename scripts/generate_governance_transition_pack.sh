@@ -590,6 +590,41 @@ def parse_breach_route_payload(path: Path):
     }
 
 
+def parse_promotion_readiness_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    criteria = payload.get("criteria", [])
+    if not isinstance(criteria, list):
+        criteria = []
+    checklist = payload.get("pilot_checklist", [])
+    if not isinstance(checklist, list):
+        checklist = []
+    failures = payload.get("pilot_required_failures", [])
+    if not isinstance(failures, list):
+        failures = []
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "overall_ready": bool(payload.get("overall_ready", False)),
+        "recommended_mode": str(payload.get("recommended_mode", "n/a")),
+        "pilot_go_no_go": str(payload.get("pilot_go_no_go", "n/a")),
+        "criteria": criteria,
+        "pilot_checklist": checklist,
+        "pilot_required_failures": failures,
+        "thresholds": payload.get("thresholds", {}),
+        "telemetry_summary": payload.get("telemetry_summary", {}),
+        "policy": payload.get("policy", {}),
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -609,6 +644,8 @@ latest_release_readiness_drill_md = latest("monitor_drift_release_readiness_dril
 latest_release_readiness_drill_json = latest("monitor_drift_release_readiness_drill_[0-9]*.json")
 latest_breach_route_md = latest("monitor_drift_breach_route_[0-9]*.md")
 latest_breach_route_json = latest("monitor_drift_breach_route_[0-9]*.json")
+latest_promotion_readiness_md = latest("governance_gate_promotion_readiness_[0-9]*.md")
+latest_promotion_readiness_json = latest("governance_gate_promotion_readiness_[0-9]*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -639,6 +676,11 @@ breach_route_telemetry = (
     if latest_breach_route_json
     else {}
 )
+promotion_readiness_telemetry = (
+    parse_promotion_readiness_payload(latest_promotion_readiness_json)
+    if latest_promotion_readiness_json
+    else {}
+)
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -665,6 +707,7 @@ scripts_required = [
     root / "scripts/generate_monitor_drift_release_handoff.sh",
     root / "scripts/run_monitor_drift_release_readiness_drill.sh",
     root / "scripts/route_monitor_drift_breach_evidence.sh",
+    root / "scripts/evaluate_governance_gate_promotion_readiness.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -771,6 +814,16 @@ artifact_status = [
         "path": rel(latest_breach_route_json) if latest_breach_route_json else "n/a",
         "exists": bool(latest_breach_route_json),
     },
+    {
+        "kind": "promotion_readiness_md",
+        "path": rel(latest_promotion_readiness_md) if latest_promotion_readiness_md else "n/a",
+        "exists": bool(latest_promotion_readiness_md),
+    },
+    {
+        "kind": "promotion_readiness_json",
+        "path": rel(latest_promotion_readiness_json) if latest_promotion_readiness_json else "n/a",
+        "exists": bool(latest_promotion_readiness_json),
+    },
 ]
 
 readiness_checks = {
@@ -794,6 +847,11 @@ readiness_checks = {
     "breach_route_present": bool(latest_breach_route_json),
     "breach_route_not_blocking": bool(latest_breach_route_json)
     and not bool(breach_route_telemetry.get("promotion", {}).get("would_block_in_active_mode", False)),
+    "promotion_readiness_artifact_present": bool(latest_promotion_readiness_json),
+    "promotion_readiness_ready": bool(latest_promotion_readiness_json)
+    and bool(promotion_readiness_telemetry.get("overall_ready", False)),
+    "promotion_pilot_go": bool(latest_promotion_readiness_json)
+    and promotion_readiness_telemetry.get("pilot_go_no_go", "no-go") == "go",
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -1090,6 +1148,64 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("- Breach route artifact: not available\n")
         fh.write("- Breach detected: n/a\n\n")
 
+    fh.write("## Governance Gate Promotion Readiness Snapshot\n\n")
+    if promotion_readiness_telemetry:
+        thresholds = promotion_readiness_telemetry.get("thresholds", {})
+        summary = promotion_readiness_telemetry.get("telemetry_summary", {})
+        policy_meta = promotion_readiness_telemetry.get("policy", {})
+        fh.write(
+            f"- Readiness artifact: `{promotion_readiness_telemetry.get('source', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Generated at (UTC): {promotion_readiness_telemetry.get('generated_at_utc', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Overall readiness: **{'ready' if promotion_readiness_telemetry.get('overall_ready') else 'not_ready'}**\n"
+        )
+        fh.write(
+            f"- Pilot decision: **{promotion_readiness_telemetry.get('pilot_go_no_go', 'n/a')}**\n"
+        )
+        fh.write(
+            f"- Recommended mode: `{promotion_readiness_telemetry.get('recommended_mode', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Policy active mode: `{policy_meta.get('active_mode', 'n/a')}` "
+            f"(enforced controls defined: {yes_no(bool(policy_meta.get('enforced_controls_defined', False)))})\n\n"
+        )
+
+        fh.write("- Thresholds:\n")
+        fh.write(
+            f"  - window_days={thresholds.get('window_days', 'n/a')}, "
+            f"min_drill_samples={thresholds.get('min_drill_samples', 'n/a')}, "
+            f"min_drill_pass_rate_pct={thresholds.get('min_drill_pass_rate_pct', 'n/a')}\n"
+        )
+        fh.write(
+            f"  - max_blocked_handoff_count={thresholds.get('max_blocked_handoff_count', 'n/a')}, "
+            f"max_breach_detected_count={thresholds.get('max_breach_detected_count', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Window summary: drills={summary.get('drill_samples', 'n/a')} "
+            f"(pass_rate={summary.get('drill_pass_rate_pct', 'n/a')}%), "
+            f"blocked_handoff={summary.get('blocked_handoff_count', 'n/a')}, "
+            f"breach_detected={summary.get('breach_detected_count', 'n/a')}\n\n"
+        )
+
+        fh.write("| Criterion | Passed | Value | Target |\n")
+        fh.write("|---|---|---:|---|\n")
+        criteria = promotion_readiness_telemetry.get("criteria", [])
+        if criteria:
+            for item in criteria:
+                fh.write(
+                    f"| `{item.get('id', 'n/a')}` | {'yes' if item.get('passed') else 'no'} | "
+                    f"{item.get('value', 'n/a')} | {item.get('target', 'n/a')} |\n"
+                )
+        else:
+            fh.write("| _none_ | n/a | n/a | n/a |\n")
+        fh.write("\n")
+    else:
+        fh.write("- Readiness artifact: not available\n")
+        fh.write("- Overall readiness: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -1103,6 +1219,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("5. Operationalize escalation policy with owner/SLA drills.\n")
     fh.write("6. Rehearse strict release-readiness enforcement using drill artifacts.\n")
     fh.write("7. Route breach evidence and promote governance gate from advisory to enforced when ready.\n")
+    fh.write("8. Track promotion readiness scorecard and maintain enforced pilot checklist evidence.\n")
     fh.write("\n")
 
 transition_json = {
@@ -1133,6 +1250,7 @@ transition_json = {
     "handoff_telemetry": handoff_telemetry,
     "release_readiness_drill_telemetry": release_readiness_drill_telemetry,
     "breach_route_telemetry": breach_route_telemetry,
+    "promotion_readiness_telemetry": promotion_readiness_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

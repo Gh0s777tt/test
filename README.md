@@ -189,6 +189,9 @@ maintenance scripts from `scripts/`:
 # Route escalation breach evidence and gate-promotion snapshot
 ./scripts/route_monitor_drift_breach_evidence.sh
 
+# Evaluate governance gate promotion readiness and enforced pilot checklist
+./scripts/evaluate_governance_gate_promotion_readiness.sh
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 
