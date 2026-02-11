@@ -11,11 +11,69 @@
 # - PR title/body includes MONPOL-<NNN>
 # - governance/performance/MONITOR_THRESHOLD_CHANGELOG.md is part of changed files
 # - docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md is part of changed files
+# - optional promotion-aware breach requirements when mode is enforced:
+#   - BREACH-ACK token and mitigation notes in PR metadata/body
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
+
+ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
+PROMOTION_POLICY_JSON="$ROOT/governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json"
+BREACH_ROUTE_JSON=""
+PROMOTION_MODE="auto"
+
+usage() {
+  cat <<'USAGE'
+Usage: ./scripts/check_monitor_threshold_governance.sh [options]
+
+Options:
+  --analysis-dir <path>             Analysis directory (default: analysis/benchmark_reproducibility)
+  --promotion-policy-json <path>    Governance gate promotion policy JSON path
+  --breach-route-json <path>        Breach route JSON artifact path (default: newest monitor_drift_breach_route_*.json)
+  --promotion-mode <auto|advisory|enforced>
+  -h, --help                        Show this help
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --analysis-dir)
+      ANALYSIS_DIR="${2:-}"
+      shift 2
+      ;;
+    --promotion-policy-json)
+      PROMOTION_POLICY_JSON="${2:-}"
+      shift 2
+      ;;
+    --breach-route-json)
+      BREACH_ROUTE_JSON="${2:-}"
+      shift 2
+      ;;
+    --promotion-mode)
+      PROMOTION_MODE="${2:-}"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERR Unknown option: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+case "$PROMOTION_MODE" in
+  auto|advisory|enforced) ;;
+  *)
+    echo "ERR --promotion-mode must be one of auto|advisory|enforced" >&2
+    exit 1
+    ;;
+esac
 
 pass() { echo "OK  $1"; }
 info() { echo "INFO $1"; }
@@ -94,6 +152,7 @@ if ! echo "$DIFF_CONTENT" | rg -q "$THRESHOLD_CHANGE_REGEX"; then
 fi
 
 pass "Detected threshold-affecting policy change"
+THRESHOLD_CHANGE_DETECTED="yes"
 
 REFERENCE_TEXT="${PR_TITLE}"$'\n'"${PR_BODY}"
 if ! echo "$REFERENCE_TEXT" | rg -q 'MONPOL-[0-9]{3}'; then
@@ -180,6 +239,131 @@ if [[ "$POLICY_DECISION" == "approved" ]]; then
     pass "MONPOL signoff metadata validation passed for approved decision"
   else
     fail "MONPOL signoff metadata validation failed for approved decision"
+  fi
+fi
+
+readarray -t PROMOTION_META < <(python3 - "$PROMOTION_POLICY_JSON" "$PROMOTION_MODE" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+policy_path = Path(sys.argv[1])
+mode_arg = sys.argv[2]
+
+payload = {}
+policy_exists = policy_path.exists()
+if policy_exists:
+    try:
+        payload = json.loads(policy_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        payload = {}
+
+policy_mode = str(payload.get("active_mode", "advisory"))
+if policy_mode not in {"advisory", "enforced"}:
+    policy_mode = "advisory"
+
+active_mode = policy_mode if mode_arg == "auto" else mode_arg
+if active_mode not in {"advisory", "enforced"}:
+    active_mode = "advisory"
+
+modes = payload.get("modes", {})
+if not isinstance(modes, dict):
+    modes = {}
+cfg = modes.get(active_mode, {})
+if not isinstance(cfg, dict):
+    cfg = {}
+
+enforce_on_breach = bool(cfg.get("enforce_on_breach", active_mode == "enforced"))
+require_pr_mitigation = bool(cfg.get("require_pr_mitigation", active_mode == "enforced"))
+require_breach_ack = bool(cfg.get("require_breach_ack_token", active_mode == "enforced"))
+
+print(active_mode)
+print("yes" if enforce_on_breach else "no")
+print("yes" if require_pr_mitigation else "no")
+print("yes" if require_breach_ack else "no")
+print(policy_mode)
+print("yes" if policy_exists else "no")
+PY
+)
+
+ACTIVE_PROMOTION_MODE="${PROMOTION_META[0]:-advisory}"
+ENFORCE_ON_BREACH="${PROMOTION_META[1]:-no}"
+REQUIRE_PR_MITIGATION="${PROMOTION_META[2]:-no}"
+REQUIRE_BREACH_ACK="${PROMOTION_META[3]:-no}"
+POLICY_MODE_FROM_FILE="${PROMOTION_META[4]:-advisory}"
+PROMOTION_POLICY_EXISTS="${PROMOTION_META[5]:-no}"
+
+info "Promotion policy mode: active=${ACTIVE_PROMOTION_MODE}, policy_file=${POLICY_MODE_FROM_FILE}, policy_exists=${PROMOTION_POLICY_EXISTS}"
+info "Promotion controls: enforce_on_breach=${ENFORCE_ON_BREACH}, require_pr_mitigation=${REQUIRE_PR_MITIGATION}, require_breach_ack=${REQUIRE_BREACH_ACK}"
+
+if [[ -z "$BREACH_ROUTE_JSON" ]]; then
+  shopt -s nullglob
+  ROUTE_CANDIDATES=("$ANALYSIS_DIR"/monitor_drift_breach_route_*.json)
+  shopt -u nullglob
+  if (( ${#ROUTE_CANDIDATES[@]} > 0 )); then
+    readarray -t SORTED_ROUTE_CANDIDATES < <(printf '%s\n' "${ROUTE_CANDIDATES[@]}" | sort)
+    BREACH_ROUTE_JSON="${SORTED_ROUTE_CANDIDATES[${#SORTED_ROUTE_CANDIDATES[@]}-1]}"
+  fi
+fi
+
+BREACH_DETECTED="no"
+BREACH_SOURCES="none"
+ROUTE_WOULD_BLOCK="no"
+ROUTE_MODE="n/a"
+if [[ -n "$BREACH_ROUTE_JSON" && -f "$BREACH_ROUTE_JSON" ]]; then
+  readarray -t ROUTE_META < <(python3 - "$BREACH_ROUTE_JSON" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+
+breach = bool(payload.get("breach_detected", False))
+sources = payload.get("breach_sources", [])
+if not isinstance(sources, list):
+    sources = []
+promotion = payload.get("promotion", {})
+if not isinstance(promotion, dict):
+    promotion = {}
+
+print("yes" if breach else "no")
+print(",".join(str(item) for item in sources) if sources else "none")
+print("yes" if bool(promotion.get("would_block_in_active_mode", False)) else "no")
+print(str(promotion.get("active_mode", "n/a")))
+PY
+  )
+  BREACH_DETECTED="${ROUTE_META[0]:-no}"
+  BREACH_SOURCES="${ROUTE_META[1]:-none}"
+  ROUTE_WOULD_BLOCK="${ROUTE_META[2]:-no}"
+  ROUTE_MODE="${ROUTE_META[3]:-n/a}"
+  info "Breach route artifact: ${BREACH_ROUTE_JSON}"
+  info "Breach route summary: breach=${BREACH_DETECTED}, sources=${BREACH_SOURCES}, route_mode=${ROUTE_MODE}, route_would_block=${ROUTE_WOULD_BLOCK}"
+else
+  info "Breach route artifact not available for promotion-aware checks."
+fi
+
+if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
+  if [[ "$ENFORCE_ON_BREACH" == "yes" ]]; then
+    if [[ -z "$BREACH_ROUTE_JSON" || ! -f "$BREACH_ROUTE_JSON" ]]; then
+      fail "Enforced promotion mode requires a breach route artifact (monitor_drift_breach_route_*.json)."
+    fi
+    if [[ "$BREACH_DETECTED" == "yes" ]]; then
+      if [[ "$REQUIRE_BREACH_ACK" == "yes" ]]; then
+        if ! echo "$REFERENCE_TEXT" | rg -q 'BREACH-ACK'; then
+          fail "Breach detected under enforced mode: PR title/body must include BREACH-ACK."
+        fi
+        pass "PR includes BREACH-ACK token for breach-aware enforced mode"
+      fi
+      if [[ "$REQUIRE_PR_MITIGATION" == "yes" ]]; then
+        if ! echo "$PR_BODY" | rg -i -q 'mitigation'; then
+          fail "Breach detected under enforced mode: PR body must include mitigation plan details."
+        fi
+        pass "PR body includes mitigation details for breach-aware enforced mode"
+      fi
+    else
+      info "No active breach detected; enforced promotion controls satisfied."
+    fi
   fi
 fi
 

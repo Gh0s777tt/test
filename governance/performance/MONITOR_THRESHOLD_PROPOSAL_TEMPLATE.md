@@ -49,6 +49,8 @@ Describe which monitor benchmarks are affected and why this proposal is needed.
 - `analysis/benchmark_reproducibility/monitor_drift_release_handoff_<timestamp>.json`
 - `analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_<timestamp>.md`
 - `analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_<timestamp>.json`
+- `analysis/benchmark_reproducibility/monitor_drift_breach_route_<timestamp>.md`
+- `analysis/benchmark_reproducibility/monitor_drift_breach_route_<timestamp>.json`
 - latest `ci_benchmark_gate_summary_<timestamp>.md`
 - benchmark report(s) referenced by proposal
 

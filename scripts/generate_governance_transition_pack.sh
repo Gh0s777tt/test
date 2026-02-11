@@ -14,6 +14,8 @@ TEMPLATE_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.
 SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
 ESCALATION_POLICY_PATH="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md"
 ESCALATION_OWNERS_PATH="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json"
+GATE_PROMOTION_POLICY_DOC_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.md"
+GATE_PROMOTION_POLICY_JSON_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json"
 
 OUTPUT_PATH=""
 OUTPUT_JSON_PATH=""
@@ -33,6 +35,10 @@ Options:
                            Monitor drift escalation policy doc path
   --escalation-owners <path>
                            Monitor drift escalation owner/SLA registry path
+  --gate-promotion-doc <path>
+                           Governance gate promotion strategy markdown path
+  --gate-promotion-json <path>
+                           Governance gate promotion strategy JSON path
   --output <path>         Output markdown path
   --output-json <path>    Output JSON path
   -h, --help              Show this help
@@ -73,6 +79,14 @@ while [[ $# -gt 0 ]]; do
       ESCALATION_OWNERS_PATH="${2:-}"
       shift 2
       ;;
+    --gate-promotion-doc)
+      GATE_PROMOTION_POLICY_DOC_PATH="${2:-}"
+      shift 2
+      ;;
+    --gate-promotion-json)
+      GATE_PROMOTION_POLICY_JSON_PATH="${2:-}"
+      shift 2
+      ;;
     --output)
       OUTPUT_PATH="${2:-}"
       shift 2
@@ -107,7 +121,7 @@ if [[ -z "$OUTPUT_JSON_PATH" ]]; then
   OUTPUT_JSON_PATH="${OUTPUT_PATH%.md}.json"
 fi
 
-python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$ESCALATION_POLICY_PATH" "$ESCALATION_OWNERS_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$ESCALATION_POLICY_PATH" "$ESCALATION_OWNERS_PATH" "$GATE_PROMOTION_POLICY_DOC_PATH" "$GATE_PROMOTION_POLICY_JSON_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import re
 import sys
@@ -124,8 +138,10 @@ template_path = Path(sys.argv[6])
 signoff_path = Path(sys.argv[7])
 escalation_policy_path = Path(sys.argv[8])
 escalation_owners_path = Path(sys.argv[9])
-output_path = Path(sys.argv[10])
-output_json_path = Path(sys.argv[11])
+gate_promotion_policy_doc_path = Path(sys.argv[10])
+gate_promotion_policy_json_path = Path(sys.argv[11])
+output_path = Path(sys.argv[12])
+output_json_path = Path(sys.argv[13])
 
 
 def rel(path: Path) -> str:
@@ -537,6 +553,43 @@ def parse_release_readiness_drill_payload(path: Path):
     }
 
 
+def parse_breach_route_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    sources = payload.get("breach_sources", [])
+    if not isinstance(sources, list):
+        sources = []
+    actions = payload.get("recommended_actions", [])
+    if not isinstance(actions, list):
+        actions = []
+    evidence_bundle = payload.get("evidence_bundle", [])
+    if not isinstance(evidence_bundle, list):
+        evidence_bundle = []
+    promotion = payload.get("promotion", {})
+    if not isinstance(promotion, dict):
+        promotion = {}
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "breach_detected": bool(payload.get("breach_detected", False)),
+        "breach_sources": sources,
+        "classification": payload.get("classification", {}),
+        "promotion": promotion,
+        "recommended_actions": actions,
+        "evidence_bundle": evidence_bundle,
+        "owner_snapshot": payload.get("owner_snapshot", {}),
+        "latest_monpol_id": str(payload.get("latest_monpol_id", "n/a")),
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -554,6 +607,8 @@ latest_handoff_md = latest("monitor_drift_release_handoff_*.md")
 latest_handoff_json = latest("monitor_drift_release_handoff_*.json")
 latest_release_readiness_drill_md = latest("monitor_drift_release_readiness_drill_*.md")
 latest_release_readiness_drill_json = latest("monitor_drift_release_readiness_drill_*.json")
+latest_breach_route_md = latest("monitor_drift_breach_route_*.md")
+latest_breach_route_json = latest("monitor_drift_breach_route_*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -577,6 +632,11 @@ handoff_telemetry = parse_handoff_payload(latest_handoff_json) if latest_handoff
 release_readiness_drill_telemetry = (
     parse_release_readiness_drill_payload(latest_release_readiness_drill_json)
     if latest_release_readiness_drill_json
+    else {}
+)
+breach_route_telemetry = (
+    parse_breach_route_payload(latest_breach_route_json)
+    if latest_breach_route_json
     else {}
 )
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
@@ -604,6 +664,7 @@ scripts_required = [
     root / "scripts/scaffold_monpol_changelog_entry.sh",
     root / "scripts/generate_monitor_drift_release_handoff.sh",
     root / "scripts/run_monitor_drift_release_readiness_drill.sh",
+    root / "scripts/route_monitor_drift_breach_evidence.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -622,6 +683,8 @@ docs_status = [
     {"path": rel(template_path), "exists": template_path.exists()},
     {"path": rel(escalation_policy_path), "exists": escalation_policy_path.exists()},
     {"path": rel(escalation_owners_path), "exists": escalation_owners_path.exists()},
+    {"path": rel(gate_promotion_policy_doc_path), "exists": gate_promotion_policy_doc_path.exists()},
+    {"path": rel(gate_promotion_policy_json_path), "exists": gate_promotion_policy_json_path.exists()},
     {
         "path": rel(signoff_path),
         "exists": signoff_path.exists(),
@@ -698,6 +761,16 @@ artifact_status = [
         "path": rel(latest_release_readiness_drill_json) if latest_release_readiness_drill_json else "n/a",
         "exists": bool(latest_release_readiness_drill_json),
     },
+    {
+        "kind": "breach_route_md",
+        "path": rel(latest_breach_route_md) if latest_breach_route_md else "n/a",
+        "exists": bool(latest_breach_route_md),
+    },
+    {
+        "kind": "breach_route_json",
+        "path": rel(latest_breach_route_json) if latest_breach_route_json else "n/a",
+        "exists": bool(latest_breach_route_json),
+    },
 ]
 
 readiness_checks = {
@@ -710,12 +783,17 @@ readiness_checks = {
     "latency_telemetry_present": latency_telemetry["summary"]["entries_evaluated"] > 0,
     "escalation_policy_present": escalation_policy_path.exists(),
     "escalation_owners_present": escalation_owners_path.exists(),
+    "gate_promotion_policy_doc_present": gate_promotion_policy_doc_path.exists(),
+    "gate_promotion_policy_json_present": gate_promotion_policy_json_path.exists(),
     "escalation_artifact_present": bool(latest_escalation_json),
     "handoff_artifact_present": bool(latest_handoff_json),
     "handoff_not_blocked": bool(latest_handoff_json) and handoff_telemetry.get("overall_status", "n/a") != "blocked",
     "release_readiness_drill_present": bool(latest_release_readiness_drill_json),
     "release_readiness_drill_passed": bool(latest_release_readiness_drill_json)
     and release_readiness_drill_telemetry.get("overall_status", "n/a") == "pass",
+    "breach_route_present": bool(latest_breach_route_json),
+    "breach_route_not_blocking": bool(latest_breach_route_json)
+    and not bool(breach_route_telemetry.get("promotion", {}).get("would_block_in_active_mode", False)),
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -967,6 +1045,51 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("- Drill artifact: not available\n")
         fh.write("- Drill overall status: n/a\n\n")
 
+    fh.write("## Escalation Breach Routing Snapshot\n\n")
+    if breach_route_telemetry:
+        promotion = breach_route_telemetry.get("promotion", {})
+        owner = breach_route_telemetry.get("owner_snapshot", {})
+        classification = breach_route_telemetry.get("classification", {})
+        fh.write(f"- Breach route artifact: `{breach_route_telemetry.get('source', 'n/a')}`\n")
+        fh.write(f"- Breach route generated at (UTC): {breach_route_telemetry.get('generated_at_utc', 'n/a')}\n")
+        fh.write(f"- Breach detected: **{'yes' if breach_route_telemetry.get('breach_detected') else 'no'}**\n")
+        sources = breach_route_telemetry.get("breach_sources", [])
+        if sources:
+            fh.write(f"- Breach sources: {', '.join(sources)}\n")
+        else:
+            fh.write("- Breach sources: none\n")
+        fh.write(
+            f"- Promotion mode: `{promotion.get('active_mode', 'n/a')}` "
+            f"(policy file mode: `{promotion.get('policy_mode', 'n/a')}`)\n"
+        )
+        fh.write(f"- enforce_on_breach: `{yes_no(bool(promotion.get('enforce_on_breach', False)))}`\n")
+        fh.write(
+            f"- would_block_in_active_mode: `{yes_no(bool(promotion.get('would_block_in_active_mode', False)))}`\n"
+        )
+        fh.write(
+            f"- Classification: level={classification.get('escalation_level', 'n/a')}, "
+            f"handoff={classification.get('handoff_status', 'n/a')}, "
+            f"drill={classification.get('drill_status', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Owner snapshot: {owner.get('owner', 'n/a')} "
+            f"(backup: {owner.get('backup_owner', 'n/a')}, "
+            f"SLA={owner.get('response_sla_hours', 'n/a')}h)\n\n"
+        )
+
+        fh.write("| Recommended action |\n")
+        fh.write("|---|\n")
+        actions = breach_route_telemetry.get("recommended_actions", [])
+        if actions:
+            for action in actions:
+                fh.write(f"| {action} |\n")
+        else:
+            fh.write("| n/a |\n")
+        fh.write("\n")
+    else:
+        fh.write("- Breach route artifact: not available\n")
+        fh.write("- Breach detected: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -979,6 +1102,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("4. Track policy change latency (proposal -> merge) in dashboard trends.\n")
     fh.write("5. Operationalize escalation policy with owner/SLA drills.\n")
     fh.write("6. Rehearse strict release-readiness enforcement using drill artifacts.\n")
+    fh.write("7. Route breach evidence and promote governance gate from advisory to enforced when ready.\n")
     fh.write("\n")
 
 transition_json = {
@@ -1008,6 +1132,7 @@ transition_json = {
     "escalation_telemetry": escalation_telemetry,
     "handoff_telemetry": handoff_telemetry,
     "release_readiness_drill_telemetry": release_readiness_drill_telemetry,
+    "breach_route_telemetry": breach_route_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

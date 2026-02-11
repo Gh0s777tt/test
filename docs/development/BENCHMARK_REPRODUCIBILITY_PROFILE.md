@@ -126,6 +126,9 @@ Current repository integration:
 - CI runs `scripts/run_monitor_drift_release_readiness_drill.sh` to rehearse
   strict-mode release-readiness enforcement (`strict pass` + `expected blocked
   strict failure`) and publish dry-run artifacts.
+- CI runs `scripts/route_monitor_drift_breach_evidence.sh` to publish
+  breach-classification evidence routing and governance-gate promotion snapshot
+  (`advisory` vs `enforced` mode context).
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -147,6 +150,9 @@ Current repository integration:
   - `governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md`
 - escalation owner/SLA registry:
   - `governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json`
+- governance gate promotion strategy:
+  - `governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.md`
+  - `governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json`
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -215,6 +221,12 @@ Run strict release-readiness drill dry-run:
 
 ```bash
 ./scripts/run_monitor_drift_release_readiness_drill.sh
+```
+
+Route escalation breach evidence snapshot:
+
+```bash
+./scripts/route_monitor_drift_breach_evidence.sh
 ```
 
 Generate governance-ready MONPOL proposal draft:

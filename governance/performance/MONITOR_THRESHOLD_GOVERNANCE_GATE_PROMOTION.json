@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "active_mode": "advisory",
+  "modes": {
+    "advisory": {
+      "enforce_on_breach": false,
+      "require_pr_mitigation": false,
+      "require_breach_ack_token": false
+    },
+    "enforced": {
+      "enforce_on_breach": true,
+      "require_pr_mitigation": true,
+      "require_breach_ack_token": true
+    }
+  },
+  "promotion_plan": [
+    {
+      "phase": "phase_0_baseline",
+      "description": "Collect routing telemetry and drill evidence in advisory mode.",
+      "exit_criteria": [
+        "release_readiness_drill_pass_rate >= 95% over rolling 14 days",
+        "no unresolved blocked handoff over rolling 7 days"
+      ]
+    },
+    {
+      "phase": "phase_1_enforced",
+      "description": "Enable breach-aware governance enforcement for threshold-affecting PRs.",
+      "exit_criteria": [
+        "all breach PRs include mitigation acknowledgments and MONPOL linkage"
+      ]
+    }
+  ]
+}

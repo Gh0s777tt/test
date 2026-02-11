@@ -186,6 +186,9 @@ maintenance scripts from `scripts/`:
 # Rehearse strict release-readiness enforcement (pass + expected blocked fail)
 ./scripts/run_monitor_drift_release_readiness_drill.sh
 
+# Route escalation breach evidence and gate-promotion snapshot
+./scripts/route_monitor_drift_breach_evidence.sh
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 
