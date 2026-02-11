@@ -9,4 +9,14 @@ mount: mounting /dev/vda on /persist failed: Invalid argument
 [VANTIS] FIRST BOOT SETUP COMPLETE
 [VANTIS] persistent storage unavailable; setup is volatile
 [VANTIS] WRAITH MODE ACTIVE
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 293843 (timeout)
+vantis> firstboot
+first_boot: done
+welcome: Welcome to VantisOS installed mode.
+vantis> config show
+first_boot_unix_utc=1770850526
+hostname=vantis-50526
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=core
+user=vantis
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 297486 (timeout)
