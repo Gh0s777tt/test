@@ -599,6 +599,10 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 
 # Optional: run boot smoke test in QEMU
 ./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke
+
+# Optional: run full installer smoke test
+# (boots ISO, runs installer to /dev/vda in QEMU, then verifies installed-disk boot)
+./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke --run-installer-smoke
 ```
 
 ### Method 3: Mobile Update 📱
