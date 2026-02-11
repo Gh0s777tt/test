@@ -148,8 +148,27 @@ fn main() {
         println!("[VANTIS] To install: install /dev/vda --yes");
     }
 
-    if installed_mode && persistent_active {
-        run_first_boot_setup_if_needed();
+    if installed_mode {
+        if persistent_active {
+            run_first_boot_setup_if_needed();
+        } else {
+            let _ = fs::create_dir_all("/home");
+            if Path::new("/home/.vantis_first_boot_done").exists() {
+                println!("[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE");
+            } else {
+                let now = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map(|d| d.as_secs())
+                    .unwrap_or(0);
+                let welcome = format!(
+                    "Welcome to VantisOS installed mode.\nFirst boot unix timestamp: {now}\n"
+                );
+                let _ = fs::write("/home/.vantis_welcome.txt", welcome);
+                let _ = fs::write("/home/.vantis_first_boot_done", "done\n");
+                println!("[VANTIS] FIRST BOOT SETUP COMPLETE");
+                println!("[VANTIS] persistent storage unavailable; setup is volatile");
+            }
+        }
     }
 
     println!("[VANTIS] WRAITH MODE ACTIVE");
