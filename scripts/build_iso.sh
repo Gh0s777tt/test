@@ -474,14 +474,49 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
 
   BOOT_LOG="$ANALYSIS_DIR/iso_installed_boot_$(date -u +%Y%m%dT%H%M%SZ).log"
   BOOT_RC=0
-  qemu_boot_capture "$QEMU_TIMEOUT_SECONDS" "$BOOT_LOG" -drive file="$INSTALL_DISK",if=virtio,format=qcow2 || BOOT_RC=$?
+  if [[ -n "$OVMF_CODE" && -n "$OVMF_VARS" ]]; then
+    OVMF_VARS_COPY_BOOT="$WORK_DIR/OVMF_VARS_INSTALL_BOOT.fd"
+    cp "$OVMF_VARS" "$OVMF_VARS_COPY_BOOT"
+    {
+      sleep 14
+      echo "firstboot"
+      sleep 1
+      echo "config show"
+      sleep 1
+    } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
+      -machine q35 \
+      -m 1024 \
+      -serial mon:stdio \
+      -display none \
+      -no-reboot \
+      -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
+      -drive if=pflash,format=raw,file="$OVMF_VARS_COPY_BOOT" \
+      -drive file="$INSTALL_DISK",if=virtio,format=qcow2 >"$BOOT_LOG" 2>&1 || BOOT_RC=$?
+  else
+    {
+      sleep 14
+      echo "firstboot"
+      sleep 1
+      echo "config show"
+      sleep 1
+    } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
+      -m 1024 \
+      -serial mon:stdio \
+      -display none \
+      -no-reboot \
+      -drive file="$INSTALL_DISK",if=virtio,format=qcow2 >"$BOOT_LOG" 2>&1 || BOOT_RC=$?
+  fi
   if [[ "$BOOT_RC" != "0" && "$BOOT_RC" != "124" ]]; then
     echo "Error: installed-disk boot phase failed (qemu code=$BOOT_RC)" >&2
     echo "Installed boot log: $BOOT_LOG" >&2
     exit 1
   fi
   if rg -q '\[VANTIS\] WRAITH MODE ACTIVE|vantis> ' "$BOOT_LOG" \
-    && rg -q '\[VANTIS\] FIRST BOOT SETUP COMPLETE|\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$BOOT_LOG"; then
+    && rg -q '\[VANTIS\] FIRST BOOT SETUP COMPLETE|\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$BOOT_LOG" \
+    && rg -q 'first_boot: done' "$BOOT_LOG" \
+    && rg -q 'profile=core' "$BOOT_LOG" \
+    && rg -q 'hostname=vantis-' "$BOOT_LOG" \
+    && rg -q 'user=vantis' "$BOOT_LOG"; then
     echo "Installer smoke passed: installed disk booted to Vantis shell"
     echo "Installer log: $INSTALL_LOG"
     echo "Installed boot log: $BOOT_LOG"

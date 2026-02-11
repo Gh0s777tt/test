@@ -88,30 +88,29 @@ fn mount_persistent_storage(persist_spec: &str) -> bool {
     }
 }
 
-fn run_first_boot_setup_if_needed() {
-    let marker = "/persist/vantis/first_boot_done";
-    if Path::new(marker).exists() {
-        println!("[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE");
-        return;
-    }
-
+fn run_first_boot_setup(persistent_active: bool) {
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
+    let hostname = format!("vantis-{suffix:05}", suffix = now % 100_000);
     let profile = format!(
-        "profile=core\nmode=installed\nfirst_boot_unix_utc={now}\nnotes=generated_by_vantis_first_boot\n"
+        "profile=core\nuser=vantis\nhostname={hostname}\nmode=installed\nfirst_boot_unix_utc={now}\nnotes=generated_by_vantis_first_boot\n"
     );
     let welcome = format!(
-        "Welcome to VantisOS installed mode.\nFirst boot unix timestamp: {now}\n"
+        "Welcome to VantisOS installed mode.\nFirst boot unix timestamp: {now}\nUser: vantis\nHost: {hostname}\n"
     );
 
-    let _ = fs::create_dir_all("/persist/vantis");
     let _ = fs::create_dir_all("/home");
-    let _ = fs::write("/persist/vantis/system_profile.conf", profile);
+    let _ = fs::write("/home/.vantis_system_profile.conf", &profile);
     let _ = fs::write("/home/.vantis_welcome.txt", welcome);
-    let _ = fs::write("/home/.vantis_first_boot_done", "done\n");
-    let _ = fs::write(marker, format!("completed_unix_utc={now}\n"));
+    let _ = fs::write("/home/.vantis_first_boot_done", format!("completed_unix_utc={now}\n"));
+
+    if persistent_active {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::write("/persist/vantis/system_profile.conf", profile);
+        let _ = fs::write("/persist/vantis/first_boot_done", format!("completed_unix_utc={now}\n"));
+    }
 
     println!("[VANTIS] FIRST BOOT SETUP COMPLETE");
 }
@@ -149,25 +148,14 @@ fn main() {
     }
 
     if installed_mode {
-        if persistent_active {
-            run_first_boot_setup_if_needed();
+        let _ = fs::create_dir_all("/home");
+        if Path::new("/home/.vantis_first_boot_done").exists() {
+            println!("[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE");
         } else {
-            let _ = fs::create_dir_all("/home");
-            if Path::new("/home/.vantis_first_boot_done").exists() {
-                println!("[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE");
-            } else {
-                let now = SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .map(|d| d.as_secs())
-                    .unwrap_or(0);
-                let welcome = format!(
-                    "Welcome to VantisOS installed mode.\nFirst boot unix timestamp: {now}\n"
-                );
-                let _ = fs::write("/home/.vantis_welcome.txt", welcome);
-                let _ = fs::write("/home/.vantis_first_boot_done", "done\n");
-                println!("[VANTIS] FIRST BOOT SETUP COMPLETE");
-                println!("[VANTIS] persistent storage unavailable; setup is volatile");
-            }
+            run_first_boot_setup(persistent_active);
+        }
+        if !persistent_active {
+            println!("[VANTIS] persistent storage unavailable; setup is volatile");
         }
     }
 
