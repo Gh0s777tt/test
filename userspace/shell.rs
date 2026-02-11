@@ -11,11 +11,10 @@ pub fn start() {
 
         match input.trim() {
             "ai" => {
-                let out = Command::new("vantis")
-                    .arg("ai")
-                    .output()
-                    .unwrap();
-                println!("{}", String::from_utf8_lossy(&out.stdout));
+                match Command::new("vantis").arg("ai").output() {
+                    Ok(out) => println!("{}", String::from_utf8_lossy(&out.stdout)),
+                    Err(err) => eprintln!("failed to run vantis: {err}"),
+                }
             }
             "exit" => break,
             _ => println!("unknown command"),

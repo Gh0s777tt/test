@@ -591,14 +591,14 @@ cd VantisOS
 # - server: Data center
 export VANTIS_PROFILE=core
 
-# Build
-make build PROFILE=$VANTIS_PROFILE
+# Build verified components
+cargo check --manifest-path src/verified/Cargo.toml --locked
 
-# Create ISO
-make iso
+# Create bootable live ISO (kernel + initramfs + GRUB)
+./scripts/build_iso.sh --output build/VantisOS-live.iso
 
-# Test in QEMU
-make run
+# Optional: run boot smoke test in QEMU
+./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke
 ```
 
 ### Method 3: Mobile Update 📱
