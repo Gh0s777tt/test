@@ -190,7 +190,7 @@ rustc --target x86_64-unknown-linux-musl -O "$ROOT/userspace/init.rs" -o "$INITR
 
 echo "Preparing initramfs root..."
 cp "$(command -v busybox)" "$INITRAMFS_ROOT/bin/busybox"
-for tool in sh mount umount swapoff echo cat ls mkdir mknod sleep uname dmesg dd fdisk mkdosfs mke2fs partprobe sync findfs cp chmod rm reboot mdev; do
+for tool in sh mount umount swapoff echo cat ls mkdir mknod sleep uname dmesg dd fdisk mkdosfs mke2fs partprobe blockdev sync findfs cp chmod rm reboot mdev; do
   ln -sf busybox "$INITRAMFS_ROOT/bin/$tool"
 done
 
@@ -263,15 +263,17 @@ fi
 echo "[VANTIS] starting install to $TARGET"
 dd if=/dev/zero of="$TARGET" bs=1M count=32 conv=fsync >/dev/null 2>&1 || true
 
-cat <<EOF | fdisk "$TARGET" >/dev/null
-g
+cat <<EOF | fdisk "$TARGET"
+o
 n
+p
 1
 
 +512M
 t
-1
+c
 n
+p
 2
 
 
@@ -279,6 +281,7 @@ w
 EOF
 
 partprobe "$TARGET" || true
+blockdev --rereadpt "$TARGET" 2>/dev/null || true
 echo /bin/mdev > /proc/sys/kernel/hotplug 2>/dev/null || true
 mdev -s || true
 sleep 2
@@ -293,8 +296,28 @@ case "$TARGET" in
 esac
 
 if [ ! -b "$EFI_PART" ] || [ ! -b "$DATA_PART" ]; then
-  echo "[VANTIS] failed to create target partitions on $TARGET"
-  exit 1
+  echo "[VANTIS] partitioned install unavailable, falling back to single FAT install on $TARGET"
+  mkdosfs -F 32 -n VANTIS_EFI "$TARGET" >/dev/null
+  mkdir -p /mnt/efi
+  mount "$TARGET" /mnt/efi
+  mkdir -p /mnt/efi/EFI/BOOT
+  cp /boot_payload/BOOTX64.EFI /mnt/efi/EFI/BOOT/BOOTX64.EFI
+  cp /boot_payload/vmlinuz /mnt/efi/vmlinuz
+  cp /boot_payload/initrd.img /mnt/efi/initrd.img
+  cat > /mnt/efi/EFI/BOOT/grub.cfg <<'GRUBCFG'
+set timeout=0
+set default=0
+terminal_output console
+
+menuentry "VantisOS Installed" {
+    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed
+    initrd /initrd.img
+}
+GRUBCFG
+  sync
+  umount /mnt/efi || true
+  echo "[VANTIS] Installation complete (single FAT mode). Reboot and boot from target disk."
+  exit 0
 fi
 
 mkdosfs -F 32 -n VANTIS_EFI "$EFI_PART" >/dev/null
