@@ -1,0 +1,160 @@
+{
+  "closure_gate_state": "pilot_closure_nominal",
+  "criteria": [
+    {
+      "description": "Runbook artifact is present.",
+      "id": "runbook_artifact_present",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Handoff signoff packet artifact is present.",
+      "id": "handoff_signoff_packet_artifact_present",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Transition pack artifact is present.",
+      "id": "transition_pack_artifact_present",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Signoff validation artifact is present.",
+      "id": "signoff_validation_artifact_present",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Rollback path has required postmortem evidence when configured.",
+      "id": "rollback_postmortem_required_on_rollback",
+      "passed": true,
+      "required": false,
+      "target": "yes",
+      "value": "no"
+    },
+    {
+      "description": "Burn-in SLO passes for non-rollback closure when configured.",
+      "id": "burn_in_pass_when_no_rollback",
+      "passed": true,
+      "required": true,
+      "target": "pass",
+      "value": "pass"
+    },
+    {
+      "description": "Handoff signoff packet is ready when closure is required.",
+      "id": "handoff_packet_ready_when_required",
+      "passed": true,
+      "required": false,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "Transition pack readiness checks pass.",
+      "id": "transition_pack_ready",
+      "passed": true,
+      "required": true,
+      "target": "yes",
+      "value": "yes"
+    },
+    {
+      "description": "MONPOL signoff validation has zero errors.",
+      "id": "signoff_validation_clean",
+      "passed": true,
+      "required": true,
+      "target": "0",
+      "value": 0
+    },
+    {
+      "description": "Week 10 rollout completed target days (14).",
+      "id": "rollout_target_complete",
+      "passed": false,
+      "required": false,
+      "target": ">= 14",
+      "value": 13
+    }
+  ],
+  "generated_at_utc": "2026-02-11T19:51:22Z",
+  "governance_rollout_summary": {
+    "completed_day_list": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "completed_days": 13,
+    "latest_completed_day": 13,
+    "next_step": "Week 9-10 execution plan",
+    "progress_pct": 92.86,
+    "status": "in_progress",
+    "target_day": 14
+  },
+  "incident_closure_snapshot": {
+    "burn_in_status": "pass",
+    "packet_closure_required": false,
+    "packet_overall_ready": true,
+    "packet_recommended_action": "collect_for_reference",
+    "packet_status": "not_required",
+    "postmortem_required": false,
+    "postmortem_status": "not_required",
+    "preflight_ok": true,
+    "rollback_recommended": false,
+    "runbook_action": "promote_to_enforced_pilot",
+    "runbook_stage": "preflight",
+    "signoff_validation_errors": 0,
+    "signoff_validation_warnings": 0,
+    "target_monpol_id": "MONPOL-001"
+  },
+  "inputs": {
+    "analysis_dir": "analysis/benchmark_reproducibility",
+    "burn_in_json": "analysis/benchmark_reproducibility/enforced_pilot_burn_in_slo_20260211T195121Z.json",
+    "handoff_signoff_packet_json": "analysis/benchmark_reproducibility/enforced_pilot_handoff_signoff_packet_20260211T195121Z.json",
+    "postmortem_json": "analysis/benchmark_reproducibility/enforced_pilot_rollback_postmortem_20260211T195121Z.json",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json",
+    "runbook_json": "analysis/benchmark_reproducibility/enforced_pilot_runbook_20260211T195121Z.json",
+    "signoff_validation_json": "analysis/benchmark_reproducibility/monpol_signoff_validation_20260211T144459Z.json",
+    "todo_path": "todo.md",
+    "transition_pack_json": "analysis/benchmark_reproducibility/governance_transition_pack_20260211T144459Z.json"
+  },
+  "overall_status": "pass",
+  "policy": {
+    "active_mode": "advisory",
+    "closure_audit": {
+      "require_burn_in_pass_when_no_rollback": true,
+      "require_packet_ready_when_required": true,
+      "require_postmortem_when_rollback": true,
+      "require_rollout_target_complete": false,
+      "require_runbook_artifact": true,
+      "require_signoff_validation_clean": true,
+      "require_transition_pack_ready": true,
+      "rollout_target_day": 14
+    }
+  },
+  "recommended_action": "continue_governance_rollout_monitoring",
+  "required_failures": [],
+  "transition_pack_readiness_subset": {
+    "artifacts_ready": true,
+    "docs_ready": true,
+    "handoff_signoff_packet_present": true,
+    "handoff_signoff_packet_ready_or_not_required": true,
+    "incident_closure_required_has_ready_packet": true,
+    "scripts_ready": true
+  }
+}

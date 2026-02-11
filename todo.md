@@ -292,6 +292,12 @@
   - [x] Integrate handoff signoff packet into CI, transition pack, governance gate, proposal evidence, and repo verification
   - [x] Validate full chain and publish Day 13 report
 
+- [x] Day 14: Enforced Pilot Closure Audit and Governance Rollout Summary
+  - [x] Add closure audit generator from runbook/burn-in/postmortem/packet/transition/signoff telemetry
+  - [x] Add policy-driven closure audit controls and rollout summary targets
+  - [x] Integrate closure audit into CI, transition pack, governance gate context, proposal evidence, and repo verification
+  - [x] Validate full chain and publish Day 14 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
@@ -306,5 +312,6 @@
 - Week 10 Day 11: ✅ COMPLETE (enforced pilot runbook + rollback guardrails + evidence)
 - Week 10 Day 12: ✅ COMPLETE (burn-in SLO telemetry + rollback postmortem scaffold + evidence)
 - Week 10 Day 13: ✅ COMPLETE (incident-closure governance + handoff signoff packet + evidence)
-- Week 10 Progress: 13 milestone days complete
-- Next: Week 10 Day 14 - enforced pilot closure audit and governance rollout summary
+- Week 10 Day 14: ✅ COMPLETE (closure audit + governance rollout summary + evidence)
+- Week 10 Progress: 14 milestone days complete
+- Next: Week 11 Day 1 - governance sustainment cadence and post-rollout retrospection
