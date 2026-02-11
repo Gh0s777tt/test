@@ -100,6 +100,10 @@ require_cmd grub-mkstandalone
 require_cmd xorriso
 require_cmd cpio
 require_cmd gzip
+require_cmd parted
+require_cmd losetup
+require_cmd mkfs.vfat
+require_cmd mkfs.ext4
 require_cmd rustc
 require_cmd busybox
 require_cmd rg
@@ -162,6 +166,63 @@ pack_initrd() {
   )
 }
 
+build_installed_system_image() {
+  local raw_img="$1"
+  local gz_img="$2"
+  local loop_dev=""
+  local efi_part=""
+  local data_part=""
+
+  rm -f "$raw_img" "$gz_img"
+  truncate -s 768M "$raw_img"
+
+  sudo parted -s "$raw_img" \
+    mklabel gpt \
+    mkpart ESP fat32 1MiB 257MiB \
+    set 1 esp on \
+    mkpart primary ext4 257MiB 100%
+
+  loop_dev="$(sudo losetup --find --show --partscan "$raw_img")"
+  efi_part="${loop_dev}p1"
+  data_part="${loop_dev}p2"
+
+  if [[ ! -b "$efi_part" || ! -b "$data_part" ]]; then
+    sudo losetup -d "$loop_dev" || true
+    echo "Error: failed to discover loop partitions for installed image payload" >&2
+    exit 1
+  fi
+
+  sudo mkfs.vfat -F 32 -n VANTIS_EFI "$efi_part" >/dev/null
+  sudo mkfs.ext4 -F -L VANTIS_DATA "$data_part" >/dev/null
+
+  mkdir -p "$SYSTEM_DISK_MNT_EFI" "$SYSTEM_DISK_MNT_DATA"
+  sudo mount "$efi_part" "$SYSTEM_DISK_MNT_EFI"
+  sudo mount "$data_part" "$SYSTEM_DISK_MNT_DATA"
+
+  sudo mkdir -p "$SYSTEM_DISK_MNT_EFI/EFI/BOOT" "$SYSTEM_DISK_MNT_DATA/home" "$SYSTEM_DISK_MNT_DATA/var" "$SYSTEM_DISK_MNT_DATA/vantis"
+  sudo cp "$INSTALLED_EFI_PATH" "$SYSTEM_DISK_MNT_EFI/EFI/BOOT/BOOTX64.EFI"
+  sudo cp "$KERNEL_PAYLOAD_PATH" "$SYSTEM_DISK_MNT_EFI/vmlinuz"
+  sudo cp "$STAGE1_INITRD_PATH" "$SYSTEM_DISK_MNT_EFI/initrd.img"
+  cat <<'GRUBCFG' | sudo tee "$SYSTEM_DISK_MNT_EFI/EFI/BOOT/grub.cfg" >/dev/null
+set timeout=0
+set default=0
+terminal_output console
+
+menuentry "VantisOS Installed" {
+    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_DATA
+    initrd /initrd.img
+}
+GRUBCFG
+  echo "VantisOS install payload generated on $(date -u +%Y-%m-%dT%H:%M:%SZ)" | sudo tee "$SYSTEM_DISK_MNT_DATA/vantis/install_stamp.txt" >/dev/null
+  sudo sync
+
+  sudo umount "$SYSTEM_DISK_MNT_DATA" || true
+  sudo umount "$SYSTEM_DISK_MNT_EFI" || true
+  sudo losetup -d "$loop_dev" || true
+
+  gzip -9 -c "$raw_img" >"$gz_img"
+}
+
 KERNEL_PATH="$(resolve_kernel)"
 
 if ! rustup target list --installed | rg -q '^x86_64-unknown-linux-musl$'; then
@@ -174,6 +235,11 @@ INITRAMFS_ROOT="$WORK_DIR/initramfs"
 ISO_ROOT="$WORK_DIR/iso_root"
 STAGE1_INITRD_PATH="$WORK_DIR/initrd_installed.img"
 FINAL_INITRD_PATH="$WORK_DIR/initrd_live.img"
+KERNEL_PAYLOAD_PATH="$WORK_DIR/vmlinuz_payload"
+SYSTEM_DISK_RAW_PATH="$WORK_DIR/vantis_system_disk.img"
+SYSTEM_DISK_GZ_PATH="$WORK_DIR/vantis_system_disk.img.gz"
+SYSTEM_DISK_MNT_EFI="$WORK_DIR/mnt_efi"
+SYSTEM_DISK_MNT_DATA="$WORK_DIR/mnt_data"
 GRUB_CFG_PATH="$ISO_ROOT/boot/grub/grub.cfg"
 INSTALLED_GRUB_CFG_PATH="$WORK_DIR/grub_installed.cfg"
 INSTALLED_EFI_PATH="$WORK_DIR/BOOTX64.EFI"
@@ -183,6 +249,8 @@ mkdir -p "$INITRAMFS_ROOT/bin" "$INITRAMFS_ROOT/dev" "$INITRAMFS_ROOT/proc" "$IN
 mkdir -p "$ISO_ROOT/boot/grub"
 mkdir -p "$(dirname "$OUTPUT_ISO")"
 mkdir -p "$ANALYSIS_DIR"
+
+copy_readable_file "$KERNEL_PATH" "$KERNEL_PAYLOAD_PATH"
 
 echo "Building static userspace binaries..."
 rustc --target x86_64-unknown-linux-musl -O "$ROOT/userspace/vantis.rs" -o "$INITRAMFS_ROOT/bin/vantis"
@@ -260,94 +328,14 @@ if [ ! -b "$TARGET" ]; then
   exit 1
 fi
 
-echo "[VANTIS] starting install to $TARGET"
-dd if=/dev/zero of="$TARGET" bs=1M count=32 conv=fsync >/dev/null 2>&1 || true
-
-cat <<EOF | fdisk "$TARGET"
-o
-n
-p
-1
-
-+512M
-t
-c
-n
-p
-2
-
-
-w
-EOF
-
-partprobe "$TARGET" || true
-blockdev --rereadpt "$TARGET" 2>/dev/null || true
-echo /bin/mdev > /proc/sys/kernel/hotplug 2>/dev/null || true
-mdev -s || true
-sleep 2
-
-EFI_PART="${TARGET}1"
-DATA_PART="${TARGET}2"
-case "$TARGET" in
-  *nvme*|*mmcblk*)
-    EFI_PART="${TARGET}p1"
-    DATA_PART="${TARGET}p2"
-    ;;
-esac
-
-if [ ! -b "$EFI_PART" ] || [ ! -b "$DATA_PART" ]; then
-  echo "[VANTIS] partitioned install unavailable, falling back to single FAT install on $TARGET"
-  mkdosfs -F 32 -n VANTIS_EFI "$TARGET" >/dev/null
-  mkdir -p /mnt/efi
-  mount "$TARGET" /mnt/efi
-  mkdir -p /mnt/efi/EFI/BOOT
-  cp /boot_payload/BOOTX64.EFI /mnt/efi/EFI/BOOT/BOOTX64.EFI
-  cp /boot_payload/vmlinuz /mnt/efi/vmlinuz
-  cp /boot_payload/initrd.img /mnt/efi/initrd.img
-  cat > /mnt/efi/EFI/BOOT/grub.cfg <<'GRUBCFG'
-set timeout=0
-set default=0
-terminal_output console
-
-menuentry "VantisOS Installed" {
-    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed
-    initrd /initrd.img
-}
-GRUBCFG
-  sync
-  umount /mnt/efi || true
-  echo "[VANTIS] Installation complete (single FAT mode). Reboot and boot from target disk."
-  exit 0
+if [ ! -f /boot_payload/system_disk.img.gz ]; then
+  echo "[VANTIS] installer payload missing: /boot_payload/system_disk.img.gz"
+  exit 1
 fi
 
-mkdosfs -F 32 -n VANTIS_EFI "$EFI_PART" >/dev/null
-mke2fs -F -L VANTIS_DATA "$DATA_PART" >/dev/null
-
-mkdir -p /mnt/efi /mnt/data
-mount "$EFI_PART" /mnt/efi
-mount "$DATA_PART" /mnt/data
-mkdir -p /mnt/efi/EFI/BOOT /mnt/data/home /mnt/data/var /mnt/data/vantis
-
-cp /boot_payload/BOOTX64.EFI /mnt/efi/EFI/BOOT/BOOTX64.EFI
-cp /boot_payload/vmlinuz /mnt/efi/vmlinuz
-cp /boot_payload/initrd.img /mnt/efi/initrd.img
-
-cat > /mnt/efi/EFI/BOOT/grub.cfg <<'GRUBCFG'
-set timeout=0
-set default=0
-terminal_output console
-
-menuentry "VantisOS Installed" {
-    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_DATA
-    initrd /initrd.img
-}
-GRUBCFG
-
-echo "VantisOS install completed on $(date -u +%Y-%m-%dT%H:%M:%SZ)" > /mnt/data/vantis/install_stamp.txt
+echo "[VANTIS] writing prebuilt system image to $TARGET"
+busybox gzip -dc /boot_payload/system_disk.img.gz | dd of="$TARGET" bs=4M conv=fsync
 sync
-
-umount /mnt/data || true
-umount /mnt/efi || true
 echo "[VANTIS] Installation complete. Reboot and boot from target disk."
 INSTALLER
 chmod +x "$INITRAMFS_ROOT/bin/vantis-installer"
@@ -371,16 +359,20 @@ grub-mkstandalone \
   -o "$INSTALLED_EFI_PATH" \
   "boot/grub/grub.cfg=$INSTALLED_GRUB_CFG_PATH" >/dev/null
 
+echo "Building preinstalled disk image payload..."
+build_installed_system_image "$SYSTEM_DISK_RAW_PATH" "$SYSTEM_DISK_GZ_PATH"
+
 echo "Embedding installer payload into live initrd..."
 mkdir -p "$INITRAMFS_ROOT/boot_payload"
-copy_readable_file "$KERNEL_PATH" "$INITRAMFS_ROOT/boot_payload/vmlinuz"
+cp "$KERNEL_PAYLOAD_PATH" "$INITRAMFS_ROOT/boot_payload/vmlinuz"
 cp "$STAGE1_INITRD_PATH" "$INITRAMFS_ROOT/boot_payload/initrd.img"
 cp "$INSTALLED_EFI_PATH" "$INITRAMFS_ROOT/boot_payload/BOOTX64.EFI"
+cp "$SYSTEM_DISK_GZ_PATH" "$INITRAMFS_ROOT/boot_payload/system_disk.img.gz"
 
 echo "Packing live initrd..."
 pack_initrd "$INITRAMFS_ROOT" "$FINAL_INITRD_PATH"
 
-copy_readable_file "$KERNEL_PATH" "$ISO_ROOT/boot/vmlinuz"
+cp "$KERNEL_PAYLOAD_PATH" "$ISO_ROOT/boot/vmlinuz"
 cp "$FINAL_INITRD_PATH" "$ISO_ROOT/boot/initrd.img"
 
 cat >"$GRUB_CFG_PATH" <<'GRUBCFG'
