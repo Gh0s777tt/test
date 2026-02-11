@@ -100,11 +100,9 @@ require_cmd grub-mkstandalone
 require_cmd xorriso
 require_cmd cpio
 require_cmd gzip
-require_cmd parted
-require_cmd losetup
-require_cmd kpartx
 require_cmd mkfs.vfat
-require_cmd mkfs.ext4
+require_cmd mmd
+require_cmd mcopy
 require_cmd rustc
 require_cmd busybox
 require_cmd rg
@@ -170,76 +168,23 @@ pack_initrd() {
 build_installed_system_image() {
   local raw_img="$1"
   local gz_img="$2"
-  local loop_dev=""
-  local loop_base=""
-  local efi_part=""
-  local data_part=""
-  local cleanup_done=0
-
-  cleanup_installed_image() {
-    if (( cleanup_done == 1 )); then
-      return
-    fi
-    cleanup_done=1
-    sudo umount "$SYSTEM_DISK_MNT_DATA" >/dev/null 2>&1 || true
-    sudo umount "$SYSTEM_DISK_MNT_EFI" >/dev/null 2>&1 || true
-    if [[ -n "$loop_dev" ]]; then
-      sudo kpartx -dv "$loop_dev" >/dev/null 2>&1 || true
-      sudo losetup -d "$loop_dev" >/dev/null 2>&1 || true
-    fi
-  }
-  trap cleanup_installed_image RETURN
+  local stamp_file="$WORK_DIR/install_stamp.txt"
 
   rm -f "$raw_img" "$gz_img"
-  truncate -s 768M "$raw_img"
+  truncate -s 512M "$raw_img"
+  mkfs.vfat -F 32 -n VANTIS_BOOT "$raw_img" >/dev/null
 
-  sudo parted -s "$raw_img" \
-    mklabel gpt \
-    mkpart ESP fat32 1MiB 257MiB \
-    set 1 esp on \
-    mkpart primary ext4 257MiB 100%
+  mmd -i "$raw_img" ::/EFI
+  mmd -i "$raw_img" ::/EFI/BOOT
+  mcopy -i "$raw_img" "$INSTALLED_EFI_PATH" ::/EFI/BOOT/BOOTX64.EFI
+  mcopy -i "$raw_img" "$KERNEL_PAYLOAD_PATH" ::/vmlinuz
+  mcopy -i "$raw_img" "$STAGE1_INITRD_PATH" ::/initrd.img
+  mcopy -i "$raw_img" "$INSTALLED_RUNTIME_GRUB_CFG_PATH" ::/EFI/BOOT/grub.cfg
 
-  loop_dev="$(sudo losetup --find --show "$raw_img")"
-  loop_base="$(basename "$loop_dev")"
-  sudo partprobe "$loop_dev" >/dev/null 2>&1 || true
-  sudo kpartx -av "$loop_dev" >/dev/null
-  sleep 1
-  efi_part="/dev/mapper/${loop_base}p1"
-  data_part="/dev/mapper/${loop_base}p2"
-
-  if [[ ! -b "$efi_part" || ! -b "$data_part" ]]; then
-    echo "Error: failed to discover loop partitions for installed image payload" >&2
-    exit 1
-  fi
-
-  sudo mkfs.vfat -F 32 -n VANTIS_EFI "$efi_part" >/dev/null
-  sudo mkfs.ext4 -F -L VANTIS_DATA "$data_part" >/dev/null
-
-  mkdir -p "$SYSTEM_DISK_MNT_EFI" "$SYSTEM_DISK_MNT_DATA"
-  sudo mount "$efi_part" "$SYSTEM_DISK_MNT_EFI"
-  sudo mount "$data_part" "$SYSTEM_DISK_MNT_DATA"
-
-  sudo mkdir -p "$SYSTEM_DISK_MNT_EFI/EFI/BOOT" "$SYSTEM_DISK_MNT_DATA/home" "$SYSTEM_DISK_MNT_DATA/var" "$SYSTEM_DISK_MNT_DATA/vantis"
-  sudo cp "$INSTALLED_EFI_PATH" "$SYSTEM_DISK_MNT_EFI/EFI/BOOT/BOOTX64.EFI"
-  sudo cp "$KERNEL_PAYLOAD_PATH" "$SYSTEM_DISK_MNT_EFI/vmlinuz"
-  sudo cp "$STAGE1_INITRD_PATH" "$SYSTEM_DISK_MNT_EFI/initrd.img"
-  cat <<'GRUBCFG' | sudo tee "$SYSTEM_DISK_MNT_EFI/EFI/BOOT/grub.cfg" >/dev/null
-set timeout=0
-set default=0
-terminal_output console
-
-menuentry "VantisOS Installed" {
-    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_DATA
-    initrd /initrd.img
-}
-GRUBCFG
-  echo "VantisOS install payload generated on $(date -u +%Y-%m-%dT%H:%M:%SZ)" | sudo tee "$SYSTEM_DISK_MNT_DATA/vantis/install_stamp.txt" >/dev/null
-  sudo sync
-
-  cleanup_installed_image
+  printf 'VantisOS install payload generated on %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$stamp_file"
+  mcopy -i "$raw_img" "$stamp_file" ::/install_stamp.txt
 
   gzip -9 -c "$raw_img" >"$gz_img"
-  trap - RETURN
 }
 
 KERNEL_PATH="$(resolve_kernel)"
@@ -257,10 +202,9 @@ FINAL_INITRD_PATH="$WORK_DIR/initrd_live.img"
 KERNEL_PAYLOAD_PATH="$WORK_DIR/vmlinuz_payload"
 SYSTEM_DISK_RAW_PATH="$WORK_DIR/vantis_system_disk.img"
 SYSTEM_DISK_GZ_PATH="$WORK_DIR/vantis_system_disk.img.gz"
-SYSTEM_DISK_MNT_EFI="$WORK_DIR/mnt_efi"
-SYSTEM_DISK_MNT_DATA="$WORK_DIR/mnt_data"
 GRUB_CFG_PATH="$ISO_ROOT/boot/grub/grub.cfg"
 INSTALLED_GRUB_CFG_PATH="$WORK_DIR/grub_installed.cfg"
+INSTALLED_RUNTIME_GRUB_CFG_PATH="$WORK_DIR/grub_installed_runtime.cfg"
 INSTALLED_EFI_PATH="$WORK_DIR/BOOTX64.EFI"
 
 rm -rf "$WORK_DIR"
@@ -369,10 +313,11 @@ set default=0
 terminal_output console
 
 menuentry "VantisOS Installed" {
-    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_DATA
+    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed
     initrd /initrd.img
 }
 INSTGRUB
+cp "$INSTALLED_GRUB_CFG_PATH" "$INSTALLED_RUNTIME_GRUB_CFG_PATH"
 grub-mkstandalone \
   -O x86_64-efi \
   -o "$INSTALLED_EFI_PATH" \
