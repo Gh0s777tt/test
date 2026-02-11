@@ -102,6 +102,7 @@ require_cmd cpio
 require_cmd gzip
 require_cmd parted
 require_cmd losetup
+require_cmd kpartx
 require_cmd mkfs.vfat
 require_cmd mkfs.ext4
 require_cmd rustc
@@ -170,8 +171,24 @@ build_installed_system_image() {
   local raw_img="$1"
   local gz_img="$2"
   local loop_dev=""
+  local loop_base=""
   local efi_part=""
   local data_part=""
+  local cleanup_done=0
+
+  cleanup_installed_image() {
+    if (( cleanup_done == 1 )); then
+      return
+    fi
+    cleanup_done=1
+    sudo umount "$SYSTEM_DISK_MNT_DATA" >/dev/null 2>&1 || true
+    sudo umount "$SYSTEM_DISK_MNT_EFI" >/dev/null 2>&1 || true
+    if [[ -n "$loop_dev" ]]; then
+      sudo kpartx -dv "$loop_dev" >/dev/null 2>&1 || true
+      sudo losetup -d "$loop_dev" >/dev/null 2>&1 || true
+    fi
+  }
+  trap cleanup_installed_image RETURN
 
   rm -f "$raw_img" "$gz_img"
   truncate -s 768M "$raw_img"
@@ -182,12 +199,15 @@ build_installed_system_image() {
     set 1 esp on \
     mkpart primary ext4 257MiB 100%
 
-  loop_dev="$(sudo losetup --find --show --partscan "$raw_img")"
-  efi_part="${loop_dev}p1"
-  data_part="${loop_dev}p2"
+  loop_dev="$(sudo losetup --find --show "$raw_img")"
+  loop_base="$(basename "$loop_dev")"
+  sudo partprobe "$loop_dev" >/dev/null 2>&1 || true
+  sudo kpartx -av "$loop_dev" >/dev/null
+  sleep 1
+  efi_part="/dev/mapper/${loop_base}p1"
+  data_part="/dev/mapper/${loop_base}p2"
 
   if [[ ! -b "$efi_part" || ! -b "$data_part" ]]; then
-    sudo losetup -d "$loop_dev" || true
     echo "Error: failed to discover loop partitions for installed image payload" >&2
     exit 1
   fi
@@ -216,11 +236,10 @@ GRUBCFG
   echo "VantisOS install payload generated on $(date -u +%Y-%m-%dT%H:%M:%SZ)" | sudo tee "$SYSTEM_DISK_MNT_DATA/vantis/install_stamp.txt" >/dev/null
   sudo sync
 
-  sudo umount "$SYSTEM_DISK_MNT_DATA" || true
-  sudo umount "$SYSTEM_DISK_MNT_EFI" || true
-  sudo losetup -d "$loop_dev" || true
+  cleanup_installed_image
 
   gzip -9 -c "$raw_img" >"$gz_img"
+  trap - RETURN
 }
 
 KERNEL_PATH="$(resolve_kernel)"
