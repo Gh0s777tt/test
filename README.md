@@ -195,6 +195,12 @@ maintenance scripts from `scripts/`:
 # Generate enforced pilot execution runbook and rollback guardrails snapshot
 ./scripts/generate_enforced_pilot_runbook.sh
 
+# Evaluate enforced pilot burn-in telemetry SLO
+./scripts/evaluate_enforced_pilot_burn_in_slo.sh
+
+# Scaffold rollback postmortem template for enforced pilot
+./scripts/scaffold_enforced_pilot_rollback_postmortem.sh
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 

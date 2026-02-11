@@ -435,6 +435,8 @@ latest_drill_json = sorted(analysis_dir.glob("monitor_drift_release_readiness_dr
 latest_breach_route_json = sorted(analysis_dir.glob("monitor_drift_breach_route_[0-9]*.json"))
 latest_promotion_readiness_json = sorted(analysis_dir.glob("governance_gate_promotion_readiness_[0-9]*.json"))
 latest_pilot_runbook_json = sorted(analysis_dir.glob("enforced_pilot_runbook_[0-9]*.json"))
+latest_burn_in_slo_json = sorted(analysis_dir.glob("enforced_pilot_burn_in_slo_[0-9]*.json"))
+latest_rollback_postmortem_json = sorted(analysis_dir.glob("enforced_pilot_rollback_postmortem_[0-9]*.json"))
 if escalation_path and escalation_path.is_file():
     evidence_files.append(rel(escalation_path))
 if latest_handoff_json:
@@ -447,6 +449,10 @@ if latest_promotion_readiness_json:
     evidence_files.append(rel(latest_promotion_readiness_json[-1]))
 if latest_pilot_runbook_json:
     evidence_files.append(rel(latest_pilot_runbook_json[-1]))
+if latest_burn_in_slo_json:
+    evidence_files.append(rel(latest_burn_in_slo_json[-1]))
+if latest_rollback_postmortem_json:
+    evidence_files.append(rel(latest_rollback_postmortem_json[-1]))
 if latest_recommendation:
     evidence_files.append(
         rel(root / "analysis" / "benchmark_reproducibility" / str(latest_recommendation.get("file", "")))

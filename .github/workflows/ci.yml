@@ -289,6 +289,16 @@ jobs:
         run: >
           ./scripts/generate_enforced_pilot_runbook.sh
 
+      - name: Evaluate enforced pilot burn-in telemetry SLO
+        if: ${{ always() }}
+        run: >
+          ./scripts/evaluate_enforced_pilot_burn_in_slo.sh
+
+      - name: Scaffold enforced pilot rollback postmortem
+        if: ${{ always() }}
+        run: >
+          ./scripts/scaffold_enforced_pilot_rollback_postmortem.sh
+
       - name: Enforce monitor threshold governance (promotion-aware)
         if: ${{ always() }}
         run: >

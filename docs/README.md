@@ -140,6 +140,8 @@ See [../history/](../history/) for:
 - **Routing escalation breach evidence snapshot**: `../scripts/route_monitor_drift_breach_evidence.sh`
 - **Evaluating governance gate promotion readiness scorecard**: `../scripts/evaluate_governance_gate_promotion_readiness.sh`
 - **Generating enforced pilot execution runbook and rollback guardrails snapshot**: `../scripts/generate_enforced_pilot_runbook.sh`
+- **Evaluating enforced pilot burn-in telemetry SLO**: `../scripts/evaluate_enforced_pilot_burn_in_slo.sh`
+- **Scaffolding enforced pilot rollback postmortem template**: `../scripts/scaffold_enforced_pilot_rollback_postmortem.sh`
 - **Generating governance-ready threshold proposal draft (includes signoff + latency telemetry)**: `../scripts/generate_monitor_threshold_proposal.sh`
 - **Generating Week 9 governance transition pack (includes signoff review-status + latency telemetry)**: `../scripts/generate_governance_transition_pack.sh`
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
@@ -177,6 +179,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 9 escalation breach evidence routing + gate promotion strategy**: `../WEEK_10_DAY_9_BREACH_EVIDENCE_ROUTING_AND_GATE_PROMOTION.md`
 - **Week 10 Day 10 promotion readiness criteria + enforced pilot checklist**: `../WEEK_10_DAY_10_PROMOTION_READINESS_AND_ENFORCED_PILOT_CHECKLIST.md`
 - **Week 10 Day 11 enforced pilot execution runbook + rollback guardrails**: `../WEEK_10_DAY_11_ENFORCED_PILOT_RUNBOOK_AND_ROLLBACK_GUARDRAILS.md`
+- **Week 10 Day 12 enforced pilot burn-in telemetry SLO + rollback postmortem template**: `../WEEK_10_DAY_12_ENFORCED_PILOT_BURN_IN_SLO_AND_ROLLBACK_POSTMORTEM_TEMPLATE.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

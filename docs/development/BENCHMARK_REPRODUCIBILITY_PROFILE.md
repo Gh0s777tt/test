@@ -135,6 +135,10 @@ Current repository integration:
 - CI runs `scripts/generate_enforced_pilot_runbook.sh` to publish enforced-pilot
   execution runbook and rollback guardrail decisions (`continue` vs `rollback`)
   from latest readiness + breach/handoff/drill evidence.
+- CI runs `scripts/evaluate_enforced_pilot_burn_in_slo.sh` to publish enforced
+  pilot burn-in SLO status from rolling runbook telemetry.
+- CI runs `scripts/scaffold_enforced_pilot_rollback_postmortem.sh` to maintain
+  rollback postmortem scaffold readiness and required incident sections.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -245,6 +249,18 @@ Generate enforced pilot execution runbook:
 
 ```bash
 ./scripts/generate_enforced_pilot_runbook.sh
+```
+
+Evaluate enforced pilot burn-in SLO:
+
+```bash
+./scripts/evaluate_enforced_pilot_burn_in_slo.sh
+```
+
+Scaffold enforced pilot rollback postmortem:
+
+```bash
+./scripts/scaffold_enforced_pilot_rollback_postmortem.sh
 ```
 
 Run monitor-threshold governance gate with explicit promotion mode:

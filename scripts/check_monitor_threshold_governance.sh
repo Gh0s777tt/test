@@ -23,6 +23,8 @@ ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
 PROMOTION_POLICY_JSON="$ROOT/governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json"
 BREACH_ROUTE_JSON=""
 PILOT_RUNBOOK_JSON=""
+BURN_IN_SLO_JSON=""
+ROLLBACK_POSTMORTEM_JSON=""
 PROMOTION_MODE="auto"
 
 usage() {
@@ -34,6 +36,8 @@ Options:
   --promotion-policy-json <path>    Governance gate promotion policy JSON path
   --breach-route-json <path>        Breach route JSON artifact path (default: newest monitor_drift_breach_route_*.json)
   --pilot-runbook-json <path>       Enforced pilot runbook JSON artifact path (default: newest enforced_pilot_runbook_*.json)
+  --burn-in-slo-json <path>         Burn-in SLO JSON artifact path (default: newest enforced_pilot_burn_in_slo_*.json)
+  --rollback-postmortem-json <path> Rollback postmortem JSON artifact path (default: newest enforced_pilot_rollback_postmortem_*.json)
   --promotion-mode <auto|advisory|enforced>
   -h, --help                        Show this help
 USAGE
@@ -55,6 +59,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --pilot-runbook-json)
       PILOT_RUNBOOK_JSON="${2:-}"
+      shift 2
+      ;;
+    --burn-in-slo-json)
+      BURN_IN_SLO_JSON="${2:-}"
+      shift 2
+      ;;
+    --rollback-postmortem-json)
+      ROLLBACK_POSTMORTEM_JSON="${2:-}"
       shift 2
       ;;
     --promotion-mode)
@@ -322,6 +334,26 @@ if [[ -z "$PILOT_RUNBOOK_JSON" ]]; then
   fi
 fi
 
+if [[ -z "$BURN_IN_SLO_JSON" ]]; then
+  shopt -s nullglob
+  BURN_IN_CANDIDATES=("$ANALYSIS_DIR"/enforced_pilot_burn_in_slo_[0-9]*.json)
+  shopt -u nullglob
+  if (( ${#BURN_IN_CANDIDATES[@]} > 0 )); then
+    readarray -t SORTED_BURN_IN_CANDIDATES < <(printf '%s\n' "${BURN_IN_CANDIDATES[@]}" | sort)
+    BURN_IN_SLO_JSON="${SORTED_BURN_IN_CANDIDATES[${#SORTED_BURN_IN_CANDIDATES[@]}-1]}"
+  fi
+fi
+
+if [[ -z "$ROLLBACK_POSTMORTEM_JSON" ]]; then
+  shopt -s nullglob
+  POSTMORTEM_CANDIDATES=("$ANALYSIS_DIR"/enforced_pilot_rollback_postmortem_[0-9]*.json)
+  shopt -u nullglob
+  if (( ${#POSTMORTEM_CANDIDATES[@]} > 0 )); then
+    readarray -t SORTED_POSTMORTEM_CANDIDATES < <(printf '%s\n' "${POSTMORTEM_CANDIDATES[@]}" | sort)
+    ROLLBACK_POSTMORTEM_JSON="${SORTED_POSTMORTEM_CANDIDATES[${#SORTED_POSTMORTEM_CANDIDATES[@]}-1]}"
+  fi
+fi
+
 BREACH_DETECTED="no"
 BREACH_SOURCES="none"
 ROUTE_WOULD_BLOCK="no"
@@ -385,6 +417,54 @@ else
   info "Enforced pilot runbook artifact not available for rollback-guardrail checks."
 fi
 
+BURN_IN_SLO_STATUS="n/a"
+BURN_IN_SLO_FAILS="0"
+if [[ -n "$BURN_IN_SLO_JSON" && -f "$BURN_IN_SLO_JSON" ]]; then
+  readarray -t BURN_IN_META < <(python3 - "$BURN_IN_SLO_JSON" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+fails = payload.get("required_failures", [])
+if not isinstance(fails, list):
+    fails = []
+
+print(str(payload.get("overall_status", "n/a")))
+print(str(len(fails)))
+PY
+  )
+  BURN_IN_SLO_STATUS="${BURN_IN_META[0]:-n/a}"
+  BURN_IN_SLO_FAILS="${BURN_IN_META[1]:-0}"
+  info "Burn-in SLO artifact: ${BURN_IN_SLO_JSON}"
+  info "Burn-in SLO summary: status=${BURN_IN_SLO_STATUS}, failed_criteria=${BURN_IN_SLO_FAILS}"
+else
+  info "Burn-in SLO artifact not available for enforced pilot checks."
+fi
+
+POSTMORTEM_REQUIRED="no"
+POSTMORTEM_STATUS="n/a"
+if [[ -n "$ROLLBACK_POSTMORTEM_JSON" && -f "$ROLLBACK_POSTMORTEM_JSON" ]]; then
+  readarray -t POSTMORTEM_META < <(python3 - "$ROLLBACK_POSTMORTEM_JSON" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+print("yes" if bool(payload.get("required", False)) else "no")
+print(str(payload.get("status", "n/a")))
+PY
+  )
+  POSTMORTEM_REQUIRED="${POSTMORTEM_META[0]:-no}"
+  POSTMORTEM_STATUS="${POSTMORTEM_META[1]:-n/a}"
+  info "Rollback postmortem artifact: ${ROLLBACK_POSTMORTEM_JSON}"
+  info "Rollback postmortem summary: required=${POSTMORTEM_REQUIRED}, status=${POSTMORTEM_STATUS}"
+else
+  info "Rollback postmortem artifact not available for enforced pilot checks."
+fi
+
 if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
   if [[ "$ENFORCE_ON_BREACH" == "yes" ]]; then
     if [[ -z "$BREACH_ROUTE_JSON" || ! -f "$BREACH_ROUTE_JSON" ]]; then
@@ -407,7 +487,17 @@ if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
       info "No active breach detected; enforced promotion controls satisfied."
     fi
   fi
+  if [[ "$BURN_IN_SLO_STATUS" == "fail" ]]; then
+    fail "Enforced pilot burn-in SLO failed; rollback or mitigation required before continuing enforced mode."
+  fi
   if [[ "$RUNBOOK_ROLLBACK_RECOMMENDED" == "yes" ]]; then
+    if [[ -n "$ROLLBACK_POSTMORTEM_JSON" && -f "$ROLLBACK_POSTMORTEM_JSON" ]]; then
+      if [[ "$POSTMORTEM_REQUIRED" != "yes" ]]; then
+        fail "Rollback recommended but rollback postmortem artifact is not marked required."
+      fi
+    else
+      fail "Rollback recommended under enforced mode: rollback postmortem artifact is required."
+    fi
     fail "Enforced pilot rollback guardrail triggered (runbook action: ${RUNBOOK_RECOMMENDED_ACTION})."
   fi
 fi

@@ -663,6 +663,64 @@ def parse_enforced_pilot_runbook_payload(path: Path):
     }
 
 
+def parse_enforced_pilot_burn_in_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    criteria = payload.get("criteria", [])
+    if not isinstance(criteria, list):
+        criteria = []
+    failures = payload.get("required_failures", [])
+    if not isinstance(failures, list):
+        failures = []
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "overall_status": str(payload.get("overall_status", "n/a")),
+        "burn_in_slo": payload.get("burn_in_slo", {}),
+        "telemetry_summary": payload.get("telemetry_summary", {}),
+        "criteria": criteria,
+        "required_failures": failures,
+        "window_artifacts": payload.get("window_artifacts", []),
+    }
+
+
+def parse_rollback_postmortem_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    sections = payload.get("template_sections", [])
+    if not isinstance(sections, list):
+        sections = []
+    evidence = payload.get("evidence_bundle", [])
+    if not isinstance(evidence, list):
+        evidence = []
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "required": bool(payload.get("required", False)),
+        "status": str(payload.get("status", "n/a")),
+        "trigger": payload.get("trigger", {}),
+        "snapshot": payload.get("snapshot", {}),
+        "template_sections": sections,
+        "evidence_bundle": evidence,
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -686,6 +744,10 @@ latest_promotion_readiness_md = latest("governance_gate_promotion_readiness_[0-9
 latest_promotion_readiness_json = latest("governance_gate_promotion_readiness_[0-9]*.json")
 latest_enforced_pilot_runbook_md = latest("enforced_pilot_runbook_[0-9]*.md")
 latest_enforced_pilot_runbook_json = latest("enforced_pilot_runbook_[0-9]*.json")
+latest_enforced_pilot_burn_in_md = latest("enforced_pilot_burn_in_slo_[0-9]*.md")
+latest_enforced_pilot_burn_in_json = latest("enforced_pilot_burn_in_slo_[0-9]*.json")
+latest_rollback_postmortem_md = latest("enforced_pilot_rollback_postmortem_[0-9]*.md")
+latest_rollback_postmortem_json = latest("enforced_pilot_rollback_postmortem_[0-9]*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -726,6 +788,16 @@ enforced_pilot_runbook_telemetry = (
     if latest_enforced_pilot_runbook_json
     else {}
 )
+enforced_pilot_burn_in_telemetry = (
+    parse_enforced_pilot_burn_in_payload(latest_enforced_pilot_burn_in_json)
+    if latest_enforced_pilot_burn_in_json
+    else {}
+)
+rollback_postmortem_telemetry = (
+    parse_rollback_postmortem_payload(latest_rollback_postmortem_json)
+    if latest_rollback_postmortem_json
+    else {}
+)
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -754,6 +826,8 @@ scripts_required = [
     root / "scripts/route_monitor_drift_breach_evidence.sh",
     root / "scripts/evaluate_governance_gate_promotion_readiness.sh",
     root / "scripts/generate_enforced_pilot_runbook.sh",
+    root / "scripts/evaluate_enforced_pilot_burn_in_slo.sh",
+    root / "scripts/scaffold_enforced_pilot_rollback_postmortem.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -880,6 +954,26 @@ artifact_status = [
         "path": rel(latest_enforced_pilot_runbook_json) if latest_enforced_pilot_runbook_json else "n/a",
         "exists": bool(latest_enforced_pilot_runbook_json),
     },
+    {
+        "kind": "enforced_pilot_burn_in_md",
+        "path": rel(latest_enforced_pilot_burn_in_md) if latest_enforced_pilot_burn_in_md else "n/a",
+        "exists": bool(latest_enforced_pilot_burn_in_md),
+    },
+    {
+        "kind": "enforced_pilot_burn_in_json",
+        "path": rel(latest_enforced_pilot_burn_in_json) if latest_enforced_pilot_burn_in_json else "n/a",
+        "exists": bool(latest_enforced_pilot_burn_in_json),
+    },
+    {
+        "kind": "rollback_postmortem_md",
+        "path": rel(latest_rollback_postmortem_md) if latest_rollback_postmortem_md else "n/a",
+        "exists": bool(latest_rollback_postmortem_md),
+    },
+    {
+        "kind": "rollback_postmortem_json",
+        "path": rel(latest_rollback_postmortem_json) if latest_rollback_postmortem_json else "n/a",
+        "exists": bool(latest_rollback_postmortem_json),
+    },
 ]
 
 readiness_checks = {
@@ -913,6 +1007,18 @@ readiness_checks = {
     and not bool(enforced_pilot_runbook_telemetry.get("rollback_recommended", False)),
     "enforced_pilot_preflight_ok": bool(latest_enforced_pilot_runbook_json)
     and bool(enforced_pilot_runbook_telemetry.get("preflight_ok", False)),
+    "enforced_pilot_burn_in_present": bool(latest_enforced_pilot_burn_in_json),
+    "enforced_pilot_burn_in_passed": bool(latest_enforced_pilot_burn_in_json)
+    and enforced_pilot_burn_in_telemetry.get("overall_status", "n/a") == "pass",
+    "rollback_postmortem_present": bool(latest_rollback_postmortem_json),
+    "rollback_postmortem_required_covered": bool(latest_enforced_pilot_runbook_json)
+    and (
+        not bool(enforced_pilot_runbook_telemetry.get("rollback_recommended", False))
+        or (
+            bool(latest_rollback_postmortem_json)
+            and bool(rollback_postmortem_telemetry.get("required", False))
+        )
+    ),
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -1330,6 +1436,70 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("- Runbook artifact: not available\n")
         fh.write("- Rollback recommended: n/a\n\n")
 
+    fh.write("## Enforced Pilot Burn-In SLO Snapshot\n\n")
+    if enforced_pilot_burn_in_telemetry:
+        slo_cfg = enforced_pilot_burn_in_telemetry.get("burn_in_slo", {})
+        summary = enforced_pilot_burn_in_telemetry.get("telemetry_summary", {})
+        fh.write(
+            f"- Burn-in artifact: `{enforced_pilot_burn_in_telemetry.get('source', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Generated at (UTC): {enforced_pilot_burn_in_telemetry.get('generated_at_utc', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Burn-in overall status: **{enforced_pilot_burn_in_telemetry.get('overall_status', 'n/a')}**\n"
+        )
+        fh.write(
+            f"- Window artifacts: {slo_cfg.get('window_artifacts', 'n/a')}, "
+            f"samples={summary.get('samples', 'n/a')}, safe_rate_pct={summary.get('safe_rate_pct', 'n/a')}\n"
+        )
+        fh.write(
+            f"- rollback_recommendations={summary.get('rollback_recommendations', 'n/a')}, "
+            f"guardrail_breach_events={summary.get('guardrail_breach_events', 'n/a')}, "
+            f"preflight_failures={summary.get('preflight_failures', 'n/a')}\n\n"
+        )
+
+        fh.write("| Criterion | Passed | Value | Target |\n")
+        fh.write("|---|---|---:|---|\n")
+        criteria = enforced_pilot_burn_in_telemetry.get("criteria", [])
+        if criteria:
+            for item in criteria:
+                fh.write(
+                    f"| `{item.get('id', 'n/a')}` | {'yes' if item.get('passed') else 'no'} | "
+                    f"{item.get('value', 'n/a')} | {item.get('target', 'n/a')} |\n"
+                )
+        else:
+            fh.write("| _none_ | n/a | n/a | n/a |\n")
+        fh.write("\n")
+    else:
+        fh.write("- Burn-in artifact: not available\n")
+        fh.write("- Burn-in overall status: n/a\n\n")
+
+    fh.write("## Rollback Postmortem Snapshot\n\n")
+    if rollback_postmortem_telemetry:
+        trigger = rollback_postmortem_telemetry.get("trigger", {})
+        fh.write(
+            f"- Postmortem artifact: `{rollback_postmortem_telemetry.get('source', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Generated at (UTC): {rollback_postmortem_telemetry.get('generated_at_utc', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Required: `{yes_no(bool(rollback_postmortem_telemetry.get('required', False)))}`\n"
+        )
+        fh.write(
+            f"- Status: `{rollback_postmortem_telemetry.get('status', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Trigger action: `{trigger.get('runbook_action', 'n/a')}` "
+            f"(rollback_recommended={yes_no(bool(trigger.get('rollback_recommended', False)))})\n"
+        )
+        sections = rollback_postmortem_telemetry.get("template_sections", [])
+        fh.write(f"- Template sections: {len(sections)}\n\n")
+    else:
+        fh.write("- Postmortem artifact: not available\n")
+        fh.write("- Required: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -1345,6 +1515,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("7. Route breach evidence and promote governance gate from advisory to enforced when ready.\n")
     fh.write("8. Track promotion readiness scorecard and maintain enforced pilot checklist evidence.\n")
     fh.write("9. Execute enforced pilot runbook and apply rollback guardrails on breach signals.\n")
+    fh.write("10. Track burn-in SLO and maintain rollback postmortem scaffold readiness.\n")
     fh.write("\n")
 
 transition_json = {
@@ -1377,6 +1548,8 @@ transition_json = {
     "breach_route_telemetry": breach_route_telemetry,
     "promotion_readiness_telemetry": promotion_readiness_telemetry,
     "enforced_pilot_runbook_telemetry": enforced_pilot_runbook_telemetry,
+    "enforced_pilot_burn_in_telemetry": enforced_pilot_burn_in_telemetry,
+    "rollback_postmortem_telemetry": rollback_postmortem_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")
