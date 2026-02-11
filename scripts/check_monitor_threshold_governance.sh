@@ -27,6 +27,7 @@ PILOT_RUNBOOK_JSON=""
 BURN_IN_SLO_JSON=""
 ROLLBACK_POSTMORTEM_JSON=""
 HANDOFF_SIGNOFF_PACKET_JSON=""
+CLOSURE_AUDIT_JSON=""
 PROMOTION_MODE="auto"
 
 usage() {
@@ -42,6 +43,7 @@ Options:
   --rollback-postmortem-json <path> Rollback postmortem JSON artifact path (default: newest enforced_pilot_rollback_postmortem_*.json)
   --handoff-signoff-packet-json <path>
                                    Handoff signoff packet JSON artifact path (default: newest enforced_pilot_handoff_signoff_packet_*.json)
+  --closure-audit-json <path>      Closure audit JSON artifact path (default: newest enforced_pilot_closure_audit_*.json)
   --promotion-mode <auto|advisory|enforced>
   -h, --help                        Show this help
 USAGE
@@ -75,6 +77,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --handoff-signoff-packet-json)
       HANDOFF_SIGNOFF_PACKET_JSON="${2:-}"
+      shift 2
+      ;;
+    --closure-audit-json)
+      CLOSURE_AUDIT_JSON="${2:-}"
       shift 2
       ;;
     --promotion-mode)
@@ -372,6 +378,16 @@ if [[ -z "$HANDOFF_SIGNOFF_PACKET_JSON" ]]; then
   fi
 fi
 
+if [[ -z "$CLOSURE_AUDIT_JSON" ]]; then
+  shopt -s nullglob
+  CLOSURE_AUDIT_CANDIDATES=("$ANALYSIS_DIR"/enforced_pilot_closure_audit_[0-9]*.json)
+  shopt -u nullglob
+  if (( ${#CLOSURE_AUDIT_CANDIDATES[@]} > 0 )); then
+    readarray -t SORTED_CLOSURE_AUDIT_CANDIDATES < <(printf '%s\n' "${CLOSURE_AUDIT_CANDIDATES[@]}" | sort)
+    CLOSURE_AUDIT_JSON="${SORTED_CLOSURE_AUDIT_CANDIDATES[${#SORTED_CLOSURE_AUDIT_CANDIDATES[@]}-1]}"
+  fi
+fi
+
 BREACH_DETECTED="no"
 BREACH_SOURCES="none"
 ROUTE_WOULD_BLOCK="no"
@@ -515,6 +531,44 @@ else
   info "Handoff signoff packet artifact not available for incident-closure checks."
 fi
 
+CLOSURE_AUDIT_STATUS="n/a"
+CLOSURE_AUDIT_GATE_STATE="n/a"
+CLOSURE_AUDIT_REQUIRED_FAILS="0"
+CLOSURE_AUDIT_PACKET_REQUIRED="no"
+CLOSURE_AUDIT_PACKET_READY="no"
+if [[ -n "$CLOSURE_AUDIT_JSON" && -f "$CLOSURE_AUDIT_JSON" ]]; then
+  readarray -t CLOSURE_AUDIT_META < <(python3 - "$CLOSURE_AUDIT_JSON" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text(encoding="utf-8"))
+snapshot = payload.get("incident_closure_snapshot", {})
+if not isinstance(snapshot, dict):
+    snapshot = {}
+fails = payload.get("required_failures", [])
+if not isinstance(fails, list):
+    fails = []
+
+print(str(payload.get("overall_status", "n/a")))
+print(str(payload.get("closure_gate_state", "n/a")))
+print(str(len(fails)))
+print("yes" if bool(snapshot.get("packet_closure_required", False)) else "no")
+print("yes" if bool(snapshot.get("packet_overall_ready", False)) else "no")
+PY
+  )
+  CLOSURE_AUDIT_STATUS="${CLOSURE_AUDIT_META[0]:-n/a}"
+  CLOSURE_AUDIT_GATE_STATE="${CLOSURE_AUDIT_META[1]:-n/a}"
+  CLOSURE_AUDIT_REQUIRED_FAILS="${CLOSURE_AUDIT_META[2]:-0}"
+  CLOSURE_AUDIT_PACKET_REQUIRED="${CLOSURE_AUDIT_META[3]:-no}"
+  CLOSURE_AUDIT_PACKET_READY="${CLOSURE_AUDIT_META[4]:-no}"
+  info "Closure audit artifact: ${CLOSURE_AUDIT_JSON}"
+  info "Closure audit summary: status=${CLOSURE_AUDIT_STATUS}, gate=${CLOSURE_AUDIT_GATE_STATE}, required_failures=${CLOSURE_AUDIT_REQUIRED_FAILS}"
+else
+  info "Closure audit artifact not available for incident-closure audit checks."
+fi
+
 if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
   if [[ "$ENFORCE_ON_BREACH" == "yes" ]]; then
     if [[ -z "$BREACH_ROUTE_JSON" || ! -f "$BREACH_ROUTE_JSON" ]]; then
@@ -558,6 +612,20 @@ if [[ "$ACTIVE_PROMOTION_MODE" == "enforced" ]]; then
   fi
   if [[ "$HANDOFF_PACKET_REQUIRED" == "yes" && "$HANDOFF_PACKET_READY" != "yes" ]]; then
     fail "Incident closure handoff signoff packet is required but not ready (${HANDOFF_PACKET_STATUS})."
+  fi
+  if [[ "$HANDOFF_PACKET_REQUIRED" == "yes" ]]; then
+    if [[ -z "$CLOSURE_AUDIT_JSON" || ! -f "$CLOSURE_AUDIT_JSON" ]]; then
+      fail "Incident closure requires closure audit artifact for enforced mode."
+    fi
+    if [[ "$CLOSURE_AUDIT_PACKET_REQUIRED" != "yes" ]]; then
+      fail "Closure audit does not mark packet closure requirement as expected."
+    fi
+    if [[ "$CLOSURE_AUDIT_PACKET_READY" != "yes" ]]; then
+      fail "Closure audit reports packet is not ready for required closure path."
+    fi
+    if [[ "$CLOSURE_AUDIT_STATUS" != "pass" ]]; then
+      fail "Closure audit failed (${CLOSURE_AUDIT_GATE_STATE}); resolve required failures before closure."
+    fi
   fi
 fi
 

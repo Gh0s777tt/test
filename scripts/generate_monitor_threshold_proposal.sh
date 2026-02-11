@@ -438,6 +438,7 @@ latest_pilot_runbook_json = sorted(analysis_dir.glob("enforced_pilot_runbook_[0-
 latest_burn_in_slo_json = sorted(analysis_dir.glob("enforced_pilot_burn_in_slo_[0-9]*.json"))
 latest_rollback_postmortem_json = sorted(analysis_dir.glob("enforced_pilot_rollback_postmortem_[0-9]*.json"))
 latest_handoff_signoff_packet_json = sorted(analysis_dir.glob("enforced_pilot_handoff_signoff_packet_[0-9]*.json"))
+latest_closure_audit_json = sorted(analysis_dir.glob("enforced_pilot_closure_audit_[0-9]*.json"))
 if escalation_path and escalation_path.is_file():
     evidence_files.append(rel(escalation_path))
 if latest_handoff_json:
@@ -456,6 +457,8 @@ if latest_rollback_postmortem_json:
     evidence_files.append(rel(latest_rollback_postmortem_json[-1]))
 if latest_handoff_signoff_packet_json:
     evidence_files.append(rel(latest_handoff_signoff_packet_json[-1]))
+if latest_closure_audit_json:
+    evidence_files.append(rel(latest_closure_audit_json[-1]))
 if latest_recommendation:
     evidence_files.append(
         rel(root / "analysis" / "benchmark_reproducibility" / str(latest_recommendation.get("file", "")))

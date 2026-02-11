@@ -143,6 +143,7 @@ See [../history/](../history/) for:
 - **Evaluating enforced pilot burn-in telemetry SLO**: `../scripts/evaluate_enforced_pilot_burn_in_slo.sh`
 - **Scaffolding enforced pilot rollback postmortem template**: `../scripts/scaffold_enforced_pilot_rollback_postmortem.sh`
 - **Generating enforced pilot incident-closure handoff signoff packet**: `../scripts/generate_enforced_pilot_handoff_signoff_packet.sh`
+- **Generating enforced pilot closure audit and governance rollout summary**: `../scripts/generate_enforced_pilot_closure_audit.sh`
 - **Generating governance-ready threshold proposal draft (includes signoff + latency telemetry)**: `../scripts/generate_monitor_threshold_proposal.sh`
 - **Generating Week 9 governance transition pack (includes signoff review-status + latency telemetry)**: `../scripts/generate_governance_transition_pack.sh`
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
@@ -182,6 +183,7 @@ See [../history/](../history/) for:
 - **Week 10 Day 11 enforced pilot execution runbook + rollback guardrails**: `../WEEK_10_DAY_11_ENFORCED_PILOT_RUNBOOK_AND_ROLLBACK_GUARDRAILS.md`
 - **Week 10 Day 12 enforced pilot burn-in telemetry SLO + rollback postmortem template**: `../WEEK_10_DAY_12_ENFORCED_PILOT_BURN_IN_SLO_AND_ROLLBACK_POSTMORTEM_TEMPLATE.md`
 - **Week 10 Day 13 enforced pilot incident closure governance + handoff signoff packet**: `../WEEK_10_DAY_13_INCIDENT_CLOSURE_GOVERNANCE_AND_HANDOFF_SIGNOFF_PACKET.md`
+- **Week 10 Day 14 enforced pilot closure audit + governance rollout summary**: `../WEEK_10_DAY_14_CLOSURE_AUDIT_AND_GOVERNANCE_ROLLOUT_SUMMARY.md`
 - **Monitor threshold changelog governance**: `../governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 - **Monitor threshold proposal template**: `../governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md`
 - **Monitor threshold signoff metadata registry**: `../governance/performance/MONPOL_SIGNOFFS.json`

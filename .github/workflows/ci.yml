@@ -304,6 +304,11 @@ jobs:
         run: >
           ./scripts/generate_enforced_pilot_handoff_signoff_packet.sh
 
+      - name: Generate enforced pilot closure audit and rollout summary
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_enforced_pilot_closure_audit.sh
+
       - name: Enforce monitor threshold governance (promotion-aware)
         if: ${{ always() }}
         run: >

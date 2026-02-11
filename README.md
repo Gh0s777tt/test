@@ -204,6 +204,9 @@ maintenance scripts from `scripts/`:
 # Generate incident-closure handoff signoff packet for enforced pilot
 ./scripts/generate_enforced_pilot_handoff_signoff_packet.sh
 
+# Generate enforced pilot closure audit and governance rollout summary
+./scripts/generate_enforced_pilot_closure_audit.sh
+
 # Generate governance-ready threshold proposal draft (MONPOL + signoff + latency telemetry)
 ./scripts/generate_monitor_threshold_proposal.sh --bench timer_queue_benchmark --bench directory_entry_cache_benchmark
 

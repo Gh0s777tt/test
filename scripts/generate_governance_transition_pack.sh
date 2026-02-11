@@ -752,6 +752,42 @@ def parse_handoff_signoff_packet_payload(path: Path):
     }
 
 
+def parse_closure_audit_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    criteria = payload.get("criteria", [])
+    if not isinstance(criteria, list):
+        criteria = []
+    failures = payload.get("required_failures", [])
+    if not isinstance(failures, list):
+        failures = []
+    rollout = payload.get("governance_rollout_summary", {})
+    if not isinstance(rollout, dict):
+        rollout = {}
+    snapshot = payload.get("incident_closure_snapshot", {})
+    if not isinstance(snapshot, dict):
+        snapshot = {}
+
+    return {
+        "source": rel(path),
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
+        "overall_status": str(payload.get("overall_status", "n/a")),
+        "closure_gate_state": str(payload.get("closure_gate_state", "n/a")),
+        "recommended_action": str(payload.get("recommended_action", "n/a")),
+        "governance_rollout_summary": rollout,
+        "incident_closure_snapshot": snapshot,
+        "criteria": criteria,
+        "required_failures": failures,
+    }
+
+
 latest_summary = latest("ci_benchmark_gate_summary_*.md")
 latest_recommendation_md = latest("monitor_policy_recommendations_*.md")
 latest_recommendation_json = latest("monitor_policy_recommendations_*.json")
@@ -781,6 +817,8 @@ latest_rollback_postmortem_md = latest("enforced_pilot_rollback_postmortem_[0-9]
 latest_rollback_postmortem_json = latest("enforced_pilot_rollback_postmortem_[0-9]*.json")
 latest_handoff_signoff_packet_md = latest("enforced_pilot_handoff_signoff_packet_[0-9]*.md")
 latest_handoff_signoff_packet_json = latest("enforced_pilot_handoff_signoff_packet_[0-9]*.json")
+latest_closure_audit_md = latest("enforced_pilot_closure_audit_[0-9]*.md")
+latest_closure_audit_json = latest("enforced_pilot_closure_audit_[0-9]*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -836,6 +874,11 @@ handoff_signoff_packet_telemetry = (
     if latest_handoff_signoff_packet_json
     else {}
 )
+closure_audit_telemetry = (
+    parse_closure_audit_payload(latest_closure_audit_json)
+    if latest_closure_audit_json
+    else {}
+)
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -867,6 +910,7 @@ scripts_required = [
     root / "scripts/evaluate_enforced_pilot_burn_in_slo.sh",
     root / "scripts/scaffold_enforced_pilot_rollback_postmortem.sh",
     root / "scripts/generate_enforced_pilot_handoff_signoff_packet.sh",
+    root / "scripts/generate_enforced_pilot_closure_audit.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -1023,6 +1067,16 @@ artifact_status = [
         "path": rel(latest_handoff_signoff_packet_json) if latest_handoff_signoff_packet_json else "n/a",
         "exists": bool(latest_handoff_signoff_packet_json),
     },
+    {
+        "kind": "closure_audit_md",
+        "path": rel(latest_closure_audit_md) if latest_closure_audit_md else "n/a",
+        "exists": bool(latest_closure_audit_md),
+    },
+    {
+        "kind": "closure_audit_json",
+        "path": rel(latest_closure_audit_json) if latest_closure_audit_json else "n/a",
+        "exists": bool(latest_closure_audit_json),
+    },
 ]
 
 readiness_checks = {
@@ -1076,6 +1130,22 @@ readiness_checks = {
     and (
         not bool(handoff_signoff_packet_telemetry.get("closure", {}).get("closure_required", False))
         or bool(handoff_signoff_packet_telemetry.get("closure", {}).get("overall_ready", False))
+    ),
+    "closure_audit_present": bool(latest_closure_audit_json),
+    "closure_audit_passed": bool(latest_closure_audit_json)
+    and closure_audit_telemetry.get("overall_status", "n/a") == "pass",
+    "closure_audit_packet_alignment": bool(latest_closure_audit_json)
+    and (
+        not bool(
+            closure_audit_telemetry.get("incident_closure_snapshot", {}).get(
+                "packet_closure_required", False
+            )
+        )
+        or bool(
+            closure_audit_telemetry.get("incident_closure_snapshot", {}).get(
+                "packet_overall_ready", False
+            )
+        )
     ),
 }
 
@@ -1592,6 +1662,40 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write("- Signoff packet artifact: not available\n")
         fh.write("- Packet status: n/a\n\n")
 
+    fh.write("## Enforced Pilot Closure Audit Snapshot\n\n")
+    if closure_audit_telemetry:
+        rollout = closure_audit_telemetry.get("governance_rollout_summary", {})
+        snapshot = closure_audit_telemetry.get("incident_closure_snapshot", {})
+        fh.write(
+            f"- Closure audit artifact: `{closure_audit_telemetry.get('source', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Generated at (UTC): {closure_audit_telemetry.get('generated_at_utc', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Overall status: **{closure_audit_telemetry.get('overall_status', 'n/a')}**\n"
+        )
+        fh.write(
+            f"- Closure gate state: `{closure_audit_telemetry.get('closure_gate_state', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Recommended action: `{closure_audit_telemetry.get('recommended_action', 'n/a')}`\n"
+        )
+        fh.write(
+            f"- Rollout status: `{rollout.get('status', 'n/a')}`, "
+            f"progress={rollout.get('progress_pct', 'n/a')}%, "
+            f"completed_days={rollout.get('completed_days', 'n/a')}/{rollout.get('target_day', 'n/a')}\n"
+        )
+        fh.write(
+            f"- Snapshot: rollback_recommended={yes_no(bool(snapshot.get('rollback_recommended', False)))}, "
+            f"burn_in_status={snapshot.get('burn_in_status', 'n/a')}, "
+            f"packet_required={yes_no(bool(snapshot.get('packet_closure_required', False)))}, "
+            f"packet_ready={yes_no(bool(snapshot.get('packet_overall_ready', False)))}\n\n"
+        )
+    else:
+        fh.write("- Closure audit artifact: not available\n")
+        fh.write("- Overall status: n/a\n\n")
+
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
         fh.write(f"- {key}: **{yes_no(value)}**\n")
@@ -1609,6 +1713,7 @@ with output_path.open("w", encoding="utf-8") as fh:
     fh.write("9. Execute enforced pilot runbook and apply rollback guardrails on breach signals.\n")
     fh.write("10. Track burn-in SLO and maintain rollback postmortem scaffold readiness.\n")
     fh.write("11. Maintain incident-closure handoff signoff packet readiness for rollback handoff.\n")
+    fh.write("12. Maintain closure audit pass state and publish Week 10 rollout summary telemetry.\n")
     fh.write("\n")
 
 transition_json = {
@@ -1644,6 +1749,7 @@ transition_json = {
     "enforced_pilot_burn_in_telemetry": enforced_pilot_burn_in_telemetry,
     "rollback_postmortem_telemetry": rollback_postmortem_telemetry,
     "handoff_signoff_packet_telemetry": handoff_signoff_packet_telemetry,
+    "closure_audit_telemetry": closure_audit_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

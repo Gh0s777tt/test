@@ -268,6 +268,8 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
     TMP_POSTMORTEM_JSON=""
     TMP_HANDOFF_SIGNOFF_PACKET_MD=""
     TMP_HANDOFF_SIGNOFF_PACKET_JSON=""
+    TMP_CLOSURE_AUDIT_MD=""
+    TMP_CLOSURE_AUDIT_JSON=""
     if ./scripts/evaluate_monitor_drift_escalation.sh --dashboard-json "$LATEST_DASHBOARD" --output "$TMP_ESCALATION_MD" --output-json "$TMP_ESCALATION_JSON" >/dev/null; then
       pass "monitor drift escalation evaluation passed"
     else
@@ -387,12 +389,29 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
       warn "scripts/generate_enforced_pilot_handoff_signoff_packet.sh is missing or not executable"
     fi
 
+    if [[ -x "scripts/generate_enforced_pilot_closure_audit.sh" ]]; then
+      TMP_CLOSURE_AUDIT_MD="$(mktemp /tmp/vantis_enforced_pilot_closure_audit_verify_XXXXXX.md)"
+      TMP_CLOSURE_AUDIT_JSON="$(mktemp /tmp/vantis_enforced_pilot_closure_audit_verify_XXXXXX.json)"
+      if [[ -n "$TMP_PILOT_RUNBOOK_JSON" && -f "$TMP_PILOT_RUNBOOK_JSON" && -n "$TMP_BURN_IN_SLO_JSON" && -f "$TMP_BURN_IN_SLO_JSON" && -n "$TMP_POSTMORTEM_JSON" && -f "$TMP_POSTMORTEM_JSON" && -n "$TMP_HANDOFF_SIGNOFF_PACKET_JSON" && -f "$TMP_HANDOFF_SIGNOFF_PACKET_JSON" ]]; then
+        if ./scripts/generate_enforced_pilot_closure_audit.sh --runbook-json "$TMP_PILOT_RUNBOOK_JSON" --burn-in-json "$TMP_BURN_IN_SLO_JSON" --postmortem-json "$TMP_POSTMORTEM_JSON" --handoff-signoff-packet-json "$TMP_HANDOFF_SIGNOFF_PACKET_JSON" --output "$TMP_CLOSURE_AUDIT_MD" --output-json "$TMP_CLOSURE_AUDIT_JSON" >/dev/null; then
+          pass "enforced pilot closure audit generation passed"
+        else
+          fail "enforced pilot closure audit generation failed"
+        fi
+      else
+        warn "enforced pilot closure audit generation skipped (runbook/burn-in/postmortem/handoff-signoff prerequisites unavailable)"
+      fi
+    else
+      warn "scripts/generate_enforced_pilot_closure_audit.sh is missing or not executable"
+    fi
+
     rm -f "$TMP_BREACH_ROUTE_MD" "$TMP_BREACH_ROUTE_JSON"
     rm -f "$TMP_PROMOTION_READINESS_MD" "$TMP_PROMOTION_READINESS_JSON"
     rm -f "$TMP_PILOT_RUNBOOK_MD" "$TMP_PILOT_RUNBOOK_JSON"
     rm -f "$TMP_BURN_IN_SLO_MD" "$TMP_BURN_IN_SLO_JSON"
     rm -f "$TMP_POSTMORTEM_MD" "$TMP_POSTMORTEM_JSON"
     rm -f "$TMP_HANDOFF_SIGNOFF_PACKET_MD" "$TMP_HANDOFF_SIGNOFF_PACKET_JSON"
+    rm -f "$TMP_CLOSURE_AUDIT_MD" "$TMP_CLOSURE_AUDIT_JSON"
 
     rm -f "$TMP_HANDOFF_MD" "$TMP_HANDOFF_JSON"
     rm -f "$TMP_DRILL_MD" "$TMP_DRILL_JSON"

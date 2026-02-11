@@ -84,6 +84,16 @@
         "Release Engineering"
       ]
     },
+    "closure_audit": {
+      "require_transition_pack_ready": true,
+      "require_signoff_validation_clean": true,
+      "require_packet_ready_when_required": true,
+      "require_postmortem_when_rollback": true,
+      "require_burn_in_pass_when_no_rollback": true,
+      "require_runbook_artifact": true,
+      "require_rollout_target_complete": false,
+      "rollout_target_day": 14
+    },
     "execution_stages": [
       {
         "stage": "preflight",
