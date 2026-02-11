@@ -328,6 +328,11 @@ if not isinstance(escalation_rows, list):
     escalation_rows = []
 escalation_fail_triggered = bool(escalation_payload.get("fail_triggered", False))
 escalation_source = str(escalation_payload.get("dashboard_source", "n/a"))
+escalation_owners_source = str(escalation_payload.get("owners_config_source", "n/a"))
+escalation_overall_owner = escalation_payload.get("overall_owner_profile", {})
+if not isinstance(escalation_overall_owner, dict):
+    escalation_overall_owner = {}
+escalation_next_drill_due = str(escalation_payload.get("next_drill_due_utc", "n/a"))
 
 recommendations = recommendation_payload.get("recommendations", [])
 if bench_filter:
@@ -597,6 +602,17 @@ with output_path.open("w", encoding="utf-8") as fh:
     if escalation_payload:
         fh.write(f"- Escalation artifact: `{rel(escalation_path)}`\n")
         fh.write(f"- Overall escalation level: **{escalation_overall_level}**\n")
+        fh.write(f"- Escalation owners source: `{escalation_owners_source}`\n")
+        fh.write(
+            f"- Overall owner/SLA: {escalation_overall_owner.get('owner', 'n/a')} "
+            f"(backup: {escalation_overall_owner.get('backup_owner', 'n/a')}, "
+            f"SLA={escalation_overall_owner.get('response_sla_hours', 'n/a')}h)\n"
+        )
+        fh.write(f"- Next drill due (UTC): {escalation_next_drill_due}\n")
+        fh.write(
+            f"- Release handoff required: "
+            f"{'yes' if escalation_overall_owner.get('release_handoff_required') else 'no'}\n"
+        )
         fh.write(
             f"- Level counts: normal={present(escalation_level_counts.get('normal'))}, "
             f"watch={present(escalation_level_counts.get('watch'))}, "
@@ -605,17 +621,19 @@ with output_path.open("w", encoding="utf-8") as fh:
         )
         fh.write(f"- Escalation fail trigger active: {'yes' if escalation_fail_triggered else 'no'}\n")
         fh.write(f"- Escalation dashboard source: `{escalation_source}`\n\n")
-        fh.write("| Benchmark | Level | Latest status | Consecutive drift | Drift rate (%) | Failure rate (%) | Required action |\n")
-        fh.write("|---|---|---|---:|---:|---:|---|\n")
+        fh.write("| Benchmark | Level | Latest status | Consecutive drift | Drift rate (%) | Failure rate (%) | Owner | SLA (h) | Drill (d) | Handoff | Required action |\n")
+        fh.write("|---|---|---|---:|---:|---:|---|---:|---:|---|---|\n")
         if escalation_rows:
             for row in sorted(escalation_rows, key=lambda item: item.get("bench", "")):
                 fh.write(
                     f"| `{row.get('bench', 'n/a')}` | {row.get('level', 'n/a')} | {row.get('latest_status', 'n/a')} | "
                     f"{present(row.get('consecutive_drift'))} | {present(row.get('drift_rate_pct'))} | "
-                    f"{present(row.get('failure_rate_pct'))} | {row.get('required_action', 'n/a')} |\n"
+                    f"{present(row.get('failure_rate_pct'))} | {row.get('owner', 'n/a')} | "
+                    f"{present(row.get('response_sla_hours'))} | {present(row.get('drill_cadence_days'))} | "
+                    f"{'yes' if row.get('release_handoff_required') else 'no'} | {row.get('required_action', 'n/a')} |\n"
                 )
         else:
-            fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a |\n")
+            fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |\n")
         fh.write("\n")
     else:
         fh.write("- Escalation artifact: not available\n")
@@ -664,6 +682,9 @@ proposal_json = {
     "escalation_telemetry": {
         "source_json": rel(escalation_path) if escalation_path and escalation_path.is_file() else "n/a",
         "overall_level": escalation_overall_level,
+        "owners_config_source": escalation_owners_source,
+        "overall_owner_profile": escalation_overall_owner,
+        "next_drill_due_utc": escalation_next_drill_due,
         "level_counts": escalation_level_counts,
         "rows": escalation_rows,
         "fail_triggered": escalation_fail_triggered,

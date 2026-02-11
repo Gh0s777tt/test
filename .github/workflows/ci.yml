@@ -268,6 +268,11 @@ jobs:
         run: >
           ./scripts/generate_governance_transition_pack.sh
 
+      - name: Generate monitor drift release handoff checklist
+        if: ${{ always() }}
+        run: >
+          ./scripts/generate_monitor_drift_release_handoff.sh
+
       - name: Upload reproducibility report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

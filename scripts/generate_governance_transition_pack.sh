@@ -13,6 +13,7 @@ PROFILE_DOC_PATH="$ROOT/docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md"
 TEMPLATE_PATH="$ROOT/governance/performance/MONITOR_THRESHOLD_PROPOSAL_TEMPLATE.md"
 SIGNOFF_PATH="$ROOT/governance/performance/MONPOL_SIGNOFFS.json"
 ESCALATION_POLICY_PATH="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md"
+ESCALATION_OWNERS_PATH="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json"
 
 OUTPUT_PATH=""
 OUTPUT_JSON_PATH=""
@@ -30,6 +31,8 @@ Options:
   --signoff <path>        MONPOL signoff metadata JSON path
   --escalation-policy <path>
                            Monitor drift escalation policy doc path
+  --escalation-owners <path>
+                           Monitor drift escalation owner/SLA registry path
   --output <path>         Output markdown path
   --output-json <path>    Output JSON path
   -h, --help              Show this help
@@ -66,6 +69,10 @@ while [[ $# -gt 0 ]]; do
       ESCALATION_POLICY_PATH="${2:-}"
       shift 2
       ;;
+    --escalation-owners)
+      ESCALATION_OWNERS_PATH="${2:-}"
+      shift 2
+      ;;
     --output)
       OUTPUT_PATH="${2:-}"
       shift 2
@@ -100,7 +107,7 @@ if [[ -z "$OUTPUT_JSON_PATH" ]]; then
   OUTPUT_JSON_PATH="${OUTPUT_PATH%.md}.json"
 fi
 
-python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$ESCALATION_POLICY_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
+python3 - "$ROOT" "$ANALYSIS_DIR" "$WORKFLOW_PATH" "$CHANGELOG_PATH" "$PROFILE_DOC_PATH" "$TEMPLATE_PATH" "$SIGNOFF_PATH" "$ESCALATION_POLICY_PATH" "$ESCALATION_OWNERS_PATH" "$OUTPUT_PATH" "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import re
 import sys
@@ -116,8 +123,9 @@ profile_doc_path = Path(sys.argv[5])
 template_path = Path(sys.argv[6])
 signoff_path = Path(sys.argv[7])
 escalation_policy_path = Path(sys.argv[8])
-output_path = Path(sys.argv[9])
-output_json_path = Path(sys.argv[10])
+escalation_owners_path = Path(sys.argv[9])
+output_path = Path(sys.argv[10])
+output_json_path = Path(sys.argv[11])
 
 
 def rel(path: Path) -> str:
@@ -463,9 +471,43 @@ def parse_escalation_payload(path: Path):
         "critical_benches": payload.get("critical_benches", []),
         "fail_triggered": bool(payload.get("fail_triggered", False)),
         "fail_on_level": str(payload.get("fail_on_level", "none")),
+        "owners_config_source": str(payload.get("owners_config_source", "n/a")),
+        "overall_owner_profile": payload.get("overall_owner_profile", {}),
+        "next_drill_due_utc": str(payload.get("next_drill_due_utc", "n/a")),
         "rows": rows,
         "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
         "window": payload.get("window", {}),
+    }
+
+
+def parse_handoff_payload(path: Path):
+    if not path:
+        return {}
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    items = payload.get("items", [])
+    if not isinstance(items, list):
+        items = []
+    required_failures = payload.get("required_failures", [])
+    if not isinstance(required_failures, list):
+        required_failures = []
+
+    return {
+        "source": rel(path),
+        "overall_status": str(payload.get("overall_status", "n/a")),
+        "overall_level": str(payload.get("overall_level", "n/a")),
+        "overall_owner_profile": payload.get("overall_owner_profile", {}),
+        "next_drill_due_utc": str(payload.get("next_drill_due_utc", "n/a")),
+        "release_handoff_required": bool(payload.get("release_handoff_required", False)),
+        "strict_mode": bool(payload.get("strict_mode", False)),
+        "items": items,
+        "required_failures": required_failures,
+        "generated_at_utc": str(payload.get("generated_at_utc", "n/a")),
     }
 
 
@@ -482,6 +524,8 @@ latest_signoff_validation_md = latest("monpol_signoff_validation_*.md")
 latest_signoff_validation_json = latest("monpol_signoff_validation_*.json")
 latest_escalation_md = latest("monitor_drift_escalation_*.md")
 latest_escalation_json = latest("monitor_drift_escalation_*.json")
+latest_handoff_md = latest("monitor_drift_release_handoff_*.md")
+latest_handoff_json = latest("monitor_drift_release_handoff_*.json")
 
 workflow_text = workflow_path.read_text(encoding="utf-8") if workflow_path.exists() else ""
 ci_policy = parse_ci_policy(workflow_text) if workflow_text else {
@@ -501,6 +545,7 @@ signoff_records = parse_signoff_records(signoff_path)
 signoff_by_id = {record["proposal_id"]: record for record in signoff_records if record["proposal_id"]}
 latency_telemetry = collect_latency_telemetry(monpol_entries, analysis_dir)
 escalation_telemetry = parse_escalation_payload(latest_escalation_json) if latest_escalation_json else {}
+handoff_telemetry = parse_handoff_payload(latest_handoff_json) if latest_handoff_json else {}
 approved_entries = [entry["proposal_id"] for entry in monpol_entries if entry["decision"] == "approved"]
 approved_with_signoff = [proposal_id for proposal_id in approved_entries if proposal_id in signoff_by_id]
 approved_missing_signoff = [proposal_id for proposal_id in approved_entries if proposal_id not in signoff_by_id]
@@ -524,6 +569,7 @@ scripts_required = [
     root / "scripts/evaluate_monitor_drift_escalation.sh",
     root / "scripts/generate_monitor_threshold_proposal.sh",
     root / "scripts/scaffold_monpol_changelog_entry.sh",
+    root / "scripts/generate_monitor_drift_release_handoff.sh",
     root / "scripts/validate_monpol_signoff_metadata.sh",
     root / "scripts/check_monitor_threshold_governance.sh",
 ]
@@ -541,6 +587,7 @@ docs_status = [
     {"path": rel(changelog_path), "exists": changelog_path.exists()},
     {"path": rel(template_path), "exists": template_path.exists()},
     {"path": rel(escalation_policy_path), "exists": escalation_policy_path.exists()},
+    {"path": rel(escalation_owners_path), "exists": escalation_owners_path.exists()},
     {
         "path": rel(signoff_path),
         "exists": signoff_path.exists(),
@@ -597,6 +644,16 @@ artifact_status = [
         "path": rel(latest_escalation_json) if latest_escalation_json else "n/a",
         "exists": bool(latest_escalation_json),
     },
+    {
+        "kind": "handoff_md",
+        "path": rel(latest_handoff_md) if latest_handoff_md else "n/a",
+        "exists": bool(latest_handoff_md),
+    },
+    {
+        "kind": "handoff_json",
+        "path": rel(latest_handoff_json) if latest_handoff_json else "n/a",
+        "exists": bool(latest_handoff_json),
+    },
 ]
 
 readiness_checks = {
@@ -608,7 +665,10 @@ readiness_checks = {
     "approved_entries_have_signoff": len(approved_missing_signoff) == 0,
     "latency_telemetry_present": latency_telemetry["summary"]["entries_evaluated"] > 0,
     "escalation_policy_present": escalation_policy_path.exists(),
+    "escalation_owners_present": escalation_owners_path.exists(),
     "escalation_artifact_present": bool(latest_escalation_json),
+    "handoff_artifact_present": bool(latest_handoff_json),
+    "handoff_not_blocked": bool(latest_handoff_json) and handoff_telemetry.get("overall_status", "n/a") != "blocked",
 }
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -745,10 +805,19 @@ with output_path.open("w", encoding="utf-8") as fh:
         level_counts = escalation_telemetry.get("level_counts", {})
         escalated_benches = escalation_telemetry.get("escalated_benches", [])
         critical_benches = escalation_telemetry.get("critical_benches", [])
+        overall_owner = escalation_telemetry.get("overall_owner_profile", {})
         fh.write(f"- Escalation policy doc: `{rel(escalation_policy_path)}`\n")
+        fh.write(f"- Escalation owners registry: `{rel(escalation_owners_path)}`\n")
+        fh.write(f"- Escalation owners source: `{escalation_telemetry.get('owners_config_source', 'n/a')}`\n")
         fh.write(f"- Escalation artifact: `{escalation_telemetry.get('source', 'n/a')}`\n")
         fh.write(f"- Artifact generated at (UTC): {escalation_telemetry.get('generated_at_utc', 'n/a')}\n")
         fh.write(f"- Overall escalation level: **{escalation_telemetry.get('overall_level', 'n/a')}**\n")
+        fh.write(
+            f"- Overall owner/SLA: {overall_owner.get('owner', 'n/a')} "
+            f"(backup: {overall_owner.get('backup_owner', 'n/a')}, "
+            f"SLA={overall_owner.get('response_sla_hours', 'n/a')}h)\n"
+        )
+        fh.write(f"- Next drill due (UTC): {escalation_telemetry.get('next_drill_due_utc', 'n/a')}\n")
         fh.write(
             f"- Level counts: normal={level_counts.get('normal', 'n/a')}, "
             f"watch={level_counts.get('watch', 'n/a')}, "
@@ -759,23 +828,62 @@ with output_path.open("w", encoding="utf-8") as fh:
         fh.write(f"- Critical benches: {len(critical_benches)}\n")
         fh.write(f"- Escalation fail trigger active: {'yes' if escalation_telemetry.get('fail_triggered') else 'no'}\n\n")
 
-        fh.write("| Benchmark | Level | Latest status | Consecutive drift | Drift rate (%) | Failure rate (%) | Required action |\n")
-        fh.write("|---|---|---|---:|---:|---:|---|\n")
+        fh.write("| Benchmark | Level | Latest status | Consecutive drift | Drift rate (%) | Failure rate (%) | Owner | SLA (h) | Drill (d) | Handoff | Required action |\n")
+        fh.write("|---|---|---|---:|---:|---:|---|---:|---:|---|---|\n")
         rows = escalation_telemetry.get("rows", [])
         if rows:
             for row in sorted(rows, key=lambda item: item.get("bench", "")):
                 fh.write(
                     f"| `{row.get('bench', 'n/a')}` | {row.get('level', 'n/a')} | {row.get('latest_status', 'n/a')} | "
                     f"{row.get('consecutive_drift', 'n/a')} | {row.get('drift_rate_pct', 'n/a')} | "
-                    f"{row.get('failure_rate_pct', 'n/a')} | {row.get('required_action', 'n/a')} |\n"
+                    f"{row.get('failure_rate_pct', 'n/a')} | {row.get('owner', 'n/a')} | "
+                    f"{row.get('response_sla_hours', 'n/a')} | {row.get('drill_cadence_days', 'n/a')} | "
+                    f"{'yes' if row.get('release_handoff_required') else 'no'} | {row.get('required_action', 'n/a')} |\n"
                 )
         else:
-            fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a |\n")
+            fh.write("| _none_ | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |\n")
         fh.write("\n")
     else:
         fh.write(f"- Escalation policy doc: `{rel(escalation_policy_path)}`\n")
         fh.write("- Escalation artifact: not available\n")
         fh.write("- Overall escalation level: n/a\n\n")
+
+    fh.write("## Release Handoff Checklist Snapshot\n\n")
+    if handoff_telemetry:
+        fh.write(f"- Handoff artifact: `{handoff_telemetry.get('source', 'n/a')}`\n")
+        fh.write(f"- Handoff generated at (UTC): {handoff_telemetry.get('generated_at_utc', 'n/a')}\n")
+        fh.write(f"- Overall handoff status: **{handoff_telemetry.get('overall_status', 'n/a')}**\n")
+        fh.write(f"- Escalation level: `{handoff_telemetry.get('overall_level', 'n/a')}`\n")
+        profile = handoff_telemetry.get("overall_owner_profile", {})
+        fh.write(
+            f"- Owner/SLA: {profile.get('owner', 'n/a')} "
+            f"(backup: {profile.get('backup_owner', 'n/a')}, SLA={profile.get('response_sla_hours', 'n/a')}h)\n"
+        )
+        fh.write(f"- Next drill due (UTC): {handoff_telemetry.get('next_drill_due_utc', 'n/a')}\n")
+        fh.write(
+            f"- Release handoff required: {'yes' if handoff_telemetry.get('release_handoff_required') else 'no'}\n\n"
+        )
+
+        fh.write("| Checklist ID | Required | Status | Description |\n")
+        fh.write("|---|---|---|---|\n")
+        for item in handoff_telemetry.get("items", []):
+            fh.write(
+                f"| `{item.get('id', 'n/a')}` | {'yes' if item.get('required') else 'no'} | "
+                f"{item.get('status', 'n/a')} | {item.get('description', 'n/a')} |\n"
+            )
+        if not handoff_telemetry.get("items"):
+            fh.write("| _none_ | no | n/a | n/a |\n")
+        fh.write("\n")
+
+        required_failures = handoff_telemetry.get("required_failures", [])
+        if required_failures:
+            fh.write("Blocking items:\n")
+            for item in required_failures:
+                fh.write(f"- `{item.get('id', 'n/a')}`: {item.get('description', 'n/a')}\n")
+            fh.write("\n")
+    else:
+        fh.write("- Handoff artifact: not available\n")
+        fh.write("- Overall handoff status: n/a\n\n")
 
     fh.write("## Readiness Checks\n\n")
     for key, value in readiness_checks.items():
@@ -815,6 +923,7 @@ transition_json = {
     },
     "latency_telemetry": latency_telemetry,
     "escalation_telemetry": escalation_telemetry,
+    "handoff_telemetry": handoff_telemetry,
     "readiness_checks": readiness_checks,
 }
 output_json_path.write_text(json.dumps(transition_json, indent=2, sort_keys=True) + "\n", encoding="utf-8")

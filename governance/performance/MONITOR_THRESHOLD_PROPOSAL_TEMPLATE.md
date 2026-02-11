@@ -10,6 +10,7 @@ Use this template for `MONPOL` governance proposals that update benchmark monito
 - **Status**: Draft / Proposed / Approved / Rejected
 - **Date (UTC)**: `YYYY-MM-DD`
 - **Author / Owner**: `<name or team>`
+- **Escalation owner / SLA source**: `governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json`
 - **Changelog target**: `governance/performance/MONITOR_THRESHOLD_CHANGELOG.md`
 
 ---
@@ -44,6 +45,8 @@ Describe which monitor benchmarks are affected and why this proposal is needed.
 - `analysis/benchmark_reproducibility/monitor_policy_dashboard_<timestamp>.json`
 - `analysis/benchmark_reproducibility/monitor_drift_escalation_<timestamp>.md`
 - `analysis/benchmark_reproducibility/monitor_drift_escalation_<timestamp>.json`
+- `analysis/benchmark_reproducibility/monitor_drift_release_handoff_<timestamp>.md`
+- `analysis/benchmark_reproducibility/monitor_drift_release_handoff_<timestamp>.json`
 - latest `ci_benchmark_gate_summary_<timestamp>.md`
 - benchmark report(s) referenced by proposal
 

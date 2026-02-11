@@ -120,6 +120,9 @@ Current repository integration:
 - CI runs `scripts/evaluate_monitor_drift_escalation.sh` to classify repeated
   monitor drift trends into escalation levels (`normal/watch/escalated/critical`)
   using rolling run windows and policy thresholds.
+- CI runs `scripts/generate_monitor_drift_release_handoff.sh` to publish
+  owner/SLA-aware release handoff checklist artifacts driven by the latest
+  escalation assessment.
 - CI runs `scripts/generate_monitor_threshold_proposal.sh` to produce a governance-ready
   `MONPOL` proposal draft with evidence bundle links and proposal-level signoff
   telemetry; proposal output also includes historical latency summary and
@@ -139,6 +142,8 @@ Current repository integration:
   proposal artifacts, so policy-cycle evidence gaps are visible in CI artifacts.
 - escalation policy reference:
   - `governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md`
+- escalation owner/SLA registry:
+  - `governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json`
 - CI enforces `scripts/check_monitor_threshold_governance.sh` on PRs; threshold-affecting
   policy changes require:
   - `MONPOL-<NNN>` reference in PR title/body,
@@ -195,6 +200,12 @@ Evaluate monitor drift escalation policy:
   --critical-drift-rate-pct 60 \
   --escalate-failure-rate-pct 10 \
   --critical-failure-rate-pct 20
+```
+
+Generate monitor drift release handoff checklist:
+
+```bash
+./scripts/generate_monitor_drift_release_handoff.sh
 ```
 
 Generate governance-ready MONPOL proposal draft:

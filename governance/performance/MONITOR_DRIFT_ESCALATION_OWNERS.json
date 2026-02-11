@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "default_level": "normal",
+  "levels": {
+    "normal": {
+      "owner": "Benchmark Governance Automation",
+      "backup_owner": "Performance Working Group",
+      "response_sla_hours": 168,
+      "drill_cadence_days": 30,
+      "release_handoff_required": false
+    },
+    "watch": {
+      "owner": "Performance Working Group",
+      "backup_owner": "Release Engineering",
+      "response_sla_hours": 72,
+      "drill_cadence_days": 14,
+      "release_handoff_required": false
+    },
+    "escalated": {
+      "owner": "Performance Incident Owner",
+      "backup_owner": "Release Engineering Lead",
+      "response_sla_hours": 24,
+      "drill_cadence_days": 7,
+      "release_handoff_required": true
+    },
+    "critical": {
+      "owner": "Release Commander",
+      "backup_owner": "Security and Performance Council",
+      "response_sla_hours": 4,
+      "drill_cadence_days": 1,
+      "release_handoff_required": true
+    }
+  }
+}

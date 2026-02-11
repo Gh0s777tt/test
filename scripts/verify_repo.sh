@@ -256,6 +256,20 @@ if [[ -x "scripts/evaluate_monitor_drift_escalation.sh" ]]; then
     else
       fail "monitor drift escalation evaluation failed"
     fi
+
+    if [[ -x "scripts/generate_monitor_drift_release_handoff.sh" ]]; then
+      TMP_HANDOFF_MD="$(mktemp /tmp/vantis_monitor_drift_handoff_verify_XXXXXX.md)"
+      TMP_HANDOFF_JSON="$(mktemp /tmp/vantis_monitor_drift_handoff_verify_XXXXXX.json)"
+      if ./scripts/generate_monitor_drift_release_handoff.sh --escalation-json "$TMP_ESCALATION_JSON" --output "$TMP_HANDOFF_MD" --output-json "$TMP_HANDOFF_JSON" >/dev/null; then
+        pass "monitor drift release handoff generation passed"
+      else
+        fail "monitor drift release handoff generation failed"
+      fi
+      rm -f "$TMP_HANDOFF_MD" "$TMP_HANDOFF_JSON"
+    else
+      warn "scripts/generate_monitor_drift_release_handoff.sh is missing or not executable"
+    fi
+
     rm -f "$TMP_ESCALATION_MD" "$TMP_ESCALATION_JSON"
   fi
 else
@@ -278,6 +292,12 @@ if [[ -f "governance/performance/MONITOR_DRIFT_ESCALATION_POLICY.md" ]]; then
   pass "monitor drift escalation policy doc exists"
 else
   fail "monitor drift escalation policy doc missing"
+fi
+
+if [[ -f "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json" ]]; then
+  pass "monitor drift escalation owners registry exists"
+else
+  fail "monitor drift escalation owners registry missing"
 fi
 
 BRANCH_COUNT="$(git branch -a | wc -l | tr -d ' ')"

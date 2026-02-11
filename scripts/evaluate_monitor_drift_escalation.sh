@@ -9,6 +9,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANALYSIS_DIR="$ROOT/analysis/benchmark_reproducibility"
 DASHBOARD_JSON=""
+OWNERS_JSON="$ROOT/governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json"
 WINDOW_RUNS=5
 
 WATCH_DRIFT_RATE_PCT=20
@@ -32,6 +33,7 @@ Usage: ./scripts/evaluate_monitor_drift_escalation.sh [options]
 Options:
   --analysis-dir <path>                  Analysis directory (default: analysis/benchmark_reproducibility)
   --dashboard-json <path>                Dashboard JSON file (default: newest monitor_policy_dashboard_*.json)
+  --owners-json <path>                   Escalation owner/SLA registry JSON path
   --window-runs <n>                      Recent runs window for streak analysis (default: 5)
   --watch-drift-rate-pct <pct>           Watch drift-rate threshold (default: 20)
   --escalate-drift-rate-pct <pct>        Escalated drift-rate threshold (default: 40)
@@ -56,6 +58,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dashboard-json)
       DASHBOARD_JSON="${2:-}"
+      shift 2
+      ;;
+    --owners-json)
+      OWNERS_JSON="${2:-}"
       shift 2
       ;;
     --window-runs)
@@ -171,6 +177,11 @@ if [[ ! -f "$DASHBOARD_JSON" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$OWNERS_JSON" ]]; then
+  echo "Error: owners JSON not found: $OWNERS_JSON" >&2
+  exit 1
+fi
+
 if [[ -z "$OUTPUT_PATH" ]]; then
   TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   OUTPUT_PATH="$ANALYSIS_DIR/monitor_drift_escalation_${TIMESTAMP}.md"
@@ -183,6 +194,7 @@ fi
 python3 - \
   "$ROOT" \
   "$DASHBOARD_JSON" \
+  "$OWNERS_JSON" \
   "$WINDOW_RUNS" \
   "$WATCH_DRIFT_RATE_PCT" \
   "$ESCALATE_DRIFT_RATE_PCT" \
@@ -196,22 +208,23 @@ python3 - \
   "$OUTPUT_JSON_PATH" <<'PY'
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 root = Path(sys.argv[1])
 dashboard_path = Path(sys.argv[2])
-window_runs = int(sys.argv[3])
-watch_drift_rate = float(sys.argv[4])
-escalate_drift_rate = float(sys.argv[5])
-critical_drift_rate = float(sys.argv[6])
-escalate_consecutive_drift = int(sys.argv[7])
-critical_consecutive_drift = int(sys.argv[8])
-escalate_failure_rate = float(sys.argv[9])
-critical_failure_rate = float(sys.argv[10])
-fail_on_level = sys.argv[11]
-output_path = Path(sys.argv[12])
-output_json_path = Path(sys.argv[13])
+owners_path = Path(sys.argv[3])
+window_runs = int(sys.argv[4])
+watch_drift_rate = float(sys.argv[5])
+escalate_drift_rate = float(sys.argv[6])
+critical_drift_rate = float(sys.argv[7])
+escalate_consecutive_drift = int(sys.argv[8])
+critical_consecutive_drift = int(sys.argv[9])
+escalate_failure_rate = float(sys.argv[10])
+critical_failure_rate = float(sys.argv[11])
+fail_on_level = sys.argv[12]
+output_path = Path(sys.argv[13])
+output_json_path = Path(sys.argv[14])
 
 
 def rel(path: Path) -> str:
@@ -228,6 +241,25 @@ def safe_float(value, default=0.0):
         return default
 
 
+def safe_int(value, default=0):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def safe_bool(value, default=False):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"true", "yes", "1"}:
+            return True
+        if lowered in {"false", "no", "0"}:
+            return False
+    return default
+
+
 def trailing_streak(values, needle):
     streak = 0
     for item in reversed(values):
@@ -236,6 +268,28 @@ def trailing_streak(values, needle):
         else:
             break
     return streak
+
+
+def owner_profile_for_level(level: str, owners_cfg: dict):
+    levels = owners_cfg.get("levels", {})
+    if not isinstance(levels, dict):
+        levels = {}
+
+    default_level = str(owners_cfg.get("default_level", "normal"))
+    source_level = level if level in levels else default_level
+    source = levels.get(source_level, {})
+    if not isinstance(source, dict):
+        source = {}
+
+    profile = {
+        "owner": str(source.get("owner", "n/a")),
+        "backup_owner": str(source.get("backup_owner", "n/a")),
+        "response_sla_hours": safe_int(source.get("response_sla_hours"), 0),
+        "drill_cadence_days": safe_int(source.get("drill_cadence_days"), 0),
+        "release_handoff_required": safe_bool(source.get("release_handoff_required"), False),
+        "source_level": source_level,
+    }
+    return profile
 
 
 severity = {
@@ -248,10 +302,15 @@ severity = {
 failure_statuses = {"failed", "timeout", "missing_report"}
 
 dashboard = json.loads(dashboard_path.read_text(encoding="utf-8"))
+owners_cfg = json.loads(owners_path.read_text(encoding="utf-8"))
 bench_health = dashboard.get("bench_health", {})
 recent_runs = dashboard.get("recent_runs", [])
 recent_runs = sorted(recent_runs, key=lambda item: item.get("timestamp", ""))
 window = recent_runs[-window_runs:] if recent_runs else []
+
+owner_profiles_by_level = {}
+for level_name in severity.keys():
+    owner_profiles_by_level[level_name] = owner_profile_for_level(level_name, owners_cfg)
 
 bench_set = set(bench_health.keys())
 bench_history = {}
@@ -341,6 +400,8 @@ for bench in sorted(bench_set):
     else:
         required_action = "Immediate triage; containment and reviewer follow-up in current release."
 
+    profile = owner_profiles_by_level.get(level, owner_profile_for_level("normal", owners_cfg))
+
     rows.append(
         {
             "bench": bench,
@@ -354,6 +415,11 @@ for bench in sorted(bench_set):
             "level": level,
             "triggers": triggers,
             "required_action": required_action,
+            "owner": profile["owner"],
+            "backup_owner": profile["backup_owner"],
+            "response_sla_hours": profile["response_sla_hours"],
+            "drill_cadence_days": profile["drill_cadence_days"],
+            "release_handoff_required": profile["release_handoff_required"],
         }
     )
 
@@ -370,6 +436,12 @@ escalated_benches = [row["bench"] for row in rows if severity[row["level"]] >= s
 critical_benches = [row["bench"] for row in rows if row["level"] == "critical"]
 
 generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+generated_dt = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+overall_owner_profile = owner_profiles_by_level.get(overall_level, owner_profile_for_level("normal", owners_cfg))
+next_drill_due_utc = "n/a"
+if overall_owner_profile.get("drill_cadence_days", 0) > 0:
+    next_drill_due_dt = generated_dt + timedelta(days=int(overall_owner_profile["drill_cadence_days"]))
+    next_drill_due_utc = next_drill_due_dt.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 output_path.parent.mkdir(parents=True, exist_ok=True)
 output_json_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -398,9 +470,15 @@ with output_path.open("w", encoding="utf-8") as fh:
     )
     fh.write(f"- Escalated benches: {len(escalated_benches)}\n")
     fh.write(f"- Critical benches: {len(critical_benches)}\n\n")
+    fh.write(f"- Response owner: {overall_owner_profile.get('owner', 'n/a')}\n")
+    fh.write(f"- Backup owner: {overall_owner_profile.get('backup_owner', 'n/a')}\n")
+    fh.write(f"- Response SLA (hours): {overall_owner_profile.get('response_sla_hours', 'n/a')}\n")
+    fh.write(f"- Drill cadence (days): {overall_owner_profile.get('drill_cadence_days', 'n/a')}\n")
+    fh.write(f"- Release handoff required: {'yes' if overall_owner_profile.get('release_handoff_required') else 'no'}\n")
+    fh.write(f"- Next drill due (UTC): {next_drill_due_utc}\n\n")
 
-    fh.write("| Benchmark | Samples | Latest status | Drift rate (%) | Failure rate (%) | Drift in window | Failure in window | Consecutive drift | Level | Triggers | Required action |\n")
-    fh.write("|---|---:|---|---:|---:|---:|---:|---:|---|---|---|\n")
+    fh.write("| Benchmark | Samples | Latest status | Drift rate (%) | Failure rate (%) | Drift in window | Failure in window | Consecutive drift | Level | Owner | SLA (h) | Drill (d) | Handoff | Triggers | Required action |\n")
+    fh.write("|---|---:|---|---:|---:|---:|---:|---:|---|---|---:|---:|---|---|---|\n")
     if rows:
         for row in rows:
             trigger_text = ", ".join(row["triggers"])
@@ -408,10 +486,12 @@ with output_path.open("w", encoding="utf-8") as fh:
                 f"| `{row['bench']}` | {row['samples']} | {row['latest_status']} | "
                 f"{row['drift_rate_pct']:.2f} | {row['failure_rate_pct']:.2f} | "
                 f"{row['drift_count_window']} | {row['failure_count_window']} | {row['consecutive_drift']} | "
-                f"{row['level']} | {trigger_text} | {row['required_action']} |\n"
+                f"{row['level']} | {row.get('owner', 'n/a')} | {row.get('response_sla_hours', 'n/a')} | "
+                f"{row.get('drill_cadence_days', 'n/a')} | {'yes' if row.get('release_handoff_required') else 'no'} | "
+                f"{trigger_text} | {row['required_action']} |\n"
             )
     else:
-        fh.write("| _none_ | 0 | n/a | 0.00 | 0.00 | 0 | 0 | 0 | normal | none | Routine monitoring. |\n")
+        fh.write("| _none_ | 0 | n/a | 0.00 | 0.00 | 0 | 0 | 0 | normal | n/a | 0 | 0 | no | none | Routine monitoring. |\n")
     fh.write("\n")
 
     fh.write("Assessment is advisory unless `--fail-on-level` is configured.\n")
@@ -423,6 +503,7 @@ if fail_on_level != "none":
 payload = {
     "generated_at_utc": generated_at,
     "dashboard_source": rel(dashboard_path),
+    "owners_config_source": rel(owners_path),
     "window": {
         "configured_runs": window_runs,
         "evaluated_runs": len(window),
@@ -441,6 +522,9 @@ payload = {
     "rows": rows,
     "escalated_benches": escalated_benches,
     "critical_benches": critical_benches,
+    "owner_profiles_by_level": owner_profiles_by_level,
+    "overall_owner_profile": overall_owner_profile,
+    "next_drill_due_utc": next_drill_due_utc,
     "fail_on_level": fail_on_level,
     "fail_triggered": fail_triggered,
 }
