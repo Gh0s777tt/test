@@ -121,7 +121,7 @@ fn main() {
     let installed_mode = mode == "installed";
 
     if installed_mode && persist_spec.is_empty() {
-        persist_spec = String::from("LABEL=VANTIS_BOOT");
+        persist_spec = String::from("LABEL=VANTIS_DATA");
     }
 
     // Best-effort Wraith mode setup. Keep booting even if host capabilities differ.
@@ -140,7 +140,13 @@ fn main() {
         }
     }
 
-    let persistent_active = mount_persistent_storage(&persist_spec);
+    let mut persistent_active = mount_persistent_storage(&persist_spec);
+    if installed_mode && !persistent_active && persist_spec != "LABEL=VANTIS_BOOT" {
+        persistent_active = mount_persistent_storage("LABEL=VANTIS_BOOT");
+        if persistent_active {
+            println!("[VANTIS] persistent fallback active: LABEL=VANTIS_BOOT");
+        }
+    }
 
     if installer_mode {
         println!("[VANTIS] INSTALLER MODE ACTIVE");

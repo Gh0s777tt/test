@@ -101,8 +101,10 @@ require_cmd xorriso
 require_cmd cpio
 require_cmd gzip
 require_cmd mkfs.vfat
+require_cmd mkfs.ext4
 require_cmd mmd
 require_cmd mcopy
+require_cmd sfdisk
 require_cmd rustc
 require_cmd busybox
 require_cmd rg
@@ -169,20 +171,41 @@ build_installed_system_image() {
   local raw_img="$1"
   local gz_img="$2"
   local stamp_file="$WORK_DIR/install_stamp.txt"
+  local esp_img="$WORK_DIR/esp_partition.img"
+  local data_img="$WORK_DIR/data_partition.img"
+  local disk_bytes=$((512 * 1024 * 1024))
+  local sector_size=512
+  local esp_start=2048
+  local esp_sectors=262144
+  local data_start=$((esp_start + esp_sectors))
+  local data_sectors=$(((disk_bytes / sector_size) - data_start))
+  local esp_bytes=$((esp_sectors * sector_size))
+  local data_bytes=$((data_sectors * sector_size))
 
-  rm -f "$raw_img" "$gz_img"
-  truncate -s 512M "$raw_img"
-  mkfs.vfat -F 32 -n VANTIS_BOOT "$raw_img" >/dev/null
+  rm -f "$raw_img" "$gz_img" "$esp_img" "$data_img"
+  truncate -s "$disk_bytes" "$raw_img"
 
-  mmd -i "$raw_img" ::/EFI
-  mmd -i "$raw_img" ::/EFI/BOOT
-  mcopy -i "$raw_img" "$INSTALLED_EFI_PATH" ::/EFI/BOOT/BOOTX64.EFI
-  mcopy -i "$raw_img" "$KERNEL_PAYLOAD_PATH" ::/vmlinuz
-  mcopy -i "$raw_img" "$STAGE1_INITRD_PATH" ::/initrd.img
-  mcopy -i "$raw_img" "$INSTALLED_RUNTIME_GRUB_CFG_PATH" ::/EFI/BOOT/grub.cfg
+  printf 'label: dos\nunit: sectors\n\n%s,%s,c,*\n%s,%s,83\n' \
+    "$esp_start" "$esp_sectors" "$data_start" "$data_sectors" | sfdisk "$raw_img" >/dev/null
+
+  truncate -s "$esp_bytes" "$esp_img"
+  mkfs.vfat -F 32 -n VANTIS_BOOT "$esp_img" >/dev/null
+
+  mmd -i "$esp_img" ::/EFI
+  mmd -i "$esp_img" ::/EFI/BOOT
+  mcopy -i "$esp_img" "$INSTALLED_EFI_PATH" ::/EFI/BOOT/BOOTX64.EFI
+  mcopy -i "$esp_img" "$KERNEL_PAYLOAD_PATH" ::/vmlinuz
+  mcopy -i "$esp_img" "$STAGE1_INITRD_PATH" ::/initrd.img
+  mcopy -i "$esp_img" "$INSTALLED_RUNTIME_GRUB_CFG_PATH" ::/EFI/BOOT/grub.cfg
 
   printf 'VantisOS install payload generated on %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$stamp_file"
-  mcopy -i "$raw_img" "$stamp_file" ::/install_stamp.txt
+  mcopy -i "$esp_img" "$stamp_file" ::/install_stamp.txt
+
+  truncate -s "$data_bytes" "$data_img"
+  mkfs.ext4 -F -L VANTIS_DATA "$data_img" >/dev/null
+
+  dd if="$esp_img" of="$raw_img" bs="$sector_size" seek="$esp_start" conv=notrunc status=none
+  dd if="$data_img" of="$raw_img" bs="$sector_size" seek="$data_start" conv=notrunc status=none
 
   gzip -9 -c "$raw_img" >"$gz_img"
 }
@@ -240,32 +263,13 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
 MODE="live"
-PERSIST_ARG=""
 for token in $(cat /proc/cmdline); do
   case "$token" in
     vantis.mode=*)
       MODE="${token#vantis.mode=}"
       ;;
-    vantis.persist=*)
-      PERSIST_ARG="${token#vantis.persist=}"
-      ;;
   esac
 done
-
-if [ -n "$PERSIST_ARG" ]; then
-  PERSIST_DEV="$(findfs "$PERSIST_ARG" 2>/dev/null || true)"
-  if [ -n "$PERSIST_DEV" ]; then
-    mkdir -p /persist /home /var
-    if mount "$PERSIST_DEV" /persist 2>/dev/null; then
-      mkdir -p /persist/home /persist/var
-      mount --bind /persist/home /home
-      mount --bind /persist/var /var
-      echo "[VANTIS] persistent storage active: $PERSIST_DEV"
-    fi
-  else
-    echo "[VANTIS] persistent target not found: $PERSIST_ARG"
-  fi
-fi
 
 echo "[VANTIS] initramfs boot sequence started (mode=$MODE)"
 exec /bin/vantis-init
@@ -314,7 +318,7 @@ terminal_output console
 search --file --set=root /EFI/BOOT/BOOTX64.EFI
 
 menuentry "VantisOS Installed" {
-    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_BOOT
+    linux /vmlinuz console=ttyS0 loglevel=3 rdinit=/init vantis.mode=installed vantis.persist=LABEL=VANTIS_DATA
     initrd /initrd.img
 }
 INSTGRUB
@@ -528,6 +532,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     exit 1
   fi
   if rg -q '\[VANTIS\] WRAITH MODE ACTIVE|vantis> ' "$BOOT_LOG" \
+    && rg -q '\[VANTIS\] persistent storage active:' "$BOOT_LOG" \
+    && ! rg -q '\[VANTIS\] persistent storage unavailable; setup is volatile' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] FIRST BOOT SETUP COMPLETE|\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$BOOT_LOG" \
     && rg -q 'first_boot: done' "$BOOT_LOG" \
     && rg -q 'profile=core' "$BOOT_LOG" \
