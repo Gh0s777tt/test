@@ -1,11 +1,17 @@
 mod shell;
 
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
 fn main() {
+    let cmdline = fs::read_to_string("/proc/cmdline").unwrap_or_default();
+    let installer_mode = cmdline
+        .split_whitespace()
+        .any(|token| token == "vantis.mode=installer");
+
     // Best-effort Wraith mode setup. Keep booting even if host capabilities differ.
     match Command::new("mount")
         .args(["-t", "tmpfs", "tmpfs", "/"])
@@ -22,6 +28,10 @@ fn main() {
         }
     }
 
+    if installer_mode {
+        println!("[VANTIS] INSTALLER MODE ACTIVE");
+        println!("[VANTIS] To install: install /dev/vda --yes");
+    }
     println!("[VANTIS] WRAITH MODE ACTIVE");
     loop {
         shell::start();
