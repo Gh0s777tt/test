@@ -190,7 +190,7 @@ rustc --target x86_64-unknown-linux-musl -O "$ROOT/userspace/init.rs" -o "$INITR
 
 echo "Preparing initramfs root..."
 cp "$(command -v busybox)" "$INITRAMFS_ROOT/bin/busybox"
-for tool in sh mount umount swapoff echo cat ls mkdir mknod sleep uname dmesg dd fdisk mkdosfs mke2fs partprobe sync findfs cp chmod rm reboot; do
+for tool in sh mount umount swapoff echo cat ls mkdir mknod sleep uname dmesg dd fdisk mkdosfs mke2fs partprobe sync findfs cp chmod rm reboot mdev; do
   ln -sf busybox "$INITRAMFS_ROOT/bin/$tool"
 done
 
@@ -279,7 +279,9 @@ w
 EOF
 
 partprobe "$TARGET" || true
-sleep 1
+echo /bin/mdev > /proc/sys/kernel/hotplug 2>/dev/null || true
+mdev -s || true
+sleep 2
 
 EFI_PART="${TARGET}1"
 DATA_PART="${TARGET}2"
