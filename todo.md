@@ -261,6 +261,13 @@
   - [x] Integrate drill verification into repository verification workflow
   - [x] Validate full chain and publish Day 8 report
 
+- [x] Day 9: Escalation Breach Evidence Routing and Governance Gate Promotion
+  - [x] Add breach evidence routing automation (md + json artifacts)
+  - [x] Add machine-readable governance gate promotion policy (advisory/enforced)
+  - [x] Extend governance gate script with promotion-aware breach controls
+  - [x] Integrate breach routing and promotion checks into CI, transition pack, and repo verification
+  - [x] Validate full chain and publish Day 9 report
+
 ## Week 10 Current Status
 - Week 10 Day 1: ✅ COMPLETE (transition pack automation + CI integration + evidence)
 - Week 10 Day 2: ✅ COMPLETE (MONPOL changelog scaffold automation + CI chain alignment + evidence)
@@ -270,5 +277,6 @@
 - Week 10 Day 6: ✅ COMPLETE (monitor drift escalation policy + CI automation + governance integration + evidence)
 - Week 10 Day 7: ✅ COMPLETE (owner/SLA escalation registry + release handoff checklist automation + evidence)
 - Week 10 Day 8: ✅ COMPLETE (strict handoff enforcement + release-readiness drill dry-run + readiness telemetry)
-- Week 10 Progress: 8 milestone days complete
-- Next: Week 10 Day 9 - escalation breach evidence routing and governance gate promotion strategy
+- Week 10 Day 9: ✅ COMPLETE (breach evidence routing + promotion-aware governance gate strategy + evidence)
+- Week 10 Progress: 9 milestone days complete
+- Next: Week 10 Day 10 - promotion-mode readiness criteria and enforced pilot rollout checklist

@@ -1,0 +1,53 @@
+{
+  "critical_benches": [],
+  "dashboard_source": "simulated/escalation_dry_run",
+  "escalated_benches": [
+    "simulated_release_readiness_benchmark"
+  ],
+  "fail_on_level": "none",
+  "fail_triggered": false,
+  "generated_at_utc": "2026-02-11T01:12:00Z",
+  "level_counts": {
+    "critical": 0,
+    "escalated": 1,
+    "normal": 0,
+    "watch": 0
+  },
+  "next_drill_due_utc": "2026-02-18T01:12:00Z",
+  "overall_level": "escalated",
+  "overall_owner_profile": {
+    "backup_owner": "Release Engineering Lead",
+    "drill_cadence_days": 7,
+    "owner": "Performance Incident Owner",
+    "release_handoff_required": true,
+    "response_sla_hours": 24,
+    "source_level": "escalated"
+  },
+  "owners_config_source": "/workspace/governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+  "rows": [
+    {
+      "backup_owner": "Release Engineering Lead",
+      "bench": "simulated_release_readiness_benchmark",
+      "consecutive_drift": 2,
+      "drift_count_window": 3,
+      "drift_rate_pct": 42.0,
+      "drill_cadence_days": 7,
+      "failure_count_window": 1,
+      "failure_rate_pct": 12.0,
+      "latest_status": "drift",
+      "level": "escalated",
+      "owner": "Performance Incident Owner",
+      "release_handoff_required": true,
+      "required_action": "Open/update MONPOL proposal with owner and mitigation plan.",
+      "response_sla_hours": 24,
+      "samples": 5,
+      "triggers": [
+        "simulated_dry_run"
+      ]
+    }
+  ],
+  "window": {
+    "configured_runs": 5,
+    "evaluated_runs": 5
+  }
+}

@@ -204,6 +204,9 @@ maintenance scripts from `scripts/`:
 # Validate monitor threshold governance rules (PR-aware, auto-skip outside PR payloads)
 ./scripts/check_monitor_threshold_governance.sh
 
+# Evaluate governance gate promotion behavior explicitly (advisory/enforced)
+./scripts/check_monitor_threshold_governance.sh --promotion-mode advisory
+
 # Cleanup build artifacts and temp files
 ./scripts/cleanup.sh
 ```

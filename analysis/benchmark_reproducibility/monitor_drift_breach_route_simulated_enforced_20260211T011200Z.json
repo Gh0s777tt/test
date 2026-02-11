@@ -1,0 +1,51 @@
+{
+  "breach_detected": true,
+  "breach_sources": [
+    "escalation_level",
+    "handoff_blocked"
+  ],
+  "classification": {
+    "drill_status": "pass",
+    "escalation_level": "escalated",
+    "handoff_status": "blocked"
+  },
+  "evidence_bundle": [
+    "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T011200Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T011200Z.json",
+    "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T011200Z.json"
+  ],
+  "generated_at_utc": "2026-02-11T01:12:23Z",
+  "inputs": {
+    "drill_json": "analysis/benchmark_reproducibility/monitor_drift_release_readiness_drill_20260211T011200Z.json",
+    "escalation_json": "analysis/benchmark_reproducibility/monitor_drift_escalation_simulated_escalated_20260211T011200Z.json",
+    "handoff_json": "analysis/benchmark_reproducibility/monitor_drift_release_handoff_dryrun_blocked_20260211T011200Z.json",
+    "promotion_policy_json": "governance/performance/MONITOR_THRESHOLD_GOVERNANCE_GATE_PROMOTION.json"
+  },
+  "latest_monpol_id": "MONPOL-001",
+  "owner_snapshot": {
+    "backup_owner": "Release Engineering Lead",
+    "owner": "Performance Incident Owner",
+    "response_sla_hours": 24
+  },
+  "promotion": {
+    "active_mode": "enforced",
+    "enforce_on_breach": true,
+    "policy_mode": "advisory",
+    "require_breach_ack_token": true,
+    "require_pr_mitigation": true,
+    "would_block_in_active_mode": true
+  },
+  "recommended_actions": [
+    "Include breach route artifact in PR evidence bundle.",
+    "Document mitigation plan and owner accountability in PR body.",
+    "Link active MONPOL ID and changelog rationale.",
+    "Confirm drill and handoff status in transition pack summary."
+  ],
+  "recommended_policy_id": "MONPOL-BREACH",
+  "routing_targets": [
+    "governance/performance/MONITOR_THRESHOLD_CHANGELOG.md",
+    "docs/development/BENCHMARK_REPRODUCIBILITY_PROFILE.md",
+    "governance/performance/MONPOL_SIGNOFFS.json",
+    "pull_request_metadata"
+  ]
+}

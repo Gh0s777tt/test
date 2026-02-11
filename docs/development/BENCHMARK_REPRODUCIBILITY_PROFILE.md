@@ -229,6 +229,12 @@ Route escalation breach evidence snapshot:
 ./scripts/route_monitor_drift_breach_evidence.sh
 ```
 
+Run monitor-threshold governance gate with explicit promotion mode:
+
+```bash
+./scripts/check_monitor_threshold_governance.sh --promotion-mode advisory
+```
+
 Generate governance-ready MONPOL proposal draft:
 
 ```bash

@@ -143,6 +143,7 @@ See [../history/](../history/) for:
 - **Scaffolding MONPOL changelog entry draft**: `../scripts/scaffold_monpol_changelog_entry.sh`
 - **Validating MONPOL reviewer signoff metadata**: `../scripts/validate_monpol_signoff_metadata.sh`
 - **Checking monitor threshold governance gate**: `../scripts/check_monitor_threshold_governance.sh`
+- **Checking monitor threshold governance gate with explicit promotion mode**: `../scripts/check_monitor_threshold_governance.sh --promotion-mode advisory`
 - **Store manifest contract**: `../store/manifest.schema.json` and `../store/verify.rs`
 - **Benchmark reproducibility guide**: `development/BENCHMARK_REPRODUCIBILITY_PROFILE.md`
 - **Week 7 Day 7 performance validation**: `../WEEK_7_DAY_7_PERFORMANCE_VALIDATION.md`
