@@ -1,0 +1,114 @@
+{
+  "critical_benches": [],
+  "dashboard_source": "analysis/benchmark_reproducibility/monitor_policy_dashboard_20260211T002039Z.json",
+  "escalated_benches": [],
+  "fail_on_level": "none",
+  "fail_triggered": false,
+  "generated_at_utc": "2026-02-11T00:20:39Z",
+  "level_counts": {
+    "critical": 0,
+    "escalated": 0,
+    "normal": 2,
+    "watch": 0
+  },
+  "next_drill_due_utc": "2026-03-13T00:20:39Z",
+  "overall_level": "normal",
+  "overall_owner_profile": {
+    "backup_owner": "Performance Working Group",
+    "drill_cadence_days": 30,
+    "owner": "Benchmark Governance Automation",
+    "release_handoff_required": false,
+    "response_sla_hours": 168,
+    "source_level": "normal"
+  },
+  "owner_profiles_by_level": {
+    "critical": {
+      "backup_owner": "Security and Performance Council",
+      "drill_cadence_days": 1,
+      "owner": "Release Commander",
+      "release_handoff_required": true,
+      "response_sla_hours": 4,
+      "source_level": "critical"
+    },
+    "escalated": {
+      "backup_owner": "Release Engineering Lead",
+      "drill_cadence_days": 7,
+      "owner": "Performance Incident Owner",
+      "release_handoff_required": true,
+      "response_sla_hours": 24,
+      "source_level": "escalated"
+    },
+    "normal": {
+      "backup_owner": "Performance Working Group",
+      "drill_cadence_days": 30,
+      "owner": "Benchmark Governance Automation",
+      "release_handoff_required": false,
+      "response_sla_hours": 168,
+      "source_level": "normal"
+    },
+    "watch": {
+      "backup_owner": "Release Engineering",
+      "drill_cadence_days": 14,
+      "owner": "Performance Working Group",
+      "release_handoff_required": false,
+      "response_sla_hours": 72,
+      "source_level": "watch"
+    }
+  },
+  "owners_config_source": "governance/performance/MONITOR_DRIFT_ESCALATION_OWNERS.json",
+  "rows": [
+    {
+      "backup_owner": "Performance Working Group",
+      "bench": "directory_entry_cache_benchmark",
+      "consecutive_drift": 0,
+      "drift_count_window": 0,
+      "drift_rate_pct": 0.0,
+      "drill_cadence_days": 30,
+      "failure_count_window": 0,
+      "failure_rate_pct": 0.0,
+      "latest_status": "pass",
+      "level": "normal",
+      "owner": "Benchmark Governance Automation",
+      "release_handoff_required": false,
+      "required_action": "Routine monitoring.",
+      "response_sla_hours": 168,
+      "samples": 2,
+      "triggers": [
+        "none"
+      ]
+    },
+    {
+      "backup_owner": "Performance Working Group",
+      "bench": "timer_queue_benchmark",
+      "consecutive_drift": 0,
+      "drift_count_window": 0,
+      "drift_rate_pct": 0.0,
+      "drill_cadence_days": 30,
+      "failure_count_window": 0,
+      "failure_rate_pct": 0.0,
+      "latest_status": "pass",
+      "level": "normal",
+      "owner": "Benchmark Governance Automation",
+      "release_handoff_required": false,
+      "required_action": "Routine monitoring.",
+      "response_sla_hours": 168,
+      "samples": 2,
+      "triggers": [
+        "none"
+      ]
+    }
+  ],
+  "thresholds": {
+    "critical_consecutive_drift": 3,
+    "critical_drift_rate_pct": 60.0,
+    "critical_failure_rate_pct": 20.0,
+    "escalated_consecutive_drift": 2,
+    "escalated_drift_rate_pct": 40.0,
+    "escalated_failure_rate_pct": 10.0,
+    "watch_drift_rate_pct": 20.0
+  },
+  "window": {
+    "configured_runs": 5,
+    "evaluated_runs": 3
+  }
+}

@@ -134,6 +134,13 @@ def load_json(path: Path):
         return {}
 
 
+def safe_int(value, default=0):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def owner_profile_for_level(level: str, owners_cfg: dict):
     levels = owners_cfg.get("levels", {})
     if not isinstance(levels, dict):
@@ -146,8 +153,8 @@ def owner_profile_for_level(level: str, owners_cfg: dict):
     return {
         "owner": str(source.get("owner", "n/a")),
         "backup_owner": str(source.get("backup_owner", "n/a")),
-        "response_sla_hours": int(source.get("response_sla_hours", 0) or 0),
-        "drill_cadence_days": int(source.get("drill_cadence_days", 0) or 0),
+        "response_sla_hours": safe_int(source.get("response_sla_hours"), 0),
+        "drill_cadence_days": safe_int(source.get("drill_cadence_days"), 0),
         "release_handoff_required": bool(source.get("release_handoff_required", False)),
         "source_level": source_level,
     }
