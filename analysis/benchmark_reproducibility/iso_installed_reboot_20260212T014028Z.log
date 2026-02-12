@@ -11,15 +11,15 @@ onboarding: done
 welcome: Welcome to VantisOS installed mode.
 vantis> onboard status
 onboarding_state=done
-onboarding_source=import
+onboarding_source=import_encrypted
 profile=wraith
 user=operator
 hostname=vantis-lab
 vantis> config show
-first_boot_unix_utc=1770858974
+first_boot_unix_utc=1770860294
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=wraith
 user=operator
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 318724 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 322137 (timeout)

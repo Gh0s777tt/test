@@ -610,10 +610,10 @@ firstboot
 onboard
 # then answer prompts for hostname/user/profile
 onboard status
-onboard export /home/onboard_backup.conf
+onboard export-encrypted /home/onboard_backup.enc --pass vantis123
 # optional reset + restore from backup:
 # onboard reset --yes
-# onboard import /home/onboard_backup.conf
+# onboard import-encrypted /home/onboard_backup.enc --pass vantis123
 config show
 ```
 

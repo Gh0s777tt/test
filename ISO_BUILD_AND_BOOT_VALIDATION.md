@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70946816` bytes
+- Size: `70969344` bytes
 - SHA-256:
-  `323583af89a3ae15964de767c432c3710814caca9b9e870cb050bee09531c8a6`
+  `c96e9b73e93dd14170a36d683197c4bded50fc39689ca3083934d890bb236df0`
 
 ## Build command
 
@@ -22,19 +22,19 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T010918Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T013108Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T011128Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T013328Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T011608Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T013808Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T011818Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T014028Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -57,13 +57,14 @@ Observed runtime behavior:
   - `onboard status`,
 - installed shell validates onboarding reset and re-apply flow:
   - `onboard reset --yes`,
-  - `onboard export /home/onboard_backup.conf`,
-  - `onboard import /home/onboard_backup.conf`,
+  - `onboard export-encrypted /home/onboard_backup.enc --pass vantis123`,
+  - failed import attempt with wrong password is detected (`integrity check failed`),
+  - `onboard import-encrypted /home/onboard_backup.enc --pass vantis123`,
 - second installed boot confirms persistence (`FIRST BOOT SETUP ALREADY COMPLETE`) and retained:
   - `hostname=vantis-lab`
   - `user=operator`
   - `profile=wraith`
-  - onboarding state `done` with source `import` (after reset/re-apply from backup).
+  - onboarding state `done` with source `import_encrypted` (after reset/re-apply from backup).
 
 ## Reproduce
 
