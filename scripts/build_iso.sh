@@ -629,7 +629,7 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q 'encrypted_import_lock=inactive' "$BOOT_LOG" \
     && rg -q 'encrypted_import_failures=0' "$BOOT_LOG" \
     && rg -q 'telemetry_json_begin' "$BOOT_LOG" \
-    && rg -q '"last_event": "lockout_activated"' "$BOOT_LOG" \
+    && rg -q '"last_event": "blocked_attempt"' "$BOOT_LOG" \
     && rg -q '"last_event": "guard_cleared"' "$BOOT_LOG" \
     && rg -q 'event=lockout_activated' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] ONBOARDING IMPORTED ENCRYPTED: /home/onboard_backup.enc' "$BOOT_LOG" \
