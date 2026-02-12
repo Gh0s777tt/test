@@ -607,8 +607,12 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 
 # After install, in Vantis shell:
 firstboot
-onboard --hostname vantis-lab --user operator --profile wraith
+onboard
+# then answer prompts for hostname/user/profile
+onboard status
 config show
+# optional re-run:
+# onboard reset --yes
 ```
 
 ### Method 3: Mobile Update 📱

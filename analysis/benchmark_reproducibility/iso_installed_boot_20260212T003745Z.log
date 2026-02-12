@@ -11,19 +11,29 @@ first_boot: done
 onboarding: pending
 welcome: Welcome to VantisOS installed mode.
 vantis> config show
-first_boot_unix_utc=1770854312
-hostname=vantis-54312
+first_boot_unix_utc=1770856671
+hostname=vantis-56671
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=core
 user=vantis
-vantis> onboard --hostname vantis-lab --user operator --profile wraith
+vantis> onboard
+[VANTIS] onboarding wizard started
+hostname [vantis-56671]: vantis-lab
+user [vantis]: operator
+profile (core|gamer|wraith|server) [core]: wraith
 [VANTIS] ONBOARDING COMPLETE
 profile=wraith
 user=operator
 hostname=vantis-lab
+vantis> onboard status
+onboarding_state=done
+onboarding_source=interactive
+profile=wraith
+user=operator
+hostname=vantis-lab
 vantis> config show
-first_boot_unix_utc=1770854312
+first_boot_unix_utc=1770856671
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
@@ -33,4 +43,4 @@ vantis> firstboot
 first_boot: done
 onboarding: done
 welcome: Welcome to VantisOS installed mode.
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 309776 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 313744 (timeout)
