@@ -506,6 +506,16 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "firstboot"
       sleep 1
+      echo "onboard reset --yes"
+      sleep 1
+      echo "firstboot"
+      sleep 1
+      echo "onboard --hostname vantis-lab --user operator --profile wraith"
+      sleep 1
+      echo "onboard status"
+      sleep 1
+      echo "firstboot"
+      sleep 1
     } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
       -machine q35 \
       -m 1024 \
@@ -536,6 +546,16 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "firstboot"
       sleep 1
+      echo "onboard reset --yes"
+      sleep 1
+      echo "firstboot"
+      sleep 1
+      echo "onboard --hostname vantis-lab --user operator --profile wraith"
+      sleep 1
+      echo "onboard status"
+      sleep 1
+      echo "firstboot"
+      sleep 1
     } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
       -m 1024 \
       -serial mon:stdio \
@@ -558,6 +578,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q '\[VANTIS\] ONBOARDING COMPLETE' "$BOOT_LOG" \
     && rg -q 'onboarding_state=done' "$BOOT_LOG" \
     && rg -q 'onboarding_source=interactive' "$BOOT_LOG" \
+    && rg -q '\[VANTIS\] ONBOARDING RESET' "$BOOT_LOG" \
+    && rg -q 'onboarding_source=non_interactive' "$BOOT_LOG" \
     && rg -q 'onboarding: done' "$BOOT_LOG" \
     && rg -q 'profile=core' "$BOOT_LOG" \
     && rg -q 'hostname=vantis-' "$BOOT_LOG" \
@@ -621,7 +643,7 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q '\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$REBOOT_LOG" \
     && rg -q 'first_boot: done' "$REBOOT_LOG" \
     && rg -q 'onboarding_state=done' "$REBOOT_LOG" \
-    && rg -q 'onboarding_source=interactive' "$REBOOT_LOG" \
+    && rg -q 'onboarding_source=non_interactive' "$REBOOT_LOG" \
     && rg -q 'onboarding: done' "$REBOOT_LOG" \
     && rg -q 'hostname=vantis-lab' "$REBOOT_LOG" \
     && rg -q 'user=operator' "$REBOOT_LOG" \
