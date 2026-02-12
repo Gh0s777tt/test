@@ -10,6 +10,8 @@ const WELCOME_PATH: &str = "/home/.vantis_welcome.txt";
 const FIRSTBOOT_MARKER_PATH: &str = "/home/.vantis_first_boot_done";
 const ONBOARDING_DONE_PATH: &str = "/home/.vantis_onboarding_done";
 const ONBOARDING_PENDING_PATH: &str = "/home/.vantis_onboarding_pending";
+const ONBOARDING_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.conf";
+const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard export [path] | onboard import [path]";
 
 fn unix_now() -> u64 {
     SystemTime::now()
@@ -62,13 +64,8 @@ fn serialize_profile_config(map: &BTreeMap<String, String>) -> String {
     out
 }
 
-fn read_profile_config() -> BTreeMap<String, String> {
+fn parse_profile_config_text(text: &str) -> BTreeMap<String, String> {
     let mut map = BTreeMap::new();
-    let text = match fs::read_to_string(PROFILE_PATH) {
-        Ok(content) => content,
-        Err(_) => return map,
-    };
-
     for line in text.lines() {
         if let Some((key, value)) = line.split_once('=') {
             let k = key.trim();
@@ -79,6 +76,14 @@ fn read_profile_config() -> BTreeMap<String, String> {
         }
     }
     map
+}
+
+fn read_profile_config() -> BTreeMap<String, String> {
+    let text = match fs::read_to_string(PROFILE_PATH) {
+        Ok(content) => content,
+        Err(_) => return BTreeMap::new(),
+    };
+    parse_profile_config_text(&text)
 }
 
 fn write_profile_config(mut map: BTreeMap<String, String>) -> Result<(), String> {
@@ -204,6 +209,68 @@ fn mark_onboarding_done(source: &str) {
     }
 }
 
+fn resolve_backup_path(path_arg: Option<&str>) -> Result<String, String> {
+    let path = path_arg.unwrap_or(ONBOARDING_BACKUP_DEFAULT_PATH).trim();
+    if path.is_empty() {
+        return Err("backup path cannot be empty".to_string());
+    }
+    Ok(path.to_string())
+}
+
+fn onboard_export(path_arg: Option<&str>) -> Result<(), String> {
+    let path = resolve_backup_path(path_arg)?;
+    let mut map = read_profile_config();
+    ensure_profile_defaults(&mut map);
+    let out = serialize_profile_config(&map);
+
+    if let Some(parent) = Path::new(&path).parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent)
+                .map_err(|err| format!("failed to prepare backup directory: {err}"))?;
+        }
+    }
+    fs::write(&path, out).map_err(|err| format!("failed to export onboarding backup: {err}"))?;
+    println!("[VANTIS] ONBOARDING EXPORTED: {path}");
+    Ok(())
+}
+
+fn onboard_import(path_arg: Option<&str>) -> Result<(), String> {
+    let path = resolve_backup_path(path_arg)?;
+    let content =
+        fs::read_to_string(&path).map_err(|err| format!("failed to read onboarding backup: {err}"))?;
+    let mut map = parse_profile_config_text(&content);
+    if map.is_empty() {
+        return Err("onboarding backup is empty or invalid".to_string());
+    }
+    ensure_profile_defaults(&mut map);
+    map.insert("mode".to_string(), "installed".to_string());
+
+    let profile = map
+        .get("profile")
+        .cloned()
+        .ok_or_else(|| "missing profile in onboarding backup".to_string())?;
+    let user = map
+        .get("user")
+        .cloned()
+        .ok_or_else(|| "missing user in onboarding backup".to_string())?;
+    let hostname = map
+        .get("hostname")
+        .cloned()
+        .ok_or_else(|| "missing hostname in onboarding backup".to_string())?;
+    apply_profile_update(&mut map, "profile", &profile)?;
+    apply_profile_update(&mut map, "user", &user)?;
+    apply_profile_update(&mut map, "hostname", &hostname)?;
+
+    write_profile_config(map.clone())?;
+    write_welcome_message(&map);
+    mark_onboarding_done("import");
+    println!("[VANTIS] ONBOARDING IMPORTED: {path}");
+    println!("profile={profile}");
+    println!("user={user}");
+    println!("hostname={hostname}");
+    Ok(())
+}
+
 fn prompt_with_default(prompt: &str, default: &str) -> Result<String, String> {
     print!("{prompt} [{default}]: ");
     io::stdout()
@@ -254,6 +321,20 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
         return Ok(());
     }
 
+    if args.first() == Some(&"export") {
+        if args.len() > 2 {
+            return Err(ONBOARD_USAGE.to_string());
+        }
+        return onboard_export(args.get(1).copied());
+    }
+
+    if args.first() == Some(&"import") {
+        if args.len() > 2 {
+            return Err(ONBOARD_USAGE.to_string());
+        }
+        return onboard_import(args.get(1).copied());
+    }
+
     let mut map = read_profile_config();
     ensure_profile_defaults(&mut map);
 
@@ -288,7 +369,7 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
             match args[idx] {
                 "--hostname" => {
                     if idx + 1 >= args.len() {
-                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
+                        return Err(ONBOARD_USAGE.to_string());
                     }
                     apply_profile_update(&mut map, "hostname", args[idx + 1])?;
                     changed = true;
@@ -296,7 +377,7 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
                 }
                 "--user" => {
                     if idx + 1 >= args.len() {
-                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
+                        return Err(ONBOARD_USAGE.to_string());
                     }
                     apply_profile_update(&mut map, "user", args[idx + 1])?;
                     changed = true;
@@ -304,14 +385,14 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
                 }
                 "--profile" => {
                     if idx + 1 >= args.len() {
-                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
+                        return Err(ONBOARD_USAGE.to_string());
                     }
                     apply_profile_update(&mut map, "profile", args[idx + 1])?;
                     changed = true;
                     idx += 2;
                 }
                 "--help" | "-h" => {
-                    return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
+                    return Err(ONBOARD_USAGE.to_string());
                 }
                 other => {
                     return Err(format!("unknown onboarding option: {other}"));
@@ -319,7 +400,7 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
             }
         }
         if !changed {
-            return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
+            return Err(ONBOARD_USAGE.to_string());
         }
     }
 
@@ -365,6 +446,7 @@ pub fn start() {
                 println!("  onboard [flags]            - run first-boot onboarding wizard");
                 println!("      flags: --hostname --user --profile");
                 println!("      extras: onboard status | onboard reset --yes");
+                println!("              onboard export [path] | onboard import [path]");
                 println!("  config show                - print current installed profile config");
                 println!("  config set <k> <v>         - set profile/user/hostname");
                 println!("  reboot                     - reboot machine");
