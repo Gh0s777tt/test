@@ -131,6 +131,7 @@ See [../history/](../history/) for:
 - **Enforcing requirement IDs**: `../scripts/check_requirement_ids.sh`
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
 - **Building bootable live/installer ISO (optional QEMU live+installer smoke tests)**: `../scripts/build_iso.sh`
+- **Running ISO onboarding CI gate locally (full smoke + rollup threshold enforcement)**: `../scripts/run_iso_onboarding_ci_gate.sh`
 - **Rolling up ISO onboarding telemetry summaries (JSON + Markdown trend report + threshold pass/fail evaluation)**: `../scripts/generate_iso_onboarding_telemetry_rollup.sh`
 - **Enforcing ISO onboarding telemetry threshold gate in CI (build + smoke + rollup fail-on-breach)**: `../.github/workflows/iso-onboarding-rollup-gate.yml`
 - **Running reproducibility benchmark profile**: `../scripts/benchmark_reproducibility.sh`

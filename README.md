@@ -621,6 +621,8 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
   --onboarding-rollup-max-mean-failures 3.0 \
   --onboarding-rollup-require-final-source import_encrypted \
   --enforce-onboarding-rollup-thresholds
+# same gate via dedicated wrapper script (used by GitHub Actions):
+./scripts/run_iso_onboarding_ci_gate.sh
 # GitHub Actions PR gate:
 # .github/workflows/iso-onboarding-rollup-gate.yml
 

@@ -47,17 +47,14 @@ jobs:
 
       - name: Build ISO and enforce onboarding rollup thresholds
         run: >
-          ./scripts/build_iso.sh
+          ./scripts/run_iso_onboarding_ci_gate.sh
           --output build/VantisOS-live.iso
-          --run-qemu-smoke
-          --run-installer-smoke
           --qemu-timeout 180
           --installer-timeout 320
-          --onboarding-rollup-window 30
-          --onboarding-rollup-max-lockout-ratio 1.0
-          --onboarding-rollup-max-mean-failures 3.0
-          --onboarding-rollup-require-final-source import_encrypted
-          --enforce-onboarding-rollup-thresholds
+          --window 30
+          --max-lockout-ratio 1.0
+          --max-mean-failures 3.0
+          --require-final-source import_encrypted
 
       - name: Publish gate summary
         if: ${{ always() }}
