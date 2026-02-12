@@ -14,6 +14,10 @@ OUTPUT_JSON=""
 OUTPUT_MD=""
 LATEST_JSON=""
 LATEST_MD=""
+MAX_LOCKOUT_RATIO=""
+MAX_MEAN_FAILURES=""
+REQUIRE_FINAL_SOURCE=""
+FAIL_ON_THRESHOLD_BREACH=0
 
 usage() {
   cat <<'USAGE'
@@ -26,6 +30,12 @@ Options:
   --output-md <path>      Output Markdown rollup path (default: alongside output JSON)
   --latest-json <path>    Latest JSON alias path (default: analysis dir latest path)
   --latest-md <path>      Latest Markdown alias path (default: analysis dir latest path)
+  --max-lockout-ratio <n> Maximum allowed lockout run ratio (0.0..1.0)
+  --max-mean-failures <n> Maximum allowed mean of max_failures_observed
+  --require-final-source <name>
+                          Required latest run final_onboarding_source
+  --fail-on-threshold-breach
+                          Exit non-zero if threshold evaluation fails
   -h, --help              Show this help
 USAGE
 }
@@ -55,6 +65,22 @@ while [[ $# -gt 0 ]]; do
     --latest-md)
       LATEST_MD="${2:-}"
       shift 2
+      ;;
+    --max-lockout-ratio)
+      MAX_LOCKOUT_RATIO="${2:-}"
+      shift 2
+      ;;
+    --max-mean-failures)
+      MAX_MEAN_FAILURES="${2:-}"
+      shift 2
+      ;;
+    --require-final-source)
+      REQUIRE_FINAL_SOURCE="${2:-}"
+      shift 2
+      ;;
+    --fail-on-threshold-breach)
+      FAIL_ON_THRESHOLD_BREACH=1
+      shift
       ;;
     -h|--help)
       usage
@@ -92,7 +118,7 @@ mkdir -p "$(dirname "$OUTPUT_MD")"
 mkdir -p "$(dirname "$LATEST_JSON")"
 mkdir -p "$(dirname "$LATEST_MD")"
 
-python3 - "$ANALYSIS_DIR" "$WINDOW" "$OUTPUT_JSON" "$OUTPUT_MD" "$LATEST_JSON" "$LATEST_MD" <<'PY'
+python3 - "$ANALYSIS_DIR" "$WINDOW" "$OUTPUT_JSON" "$OUTPUT_MD" "$LATEST_JSON" "$LATEST_MD" "$MAX_LOCKOUT_RATIO" "$MAX_MEAN_FAILURES" "$REQUIRE_FINAL_SOURCE" "$FAIL_ON_THRESHOLD_BREACH" <<'PY'
 import json
 import re
 import statistics
@@ -106,8 +132,28 @@ output_json = Path(sys.argv[3])
 output_md = Path(sys.argv[4])
 latest_json = Path(sys.argv[5])
 latest_md = Path(sys.argv[6])
+max_lockout_ratio_raw = sys.argv[7]
+max_mean_failures_raw = sys.argv[8]
+require_final_source = sys.argv[9]
+fail_on_threshold_breach = sys.argv[10] == "1"
 
 pattern = re.compile(r"^iso_onboarding_telemetry_summary_(\d{8}T\d{6}Z)\.json$")
+
+def parse_optional_float(raw: str, name: str):
+    if raw == "":
+        return None
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise SystemExit(f"invalid float for {name}: {raw}") from exc
+    return value
+
+max_lockout_ratio = parse_optional_float(max_lockout_ratio_raw, "--max-lockout-ratio")
+max_mean_failures = parse_optional_float(max_mean_failures_raw, "--max-mean-failures")
+if max_lockout_ratio is not None and not (0.0 <= max_lockout_ratio <= 1.0):
+    raise SystemExit("--max-lockout-ratio must be in range 0.0..1.0")
+if max_mean_failures is not None and max_mean_failures < 0.0:
+    raise SystemExit("--max-mean-failures must be >= 0.0")
 
 def parse_summary(path: Path) -> dict | None:
     try:
@@ -166,6 +212,12 @@ rollup = {
     "window_size_requested": window,
     "window_size_effective": total_runs,
     "inputs": [entry["path"] for entry in windowed],
+    "threshold_policy": {
+        "max_lockout_ratio": max_lockout_ratio,
+        "max_mean_failures": max_mean_failures,
+        "require_final_source": require_final_source if require_final_source else None,
+        "fail_on_threshold_breach": fail_on_threshold_breach,
+    },
     "aggregate": {
         "lockout_runs": lockout_runs,
         "lockout_run_ratio": (lockout_runs / total_runs) if total_runs else 0.0,
@@ -177,6 +229,29 @@ rollup = {
         "latest_run": latest,
     },
     "runs": windowed,
+}
+
+breaches = []
+ratio = rollup["aggregate"]["lockout_run_ratio"]
+mean_failures = rollup["aggregate"]["max_failures_mean"]
+latest_source = rollup["aggregate"]["latest_run"].get("final_onboarding_source", "unknown") if isinstance(rollup["aggregate"]["latest_run"], dict) else "unknown"
+
+if max_lockout_ratio is not None and ratio > max_lockout_ratio:
+    breaches.append(
+        f"lockout_run_ratio {ratio:.4f} exceeds threshold {max_lockout_ratio:.4f}"
+    )
+if max_mean_failures is not None and mean_failures > max_mean_failures:
+    breaches.append(
+        f"max_failures_mean {mean_failures:.4f} exceeds threshold {max_mean_failures:.4f}"
+    )
+if require_final_source and latest_source != require_final_source:
+    breaches.append(
+        f"latest final_onboarding_source '{latest_source}' != required '{require_final_source}'"
+    )
+
+rollup["threshold_evaluation"] = {
+    "status": "fail" if breaches else "pass",
+    "breaches": breaches,
 }
 
 output_json.write_text(json.dumps(rollup, indent=2) + "\n", encoding="utf-8")
@@ -194,9 +269,31 @@ lines = [
     f"- Max failures peak: `{rollup['aggregate']['max_failures_peak']}`",
     f"- Mean max failures: `{rollup['aggregate']['max_failures_mean']:.2f}`",
     "",
-    "## Final onboarding source distribution",
+    "## Threshold evaluation",
+    "",
+    f"- status: `{rollup['threshold_evaluation']['status']}`",
+    f"- policy.max_lockout_ratio: `{rollup['threshold_policy']['max_lockout_ratio']}`",
+    f"- policy.max_mean_failures: `{rollup['threshold_policy']['max_mean_failures']}`",
+    f"- policy.require_final_source: `{rollup['threshold_policy']['require_final_source']}`",
+    f"- policy.fail_on_threshold_breach: `{rollup['threshold_policy']['fail_on_threshold_breach']}`",
     "",
 ]
+if breaches:
+    lines.append("### Breaches")
+    lines.append("")
+    for item in breaches:
+        lines.append(f"- {item}")
+    lines.append("")
+else:
+    lines.extend([
+        "- no threshold breaches detected",
+        "",
+    ])
+
+lines.extend([
+    "## Final onboarding source distribution",
+    "",
+])
 if source_counter:
     for key, value in sorted(source_counter.items()):
         lines.append(f"- `{key}`: `{value}`")
@@ -233,6 +330,9 @@ else:
 text = "\n".join(lines) + "\n"
 output_md.write_text(text, encoding="utf-8")
 latest_md.write_text(text, encoding="utf-8")
+
+if fail_on_threshold_breach and breaches:
+    raise SystemExit(2)
 PY
 
 echo "Onboarding telemetry rollup JSON: $OUTPUT_JSON"

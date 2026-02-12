@@ -19,6 +19,11 @@ RUN_QEMU_SMOKE=0
 RUN_INSTALLER_SMOKE=0
 QEMU_TIMEOUT_SECONDS=45
 INSTALLER_TIMEOUT_SECONDS=120
+ONBOARDING_ROLLUP_WINDOW=30
+ONBOARDING_ROLLUP_MAX_LOCKOUT_RATIO=1.0
+ONBOARDING_ROLLUP_MAX_MEAN_FAILURES=3.0
+ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE="import_encrypted"
+ENFORCE_ONBOARDING_ROLLUP_THRESHOLDS=0
 
 usage() {
   cat <<'USAGE'
@@ -32,6 +37,16 @@ Options:
                                Also generates onboarding telemetry summary + rollup artifacts
   --qemu-timeout <seconds>     Timeout for smoke boot test (default: 45)
   --installer-timeout <sec>    Timeout for installer session (default: 120)
+  --onboarding-rollup-window <n>
+                               Number of onboarding summary runs in trend rollup (default: 30)
+  --onboarding-rollup-max-lockout-ratio <n>
+                               Rollup threshold for lockout_run_ratio 0.0..1.0 (default: 1.0)
+  --onboarding-rollup-max-mean-failures <n>
+                               Rollup threshold for max_failures_mean (default: 3.0)
+  --onboarding-rollup-require-final-source <name>
+                               Rollup threshold for latest final source (default: import_encrypted)
+  --enforce-onboarding-rollup-thresholds
+                               Fail build if rollup threshold evaluation reports breaches
   -h, --help                   Show this help
 USAGE
 }
@@ -62,6 +77,26 @@ while [[ $# -gt 0 ]]; do
       INSTALLER_TIMEOUT_SECONDS="${2:-}"
       shift 2
       ;;
+    --onboarding-rollup-window)
+      ONBOARDING_ROLLUP_WINDOW="${2:-}"
+      shift 2
+      ;;
+    --onboarding-rollup-max-lockout-ratio)
+      ONBOARDING_ROLLUP_MAX_LOCKOUT_RATIO="${2:-}"
+      shift 2
+      ;;
+    --onboarding-rollup-max-mean-failures)
+      ONBOARDING_ROLLUP_MAX_MEAN_FAILURES="${2:-}"
+      shift 2
+      ;;
+    --onboarding-rollup-require-final-source)
+      ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE="${2:-}"
+      shift 2
+      ;;
+    --enforce-onboarding-rollup-thresholds)
+      ENFORCE_ONBOARDING_ROLLUP_THRESHOLDS=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -86,6 +121,11 @@ fi
 
 if ! [[ "$INSTALLER_TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] || (( INSTALLER_TIMEOUT_SECONDS < 20 )); then
   echo "Error: --installer-timeout must be an integer >= 20" >&2
+  exit 1
+fi
+
+if ! [[ "$ONBOARDING_ROLLUP_WINDOW" =~ ^[0-9]+$ ]] || (( ONBOARDING_ROLLUP_WINDOW < 1 )); then
+  echo "Error: --onboarding-rollup-window must be an integer >= 1" >&2
   exit 1
 fi
 
@@ -826,7 +866,20 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
 
   ROLLUP_SCRIPT="$ROOT/scripts/generate_iso_onboarding_telemetry_rollup.sh"
   if [[ -f "$ROLLUP_SCRIPT" ]]; then
-    bash "$ROLLUP_SCRIPT" --analysis-dir "$ANALYSIS_DIR" --window 30
+    ROLLUP_CMD=(
+      bash "$ROLLUP_SCRIPT"
+      --analysis-dir "$ANALYSIS_DIR"
+      --window "$ONBOARDING_ROLLUP_WINDOW"
+      --max-lockout-ratio "$ONBOARDING_ROLLUP_MAX_LOCKOUT_RATIO"
+      --max-mean-failures "$ONBOARDING_ROLLUP_MAX_MEAN_FAILURES"
+    )
+    if [[ -n "$ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE" ]]; then
+      ROLLUP_CMD+=(--require-final-source "$ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE")
+    fi
+    if (( ENFORCE_ONBOARDING_ROLLUP_THRESHOLDS == 1 )); then
+      ROLLUP_CMD+=(--fail-on-threshold-breach)
+    fi
+    "${ROLLUP_CMD[@]}"
   else
     echo "Warning: onboarding telemetry rollup script missing: $ROLLUP_SCRIPT" >&2
   fi
