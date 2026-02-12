@@ -524,11 +524,15 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "onboard status"
       sleep 1
+      echo "onboard telemetry"
+      sleep 1
       echo "firstboot"
       sleep 10
       echo "onboard import-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard status"
+      sleep 1
+      echo "onboard telemetry"
       sleep 1
       echo "config show"
       sleep 1
@@ -578,11 +582,15 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "onboard status"
       sleep 1
+      echo "onboard telemetry"
+      sleep 1
       echo "firstboot"
       sleep 10
       echo "onboard import-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard status"
+      sleep 1
+      echo "onboard telemetry"
       sleep 1
       echo "config show"
       sleep 1
@@ -620,6 +628,10 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q 'encrypted_import_blocked_until_unix=' "$BOOT_LOG" \
     && rg -q 'encrypted_import_lock=inactive' "$BOOT_LOG" \
     && rg -q 'encrypted_import_failures=0' "$BOOT_LOG" \
+    && rg -q 'telemetry_json_begin' "$BOOT_LOG" \
+    && rg -q '"last_event": "lockout_activated"' "$BOOT_LOG" \
+    && rg -q '"last_event": "guard_cleared"' "$BOOT_LOG" \
+    && rg -q 'event=lockout_activated' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] ONBOARDING IMPORTED ENCRYPTED: /home/onboard_backup.enc' "$BOOT_LOG" \
     && rg -q 'onboarding_source=import_encrypted' "$BOOT_LOG" \
     && rg -q 'onboarding: done' "$BOOT_LOG" \
@@ -649,6 +661,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "onboard status"
       sleep 1
+      echo "onboard telemetry"
+      sleep 1
       echo "config show"
       sleep 1
     } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
@@ -666,6 +680,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       echo "firstboot"
       sleep 1
       echo "onboard status"
+      sleep 1
+      echo "onboard telemetry"
       sleep 1
       echo "config show"
       sleep 1
@@ -688,6 +704,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q 'onboarding_source=import_encrypted' "$REBOOT_LOG" \
     && rg -q 'encrypted_import_failures=0' "$REBOOT_LOG" \
     && rg -q 'encrypted_import_lock=inactive' "$REBOOT_LOG" \
+    && rg -q '"last_event": "guard_cleared"' "$REBOOT_LOG" \
+    && rg -q 'event=lockout_activated' "$REBOOT_LOG" \
     && rg -q 'onboarding: done' "$REBOOT_LOG" \
     && rg -q 'hostname=vantis-lab' "$REBOOT_LOG" \
     && rg -q 'user=operator' "$REBOOT_LOG" \

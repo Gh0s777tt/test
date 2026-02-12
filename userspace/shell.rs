@@ -19,7 +19,7 @@ const ONBOARDING_ENCRYPTED_IMPORT_TELEMETRY_PATH: &str =
     "/home/.vantis_onboarding_encrypted_import_telemetry.json";
 const ENCRYPTED_IMPORT_MAX_FAILED_ATTEMPTS: u32 = 3;
 const ENCRYPTED_IMPORT_COOLDOWN_SECONDS: u64 = 8;
-const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard export [path] | onboard import [path] | onboard export-encrypted [path] --pass <password> | onboard import-encrypted [path] --pass <password>";
+const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard telemetry | onboard export [path] | onboard import [path] | onboard export-encrypted [path] --pass <password> | onboard import-encrypted [path] --pass <password>";
 
 #[derive(Clone, Copy)]
 struct EncryptedImportGuardState {
@@ -364,6 +364,31 @@ fn write_encrypted_import_telemetry(
     );
     let _ = fs::write(ONBOARDING_ENCRYPTED_IMPORT_TELEMETRY_PATH, &payload);
     mirror_text_to_persist("onboarding_encrypted_import_telemetry.json", &payload);
+}
+
+fn print_onboarding_telemetry_snapshot() {
+    let telemetry = fs::read_to_string(ONBOARDING_ENCRYPTED_IMPORT_TELEMETRY_PATH)
+        .unwrap_or_else(|_| "{\n  \"status\": \"unavailable\"\n}\n".to_string());
+    let history = fs::read_to_string(ONBOARDING_ENCRYPTED_IMPORT_HISTORY_PATH).unwrap_or_default();
+
+    println!("telemetry_path={ONBOARDING_ENCRYPTED_IMPORT_TELEMETRY_PATH}");
+    println!("history_path={ONBOARDING_ENCRYPTED_IMPORT_HISTORY_PATH}");
+    println!("telemetry_json_begin");
+    for line in telemetry.lines() {
+        println!("{line}");
+    }
+    println!("telemetry_json_end");
+    println!("history_tail_begin");
+    let lines: Vec<&str> = history.lines().collect();
+    if lines.is_empty() {
+        println!("(empty)");
+    } else {
+        let start = lines.len().saturating_sub(5);
+        for line in &lines[start..] {
+            println!("{line}");
+        }
+    }
+    println!("history_tail_end");
 }
 
 fn write_encrypted_import_guard_state(state: EncryptedImportGuardState) {
@@ -732,6 +757,11 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
         return Ok(());
     }
 
+    if args.first() == Some(&"telemetry") {
+        print_onboarding_telemetry_snapshot();
+        return Ok(());
+    }
+
     if args.first() == Some(&"export") {
         if args.len() > 2 {
             return Err(ONBOARD_USAGE.to_string());
@@ -864,7 +894,7 @@ pub fn start() {
                 println!("  firstboot                  - show first-boot setup status");
                 println!("  onboard [flags]            - run first-boot onboarding wizard");
                 println!("      flags: --hostname --user --profile");
-                println!("      extras: onboard status | onboard reset --yes");
+                println!("      extras: onboard status | onboard reset --yes | onboard telemetry");
                 println!("              onboard export [path] | onboard import [path]");
                 println!("              onboard export-encrypted [path] --pass <password>");
                 println!("              onboard import-encrypted [path] --pass <password>");
