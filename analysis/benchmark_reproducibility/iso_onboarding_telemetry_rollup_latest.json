@@ -1,0 +1,68 @@
+{
+  "schema": "vantis.iso.onboarding_telemetry_rollup.v1",
+  "generated_unix": 1770920145,
+  "analysis_dir": "/workspace/analysis/benchmark_reproducibility",
+  "window_size_requested": 30,
+  "window_size_effective": 2,
+  "inputs": [
+    "/workspace/analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T085934Z.json",
+    "/workspace/analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T181545Z.json"
+  ],
+  "aggregate": {
+    "lockout_runs": 2,
+    "lockout_run_ratio": 1.0,
+    "guard_cleared_runs": 2,
+    "max_failures_peak": 3,
+    "max_failures_mean": 3.0,
+    "final_onboarding_source_distribution": {
+      "import_encrypted": 2
+    },
+    "final_telemetry_last_event_distribution": {
+      "guard_cleared": 2
+    },
+    "latest_run": {
+      "path": "/workspace/analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T181545Z.json",
+      "timestamp": "20260212T181545Z",
+      "lockout_triggered": true,
+      "max_failures_observed": 3,
+      "final_onboarding_source": "import_encrypted",
+      "final_telemetry_last_event": "guard_cleared",
+      "history_contains_lockout": true,
+      "history_contains_guard_cleared": true,
+      "boot_failed_attempt_messages": 3,
+      "boot_lockout_messages": 1,
+      "reboot_failed_attempt_messages": 0,
+      "reboot_lockout_messages": 0
+    }
+  },
+  "runs": [
+    {
+      "path": "/workspace/analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T085934Z.json",
+      "timestamp": "20260212T085934Z",
+      "lockout_triggered": true,
+      "max_failures_observed": 3,
+      "final_onboarding_source": "import_encrypted",
+      "final_telemetry_last_event": "guard_cleared",
+      "history_contains_lockout": true,
+      "history_contains_guard_cleared": true,
+      "boot_failed_attempt_messages": 3,
+      "boot_lockout_messages": 1,
+      "reboot_failed_attempt_messages": 0,
+      "reboot_lockout_messages": 0
+    },
+    {
+      "path": "/workspace/analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T181545Z.json",
+      "timestamp": "20260212T181545Z",
+      "lockout_triggered": true,
+      "max_failures_observed": 3,
+      "final_onboarding_source": "import_encrypted",
+      "final_telemetry_last_event": "guard_cleared",
+      "history_contains_lockout": true,
+      "history_contains_guard_cleared": true,
+      "boot_failed_attempt_messages": 3,
+      "boot_lockout_messages": 1,
+      "reboot_failed_attempt_messages": 0,
+      "reboot_lockout_messages": 0
+    }
+  ]
+}

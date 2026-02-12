@@ -1,0 +1,69 @@
+{
+  "schema": "vantis.iso.onboarding_telemetry_summary.v1",
+  "generated_unix": 1770919965,
+  "boot_log": {
+    "path": "/workspace/analysis/benchmark_reproducibility/iso_installed_boot_20260212T180945Z.log",
+    "integrity_failures": 6,
+    "failed_attempt_messages": 3,
+    "lockout_messages": 1,
+    "max_failures_observed": 3,
+    "blocked_until_unix_max": 1770919820,
+    "lock_state_active_observed": true,
+    "lock_state_inactive_observed": true,
+    "max_lock_seconds_remaining": 6,
+    "onboarding_sources_observed": [
+      "interactive",
+      "manual_reset",
+      "import_encrypted"
+    ],
+    "final_onboarding_source": "import_encrypted",
+    "history_events_observed": [
+      "blocked_attempt",
+      "cooldown_expired",
+      "failed_attempt",
+      "guard_cleared",
+      "lockout_activated"
+    ],
+    "history_event_count": 9,
+    "telemetry_last_events_observed": [
+      "blocked_attempt",
+      "guard_cleared"
+    ],
+    "telemetry_last_event_final": "guard_cleared"
+  },
+  "reboot_log": {
+    "path": "/workspace/analysis/benchmark_reproducibility/iso_installed_reboot_20260212T181245Z.log",
+    "integrity_failures": 1,
+    "failed_attempt_messages": 0,
+    "lockout_messages": 0,
+    "max_failures_observed": 0,
+    "blocked_until_unix_max": 0,
+    "lock_state_active_observed": false,
+    "lock_state_inactive_observed": true,
+    "max_lock_seconds_remaining": 0,
+    "onboarding_sources_observed": [
+      "import_encrypted"
+    ],
+    "final_onboarding_source": "import_encrypted",
+    "history_events_observed": [
+      "blocked_attempt",
+      "cooldown_expired",
+      "failed_attempt",
+      "guard_cleared",
+      "lockout_activated"
+    ],
+    "history_event_count": 5,
+    "telemetry_last_events_observed": [
+      "guard_cleared"
+    ],
+    "telemetry_last_event_final": "guard_cleared"
+  },
+  "aggregate": {
+    "lockout_triggered": true,
+    "max_failures_observed": 3,
+    "final_onboarding_source": "import_encrypted",
+    "final_telemetry_last_event": "guard_cleared",
+    "history_contains_lockout": true,
+    "history_contains_guard_cleared": true
+  }
+}

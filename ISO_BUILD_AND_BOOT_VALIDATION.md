@@ -22,24 +22,28 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T084514Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T180124Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T084814Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T180425Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T085334Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T180945Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T085634Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T181245Z.log`
 
 Onboarding telemetry summary artifacts:
 
-- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T085934Z.json`
-- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T085934Z.md`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T181545Z.json`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T181545Z.md`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_20260212T181545Z.json`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_20260212T181545Z.md`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_latest.json`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_latest.md`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -61,7 +65,7 @@ Observed runtime behavior:
   - `onboard` (interactive prompts for hostname/user/profile),
   - `onboard status`,
   - `onboard telemetry` (JSON snapshot + recent history tail),
-- installer smoke auto-generates onboarding telemetry summary bundle (`json` + `md`) with aggregated lockout/import statistics.
+- installer smoke auto-generates onboarding telemetry summary bundle (`json` + `md`) and rolling trend rollup (`json` + `md`) with aggregated lockout/import statistics.
 - installed shell validates onboarding reset and re-apply flow:
   - `onboard reset --yes`,
   - `onboard export-encrypted /home/onboard_backup.enc --pass vantis123`,
