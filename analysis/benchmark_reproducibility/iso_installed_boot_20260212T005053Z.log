@@ -1,0 +1,67 @@
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x3,0x0)
+BdsDxe: starting Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x3,0x0)
+EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
+[VANTIS] initramfs boot sequence started (mode=installed)
+[VANTIS] persistent storage active: /dev/vda2
+[VANTIS] FIRST BOOT SETUP COMPLETE
+[VANTIS] ONBOARDING PENDING: run `onboard`
+[VANTIS] WRAITH MODE ACTIVE
+vantis> firstboot
+first_boot: done
+onboarding: pending
+welcome: Welcome to VantisOS installed mode.
+vantis> config show
+first_boot_unix_utc=1770857459
+hostname=vantis-57459
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=core
+user=vantis
+vantis> onboard
+[VANTIS] onboarding wizard started
+hostname [vantis-57459]: vantis-lab
+user [vantis]: operator
+profile (core|gamer|wraith|server) [core]: wraith
+[VANTIS] ONBOARDING COMPLETE
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> onboard status
+onboarding_state=done
+onboarding_source=interactive
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> config show
+first_boot_unix_utc=1770857459
+hostname=vantis-lab
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=wraith
+user=operator
+vantis> firstboot
+first_boot: done
+onboarding: done
+welcome: Welcome to VantisOS installed mode.
+vantis> onboard reset --yes
+[VANTIS] ONBOARDING RESET
+vantis> firstboot
+first_boot: done
+onboarding: pending
+welcome: Welcome to VantisOS installed mode.
+vantis> onboard --hostname vantis-lab --user operator --profile wraith
+[VANTIS] ONBOARDING COMPLETE
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> onboard status
+onboarding_state=done
+onboarding_source=non_interactive
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> firstboot
+first_boot: done
+onboarding: done
+welcome: Welcome to VantisOS installed mode.
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 315469 (timeout)
