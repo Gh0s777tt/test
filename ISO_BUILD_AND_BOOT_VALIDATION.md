@@ -10,7 +10,7 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 - ISO path: `build/VantisOS-live.iso`
 - Size: `70983680` bytes
 - SHA-256:
-  `afe6c8c9c1a24dd30c07b14cefa66d61f87f827dcaa9ceb7c2601d8d51d38c8a`
+  `94a6d883d7afa8ff279122fa2121aae3d02c371a90e16c916c2ae3e98224eb96`
 
 ## Build command
 
@@ -22,19 +22,24 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T081458Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T084514Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T081758Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T084814Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T082318Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T085334Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T082618Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T085634Z.log`
+
+Onboarding telemetry summary artifacts:
+
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T085934Z.json`
+- `analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_20260212T085934Z.md`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -56,6 +61,7 @@ Observed runtime behavior:
   - `onboard` (interactive prompts for hostname/user/profile),
   - `onboard status`,
   - `onboard telemetry` (JSON snapshot + recent history tail),
+- installer smoke auto-generates onboarding telemetry summary bundle (`json` + `md`) with aggregated lockout/import statistics.
 - installed shell validates onboarding reset and re-apply flow:
   - `onboard reset --yes`,
   - `onboard export-encrypted /home/onboard_backup.enc --pass vantis123`,

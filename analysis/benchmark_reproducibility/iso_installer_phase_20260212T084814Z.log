@@ -10,7 +10,7 @@ BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00005 " from PciRoot(0x0)/Pci(0x1
 vantis> 
 vantis> install /dev/vda --yes
 [VANTIS] writing prebuilt system image to /dev/vda
-0+12822 records in
-0+12822 records out
+0+12969 records in
+0+12969 records out
 [VANTIS] Installation complete. Reboot and boot from target disk.
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 334163 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 339110 (timeout)

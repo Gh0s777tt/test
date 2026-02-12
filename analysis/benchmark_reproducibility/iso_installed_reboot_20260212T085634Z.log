@@ -23,7 +23,7 @@ telemetry_path=/home/.vantis_onboarding_encrypted_import_telemetry.json
 history_path=/home/.vantis_onboarding_encrypted_import_history.log
 telemetry_json_begin
 {
-  "updated_unix": 1770884639,
+  "updated_unix": 1770886455,
   "failures": 0,
   "blocked_until_unix": 0,
   "lock_active": false,
@@ -33,17 +33,17 @@ telemetry_json_begin
 }
 telemetry_json_end
 history_tail_begin
-unix=1770884624 event=failed_attempt detail=integrity check failed failures=2 blocked_until_unix=0
-unix=1770884625 event=lockout_activated detail=max failed attempts reached failures=3 blocked_until_unix=1770884633
-unix=1770884626 event=blocked_attempt detail=cooldown_active remaining=7s failures=3 blocked_until_unix=1770884633
-unix=1770884639 event=cooldown_expired detail=guard reset failures=0 blocked_until_unix=0
-unix=1770884639 event=guard_cleared detail=successful import failures=0 blocked_until_unix=0
+unix=1770886440 event=failed_attempt detail=integrity check failed failures=2 blocked_until_unix=0
+unix=1770886441 event=lockout_activated detail=max failed attempts reached failures=3 blocked_until_unix=1770886449
+unix=1770886442 event=blocked_attempt detail=cooldown_active remaining=7s failures=3 blocked_until_unix=1770886449
+unix=1770886455 event=cooldown_expired detail=guard reset failures=0 blocked_until_unix=0
+unix=1770886455 event=guard_cleared detail=successful import failures=0 blocked_until_unix=0
 history_tail_end
 vantis> config show
-first_boot_unix_utc=1770884604
+first_boot_unix_utc=1770886420
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=wraith
 user=operator
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 334247 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 339196 (timeout)
