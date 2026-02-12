@@ -594,6 +594,9 @@ export VANTIS_PROFILE=core
 # Build verified components
 cargo check --manifest-path src/verified/Cargo.toml --locked
 
+# Install ISO/QEMU host dependencies on Ubuntu (one-time):
+./scripts/install_iso_build_deps_ubuntu.sh --with-qemu
+
 # Create bootable live ISO (kernel + initramfs + GRUB)
 ./scripts/build_iso.sh --output build/VantisOS-live.iso
 

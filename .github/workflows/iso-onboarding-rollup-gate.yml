@@ -26,24 +26,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install host dependencies
-        run: |
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            grub-common \
-            grub-pc-bin \
-            grub-efi-amd64-bin \
-            xorriso \
-            cpio \
-            gzip \
-            dosfstools \
-            e2fsprogs \
-            mtools \
-            parted \
-            busybox-static \
-            ripgrep \
-            qemu-system-x86 \
-            qemu-utils \
-            ovmf
+        run: ./scripts/install_iso_build_deps_ubuntu.sh --with-qemu
 
       - name: Build ISO and enforce onboarding rollup thresholds
         run: >

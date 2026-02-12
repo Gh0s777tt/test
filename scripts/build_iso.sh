@@ -133,6 +133,7 @@ require_cmd() {
   local cmd="$1"
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "Error: required command is missing: $cmd" >&2
+    echo "Hint: install host deps via ./scripts/install_iso_build_deps_ubuntu.sh --with-qemu" >&2
     exit 1
   fi
 }
