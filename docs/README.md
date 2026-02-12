@@ -132,6 +132,7 @@ See [../history/](../history/) for:
 - **Generating evidence pack**: `../scripts/generate_evidence_pack.sh`
 - **Building bootable live/installer ISO (optional QEMU live+installer smoke tests)**: `../scripts/build_iso.sh`
 - **Rolling up ISO onboarding telemetry summaries (JSON + Markdown trend report + threshold pass/fail evaluation)**: `../scripts/generate_iso_onboarding_telemetry_rollup.sh`
+- **Enforcing ISO onboarding telemetry threshold gate in CI (build + smoke + rollup fail-on-breach)**: `../.github/workflows/iso-onboarding-rollup-gate.yml`
 - **Running reproducibility benchmark profile**: `../scripts/benchmark_reproducibility.sh`
 - **Running CI-style benchmark gate locally**: `../scripts/run_benchmark_ci_gate.sh`
 - **Generating rolling monitor policy recommendations**: `../scripts/recommend_monitor_policy.sh`

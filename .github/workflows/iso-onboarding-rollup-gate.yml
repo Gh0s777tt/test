@@ -1,0 +1,136 @@
+name: ISO Onboarding Rollup Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: iso-onboarding-rollup-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  iso-onboarding-rollup-gate:
+    name: ISO onboarding rollup threshold gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            grub-common \
+            grub-pc-bin \
+            grub-efi-amd64-bin \
+            xorriso \
+            cpio \
+            gzip \
+            dosfstools \
+            e2fsprogs \
+            mtools \
+            parted \
+            busybox-static \
+            ripgrep \
+            qemu-system-x86 \
+            qemu-utils \
+            ovmf
+
+      - name: Build ISO and enforce onboarding rollup thresholds
+        run: >
+          ./scripts/build_iso.sh
+          --output build/VantisOS-live.iso
+          --run-qemu-smoke
+          --run-installer-smoke
+          --qemu-timeout 180
+          --installer-timeout 320
+          --onboarding-rollup-window 30
+          --onboarding-rollup-max-lockout-ratio 1.0
+          --onboarding-rollup-max-mean-failures 3.0
+          --onboarding-rollup-require-final-source import_encrypted
+          --enforce-onboarding-rollup-thresholds
+
+      - name: Publish gate summary
+        if: ${{ always() }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          analysis_dir = Path("analysis/benchmark_reproducibility")
+          latest_rollup = analysis_dir / "iso_onboarding_telemetry_rollup_latest.json"
+          iso_path = Path("build/VantisOS-live.iso")
+
+          lines = ["## ISO onboarding rollup threshold gate", ""]
+          if latest_rollup.exists():
+              payload = json.loads(latest_rollup.read_text(encoding="utf-8"))
+              evaluation = payload.get("threshold_evaluation", {})
+              policy = payload.get("threshold_policy", {})
+              aggregate = payload.get("aggregate", {})
+              lines.extend(
+                  [
+                      f"- threshold_status: `{evaluation.get('status', 'unknown')}`",
+                      f"- breaches_count: `{len(evaluation.get('breaches', []))}`",
+                      f"- window_effective: `{payload.get('window_size_effective', 0)}`",
+                      f"- lockout_run_ratio: `{aggregate.get('lockout_run_ratio', 0.0)}`",
+                      f"- max_failures_mean: `{aggregate.get('max_failures_mean', 0.0)}`",
+                      f"- require_final_source: `{policy.get('require_final_source')}`",
+                      "",
+                  ]
+              )
+              breaches = evaluation.get("breaches", [])
+              if breaches:
+                  lines.append("### Breaches")
+                  lines.append("")
+                  lines.extend([f"- {entry}" for entry in breaches])
+                  lines.append("")
+          else:
+              lines.extend(
+                  [
+                      "- latest rollup artifact not found",
+                      "",
+                  ]
+              )
+
+          if iso_path.exists():
+              sha = hashlib.sha256(iso_path.read_bytes()).hexdigest()
+              lines.extend(
+                  [
+                      "### ISO artifact",
+                      "",
+                      f"- path: `{iso_path}`",
+                      f"- size_bytes: `{iso_path.stat().st_size}`",
+                      f"- sha256: `{sha}`",
+                      "",
+                  ]
+              )
+
+          summary.write_text("\n".join(lines), encoding="utf-8")
+          PY
+
+      - name: Upload ISO onboarding artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso-onboarding-rollup-gate-artifacts
+          path: |
+            analysis/benchmark_reproducibility/*.log
+            analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_*.json
+            analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_*.md
+            analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_*.json
+            analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_*.md
+            build/VantisOS-live.iso
+          if-no-files-found: warn
+          retention-days: 14
