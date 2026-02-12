@@ -601,8 +601,14 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 ./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke
 
 # Optional: run full installer smoke test
-# (boots ISO, runs installer to /dev/vda in QEMU, then verifies installed-disk boot)
+# (boots ISO, runs installer to /dev/vda in QEMU, verifies onboarding flow,
+# then verifies installed-disk reboot persistence)
 ./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke --run-installer-smoke
+
+# After install, in Vantis shell:
+firstboot
+onboard --hostname vantis-lab --user operator --profile wraith
+config show
 ```
 
 ### Method 3: Mobile Update 📱
