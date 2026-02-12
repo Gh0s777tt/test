@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70907904` bytes
+- Size: `70934528` bytes
 - SHA-256:
-  `eb8f3622217780bf51d9112b0e72208cf8ced52e791e2902f2b8254525e832a3`
+  `d7ee33b2c59a5c284f5458658d3caed35efb9a11ae66b750947e1286fc609e3b`
 
 ## Build command
 
@@ -22,19 +22,19 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T233239Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260211T235231Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T233404Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260211T235406Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T233804Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260211T235826Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260211T233929Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T000001Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -50,16 +50,15 @@ Observed runtime behavior:
 - installed disk boots to the same `vantis>` shell successfully,
 - installed mode performs first-boot setup and reports completion telemetry,
 - installed mode mounts persistent storage from `LABEL=VANTIS_DATA` (`/dev/vda2` in smoke run),
-- installed shell validates first-boot status and generated config values via:
+- installed shell validates first-boot and onboarding flow via:
   - `firstboot`
   - `config show`,
-  - `config set hostname vantis-lab`,
-  - `config set user operator`,
-  - `config set profile wraith`,
+  - `onboard --hostname vantis-lab --user operator --profile wraith`,
 - second installed boot confirms persistence (`FIRST BOOT SETUP ALREADY COMPLETE`) and retained:
   - `hostname=vantis-lab`
   - `user=operator`
-  - `profile=wraith`.
+  - `profile=wraith`
+  - onboarding state `done`.
 
 ## Reproduce
 

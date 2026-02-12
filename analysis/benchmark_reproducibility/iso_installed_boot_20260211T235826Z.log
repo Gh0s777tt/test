@@ -3,16 +3,34 @@ BdsDxe: starting Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x3,0x0)
 EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
 [VANTIS] initramfs boot sequence started (mode=installed)
 [VANTIS] persistent storage active: /dev/vda2
-[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE
+[VANTIS] FIRST BOOT SETUP COMPLETE
+[VANTIS] ONBOARDING PENDING: run `onboard`
 [VANTIS] WRAITH MODE ACTIVE
 vantis> firstboot
 first_boot: done
+onboarding: pending
 welcome: Welcome to VantisOS installed mode.
 vantis> config show
-first_boot_unix_utc=1770853090
+first_boot_unix_utc=1770854312
+hostname=vantis-54312
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=core
+user=vantis
+vantis> onboard --hostname vantis-lab --user operator --profile wraith
+[VANTIS] ONBOARDING COMPLETE
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> config show
+first_boot_unix_utc=1770854312
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=wraith
 user=operator
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 306409 (timeout)
+vantis> firstboot
+first_boot: done
+onboarding: done
+welcome: Welcome to VantisOS installed mode.
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 309776 (timeout)
