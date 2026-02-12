@@ -9,6 +9,7 @@ const PROFILE_PATH: &str = "/home/.vantis_system_profile.conf";
 const WELCOME_PATH: &str = "/home/.vantis_welcome.txt";
 const FIRSTBOOT_MARKER_PATH: &str = "/home/.vantis_first_boot_done";
 const ONBOARDING_DONE_PATH: &str = "/home/.vantis_onboarding_done";
+const ONBOARDING_PENDING_PATH: &str = "/home/.vantis_onboarding_pending";
 
 fn unix_now() -> u64 {
     SystemTime::now()
@@ -169,11 +170,36 @@ fn apply_profile_update(map: &mut BTreeMap<String, String>, key: &str, value: &s
     }
 }
 
+fn read_marker_field(path: &str, key: &str) -> Option<String> {
+    let content = fs::read_to_string(path).ok()?;
+    for line in content.lines() {
+        if let Some((k, v)) = line.split_once('=') {
+            if k.trim() == key {
+                return Some(v.trim().to_string());
+            }
+        }
+    }
+    None
+}
+
+fn mark_onboarding_pending(source: &str) {
+    let stamp = format!("updated_unix_utc={}\nsource={source}\n", unix_now());
+    let _ = fs::remove_file(ONBOARDING_DONE_PATH);
+    let _ = fs::write(ONBOARDING_PENDING_PATH, &stamp);
+    if Path::new("/persist").exists() {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::remove_file("/persist/vantis/onboarding_done");
+        let _ = fs::write("/persist/vantis/onboarding_pending", stamp);
+    }
+}
+
 fn mark_onboarding_done(source: &str) {
     let stamp = format!("completed_unix_utc={}\nsource={source}\n", unix_now());
+    let _ = fs::remove_file(ONBOARDING_PENDING_PATH);
     let _ = fs::write(ONBOARDING_DONE_PATH, &stamp);
     if Path::new("/persist").exists() {
         let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::remove_file("/persist/vantis/onboarding_pending");
         let _ = fs::write("/persist/vantis/onboarding_done", stamp);
     }
 }
@@ -196,6 +222,38 @@ fn prompt_with_default(prompt: &str, default: &str) -> Result<String, String> {
 }
 
 fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
+    if args.first() == Some(&"status") {
+        let mut map = read_profile_config();
+        ensure_profile_defaults(&mut map);
+        if Path::new(ONBOARDING_DONE_PATH).exists() {
+            println!("onboarding_state=done");
+            let source = read_marker_field(ONBOARDING_DONE_PATH, "source")
+                .unwrap_or_else(|| "unknown".to_string());
+            println!("onboarding_source={source}");
+        } else {
+            println!("onboarding_state=pending");
+            let source = read_marker_field(ONBOARDING_PENDING_PATH, "source")
+                .unwrap_or_else(|| "unknown".to_string());
+            println!("onboarding_source={source}");
+        }
+        let profile = map.get("profile").cloned().unwrap_or_default();
+        let user = map.get("user").cloned().unwrap_or_default();
+        let hostname = map.get("hostname").cloned().unwrap_or_default();
+        println!("profile={profile}");
+        println!("user={user}");
+        println!("hostname={hostname}");
+        return Ok(());
+    }
+
+    if args.first() == Some(&"reset") {
+        if args.len() != 2 || args[1] != "--yes" {
+            return Err("usage: onboard reset --yes".to_string());
+        }
+        mark_onboarding_pending("manual_reset");
+        println!("[VANTIS] ONBOARDING RESET");
+        return Ok(());
+    }
+
     let mut map = read_profile_config();
     ensure_profile_defaults(&mut map);
 
@@ -230,7 +288,7 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
             match args[idx] {
                 "--hostname" => {
                     if idx + 1 >= args.len() {
-                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
                     }
                     apply_profile_update(&mut map, "hostname", args[idx + 1])?;
                     changed = true;
@@ -238,7 +296,7 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
                 }
                 "--user" => {
                     if idx + 1 >= args.len() {
-                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
                     }
                     apply_profile_update(&mut map, "user", args[idx + 1])?;
                     changed = true;
@@ -246,14 +304,14 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
                 }
                 "--profile" => {
                     if idx + 1 >= args.len() {
-                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                        return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
                     }
                     apply_profile_update(&mut map, "profile", args[idx + 1])?;
                     changed = true;
                     idx += 2;
                 }
                 "--help" | "-h" => {
-                    return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+                    return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
                 }
                 other => {
                     return Err(format!("unknown onboarding option: {other}"));
@@ -261,7 +319,7 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
             }
         }
         if !changed {
-            return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>]".to_string());
+            return Err("usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes".to_string());
         }
     }
 
@@ -306,6 +364,7 @@ pub fn start() {
                 println!("  firstboot                  - show first-boot setup status");
                 println!("  onboard [flags]            - run first-boot onboarding wizard");
                 println!("      flags: --hostname --user --profile");
+                println!("      extras: onboard status | onboard reset --yes");
                 println!("  config show                - print current installed profile config");
                 println!("  config set <k> <v>         - set profile/user/hostname");
                 println!("  reboot                     - reboot machine");

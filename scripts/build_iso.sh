@@ -492,7 +492,15 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "config show"
       sleep 1
-      echo "onboard --hostname vantis-lab --user operator --profile wraith"
+      echo "onboard"
+      sleep 1
+      echo "vantis-lab"
+      sleep 1
+      echo "operator"
+      sleep 1
+      echo "wraith"
+      sleep 1
+      echo "onboard status"
       sleep 1
       echo "config show"
       sleep 1
@@ -514,7 +522,15 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "config show"
       sleep 1
-      echo "onboard --hostname vantis-lab --user operator --profile wraith"
+      echo "onboard"
+      sleep 1
+      echo "vantis-lab"
+      sleep 1
+      echo "operator"
+      sleep 1
+      echo "wraith"
+      sleep 1
+      echo "onboard status"
       sleep 1
       echo "config show"
       sleep 1
@@ -538,7 +554,10 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q '\[VANTIS\] FIRST BOOT SETUP COMPLETE|\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$BOOT_LOG" \
     && rg -q 'first_boot: done' "$BOOT_LOG" \
     && rg -q 'onboarding: pending' "$BOOT_LOG" \
+    && rg -q '\[VANTIS\] onboarding wizard started' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] ONBOARDING COMPLETE' "$BOOT_LOG" \
+    && rg -q 'onboarding_state=done' "$BOOT_LOG" \
+    && rg -q 'onboarding_source=interactive' "$BOOT_LOG" \
     && rg -q 'onboarding: done' "$BOOT_LOG" \
     && rg -q 'profile=core' "$BOOT_LOG" \
     && rg -q 'hostname=vantis-' "$BOOT_LOG" \
@@ -564,6 +583,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 14
       echo "firstboot"
       sleep 1
+      echo "onboard status"
+      sleep 1
       echo "config show"
       sleep 1
     } | timeout "${QEMU_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
@@ -579,6 +600,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     {
       sleep 14
       echo "firstboot"
+      sleep 1
+      echo "onboard status"
       sleep 1
       echo "config show"
       sleep 1
@@ -597,6 +620,8 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
   if rg -q '\[VANTIS\] persistent storage active:' "$REBOOT_LOG" \
     && rg -q '\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$REBOOT_LOG" \
     && rg -q 'first_boot: done' "$REBOOT_LOG" \
+    && rg -q 'onboarding_state=done' "$REBOOT_LOG" \
+    && rg -q 'onboarding_source=interactive' "$REBOOT_LOG" \
     && rg -q 'onboarding: done' "$REBOOT_LOG" \
     && rg -q 'hostname=vantis-lab' "$REBOOT_LOG" \
     && rg -q 'user=operator' "$REBOOT_LOG" \
