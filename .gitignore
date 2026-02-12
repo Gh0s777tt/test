@@ -20,6 +20,7 @@ src/verified/target/
 *.elf
 *.sha256
 iso/
+/build/
 
 # 🛡️ SECURITY & SECRETS (NEVER COMMIT THESE)
 *.pem
