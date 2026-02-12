@@ -613,6 +613,7 @@ onboard status
 onboard export-encrypted /home/onboard_backup.enc --pass vantis123
 # optional reset + restore from backup:
 # onboard reset --yes
+# onboard import-encrypted /home/onboard_backup.enc --pass badpass   # expected: lockout after repeated failures
 # onboard import-encrypted /home/onboard_backup.enc --pass vantis123
 config show
 ```

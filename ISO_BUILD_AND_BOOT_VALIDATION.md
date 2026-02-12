@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70969344` bytes
+- Size: `70971392` bytes
 - SHA-256:
-  `c96e9b73e93dd14170a36d683197c4bded50fc39689ca3083934d890bb236df0`
+  `c8ade5a9b4b99ced23cfa06a72bf43c9a88b99d6616e23e138d9fa1bb9afc7bb`
 
 ## Build command
 
@@ -22,19 +22,19 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T013108Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T021112Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T013328Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T021402Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T013808Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T021922Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T014028Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T022212Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -58,7 +58,10 @@ Observed runtime behavior:
 - installed shell validates onboarding reset and re-apply flow:
   - `onboard reset --yes`,
   - `onboard export-encrypted /home/onboard_backup.enc --pass vantis123`,
-  - failed import attempt with wrong password is detected (`integrity check failed`),
+  - repeated wrong-password imports trigger lockout/cooldown telemetry:
+    - `failed to decrypt onboarding backup: integrity check failed`
+    - `encrypted onboarding import temporarily locked; retry in <N>s`
+    - `encrypted_import_lock=active` / `encrypted_import_lock=inactive`,
   - `onboard import-encrypted /home/onboard_backup.enc --pass vantis123`,
 - second installed boot confirms persistence (`FIRST BOOT SETUP ALREADY COMPLETE`) and retained:
   - `hostname=vantis-lab`

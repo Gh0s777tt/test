@@ -11,15 +11,15 @@ first_boot: done
 onboarding: pending
 welcome: Welcome to VantisOS installed mode.
 vantis> config show
-first_boot_unix_utc=1770860294
-hostname=vantis-60294
+first_boot_unix_utc=1770862768
+hostname=vantis-62768
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=core
 user=vantis
 vantis> onboard
 [VANTIS] onboarding wizard started
-hostname [vantis-60294]: vantis-lab
+hostname [vantis-62768]: vantis-lab
 user [vantis]: operator
 profile (core|gamer|wraith|server) [core]: wraith
 [VANTIS] ONBOARDING COMPLETE
@@ -32,8 +32,9 @@ onboarding_source=interactive
 profile=wraith
 user=operator
 hostname=vantis-lab
+encrypted_import_lock=inactive
 vantis> config show
-first_boot_unix_utc=1770860294
+first_boot_unix_utc=1770862768
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
@@ -49,6 +50,20 @@ onboarding: pending
 welcome: Welcome to VantisOS installed mode.
 vantis> onboard import-encrypted /home/onboard_backup.enc --pass badpass
 failed to decrypt onboarding backup: integrity check failed
+vantis> onboard import-encrypted /home/onboard_backup.enc --pass badpass
+failed to decrypt onboarding backup: integrity check failed
+vantis> onboard import-encrypted /home/onboard_backup.enc --pass badpass
+failed to decrypt onboarding backup: integrity check failed
+vantis> onboard import-encrypted /home/onboard_backup.enc --pass badpass
+encrypted onboarding import temporarily locked; retry in 7s
+vantis> onboard status
+onboarding_state=pending
+onboarding_source=manual_reset
+profile=wraith
+user=operator
+hostname=vantis-lab
+encrypted_import_lock=active
+encrypted_import_lock_seconds_remaining=6
 vantis> firstboot
 first_boot: done
 onboarding: pending
@@ -64,8 +79,9 @@ onboarding_source=import_encrypted
 profile=wraith
 user=operator
 hostname=vantis-lab
+encrypted_import_lock=inactive
 vantis> config show
-first_boot_unix_utc=1770860294
+first_boot_unix_utc=1770862768
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
@@ -75,4 +91,4 @@ vantis> firstboot
 first_boot: done
 onboarding: done
 welcome: Welcome to VantisOS installed mode.
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 322084 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 326262 (timeout)
