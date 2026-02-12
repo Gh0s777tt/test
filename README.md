@@ -610,9 +610,11 @@ firstboot
 onboard
 # then answer prompts for hostname/user/profile
 onboard status
-config show
-# optional re-run:
+onboard export /home/onboard_backup.conf
+# optional reset + restore from backup:
 # onboard reset --yes
+# onboard import /home/onboard_backup.conf
+config show
 ```
 
 ### Method 3: Mobile Update 📱

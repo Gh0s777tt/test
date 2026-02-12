@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70942720` bytes
+- Size: `70946816` bytes
 - SHA-256:
-  `766dcb9a64e6203aa22c98abafe79cc9c0de506c51a3ce3ed9ce2a898357883d`
+  `323583af89a3ae15964de767c432c3710814caca9b9e870cb050bee09531c8a6`
 
 ## Build command
 
@@ -22,19 +22,19 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T004403Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T010918Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T004613Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T011128Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T005053Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T011608Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T005303Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T011818Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -57,12 +57,13 @@ Observed runtime behavior:
   - `onboard status`,
 - installed shell validates onboarding reset and re-apply flow:
   - `onboard reset --yes`,
-  - `onboard --hostname vantis-lab --user operator --profile wraith`,
+  - `onboard export /home/onboard_backup.conf`,
+  - `onboard import /home/onboard_backup.conf`,
 - second installed boot confirms persistence (`FIRST BOOT SETUP ALREADY COMPLETE`) and retained:
   - `hostname=vantis-lab`
   - `user=operator`
   - `profile=wraith`
-  - onboarding state `done` with source `non_interactive` (after reset/re-apply).
+  - onboarding state `done` with source `import` (after reset/re-apply from backup).
 
 ## Reproduce
 

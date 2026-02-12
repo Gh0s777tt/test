@@ -11,15 +11,15 @@ first_boot: done
 onboarding: pending
 welcome: Welcome to VantisOS installed mode.
 vantis> config show
-first_boot_unix_utc=1770857459
-hostname=vantis-57459
+first_boot_unix_utc=1770858974
+hostname=vantis-58974
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=core
 user=vantis
 vantis> onboard
 [VANTIS] onboarding wizard started
-hostname [vantis-57459]: vantis-lab
+hostname [vantis-58974]: vantis-lab
 user [vantis]: operator
 profile (core|gamer|wraith|server) [core]: wraith
 [VANTIS] ONBOARDING COMPLETE
@@ -33,7 +33,33 @@ profile=wraith
 user=operator
 hostname=vantis-lab
 vantis> config show
-first_boot_unix_utc=1770857459
+first_boot_unix_utc=1770858974
+hostname=vantis-lab
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=wraith
+user=operator
+vantis> onboard export /home/onboard_backup.conf
+[VANTIS] ONBOARDING EXPORTED: /home/onboard_backup.conf
+vantis> onboard reset --yes
+[VANTIS] ONBOARDING RESET
+vantis> firstboot
+first_boot: done
+onboarding: pending
+welcome: Welcome to VantisOS installed mode.
+vantis> onboard import /home/onboard_backup.conf
+[VANTIS] ONBOARDING IMPORTED: /home/onboard_backup.conf
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> onboard status
+onboarding_state=done
+onboarding_source=import
+profile=wraith
+user=operator
+hostname=vantis-lab
+vantis> config show
+first_boot_unix_utc=1770858974
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
@@ -43,25 +69,4 @@ vantis> firstboot
 first_boot: done
 onboarding: done
 welcome: Welcome to VantisOS installed mode.
-vantis> onboard reset --yes
-[VANTIS] ONBOARDING RESET
-vantis> firstboot
-first_boot: done
-onboarding: pending
-welcome: Welcome to VantisOS installed mode.
-vantis> onboard --hostname vantis-lab --user operator --profile wraith
-[VANTIS] ONBOARDING COMPLETE
-profile=wraith
-user=operator
-hostname=vantis-lab
-vantis> onboard status
-onboarding_state=done
-onboarding_source=non_interactive
-profile=wraith
-user=operator
-hostname=vantis-lab
-vantis> firstboot
-first_boot: done
-onboarding: done
-welcome: Welcome to VantisOS installed mode.
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 315469 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 318671 (timeout)
