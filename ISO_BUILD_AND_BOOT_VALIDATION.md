@@ -119,3 +119,23 @@ Build + live + installer smoke tests:
 ```bash
 ./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke --run-installer-smoke
 ```
+
+Build + smoke + enforced onboarding rollup threshold gate (CI-equivalent local run):
+
+```bash
+./scripts/run_iso_onboarding_ci_gate.sh
+```
+
+Tuned threshold gate example:
+
+```bash
+./scripts/run_iso_onboarding_ci_gate.sh \
+  --window 30 \
+  --max-lockout-ratio 1.0 \
+  --max-mean-failures 3.0 \
+  --require-final-source import_encrypted
+```
+
+GitHub Actions workflow:
+
+- `.github/workflows/iso-onboarding-rollup-gate.yml`
