@@ -611,6 +611,16 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 # analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_<timestamp>.md
 # analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_latest.json
 # analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_latest.md
+# optional: enforce rollup thresholds as a CI gate (non-zero exit on breach)
+./scripts/build_iso.sh \
+  --output build/VantisOS-live.iso \
+  --run-qemu-smoke \
+  --run-installer-smoke \
+  --onboarding-rollup-window 30 \
+  --onboarding-rollup-max-lockout-ratio 1.0 \
+  --onboarding-rollup-max-mean-failures 3.0 \
+  --onboarding-rollup-require-final-source import_encrypted \
+  --enforce-onboarding-rollup-thresholds
 
 # After install, in Vantis shell:
 firstboot

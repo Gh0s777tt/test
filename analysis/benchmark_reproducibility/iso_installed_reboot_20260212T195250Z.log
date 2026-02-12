@@ -1,0 +1,49 @@
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x3,0x0)
+BdsDxe: starting Boot0001 "UEFI Misc Device" from PciRoot(0x0)/Pci(0x3,0x0)
+EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
+[VANTIS] initramfs boot sequence started (mode=installed)
+[VANTIS] persistent storage active: /dev/vda2
+[VANTIS] FIRST BOOT SETUP ALREADY COMPLETE
+[VANTIS] WRAITH MODE ACTIVE
+vantis> firstboot
+first_boot: done
+onboarding: done
+welcome: Welcome to VantisOS installed mode.
+vantis> onboard status
+onboarding_state=done
+onboarding_source=import_encrypted
+profile=wraith
+user=operator
+hostname=vantis-lab
+encrypted_import_failures=0
+encrypted_import_blocked_until_unix=0
+encrypted_import_lock=inactive
+vantis> onboard telemetry
+telemetry_path=/home/.vantis_onboarding_encrypted_import_telemetry.json
+history_path=/home/.vantis_onboarding_encrypted_import_history.log
+telemetry_json_begin
+{
+  "updated_unix": 1770925831,
+  "failures": 0,
+  "blocked_until_unix": 0,
+  "lock_active": false,
+  "lock_seconds_remaining": 0,
+  "last_event": "guard_cleared",
+  "detail": "guard reset after successful import"
+}
+telemetry_json_end
+history_tail_begin
+unix=1770925816 event=failed_attempt detail=integrity check failed failures=2 blocked_until_unix=0
+unix=1770925817 event=lockout_activated detail=max failed attempts reached failures=3 blocked_until_unix=1770925825
+unix=1770925818 event=blocked_attempt detail=cooldown_active remaining=7s failures=3 blocked_until_unix=1770925825
+unix=1770925831 event=cooldown_expired detail=guard reset failures=0 blocked_until_unix=0
+unix=1770925831 event=guard_cleared detail=successful import failures=0 blocked_until_unix=0
+history_tail_end
+vantis> config show
+first_boot_unix_utc=1770925796
+hostname=vantis-lab
+mode=installed
+notes=generated_by_vantis_first_boot
+profile=wraith
+user=operator
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 348487 (timeout)
