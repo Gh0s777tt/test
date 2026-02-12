@@ -12,7 +12,25 @@ const ONBOARDING_DONE_PATH: &str = "/home/.vantis_onboarding_done";
 const ONBOARDING_PENDING_PATH: &str = "/home/.vantis_onboarding_pending";
 const ONBOARDING_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.conf";
 const ONBOARDING_ENCRYPTED_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.enc";
+const ONBOARDING_ENCRYPTED_IMPORT_GUARD_PATH: &str = "/home/.vantis_onboarding_encrypted_import_guard";
+const ENCRYPTED_IMPORT_MAX_FAILED_ATTEMPTS: u32 = 3;
+const ENCRYPTED_IMPORT_COOLDOWN_SECONDS: u64 = 8;
 const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard export [path] | onboard import [path] | onboard export-encrypted [path] --pass <password> | onboard import-encrypted [path] --pass <password>";
+
+#[derive(Clone, Copy)]
+struct EncryptedImportGuardState {
+    failures: u32,
+    blocked_until_unix: u64,
+}
+
+impl EncryptedImportGuardState {
+    fn new() -> Self {
+        Self {
+            failures: 0,
+            blocked_until_unix: 0,
+        }
+    }
+}
 
 fn unix_now() -> u64 {
     SystemTime::now()
@@ -270,6 +288,75 @@ fn mark_onboarding_done(source: &str) {
     }
 }
 
+fn read_encrypted_import_guard_state() -> EncryptedImportGuardState {
+    let content = match fs::read_to_string(ONBOARDING_ENCRYPTED_IMPORT_GUARD_PATH) {
+        Ok(text) => text,
+        Err(_) => return EncryptedImportGuardState::new(),
+    };
+    let fields = parse_profile_config_text(&content);
+    let failures = fields
+        .get("failures")
+        .and_then(|value| value.parse::<u32>().ok())
+        .unwrap_or(0);
+    let blocked_until_unix = fields
+        .get("blocked_until_unix")
+        .and_then(|value| value.parse::<u64>().ok())
+        .unwrap_or(0);
+    EncryptedImportGuardState {
+        failures,
+        blocked_until_unix,
+    }
+}
+
+fn write_encrypted_import_guard_state(state: EncryptedImportGuardState) {
+    let payload = format!(
+        "failures={}\nblocked_until_unix={}\n",
+        state.failures, state.blocked_until_unix
+    );
+    let _ = fs::write(ONBOARDING_ENCRYPTED_IMPORT_GUARD_PATH, &payload);
+    if Path::new("/persist").exists() {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::write("/persist/vantis/onboarding_encrypted_import_guard", payload);
+    }
+}
+
+fn clear_encrypted_import_guard_state() {
+    write_encrypted_import_guard_state(EncryptedImportGuardState::new());
+}
+
+fn check_encrypted_import_guard() -> Result<(), String> {
+    let now = unix_now();
+    let mut state = read_encrypted_import_guard_state();
+    if state.blocked_until_unix > 0 && now >= state.blocked_until_unix {
+        state = EncryptedImportGuardState::new();
+        write_encrypted_import_guard_state(state);
+    }
+    if state.blocked_until_unix > now {
+        let remaining = state.blocked_until_unix.saturating_sub(now);
+        return Err(format!(
+            "encrypted onboarding import temporarily locked; retry in {remaining}s"
+        ));
+    }
+    Ok(())
+}
+
+fn record_encrypted_import_failure() {
+    let now = unix_now();
+    let mut state = read_encrypted_import_guard_state();
+    if state.blocked_until_unix > 0 && now >= state.blocked_until_unix {
+        state = EncryptedImportGuardState::new();
+    }
+    if state.blocked_until_unix > now {
+        write_encrypted_import_guard_state(state);
+        return;
+    }
+    state.failures = state.failures.saturating_add(1);
+    if state.failures >= ENCRYPTED_IMPORT_MAX_FAILED_ATTEMPTS {
+        state.blocked_until_unix = now.saturating_add(ENCRYPTED_IMPORT_COOLDOWN_SECONDS);
+    }
+    write_encrypted_import_guard_state(state);
+}
+
 fn resolve_backup_path(path_arg: Option<&str>) -> Result<String, String> {
     let path = path_arg.unwrap_or(ONBOARDING_BACKUP_DEFAULT_PATH).trim();
     if path.is_empty() {
@@ -408,6 +495,7 @@ fn onboard_import(path_arg: Option<&str>) -> Result<(), String> {
 }
 
 fn onboard_import_encrypted(args: &[&str]) -> Result<(), String> {
+    check_encrypted_import_guard()?;
     let (path_arg, pass) = parse_encrypted_backup_args(args)?;
     let path = resolve_encrypted_backup_path(path_arg.as_deref())?;
     let content =
@@ -445,6 +533,7 @@ fn onboard_import_encrypted(args: &[&str]) -> Result<(), String> {
     let plaintext_bytes = xor_crypt_bytes(&ciphertext, &pass, salt);
     let actual_checksum = fnv1a64(&plaintext_bytes);
     if actual_checksum != expected_checksum {
+        record_encrypted_import_failure();
         return Err("failed to decrypt onboarding backup: integrity check failed".to_string());
     }
 
@@ -476,6 +565,7 @@ fn onboard_import_encrypted(args: &[&str]) -> Result<(), String> {
     write_profile_config(map.clone())?;
     write_welcome_message(&map);
     mark_onboarding_done("import_encrypted");
+    clear_encrypted_import_guard_state();
     println!("[VANTIS] ONBOARDING IMPORTED ENCRYPTED: {path}");
     println!("profile={profile}");
     println!("user={user}");
@@ -504,6 +594,8 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
     if args.first() == Some(&"status") {
         let mut map = read_profile_config();
         ensure_profile_defaults(&mut map);
+        let now = unix_now();
+        let guard_state = read_encrypted_import_guard_state();
         if Path::new(ONBOARDING_DONE_PATH).exists() {
             println!("onboarding_state=done");
             let source = read_marker_field(ONBOARDING_DONE_PATH, "source")
@@ -521,6 +613,15 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
         println!("profile={profile}");
         println!("user={user}");
         println!("hostname={hostname}");
+        if guard_state.blocked_until_unix > now {
+            println!("encrypted_import_lock=active");
+            println!(
+                "encrypted_import_lock_seconds_remaining={}",
+                guard_state.blocked_until_unix.saturating_sub(now)
+            );
+        } else {
+            println!("encrypted_import_lock=inactive");
+        }
         return Ok(());
     }
 
@@ -669,6 +770,7 @@ pub fn start() {
                 println!("              onboard export [path] | onboard import [path]");
                 println!("              onboard export-encrypted [path] --pass <password>");
                 println!("              onboard import-encrypted [path] --pass <password>");
+                println!("              encrypted import is rate-limited after repeated failures");
                 println!("  config show                - print current installed profile config");
                 println!("  config set <k> <v>         - set profile/user/hostname");
                 println!("  reboot                     - reboot machine");

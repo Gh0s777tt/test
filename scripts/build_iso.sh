@@ -512,8 +512,16 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
       sleep 1
-      echo "firstboot"
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
       sleep 1
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
+      sleep 1
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
+      sleep 1
+      echo "onboard status"
+      sleep 1
+      echo "firstboot"
+      sleep 10
       echo "onboard import-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard status"
@@ -558,8 +566,16 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
       sleep 1
-      echo "firstboot"
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
       sleep 1
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
+      sleep 1
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
+      sleep 1
+      echo "onboard status"
+      sleep 1
+      echo "firstboot"
+      sleep 10
       echo "onboard import-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard status"
@@ -593,6 +609,9 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q '\[VANTIS\] ONBOARDING EXPORTED ENCRYPTED: /home/onboard_backup.enc' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] ONBOARDING RESET' "$BOOT_LOG" \
     && rg -q 'failed to decrypt onboarding backup: integrity check failed' "$BOOT_LOG" \
+    && rg -q 'encrypted onboarding import temporarily locked; retry in ' "$BOOT_LOG" \
+    && rg -q 'encrypted_import_lock=active' "$BOOT_LOG" \
+    && rg -q 'encrypted_import_lock=inactive' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] ONBOARDING IMPORTED ENCRYPTED: /home/onboard_backup.enc' "$BOOT_LOG" \
     && rg -q 'onboarding_source=import_encrypted' "$BOOT_LOG" \
     && rg -q 'onboarding: done' "$BOOT_LOG" \
