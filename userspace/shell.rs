@@ -13,6 +13,10 @@ const ONBOARDING_PENDING_PATH: &str = "/home/.vantis_onboarding_pending";
 const ONBOARDING_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.conf";
 const ONBOARDING_ENCRYPTED_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.enc";
 const ONBOARDING_ENCRYPTED_IMPORT_GUARD_PATH: &str = "/home/.vantis_onboarding_encrypted_import_guard";
+const ONBOARDING_ENCRYPTED_IMPORT_HISTORY_PATH: &str =
+    "/home/.vantis_onboarding_encrypted_import_history.log";
+const ONBOARDING_ENCRYPTED_IMPORT_TELEMETRY_PATH: &str =
+    "/home/.vantis_onboarding_encrypted_import_telemetry.json";
 const ENCRYPTED_IMPORT_MAX_FAILED_ATTEMPTS: u32 = 3;
 const ENCRYPTED_IMPORT_COOLDOWN_SECONDS: u64 = 8;
 const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard export [path] | onboard import [path] | onboard export-encrypted [path] --pass <password> | onboard import-encrypted [path] --pass <password>";
@@ -308,20 +312,74 @@ fn read_encrypted_import_guard_state() -> EncryptedImportGuardState {
     }
 }
 
+fn mirror_text_to_persist(file_name: &str, content: &str) {
+    if Path::new("/persist").exists() {
+        let _ = fs::create_dir_all("/persist/vantis");
+        let _ = fs::write(format!("/persist/vantis/{file_name}"), content);
+    }
+}
+
+fn escape_json(value: &str) -> String {
+    value
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+}
+
+fn append_encrypted_import_history(event: &str, detail: &str, state: EncryptedImportGuardState) {
+    let line = format!(
+        "unix={} event={} detail={} failures={} blocked_until_unix={}\n",
+        unix_now(),
+        event,
+        detail,
+        state.failures,
+        state.blocked_until_unix
+    );
+    if let Ok(mut previous) = fs::read_to_string(ONBOARDING_ENCRYPTED_IMPORT_HISTORY_PATH) {
+        previous.push_str(&line);
+        let _ = fs::write(ONBOARDING_ENCRYPTED_IMPORT_HISTORY_PATH, &previous);
+        mirror_text_to_persist("onboarding_encrypted_import_history.log", &previous);
+    } else {
+        let _ = fs::write(ONBOARDING_ENCRYPTED_IMPORT_HISTORY_PATH, &line);
+        mirror_text_to_persist("onboarding_encrypted_import_history.log", &line);
+    }
+}
+
+fn write_encrypted_import_telemetry(
+    state: EncryptedImportGuardState,
+    last_event: &str,
+    detail: &str,
+) {
+    let now = unix_now();
+    let lock_active = state.blocked_until_unix > now;
+    let seconds_remaining = state.blocked_until_unix.saturating_sub(now);
+    let payload = format!(
+        "{{\n  \"updated_unix\": {now},\n  \"failures\": {},\n  \"blocked_until_unix\": {},\n  \"lock_active\": {},\n  \"lock_seconds_remaining\": {},\n  \"last_event\": \"{}\",\n  \"detail\": \"{}\"\n}}\n",
+        state.failures,
+        state.blocked_until_unix,
+        if lock_active { "true" } else { "false" },
+        seconds_remaining,
+        escape_json(last_event),
+        escape_json(detail)
+    );
+    let _ = fs::write(ONBOARDING_ENCRYPTED_IMPORT_TELEMETRY_PATH, &payload);
+    mirror_text_to_persist("onboarding_encrypted_import_telemetry.json", &payload);
+}
+
 fn write_encrypted_import_guard_state(state: EncryptedImportGuardState) {
     let payload = format!(
         "failures={}\nblocked_until_unix={}\n",
         state.failures, state.blocked_until_unix
     );
     let _ = fs::write(ONBOARDING_ENCRYPTED_IMPORT_GUARD_PATH, &payload);
-    if Path::new("/persist").exists() {
-        let _ = fs::create_dir_all("/persist/vantis");
-        let _ = fs::write("/persist/vantis/onboarding_encrypted_import_guard", payload);
-    }
+    mirror_text_to_persist("onboarding_encrypted_import_guard", &payload);
 }
 
 fn clear_encrypted_import_guard_state() {
-    write_encrypted_import_guard_state(EncryptedImportGuardState::new());
+    let state = EncryptedImportGuardState::new();
+    write_encrypted_import_guard_state(state);
+    write_encrypted_import_telemetry(state, "guard_cleared", "guard reset after successful import");
+    append_encrypted_import_history("guard_cleared", "successful import", state);
 }
 
 fn check_encrypted_import_guard() -> Result<(), String> {
@@ -330,9 +388,21 @@ fn check_encrypted_import_guard() -> Result<(), String> {
     if state.blocked_until_unix > 0 && now >= state.blocked_until_unix {
         state = EncryptedImportGuardState::new();
         write_encrypted_import_guard_state(state);
+        write_encrypted_import_telemetry(state, "cooldown_expired", "guard reset after cooldown");
+        append_encrypted_import_history("cooldown_expired", "guard reset", state);
     }
     if state.blocked_until_unix > now {
         let remaining = state.blocked_until_unix.saturating_sub(now);
+        write_encrypted_import_telemetry(
+            state,
+            "blocked_attempt",
+            &format!("attempt rejected during cooldown ({remaining}s remaining)"),
+        );
+        append_encrypted_import_history(
+            "blocked_attempt",
+            &format!("cooldown_active remaining={remaining}s"),
+            state,
+        );
         return Err(format!(
             "encrypted onboarding import temporarily locked; retry in {remaining}s"
         ));
@@ -355,6 +425,29 @@ fn record_encrypted_import_failure() {
         state.blocked_until_unix = now.saturating_add(ENCRYPTED_IMPORT_COOLDOWN_SECONDS);
     }
     write_encrypted_import_guard_state(state);
+    if state.blocked_until_unix > now {
+        write_encrypted_import_telemetry(
+            state,
+            "lockout_activated",
+            "too many failed encrypted import attempts",
+        );
+        append_encrypted_import_history(
+            "lockout_activated",
+            "max failed attempts reached",
+            state,
+        );
+    } else {
+        write_encrypted_import_telemetry(
+            state,
+            "failed_attempt",
+            "encrypted import failed integrity check",
+        );
+        append_encrypted_import_history(
+            "failed_attempt",
+            "integrity check failed",
+            state,
+        );
+    }
 }
 
 fn resolve_backup_path(path_arg: Option<&str>) -> Result<String, String> {
@@ -613,6 +706,11 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
         println!("profile={profile}");
         println!("user={user}");
         println!("hostname={hostname}");
+        println!("encrypted_import_failures={}", guard_state.failures);
+        println!(
+            "encrypted_import_blocked_until_unix={}",
+            guard_state.blocked_until_unix
+        );
         if guard_state.blocked_until_unix > now {
             println!("encrypted_import_lock=active");
             println!(
