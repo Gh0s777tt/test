@@ -22,9 +22,6 @@ use builtin_macros::*;
 #[cfg(feature = "verus")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
-verus! {
-
 /// Partition identifier
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Partition {
@@ -76,6 +73,65 @@ pub struct PartitionMetadata {
     /// Checksum of partition
     pub checksum: u64,
 }
+
+/// A/B update system
+pub struct ABSystem {
+    /// Currently active partition
+    active: Partition,
+    /// Partition A metadata
+    partition_a: PartitionMetadata,
+    /// Partition B metadata
+    partition_b: PartitionMetadata,
+    /// Maximum failed boots before rollback
+    max_failed_boots: u32,
+}
+
+// Non-verus implementations for tests
+#[cfg(not(feature = "verus"))]
+impl PartitionMetadata {
+    pub const fn new() -> Self {
+        PartitionMetadata {
+            state: PartitionState::Inactive,
+            boot_count: 0,
+            failed_boots: 0,
+            last_update: 0,
+            version: 0,
+            checksum: 0,
+        }
+    }
+    
+    pub fn is_bootable(&self) -> bool {
+        self.state == PartitionState::Bootable
+    }
+    
+    pub fn mark_bootable(&mut self, checksum: u64, version: u32, timestamp: u64) {
+        self.state = PartitionState::Bootable;
+        self.checksum = checksum;
+        self.version = version;
+        self.last_update = timestamp;
+        self.failed_boots = 0;
+    }
+    
+    pub fn mark_updating(&mut self) {
+        self.state = PartitionState::Updating;
+    }
+    
+    pub fn mark_failed(&mut self) {
+        self.state = PartitionState::Failed;
+        self.failed_boots += 1;
+    }
+    
+    pub fn mark_inactive(&mut self) {
+        self.state = PartitionState::Inactive;
+    }
+    
+    pub fn inc_boot_count(&mut self) {
+        self.boot_count += 1;
+    }
+}
+
+#[cfg(feature = "verus")]
+verus! {
 
 impl PartitionMetadata {
     /// Create new partition metadata
@@ -139,18 +195,6 @@ impl PartitionMetadata {
     {
         self.boot_count += 1;
     }
-}
-
-/// A/B update system
-pub struct ABSystem {
-    /// Currently active partition
-    active: Partition,
-    /// Partition A metadata
-    partition_a: PartitionMetadata,
-    /// Partition B metadata
-    partition_b: PartitionMetadata,
-    /// Maximum failed boots before rollback
-    max_failed_boots: u32,
 }
 
 impl ABSystem {

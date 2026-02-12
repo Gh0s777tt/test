@@ -22,14 +22,14 @@ use builtin_macros::*;
 #[cfg(feature = "verus")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
-verus! {
-
 /// Block size in bytes (4KB)
 pub const BLOCK_SIZE: usize = 4096;
 
 /// Checksum size in bytes
 pub const CHECKSUM_SIZE: usize = 8;
+
+#[cfg(feature = "verus")]
+verus! {
 
 /// Data block manager errors
 #[derive(Copy, Clone, PartialEq, Eq)]

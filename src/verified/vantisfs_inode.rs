@@ -22,9 +22,6 @@ use builtin_macros::*;
 #[cfg(feature = "verus")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
-verus! {
-
 /// Maximum number of inodes
 pub const MAX_INODES: usize = 100_000;
 
@@ -40,6 +37,9 @@ pub const FILE_TYPE_SYMLINK: u32 = 0xA000;
 pub const PERM_READ: u32 = 0x0004;
 pub const PERM_WRITE: u32 = 0x0002;
 pub const PERM_EXEC: u32 = 0x0001;
+
+#[cfg(feature = "verus")]
+verus! {
 
 /// Inode error types
 #[derive(Copy, Clone, PartialEq, Eq)]

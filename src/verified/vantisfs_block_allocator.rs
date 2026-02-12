@@ -21,9 +21,6 @@ use builtin_macros::*;
 #[cfg(feature = "verus")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
-verus! {
-
 /// Maximum number of blocks in the filesystem
 pub const MAX_BLOCKS: usize = 1_000_000;
 
@@ -32,6 +29,9 @@ pub const BLOCK_SIZE: usize = 4096;
 
 /// Size of bitmap in u64 words
 pub const BITMAP_SIZE: usize = (MAX_BLOCKS + 63) / 64;
+
+#[cfg(feature = "verus")]
+verus! {
 
 /// Block allocator error types
 #[derive(Copy, Clone, PartialEq, Eq)]
