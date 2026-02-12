@@ -1,6 +1,11 @@
 name: ISO Onboarding Rollup Gate
 
 on:
+  push:
+    branches:
+      - main
+      - master
+      - 0.4.1
   pull_request:
   workflow_dispatch:
 
