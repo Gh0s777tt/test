@@ -11,7 +11,8 @@ const FIRSTBOOT_MARKER_PATH: &str = "/home/.vantis_first_boot_done";
 const ONBOARDING_DONE_PATH: &str = "/home/.vantis_onboarding_done";
 const ONBOARDING_PENDING_PATH: &str = "/home/.vantis_onboarding_pending";
 const ONBOARDING_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.conf";
-const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard export [path] | onboard import [path]";
+const ONBOARDING_ENCRYPTED_BACKUP_DEFAULT_PATH: &str = "/home/.vantis_onboarding_backup.enc";
+const ONBOARD_USAGE: &str = "usage: onboard [--hostname <name>] [--user <name>] [--profile <name>] | onboard status | onboard reset --yes | onboard export [path] | onboard import [path] | onboard export-encrypted [path] --pass <password> | onboard import-encrypted [path] --pass <password>";
 
 fn unix_now() -> u64 {
     SystemTime::now()
@@ -62,6 +63,66 @@ fn serialize_profile_config(map: &BTreeMap<String, String>) -> String {
         }
     }
     out
+}
+
+fn fnv1a64(bytes: &[u8]) -> u64 {
+    let mut hash = 0xcbf29ce484222325u64;
+    for byte in bytes {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    hash
+}
+
+fn derive_stream_seed(password: &str, salt: u64) -> u64 {
+    let mut key_material = password.as_bytes().to_vec();
+    key_material.extend_from_slice(format!(":{salt:016x}").as_bytes());
+    let mut seed = fnv1a64(&key_material) ^ salt.rotate_left(17);
+    if seed == 0 {
+        seed = 0x9e37_79b9_7f4a_7c15;
+    }
+    seed
+}
+
+fn xor_crypt_bytes(input: &[u8], password: &str, salt: u64) -> Vec<u8> {
+    let mut state = derive_stream_seed(password, salt);
+    let mut out = Vec::with_capacity(input.len());
+    for byte in input {
+        state ^= state << 13;
+        state ^= state >> 7;
+        state ^= state << 17;
+        let key_byte = (state as u8) ^ ((state >> 16) as u8) ^ ((state >> 40) as u8);
+        out.push(*byte ^ key_byte);
+    }
+    out
+}
+
+fn encode_hex(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        out.push_str(&format!("{byte:02x}"));
+    }
+    out
+}
+
+fn decode_hex(text: &str) -> Result<Vec<u8>, String> {
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Ok(Vec::new());
+    }
+    if trimmed.len() % 2 != 0 {
+        return Err("hex payload has odd length".to_string());
+    }
+    let mut out = Vec::with_capacity(trimmed.len() / 2);
+    let bytes = trimmed.as_bytes();
+    let mut i = 0usize;
+    while i < bytes.len() {
+        let chunk = std::str::from_utf8(&bytes[i..i + 2]).map_err(|_| "hex parse failed".to_string())?;
+        let value = u8::from_str_radix(chunk, 16).map_err(|_| "hex parse failed".to_string())?;
+        out.push(value);
+        i += 2;
+    }
+    Ok(out)
 }
 
 fn parse_profile_config_text(text: &str) -> BTreeMap<String, String> {
@@ -217,6 +278,16 @@ fn resolve_backup_path(path_arg: Option<&str>) -> Result<String, String> {
     Ok(path.to_string())
 }
 
+fn resolve_encrypted_backup_path(path_arg: Option<&str>) -> Result<String, String> {
+    let path = path_arg
+        .unwrap_or(ONBOARDING_ENCRYPTED_BACKUP_DEFAULT_PATH)
+        .trim();
+    if path.is_empty() {
+        return Err("encrypted backup path cannot be empty".to_string());
+    }
+    Ok(path.to_string())
+}
+
 fn onboard_export(path_arg: Option<&str>) -> Result<(), String> {
     let path = resolve_backup_path(path_arg)?;
     let mut map = read_profile_config();
@@ -231,6 +302,71 @@ fn onboard_export(path_arg: Option<&str>) -> Result<(), String> {
     }
     fs::write(&path, out).map_err(|err| format!("failed to export onboarding backup: {err}"))?;
     println!("[VANTIS] ONBOARDING EXPORTED: {path}");
+    Ok(())
+}
+
+fn parse_encrypted_backup_args(args: &[&str]) -> Result<(Option<String>, String), String> {
+    let mut path: Option<String> = None;
+    let mut pass: Option<String> = None;
+    let mut idx = 1usize;
+    while idx < args.len() {
+        match args[idx] {
+            "--pass" => {
+                if idx + 1 >= args.len() {
+                    return Err(ONBOARD_USAGE.to_string());
+                }
+                pass = Some(args[idx + 1].to_string());
+                idx += 2;
+            }
+            token if token.starts_with("--") => {
+                return Err(ONBOARD_USAGE.to_string());
+            }
+            token => {
+                if path.is_some() {
+                    return Err(ONBOARD_USAGE.to_string());
+                }
+                path = Some(token.to_string());
+                idx += 1;
+            }
+        }
+    }
+    let Some(pass) = pass else {
+        return Err(ONBOARD_USAGE.to_string());
+    };
+    if pass.is_empty() {
+        return Err("password cannot be empty".to_string());
+    }
+    Ok((path, pass))
+}
+
+fn onboard_export_encrypted(args: &[&str]) -> Result<(), String> {
+    let (path_arg, pass) = parse_encrypted_backup_args(args)?;
+    let path = resolve_encrypted_backup_path(path_arg.as_deref())?;
+    let mut map = read_profile_config();
+    ensure_profile_defaults(&mut map);
+    let plaintext = serialize_profile_config(&map);
+
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    let salt = (nanos as u64) ^ ((nanos >> 64) as u64) ^ 0x7f4a_7c15_d1b5_c3e9;
+    let checksum = fnv1a64(plaintext.as_bytes());
+    let ciphertext = xor_crypt_bytes(plaintext.as_bytes(), &pass, salt);
+    let payload = format!(
+        "VANTIS_ONBOARDING_ENCRYPTED_V1\nsalt={salt:016x}\nchecksum={checksum:016x}\ndata={}\n",
+        encode_hex(&ciphertext)
+    );
+
+    if let Some(parent) = Path::new(&path).parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent)
+                .map_err(|err| format!("failed to prepare encrypted backup directory: {err}"))?;
+        }
+    }
+    fs::write(&path, payload)
+        .map_err(|err| format!("failed to export encrypted onboarding backup: {err}"))?;
+    println!("[VANTIS] ONBOARDING EXPORTED ENCRYPTED: {path}");
     Ok(())
 }
 
@@ -265,6 +401,82 @@ fn onboard_import(path_arg: Option<&str>) -> Result<(), String> {
     write_welcome_message(&map);
     mark_onboarding_done("import");
     println!("[VANTIS] ONBOARDING IMPORTED: {path}");
+    println!("profile={profile}");
+    println!("user={user}");
+    println!("hostname={hostname}");
+    Ok(())
+}
+
+fn onboard_import_encrypted(args: &[&str]) -> Result<(), String> {
+    let (path_arg, pass) = parse_encrypted_backup_args(args)?;
+    let path = resolve_encrypted_backup_path(path_arg.as_deref())?;
+    let content =
+        fs::read_to_string(&path).map_err(|err| format!("failed to read encrypted onboarding backup: {err}"))?;
+
+    let mut lines = content.lines();
+    let header = lines.next().unwrap_or_default();
+    if header.trim() != "VANTIS_ONBOARDING_ENCRYPTED_V1" {
+        return Err("failed to decrypt onboarding backup: unsupported format".to_string());
+    }
+
+    let mut salt_hex = String::new();
+    let mut checksum_hex = String::new();
+    let mut data_hex = String::new();
+    for line in lines {
+        if let Some((key, value)) = line.split_once('=') {
+            match key.trim() {
+                "salt" => salt_hex = value.trim().to_string(),
+                "checksum" => checksum_hex = value.trim().to_string(),
+                "data" => data_hex = value.trim().to_string(),
+                _ => {}
+            }
+        }
+    }
+    if salt_hex.is_empty() || checksum_hex.is_empty() || data_hex.is_empty() {
+        return Err("failed to decrypt onboarding backup: incomplete payload".to_string());
+    }
+
+    let salt = u64::from_str_radix(&salt_hex, 16)
+        .map_err(|_| "failed to decrypt onboarding backup: invalid salt".to_string())?;
+    let expected_checksum = u64::from_str_radix(&checksum_hex, 16)
+        .map_err(|_| "failed to decrypt onboarding backup: invalid checksum".to_string())?;
+    let ciphertext = decode_hex(&data_hex)
+        .map_err(|_| "failed to decrypt onboarding backup: invalid ciphertext".to_string())?;
+    let plaintext_bytes = xor_crypt_bytes(&ciphertext, &pass, salt);
+    let actual_checksum = fnv1a64(&plaintext_bytes);
+    if actual_checksum != expected_checksum {
+        return Err("failed to decrypt onboarding backup: integrity check failed".to_string());
+    }
+
+    let plaintext = String::from_utf8(plaintext_bytes)
+        .map_err(|_| "failed to decrypt onboarding backup: invalid utf-8 payload".to_string())?;
+    let mut map = parse_profile_config_text(&plaintext);
+    if map.is_empty() {
+        return Err("failed to decrypt onboarding backup: empty profile payload".to_string());
+    }
+    ensure_profile_defaults(&mut map);
+    map.insert("mode".to_string(), "installed".to_string());
+
+    let profile = map
+        .get("profile")
+        .cloned()
+        .ok_or_else(|| "missing profile in encrypted onboarding backup".to_string())?;
+    let user = map
+        .get("user")
+        .cloned()
+        .ok_or_else(|| "missing user in encrypted onboarding backup".to_string())?;
+    let hostname = map
+        .get("hostname")
+        .cloned()
+        .ok_or_else(|| "missing hostname in encrypted onboarding backup".to_string())?;
+    apply_profile_update(&mut map, "profile", &profile)?;
+    apply_profile_update(&mut map, "user", &user)?;
+    apply_profile_update(&mut map, "hostname", &hostname)?;
+
+    write_profile_config(map.clone())?;
+    write_welcome_message(&map);
+    mark_onboarding_done("import_encrypted");
+    println!("[VANTIS] ONBOARDING IMPORTED ENCRYPTED: {path}");
     println!("profile={profile}");
     println!("user={user}");
     println!("hostname={hostname}");
@@ -333,6 +545,14 @@ fn run_onboarding(args: Vec<&str>) -> Result<(), String> {
             return Err(ONBOARD_USAGE.to_string());
         }
         return onboard_import(args.get(1).copied());
+    }
+
+    if args.first() == Some(&"export-encrypted") {
+        return onboard_export_encrypted(&args);
+    }
+
+    if args.first() == Some(&"import-encrypted") {
+        return onboard_import_encrypted(&args);
     }
 
     let mut map = read_profile_config();
@@ -447,6 +667,8 @@ pub fn start() {
                 println!("      flags: --hostname --user --profile");
                 println!("      extras: onboard status | onboard reset --yes");
                 println!("              onboard export [path] | onboard import [path]");
+                println!("              onboard export-encrypted [path] --pass <password>");
+                println!("              onboard import-encrypted [path] --pass <password>");
                 println!("  config show                - print current installed profile config");
                 println!("  config set <k> <v>         - set profile/user/hostname");
                 println!("  reboot                     - reboot machine");

@@ -504,13 +504,17 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "config show"
       sleep 1
-      echo "onboard export /home/onboard_backup.conf"
+      echo "onboard export-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard reset --yes"
       sleep 1
       echo "firstboot"
       sleep 1
-      echo "onboard import /home/onboard_backup.conf"
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
+      sleep 1
+      echo "firstboot"
+      sleep 1
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard status"
       sleep 1
@@ -546,13 +550,17 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       sleep 1
       echo "config show"
       sleep 1
-      echo "onboard export /home/onboard_backup.conf"
+      echo "onboard export-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard reset --yes"
       sleep 1
       echo "firstboot"
       sleep 1
-      echo "onboard import /home/onboard_backup.conf"
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass badpass"
+      sleep 1
+      echo "firstboot"
+      sleep 1
+      echo "onboard import-encrypted /home/onboard_backup.enc --pass vantis123"
       sleep 1
       echo "onboard status"
       sleep 1
@@ -582,10 +590,11 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q '\[VANTIS\] ONBOARDING COMPLETE' "$BOOT_LOG" \
     && rg -q 'onboarding_state=done' "$BOOT_LOG" \
     && rg -q 'onboarding_source=interactive' "$BOOT_LOG" \
-    && rg -q '\[VANTIS\] ONBOARDING EXPORTED: /home/onboard_backup.conf' "$BOOT_LOG" \
+    && rg -q '\[VANTIS\] ONBOARDING EXPORTED ENCRYPTED: /home/onboard_backup.enc' "$BOOT_LOG" \
     && rg -q '\[VANTIS\] ONBOARDING RESET' "$BOOT_LOG" \
-    && rg -q '\[VANTIS\] ONBOARDING IMPORTED: /home/onboard_backup.conf' "$BOOT_LOG" \
-    && rg -q 'onboarding_source=import' "$BOOT_LOG" \
+    && rg -q 'failed to decrypt onboarding backup: integrity check failed' "$BOOT_LOG" \
+    && rg -q '\[VANTIS\] ONBOARDING IMPORTED ENCRYPTED: /home/onboard_backup.enc' "$BOOT_LOG" \
+    && rg -q 'onboarding_source=import_encrypted' "$BOOT_LOG" \
     && rg -q 'onboarding: done' "$BOOT_LOG" \
     && rg -q 'profile=core' "$BOOT_LOG" \
     && rg -q 'hostname=vantis-' "$BOOT_LOG" \
@@ -649,7 +658,7 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     && rg -q '\[VANTIS\] FIRST BOOT SETUP ALREADY COMPLETE' "$REBOOT_LOG" \
     && rg -q 'first_boot: done' "$REBOOT_LOG" \
     && rg -q 'onboarding_state=done' "$REBOOT_LOG" \
-    && rg -q 'onboarding_source=import' "$REBOOT_LOG" \
+    && rg -q 'onboarding_source=import_encrypted' "$REBOOT_LOG" \
     && rg -q 'onboarding: done' "$REBOOT_LOG" \
     && rg -q 'hostname=vantis-lab' "$REBOOT_LOG" \
     && rg -q 'user=operator' "$REBOOT_LOG" \
