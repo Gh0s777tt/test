@@ -443,9 +443,11 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     OVMF_VARS_COPY="$WORK_DIR/OVMF_VARS_INSTALL.fd"
     cp "$OVMF_VARS" "$OVMF_VARS_COPY"
     {
-      sleep 12
+      sleep 18
+      echo ""
+      sleep 2
       echo "install /dev/vda --yes"
-      sleep 25
+      sleep 35
     } | timeout "${INSTALLER_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
       -machine q35 \
       -m 1024 \
@@ -458,9 +460,11 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       -cdrom "$OUTPUT_ISO" >"$INSTALL_LOG" 2>&1 || INSTALL_RC=$?
   else
     {
-      sleep 12
+      sleep 18
+      echo ""
+      sleep 2
       echo "install /dev/vda --yes"
-      sleep 25
+      sleep 35
     } | timeout "${INSTALLER_TIMEOUT_SECONDS}s" qemu-system-x86_64 \
       -m 1024 \
       -serial mon:stdio \
