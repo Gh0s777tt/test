@@ -604,6 +604,9 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 # (boots ISO, runs installer to /dev/vda in QEMU, verifies onboarding flow,
 # then verifies installed-disk reboot persistence)
 ./scripts/build_iso.sh --output build/VantisOS-live.iso --run-qemu-smoke --run-installer-smoke
+# telemetry summary artifacts are generated automatically:
+# analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_<timestamp>.json
+# analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_<timestamp>.md
 
 # After install, in Vantis shell:
 firstboot

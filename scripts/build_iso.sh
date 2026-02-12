@@ -108,6 +108,7 @@ require_cmd parted
 require_cmd rustc
 require_cmd busybox
 require_cmd rg
+require_cmd python3
 if (( RUN_QEMU_SMOKE == 1 || RUN_INSTALLER_SMOKE == 1 )); then
   require_cmd qemu-system-x86_64
   require_cmd timeout
@@ -410,6 +411,107 @@ qemu_boot_capture() {
       "$@" >"$log_path" 2>&1 || rc=$?
   fi
   return "$rc"
+}
+
+generate_onboarding_telemetry_summary() {
+  local boot_log="$1"
+  local reboot_log="$2"
+  local stamp
+  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  local json_path="$ANALYSIS_DIR/iso_onboarding_telemetry_summary_${stamp}.json"
+  local md_path="$ANALYSIS_DIR/iso_onboarding_telemetry_summary_${stamp}.md"
+
+  python3 - "$boot_log" "$reboot_log" "$json_path" "$md_path" <<'PY'
+import json
+import re
+import sys
+from pathlib import Path
+
+boot_log_path, reboot_log_path, json_path, md_path = sys.argv[1:]
+
+def parse_log(path: str) -> dict:
+    text = Path(path).read_text(errors="replace")
+    failures = [int(m.group(1)) for m in re.finditer(r"encrypted_import_failures=(\d+)", text)]
+    blocked_until = [int(m.group(1)) for m in re.finditer(r"encrypted_import_blocked_until_unix=(\d+)", text)]
+    lock_states = re.findall(r"encrypted_import_lock=(active|inactive)", text)
+    lock_remaining = [int(m.group(1)) for m in re.finditer(r"encrypted_import_lock_seconds_remaining=(\d+)", text)]
+    onboarding_sources = re.findall(r"onboarding_source=([a-zA-Z0-9_]+)", text)
+    history_events = re.findall(r"event=([a-z_]+)", text)
+    telemetry_last_events = re.findall(r'"last_event": "([^"]+)"', text)
+    return {
+        "path": path,
+        "integrity_failures": len(re.findall(r"integrity check failed", text)),
+        "failed_attempt_messages": len(re.findall(r"failed to decrypt onboarding backup: integrity check failed", text)),
+        "lockout_messages": len(re.findall(r"temporarily locked; retry in", text)),
+        "max_failures_observed": max(failures) if failures else 0,
+        "blocked_until_unix_max": max(blocked_until) if blocked_until else 0,
+        "lock_state_active_observed": "active" in lock_states,
+        "lock_state_inactive_observed": "inactive" in lock_states,
+        "max_lock_seconds_remaining": max(lock_remaining) if lock_remaining else 0,
+        "onboarding_sources_observed": onboarding_sources,
+        "final_onboarding_source": onboarding_sources[-1] if onboarding_sources else "unknown",
+        "history_events_observed": sorted(set(history_events)),
+        "history_event_count": len(history_events),
+        "telemetry_last_events_observed": telemetry_last_events,
+        "telemetry_last_event_final": telemetry_last_events[-1] if telemetry_last_events else "unknown",
+    }
+
+boot = parse_log(boot_log_path)
+reboot = parse_log(reboot_log_path)
+summary = {
+    "schema": "vantis.iso.onboarding_telemetry_summary.v1",
+    "generated_unix": int(Path(boot_log_path).stat().st_mtime),
+    "boot_log": boot,
+    "reboot_log": reboot,
+    "aggregate": {
+        "lockout_triggered": boot["lockout_messages"] > 0 or reboot["lockout_messages"] > 0,
+        "max_failures_observed": max(boot["max_failures_observed"], reboot["max_failures_observed"]),
+        "final_onboarding_source": reboot["final_onboarding_source"],
+        "final_telemetry_last_event": reboot["telemetry_last_event_final"],
+        "history_contains_lockout": "lockout_activated" in set(boot["history_events_observed"]) | set(reboot["history_events_observed"]),
+        "history_contains_guard_cleared": "guard_cleared" in set(boot["history_events_observed"]) | set(reboot["history_events_observed"]),
+    },
+}
+
+Path(json_path).write_text(json.dumps(summary, indent=2) + "\n")
+
+md_lines = [
+    "# ISO Onboarding Telemetry Summary",
+    "",
+    f"- Boot log: `{boot_log_path}`",
+    f"- Reboot log: `{reboot_log_path}`",
+    "",
+    "## Aggregate",
+    "",
+    f"- Lockout triggered: `{summary['aggregate']['lockout_triggered']}`",
+    f"- Max failures observed: `{summary['aggregate']['max_failures_observed']}`",
+    f"- Final onboarding source: `{summary['aggregate']['final_onboarding_source']}`",
+    f"- Final telemetry last_event: `{summary['aggregate']['final_telemetry_last_event']}`",
+    f"- History contains `lockout_activated`: `{summary['aggregate']['history_contains_lockout']}`",
+    f"- History contains `guard_cleared`: `{summary['aggregate']['history_contains_guard_cleared']}`",
+    "",
+    "## Boot log telemetry",
+    "",
+    f"- failed decrypt messages: `{boot['failed_attempt_messages']}`",
+    f"- lockout messages: `{boot['lockout_messages']}`",
+    f"- max failures observed: `{boot['max_failures_observed']}`",
+    f"- final onboarding source: `{boot['final_onboarding_source']}`",
+    f"- final telemetry last_event: `{boot['telemetry_last_event_final']}`",
+    "",
+    "## Reboot log telemetry",
+    "",
+    f"- failed decrypt messages: `{reboot['failed_attempt_messages']}`",
+    f"- lockout messages: `{reboot['lockout_messages']}`",
+    f"- max failures observed: `{reboot['max_failures_observed']}`",
+    f"- final onboarding source: `{reboot['final_onboarding_source']}`",
+    f"- final telemetry last_event: `{reboot['telemetry_last_event_final']}`",
+    "",
+]
+Path(md_path).write_text("\n".join(md_lines))
+PY
+
+  echo "Onboarding telemetry summary JSON: $json_path"
+  echo "Onboarding telemetry summary Markdown: $md_path"
 }
 
 if (( RUN_QEMU_SMOKE == 1 )); then
@@ -717,4 +819,6 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
     echo "Installed reboot log: $REBOOT_LOG" >&2
     exit 1
   fi
+
+  generate_onboarding_telemetry_summary "$BOOT_LOG" "$REBOOT_LOG"
 fi
