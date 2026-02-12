@@ -15,12 +15,14 @@ onboarding_source=import_encrypted
 profile=wraith
 user=operator
 hostname=vantis-lab
+encrypted_import_failures=0
+encrypted_import_blocked_until_unix=0
 encrypted_import_lock=inactive
 vantis> config show
-first_boot_unix_utc=1770862768
+first_boot_unix_utc=1770870729
 hostname=vantis-lab
 mode=installed
 notes=generated_by_vantis_first_boot
 profile=wraith
 user=operator
-vantis> qemu-system-x86_64: terminating on signal 15 from pid 326329 (timeout)
+vantis> qemu-system-x86_64: terminating on signal 15 from pid 329786 (timeout)
