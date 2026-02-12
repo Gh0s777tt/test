@@ -607,6 +607,10 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 # telemetry summary artifacts are generated automatically:
 # analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_<timestamp>.json
 # analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_<timestamp>.md
+# analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_<timestamp>.json
+# analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_<timestamp>.md
+# analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_latest.json
+# analysis/benchmark_reproducibility/iso_onboarding_telemetry_rollup_latest.md
 
 # After install, in Vantis shell:
 firstboot

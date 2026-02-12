@@ -2,6 +2,7 @@
 # Build a bootable VantisOS ISO with:
 # - live mode
 # - installer mode (writes bootable EFI+persist layout to a target disk)
+# - onboarding telemetry summary + rolling rollup artifacts
 #
 # Usage:
 #   ./scripts/build_iso.sh
@@ -28,6 +29,7 @@ Options:
   --kernel <path>              Kernel image path (default: /boot/vmlinuz or latest /boot/vmlinuz-*)
   --run-qemu-smoke             Boot ISO in QEMU and verify interactive shell prompt
   --run-installer-smoke        Run installer flow in QEMU and verify installed-disk boot + reboot persistence
+                               Also generates onboarding telemetry summary + rollup artifacts
   --qemu-timeout <seconds>     Timeout for smoke boot test (default: 45)
   --installer-timeout <sec>    Timeout for installer session (default: 120)
   -h, --help                   Show this help
@@ -821,4 +823,11 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
   fi
 
   generate_onboarding_telemetry_summary "$BOOT_LOG" "$REBOOT_LOG"
+
+  ROLLUP_SCRIPT="$ROOT/scripts/generate_iso_onboarding_telemetry_rollup.sh"
+  if [[ -f "$ROLLUP_SCRIPT" ]]; then
+    bash "$ROLLUP_SCRIPT" --analysis-dir "$ANALYSIS_DIR" --window 30
+  else
+    echo "Warning: onboarding telemetry rollup script missing: $ROLLUP_SCRIPT" >&2
+  fi
 fi
