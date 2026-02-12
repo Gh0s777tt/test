@@ -615,6 +615,7 @@ onboard export-encrypted /home/onboard_backup.enc --pass vantis123
 # onboard reset --yes
 # onboard import-encrypted /home/onboard_backup.enc --pass badpass   # expected: lockout after repeated failures
 # onboard import-encrypted /home/onboard_backup.enc --pass vantis123
+onboard telemetry
 # onboarding status exposes lock telemetry:
 # encrypted_import_failures / encrypted_import_lock / encrypted_import_blocked_until_unix
 config show

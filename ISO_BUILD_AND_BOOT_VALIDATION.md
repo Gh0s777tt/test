@@ -8,9 +8,9 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 2. Installer flow (`install /dev/vda --yes`) followed by boot from installed disk image.
 
 - ISO path: `build/VantisOS-live.iso`
-- Size: `70979584` bytes
+- Size: `70983680` bytes
 - SHA-256:
-  `ec09c0e0e4b13ccc08c9467e3a838947cf264bfdeef7aa0df362c6064cef4e02`
+  `afe6c8c9c1a24dd30c07b14cefa66d61f87f827dcaa9ceb7c2601d8d51d38c8a`
 
 ## Build command
 
@@ -22,19 +22,19 @@ A bootable VantisOS ISO was built successfully and validated in QEMU in two mode
 
 Live smoke validation log:
 
-- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T042353Z.log`
+- `analysis/benchmark_reproducibility/iso_smoke_boot_20260212T081458Z.log`
 
 Installer phase validation log:
 
-- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T042643Z.log`
+- `analysis/benchmark_reproducibility/iso_installer_phase_20260212T081758Z.log`
 
 Installed disk boot validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T043203Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_boot_20260212T082318Z.log`
 
 Installed disk reboot persistence validation log:
 
-- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T043453Z.log`
+- `analysis/benchmark_reproducibility/iso_installed_reboot_20260212T082618Z.log`
 
 Interactive runtime validation log (live shell lifecycle):
 
@@ -55,6 +55,7 @@ Observed runtime behavior:
   - `config show`,
   - `onboard` (interactive prompts for hostname/user/profile),
   - `onboard status`,
+  - `onboard telemetry` (JSON snapshot + recent history tail),
 - installed shell validates onboarding reset and re-apply flow:
   - `onboard reset --yes`,
   - `onboard export-encrypted /home/onboard_backup.enc --pass vantis123`,
