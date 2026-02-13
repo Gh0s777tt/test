@@ -37,12 +37,7 @@ jobs:
         run: >
           ./scripts/run_iso_onboarding_ci_gate.sh
           --output build/VantisOS-live.iso
-          --qemu-timeout 180
-          --installer-timeout 320
-          --window 30
-          --max-lockout-ratio 1.0
-          --max-mean-failures 3.0
-          --require-final-source import_encrypted
+          --policy-profile ci_default
 
       - name: Publish gate summary
         if: ${{ always() }}

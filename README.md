@@ -626,6 +626,10 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
   --enforce-onboarding-rollup-thresholds
 # same gate via dedicated wrapper script (used by GitHub Actions):
 ./scripts/run_iso_onboarding_ci_gate.sh
+# policy source:
+# governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json
+# inspect effective config without running QEMU:
+./scripts/run_iso_onboarding_ci_gate.sh --policy-profile local_fast --dry-run
 # GitHub Actions PR gate:
 # .github/workflows/iso-onboarding-rollup-gate.yml
 

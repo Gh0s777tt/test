@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "active_profile": "ci_default",
+  "profiles": {
+    "ci_default": {
+      "qemu_timeout_seconds": 180,
+      "installer_timeout_seconds": 320,
+      "window": 30,
+      "max_lockout_ratio": 1.0,
+      "max_mean_failures": 3.0,
+      "require_final_source": "import_encrypted"
+    },
+    "local_fast": {
+      "qemu_timeout_seconds": 120,
+      "installer_timeout_seconds": 260,
+      "window": 15,
+      "max_lockout_ratio": 1.0,
+      "max_mean_failures": 3.0,
+      "require_final_source": "import_encrypted"
+    }
+  }
+}

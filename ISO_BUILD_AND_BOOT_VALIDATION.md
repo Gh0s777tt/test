@@ -126,6 +126,10 @@ Build + smoke + enforced onboarding rollup threshold gate (CI-equivalent local r
 ./scripts/run_iso_onboarding_ci_gate.sh
 ```
 
+Gate thresholds are sourced from:
+
+- `governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json` (profile `ci_default`)
+
 Tuned threshold gate example:
 
 ```bash
@@ -134,6 +138,12 @@ Tuned threshold gate example:
   --max-lockout-ratio 1.0 \
   --max-mean-failures 3.0 \
   --require-final-source import_encrypted
+```
+
+Policy profile dry-run example:
+
+```bash
+./scripts/run_iso_onboarding_ci_gate.sh --policy-profile local_fast --dry-run
 ```
 
 GitHub Actions workflow:
