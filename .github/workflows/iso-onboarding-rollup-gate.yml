@@ -6,7 +6,27 @@ on:
       - main
       - master
       - 0.4.1
+    paths:
+      - ".github/workflows/iso-onboarding-rollup-gate.yml"
+      - "governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json"
+      - "scripts/build_iso.sh"
+      - "scripts/run_iso_onboarding_ci_gate.sh"
+      - "scripts/generate_iso_onboarding_telemetry_rollup.sh"
+      - "scripts/install_iso_build_deps_ubuntu.sh"
+      - "scripts/validate_iso_onboarding_rollup_gate_policy.sh"
+      - "userspace/init.rs"
+      - "userspace/shell.rs"
   pull_request:
+    paths:
+      - ".github/workflows/iso-onboarding-rollup-gate.yml"
+      - "governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json"
+      - "scripts/build_iso.sh"
+      - "scripts/run_iso_onboarding_ci_gate.sh"
+      - "scripts/generate_iso_onboarding_telemetry_rollup.sh"
+      - "scripts/install_iso_build_deps_ubuntu.sh"
+      - "scripts/validate_iso_onboarding_rollup_gate_policy.sh"
+      - "userspace/init.rs"
+      - "userspace/shell.rs"
   workflow_dispatch:
     inputs:
       policy_profile:
@@ -70,7 +90,13 @@ jobs:
           latest_rollup = analysis_dir / "iso_onboarding_telemetry_rollup_latest.json"
           iso_path = Path("build/VantisOS-live.iso")
 
-          lines = ["## ISO onboarding rollup threshold gate", ""]
+          policy_profile = os.environ.get("ISO_POLICY_PROFILE", "unknown")
+          lines = [
+              "## ISO onboarding rollup threshold gate",
+              "",
+              f"- policy_profile: `{policy_profile}`",
+              "",
+          ]
           if latest_rollup.exists():
               payload = json.loads(latest_rollup.read_text(encoding="utf-8"))
               evaluation = payload.get("threshold_evaluation", {})
@@ -121,7 +147,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: iso-onboarding-rollup-gate-artifacts
+          name: iso-onboarding-rollup-gate-artifacts-${{ env.ISO_POLICY_PROFILE }}
           path: |
             analysis/benchmark_reproducibility/*.log
             analysis/benchmark_reproducibility/iso_onboarding_telemetry_summary_*.json
