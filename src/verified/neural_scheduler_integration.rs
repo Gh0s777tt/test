@@ -20,8 +20,8 @@ use builtin_macros::*;
 #[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
-use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures};
-use crate::workload_predictor::WorkloadPredictor;
+use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures, MAX_TRACKED_THREADS};
+use crate::workload_predictor::{WorkloadPattern, WorkloadPredictor};
 
 #[cfg(feature = "verus-full")]
 verus! {
@@ -253,7 +253,6 @@ pub struct SchedulerStatistics {
     pub gaming_mode_enabled: bool,
 }
 
-#[cfg(feature = "verus-full")]
 } // verus!
 
 // Non-Verus version (without formal verification)

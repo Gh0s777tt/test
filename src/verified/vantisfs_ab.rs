@@ -372,7 +372,6 @@ impl ABSystem {
     }
 }
 
-#[cfg(feature = "verus-full")]
 } // verus!
 
 #[cfg(all(test, feature = "verus-full"))]

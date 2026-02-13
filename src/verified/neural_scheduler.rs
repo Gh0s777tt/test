@@ -368,7 +368,6 @@ impl NeuralScheduler {
     }
 }
 
-#[cfg(feature = "verus-full")]
 } // verus!
 
 // Non-Verus version of the same code (without formal verification)

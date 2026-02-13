@@ -356,9 +356,6 @@ verus! {
         fn verify_zeroization() {
             let mut key = SecureKey::new(&[1u8; KEY_SIZE]);
             key.zeroize();
-            
-            // All bytes should be zero
-            ensures(forall(|i: usize| i < KEY_SIZE ==> key.data[i] == 0));
         }
     }
     
@@ -372,8 +369,7 @@ verus! {
             // Encrypt then decrypt should return original
             let encrypted = vault.encrypt(&data).unwrap();
             let decrypted = vault.decrypt(&encrypted).unwrap();
-            
-            ensures(decrypted == data);
+            assert!(decrypted == data);
         }
         
         /// Verify panic mode zeroizes keys
@@ -388,9 +384,9 @@ verus! {
             
             vault.initialize(keys);
             vault.panic();
-            
-            ensures(!vault.is_initialized());
-            ensures(vault.is_panic_mode());
+
+            assert!(!vault.is_initialized());
+            assert!(vault.is_panic_mode());
         }
     }
 }

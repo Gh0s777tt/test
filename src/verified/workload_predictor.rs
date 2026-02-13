@@ -392,7 +392,6 @@ impl WorkloadPredictor {
     }
 }
 
-#[cfg(feature = "verus-full")]
 } // verus!
 
 // Non-Verus version (without formal verification)

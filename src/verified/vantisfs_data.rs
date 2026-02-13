@@ -334,7 +334,6 @@ impl DataBlockManager {
     }
 }
 
-#[cfg(feature = "verus-full")]
 } // verus!
 
 #[cfg(all(test, feature = "verus-full"))]

@@ -203,8 +203,8 @@ verus! {
             let plaintext = [1u8, 2, 3, 4, 5];
             let ciphertext = vault.encrypt(&plaintext).unwrap();
             let decrypted = vault.decrypt(&ciphertext).unwrap();
-            
-            ensures(decrypted == plaintext);
+
+            assert!(decrypted == plaintext);
         }
         
         /// Verify panic mode zeroizes keys
@@ -219,9 +219,9 @@ verus! {
             
             vault.initialize(keys);
             vault.panic();
-            
-            ensures(!vault.is_initialized());
-            ensures(vault.is_panic_mode());
+
+            assert!(!vault.is_initialized());
+            assert!(vault.is_panic_mode());
         }
     }
 }

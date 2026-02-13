@@ -31,7 +31,6 @@ verus! {
         heap_start: usize,
         heap_size: usize,
         allocated: usize,
-        ghost invariant: bool,
     }
     
     impl VerifiedAllocator {
@@ -56,7 +55,6 @@ verus! {
                 heap_start: start,
                 heap_size: size,
                 allocated: 0,
-                ghost invariant: true,
             }
         }
         
@@ -149,7 +147,7 @@ verus! {
     pub struct VerifiedBuffer {
         data: Vec<u8>,
         capacity: usize,
-        ghost size: nat,
+    size: usize,
     }
     
     impl VerifiedBuffer {
@@ -168,7 +166,7 @@ verus! {
             VerifiedBuffer {
                 data: Vec::new(),
                 capacity,
-                ghost size: 0,
+                size: 0,
             }
         }
         
@@ -177,19 +175,19 @@ verus! {
         /// # Formal Specification
         /// - Postcondition: On success, size increases by 1
         /// - Postcondition: On failure, size unchanged
-        pub fn push(&mut self, value: u8) -> (result: Result<(), ()>)
+        pub fn push(&mut self, value: u8) -> (result: Result<(), BufferError>)
             ensures 
                 match result {
                     Ok(()) => self.size == old(self).size + 1,
-                    Err(()) => self.size == old(self).size,
+                    Err(_) => self.size == old(self).size,
                 },
         {
             if self.data.len() < self.capacity {
                 self.data.push(value);
-                proof { self.size = self.size + 1; }
+                self.size = self.size + 1;
                 Ok(())
             } else {
-                Err(())
+                Err(BufferError::Full)
             }
         }
         
@@ -201,6 +199,13 @@ verus! {
             ensures result == self.size,
         {
             self.data.len()
+        }
+
+        /// Check if buffer is empty
+        pub fn is_empty(&self) -> (result: bool)
+            ensures result == (self.size == 0),
+        {
+            self.data.is_empty()
         }
     }
 }
