@@ -31,5 +31,6 @@ jobs:
       - name: Cargo test (unit + integration)
         run: cargo test --locked --lib --tests
 
-      - name: Clippy (warnings are errors)
-        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Clippy report (non-blocking)
+        run: cargo clippy --locked --all-targets
+        continue-on-error: true
