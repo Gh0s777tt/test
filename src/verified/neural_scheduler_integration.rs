@@ -309,6 +309,13 @@ impl NeuralSchedulerIntegration {
     }
 }
 
+#[cfg(not(feature = "verus"))]
+impl Default for NeuralSchedulerIntegration {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;

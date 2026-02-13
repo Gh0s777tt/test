@@ -325,6 +325,12 @@ impl VantisVault {
     }
 }
 
+impl Default for VantisVault {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drop for VantisVault {
     fn drop(&mut self) {
         // Ensure keys are zeroized on drop
