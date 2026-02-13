@@ -150,3 +150,4 @@ Policy profile dry-run example:
 GitHub Actions workflow:
 
 - `.github/workflows/iso-onboarding-rollup-gate.yml`
+- manual dispatch input: `policy_profile` (`ci_default` or `local_fast`)

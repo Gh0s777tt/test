@@ -634,6 +634,8 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 ./scripts/run_iso_onboarding_ci_gate.sh --policy-profile local_fast --dry-run
 # GitHub Actions PR gate:
 # .github/workflows/iso-onboarding-rollup-gate.yml
+# manual dispatch supports policy profile selection:
+# policy_profile=ci_default|local_fast
 
 # After install, in Vantis shell:
 firstboot

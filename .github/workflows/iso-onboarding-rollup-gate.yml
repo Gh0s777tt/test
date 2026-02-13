@@ -8,6 +8,15 @@ on:
       - 0.4.1
   pull_request:
   workflow_dispatch:
+    inputs:
+      policy_profile:
+        description: "Policy profile from governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json"
+        required: false
+        default: ci_default
+        type: choice
+        options:
+          - ci_default
+          - local_fast
 
 permissions:
   contents: read
@@ -21,6 +30,8 @@ jobs:
     name: ISO onboarding rollup threshold gate
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      ISO_POLICY_PROFILE: ${{ github.event.inputs.policy_profile || 'ci_default' }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -43,7 +54,7 @@ jobs:
         run: >
           ./scripts/run_iso_onboarding_ci_gate.sh
           --output build/VantisOS-live.iso
-          --policy-profile ci_default
+          --policy-profile "${ISO_POLICY_PROFILE}"
 
       - name: Publish gate summary
         if: ${{ always() }}
