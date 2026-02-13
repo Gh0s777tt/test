@@ -278,25 +278,25 @@ impl HdrManager {
             ToneMappingAlgorithm::Filmic => {
                 // Simplified filmic tone mapping
                 (
-                    r.max(0.0).min(1.0),
-                    g.max(0.0).min(1.0),
-                    b.max(0.0).min(1.0),
+                    r.clamp(0.0, 1.0),
+                    g.clamp(0.0, 1.0),
+                    b.clamp(0.0, 1.0),
                 )
             }
             ToneMappingAlgorithm::Aces => {
                 // Simplified ACES tone mapping
                 (
-                    r.max(0.0).min(1.0),
-                    g.max(0.0).min(1.0),
-                    b.max(0.0).min(1.0),
+                    r.clamp(0.0, 1.0),
+                    g.clamp(0.0, 1.0),
+                    b.clamp(0.0, 1.0),
                 )
             }
             ToneMappingAlgorithm::Hable => {
                 // Simplified Hable tone mapping
                 (
-                    r.max(0.0).min(1.0),
-                    g.max(0.0).min(1.0),
-                    b.max(0.0).min(1.0),
+                    r.clamp(0.0, 1.0),
+                    g.clamp(0.0, 1.0),
+                    b.clamp(0.0, 1.0),
                 )
             }
         };
@@ -444,6 +444,12 @@ impl HdrManager {
     /// Get current contrast
     pub fn get_contrast(&self) -> u32 {
         self.contrast
+    }
+}
+
+impl Default for HdrManager {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

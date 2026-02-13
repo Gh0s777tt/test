@@ -262,6 +262,12 @@ impl WindowManager {
     }
 }
 
+impl Default for WindowManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;

@@ -127,6 +127,12 @@ impl SchedStats {
     }
 }
 
+impl Default for SchedStats {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Schedulable task
 #[derive(Debug, Clone)]
 pub struct SchedTask {

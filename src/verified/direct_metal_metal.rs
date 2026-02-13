@@ -262,6 +262,12 @@ impl MetalBackend {
     }
 }
 
+impl Default for MetalBackend {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GpuBackend for MetalBackend {
     fn backend_type(&self) -> BackendType {
         BackendType::Metal

@@ -350,6 +350,12 @@ impl VulkanBackend {
     }
 }
 
+impl Default for VulkanBackend {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GpuBackend for VulkanBackend {
     fn backend_type(&self) -> BackendType {
         BackendType::Vulkan

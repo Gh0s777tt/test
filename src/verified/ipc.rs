@@ -366,7 +366,7 @@ impl IpcManager {
         cap: Capability,
     ) -> Result<(), &'static str> {
         // Use HashMap for O(1) insertion
-        let caps = self.capabilities.entry((from, to)).or_insert_with(Vec::new);
+        let caps = self.capabilities.entry((from, to)).or_default();
         
         // Check if capability already exists
         if !caps.contains(&cap) {
@@ -469,6 +469,12 @@ impl IpcManager {
     pub fn queue_stats(&self, pid: Pid) -> Option<(usize, usize)> {
         let queue = self.get_queue(pid)?;
         Some((queue.len(), queue.max_size))
+    }
+}
+
+impl Default for IpcManager {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
