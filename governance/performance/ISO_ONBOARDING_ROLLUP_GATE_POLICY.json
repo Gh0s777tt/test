@@ -8,7 +8,9 @@
       "window": 30,
       "max_lockout_ratio": 1.0,
       "max_mean_failures": 3.0,
-      "require_final_source": "import_encrypted"
+      "min_guard_cleared_ratio": 1.0,
+      "require_final_source": "import_encrypted",
+      "require_final_last_event": "guard_cleared"
     },
     "local_fast": {
       "qemu_timeout_seconds": 120,
@@ -16,7 +18,9 @@
       "window": 15,
       "max_lockout_ratio": 1.0,
       "max_mean_failures": 3.0,
-      "require_final_source": "import_encrypted"
+      "min_guard_cleared_ratio": 1.0,
+      "require_final_source": "import_encrypted",
+      "require_final_last_event": "guard_cleared"
     }
   }
 }

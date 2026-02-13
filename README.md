@@ -623,6 +623,8 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
   --onboarding-rollup-max-lockout-ratio 1.0 \
   --onboarding-rollup-max-mean-failures 3.0 \
   --onboarding-rollup-require-final-source import_encrypted \
+  --onboarding-rollup-require-final-last-event guard_cleared \
+  --onboarding-rollup-min-guard-cleared-ratio 1.0 \
   --enforce-onboarding-rollup-thresholds
 # same gate via dedicated wrapper script (used by GitHub Actions):
 ./scripts/run_iso_onboarding_ci_gate.sh

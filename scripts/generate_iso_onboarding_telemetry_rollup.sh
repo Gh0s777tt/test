@@ -17,6 +17,8 @@ LATEST_MD=""
 MAX_LOCKOUT_RATIO=""
 MAX_MEAN_FAILURES=""
 REQUIRE_FINAL_SOURCE=""
+REQUIRE_FINAL_LAST_EVENT=""
+MIN_GUARD_CLEARED_RATIO=""
 FAIL_ON_THRESHOLD_BREACH=0
 
 usage() {
@@ -34,6 +36,10 @@ Options:
   --max-mean-failures <n> Maximum allowed mean of max_failures_observed
   --require-final-source <name>
                           Required latest run final_onboarding_source
+  --require-final-last-event <name>
+                          Required latest run final_telemetry_last_event
+  --min-guard-cleared-ratio <n>
+                          Minimum allowed guard_cleared run ratio (0.0..1.0)
   --fail-on-threshold-breach
                           Exit non-zero if threshold evaluation fails
   -h, --help              Show this help
@@ -78,6 +84,14 @@ while [[ $# -gt 0 ]]; do
       REQUIRE_FINAL_SOURCE="${2:-}"
       shift 2
       ;;
+    --require-final-last-event)
+      REQUIRE_FINAL_LAST_EVENT="${2:-}"
+      shift 2
+      ;;
+    --min-guard-cleared-ratio)
+      MIN_GUARD_CLEARED_RATIO="${2:-}"
+      shift 2
+      ;;
     --fail-on-threshold-breach)
       FAIL_ON_THRESHOLD_BREACH=1
       shift
@@ -118,7 +132,7 @@ mkdir -p "$(dirname "$OUTPUT_MD")"
 mkdir -p "$(dirname "$LATEST_JSON")"
 mkdir -p "$(dirname "$LATEST_MD")"
 
-python3 - "$ANALYSIS_DIR" "$WINDOW" "$OUTPUT_JSON" "$OUTPUT_MD" "$LATEST_JSON" "$LATEST_MD" "$MAX_LOCKOUT_RATIO" "$MAX_MEAN_FAILURES" "$REQUIRE_FINAL_SOURCE" "$FAIL_ON_THRESHOLD_BREACH" <<'PY'
+python3 - "$ANALYSIS_DIR" "$WINDOW" "$OUTPUT_JSON" "$OUTPUT_MD" "$LATEST_JSON" "$LATEST_MD" "$MAX_LOCKOUT_RATIO" "$MAX_MEAN_FAILURES" "$REQUIRE_FINAL_SOURCE" "$REQUIRE_FINAL_LAST_EVENT" "$MIN_GUARD_CLEARED_RATIO" "$FAIL_ON_THRESHOLD_BREACH" <<'PY'
 import json
 import re
 import statistics
@@ -135,7 +149,9 @@ latest_md = Path(sys.argv[6])
 max_lockout_ratio_raw = sys.argv[7]
 max_mean_failures_raw = sys.argv[8]
 require_final_source = sys.argv[9]
-fail_on_threshold_breach = sys.argv[10] == "1"
+require_final_last_event = sys.argv[10]
+min_guard_cleared_ratio_raw = sys.argv[11]
+fail_on_threshold_breach = sys.argv[12] == "1"
 
 pattern = re.compile(r"^iso_onboarding_telemetry_summary_(\d{8}T\d{6}Z)\.json$")
 
@@ -150,10 +166,13 @@ def parse_optional_float(raw: str, name: str):
 
 max_lockout_ratio = parse_optional_float(max_lockout_ratio_raw, "--max-lockout-ratio")
 max_mean_failures = parse_optional_float(max_mean_failures_raw, "--max-mean-failures")
+min_guard_cleared_ratio = parse_optional_float(min_guard_cleared_ratio_raw, "--min-guard-cleared-ratio")
 if max_lockout_ratio is not None and not (0.0 <= max_lockout_ratio <= 1.0):
     raise SystemExit("--max-lockout-ratio must be in range 0.0..1.0")
 if max_mean_failures is not None and max_mean_failures < 0.0:
     raise SystemExit("--max-mean-failures must be >= 0.0")
+if min_guard_cleared_ratio is not None and not (0.0 <= min_guard_cleared_ratio <= 1.0):
+    raise SystemExit("--min-guard-cleared-ratio must be in range 0.0..1.0")
 
 def parse_summary(path: Path) -> dict | None:
     try:
@@ -216,12 +235,15 @@ rollup = {
         "max_lockout_ratio": max_lockout_ratio,
         "max_mean_failures": max_mean_failures,
         "require_final_source": require_final_source if require_final_source else None,
+        "require_final_last_event": require_final_last_event if require_final_last_event else None,
+        "min_guard_cleared_ratio": min_guard_cleared_ratio,
         "fail_on_threshold_breach": fail_on_threshold_breach,
     },
     "aggregate": {
         "lockout_runs": lockout_runs,
         "lockout_run_ratio": (lockout_runs / total_runs) if total_runs else 0.0,
         "guard_cleared_runs": guard_cleared_runs,
+        "guard_cleared_run_ratio": (guard_cleared_runs / total_runs) if total_runs else 0.0,
         "max_failures_peak": max(max_failures_values) if max_failures_values else 0,
         "max_failures_mean": (statistics.fmean(max_failures_values) if max_failures_values else 0.0),
         "final_onboarding_source_distribution": dict(source_counter),
@@ -233,12 +255,18 @@ rollup = {
 
 breaches = []
 ratio = rollup["aggregate"]["lockout_run_ratio"]
+guard_cleared_ratio = rollup["aggregate"]["guard_cleared_run_ratio"]
 mean_failures = rollup["aggregate"]["max_failures_mean"]
 latest_source = rollup["aggregate"]["latest_run"].get("final_onboarding_source", "unknown") if isinstance(rollup["aggregate"]["latest_run"], dict) else "unknown"
+latest_last_event = rollup["aggregate"]["latest_run"].get("final_telemetry_last_event", "unknown") if isinstance(rollup["aggregate"]["latest_run"], dict) else "unknown"
 
 if max_lockout_ratio is not None and ratio > max_lockout_ratio:
     breaches.append(
         f"lockout_run_ratio {ratio:.4f} exceeds threshold {max_lockout_ratio:.4f}"
+    )
+if min_guard_cleared_ratio is not None and guard_cleared_ratio < min_guard_cleared_ratio:
+    breaches.append(
+        f"guard_cleared_run_ratio {guard_cleared_ratio:.4f} below threshold {min_guard_cleared_ratio:.4f}"
     )
 if max_mean_failures is not None and mean_failures > max_mean_failures:
     breaches.append(
@@ -247,6 +275,10 @@ if max_mean_failures is not None and mean_failures > max_mean_failures:
 if require_final_source and latest_source != require_final_source:
     breaches.append(
         f"latest final_onboarding_source '{latest_source}' != required '{require_final_source}'"
+    )
+if require_final_last_event and latest_last_event != require_final_last_event:
+    breaches.append(
+        f"latest final_telemetry_last_event '{latest_last_event}' != required '{require_final_last_event}'"
     )
 
 rollup["threshold_evaluation"] = {
@@ -266,6 +298,7 @@ lines = [
     f"- Lockout runs: `{lockout_runs}`",
     f"- Lockout ratio: `{rollup['aggregate']['lockout_run_ratio']:.2%}`",
     f"- Guard-cleared runs: `{guard_cleared_runs}`",
+    f"- Guard-cleared ratio: `{rollup['aggregate']['guard_cleared_run_ratio']:.2%}`",
     f"- Max failures peak: `{rollup['aggregate']['max_failures_peak']}`",
     f"- Mean max failures: `{rollup['aggregate']['max_failures_mean']:.2f}`",
     "",
@@ -275,6 +308,8 @@ lines = [
     f"- policy.max_lockout_ratio: `{rollup['threshold_policy']['max_lockout_ratio']}`",
     f"- policy.max_mean_failures: `{rollup['threshold_policy']['max_mean_failures']}`",
     f"- policy.require_final_source: `{rollup['threshold_policy']['require_final_source']}`",
+    f"- policy.require_final_last_event: `{rollup['threshold_policy']['require_final_last_event']}`",
+    f"- policy.min_guard_cleared_ratio: `{rollup['threshold_policy']['min_guard_cleared_ratio']}`",
     f"- policy.fail_on_threshold_breach: `{rollup['threshold_policy']['fail_on_threshold_breach']}`",
     "",
 ]

@@ -138,7 +138,9 @@ Tuned threshold gate example:
   --window 30 \
   --max-lockout-ratio 1.0 \
   --max-mean-failures 3.0 \
-  --require-final-source import_encrypted
+  --require-final-source import_encrypted \
+  --require-final-last-event guard_cleared \
+  --min-guard-cleared-ratio 1.0
 ```
 
 Policy profile dry-run example:

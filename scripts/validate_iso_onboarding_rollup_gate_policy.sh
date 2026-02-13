@@ -103,6 +103,8 @@ required_fields = [
     "window",
     "max_lockout_ratio",
     "max_mean_failures",
+    "min_guard_cleared_ratio",
+    "require_final_last_event",
 ]
 
 for profile_name, profile in profiles.items():
@@ -117,7 +119,9 @@ for profile_name, profile in profiles.items():
     window = profile["window"]
     max_lockout_ratio = profile["max_lockout_ratio"]
     max_mean_failures = profile["max_mean_failures"]
+    min_guard_cleared_ratio = profile["min_guard_cleared_ratio"]
     require_final_source = profile.get("require_final_source", "")
+    require_final_last_event = profile.get("require_final_last_event", "")
 
     if not isinstance(qemu_timeout, int) or qemu_timeout < 5:
         raise SystemExit(f"Error: profile '{profile_name}' qemu_timeout_seconds must be integer >= 5")
@@ -129,8 +133,14 @@ for profile_name, profile in profiles.items():
         raise SystemExit(f"Error: profile '{profile_name}' max_lockout_ratio must be numeric in range 0.0..1.0")
     if not isinstance(max_mean_failures, (int, float)) or float(max_mean_failures) < 0.0:
         raise SystemExit(f"Error: profile '{profile_name}' max_mean_failures must be numeric >= 0.0")
+    if not isinstance(min_guard_cleared_ratio, (int, float)) or not (0.0 <= float(min_guard_cleared_ratio) <= 1.0):
+        raise SystemExit(
+            f"Error: profile '{profile_name}' min_guard_cleared_ratio must be numeric in range 0.0..1.0"
+        )
     if require_final_source is not None and not isinstance(require_final_source, str):
         raise SystemExit(f"Error: profile '{profile_name}' require_final_source must be string or null")
+    if require_final_last_event is not None and not isinstance(require_final_last_event, str):
+        raise SystemExit(f"Error: profile '{profile_name}' require_final_last_event must be string or null")
 
 if validate_workflow_options:
     if not workflow_path.exists():

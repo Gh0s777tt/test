@@ -23,6 +23,8 @@ ONBOARDING_ROLLUP_WINDOW=30
 ONBOARDING_ROLLUP_MAX_LOCKOUT_RATIO=1.0
 ONBOARDING_ROLLUP_MAX_MEAN_FAILURES=3.0
 ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE="import_encrypted"
+ONBOARDING_ROLLUP_REQUIRE_FINAL_LAST_EVENT="guard_cleared"
+ONBOARDING_ROLLUP_MIN_GUARD_CLEARED_RATIO=1.0
 ENFORCE_ONBOARDING_ROLLUP_THRESHOLDS=0
 
 usage() {
@@ -45,6 +47,10 @@ Options:
                                Rollup threshold for max_failures_mean (default: 3.0)
   --onboarding-rollup-require-final-source <name>
                                Rollup threshold for latest final source (default: import_encrypted)
+  --onboarding-rollup-require-final-last-event <name>
+                               Rollup threshold for latest last_event (default: guard_cleared)
+  --onboarding-rollup-min-guard-cleared-ratio <n>
+                               Rollup threshold for minimum guard_cleared run ratio 0.0..1.0 (default: 1.0)
   --enforce-onboarding-rollup-thresholds
                                Fail build if rollup threshold evaluation reports breaches
   -h, --help                   Show this help
@@ -91,6 +97,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --onboarding-rollup-require-final-source)
       ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE="${2:-}"
+      shift 2
+      ;;
+    --onboarding-rollup-require-final-last-event)
+      ONBOARDING_ROLLUP_REQUIRE_FINAL_LAST_EVENT="${2:-}"
+      shift 2
+      ;;
+    --onboarding-rollup-min-guard-cleared-ratio)
+      ONBOARDING_ROLLUP_MIN_GUARD_CLEARED_RATIO="${2:-}"
       shift 2
       ;;
     --enforce-onboarding-rollup-thresholds)
@@ -873,9 +887,13 @@ if (( RUN_INSTALLER_SMOKE == 1 )); then
       --window "$ONBOARDING_ROLLUP_WINDOW"
       --max-lockout-ratio "$ONBOARDING_ROLLUP_MAX_LOCKOUT_RATIO"
       --max-mean-failures "$ONBOARDING_ROLLUP_MAX_MEAN_FAILURES"
+      --min-guard-cleared-ratio "$ONBOARDING_ROLLUP_MIN_GUARD_CLEARED_RATIO"
     )
     if [[ -n "$ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE" ]]; then
       ROLLUP_CMD+=(--require-final-source "$ONBOARDING_ROLLUP_REQUIRE_FINAL_SOURCE")
+    fi
+    if [[ -n "$ONBOARDING_ROLLUP_REQUIRE_FINAL_LAST_EVENT" ]]; then
+      ROLLUP_CMD+=(--require-final-last-event "$ONBOARDING_ROLLUP_REQUIRE_FINAL_LAST_EVENT")
     fi
     if (( ENFORCE_ONBOARDING_ROLLUP_THRESHOLDS == 1 )); then
       ROLLUP_CMD+=(--fail-on-threshold-breach)

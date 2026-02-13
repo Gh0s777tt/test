@@ -109,8 +109,11 @@ jobs:
                       f"- breaches_count: `{len(evaluation.get('breaches', []))}`",
                       f"- window_effective: `{payload.get('window_size_effective', 0)}`",
                       f"- lockout_run_ratio: `{aggregate.get('lockout_run_ratio', 0.0)}`",
+                      f"- guard_cleared_run_ratio: `{aggregate.get('guard_cleared_run_ratio', 0.0)}`",
                       f"- max_failures_mean: `{aggregate.get('max_failures_mean', 0.0)}`",
                       f"- require_final_source: `{policy.get('require_final_source')}`",
+                      f"- require_final_last_event: `{policy.get('require_final_last_event')}`",
+                      f"- min_guard_cleared_ratio: `{policy.get('min_guard_cleared_ratio')}`",
                       "",
                   ]
               )

@@ -19,6 +19,8 @@ WINDOW=30
 MAX_LOCKOUT_RATIO="1.0"
 MAX_MEAN_FAILURES="3.0"
 REQUIRE_FINAL_SOURCE="import_encrypted"
+REQUIRE_FINAL_LAST_EVENT="guard_cleared"
+MIN_GUARD_CLEARED_RATIO="1.0"
 
 HAS_QEMU_TIMEOUT=0
 HAS_INSTALLER_TIMEOUT=0
@@ -26,6 +28,8 @@ HAS_WINDOW=0
 HAS_MAX_LOCKOUT_RATIO=0
 HAS_MAX_MEAN_FAILURES=0
 HAS_REQUIRE_FINAL_SOURCE=0
+HAS_REQUIRE_FINAL_LAST_EVENT=0
+HAS_MIN_GUARD_CLEARED_RATIO=0
 
 usage() {
   cat <<'USAGE'
@@ -42,7 +46,11 @@ Options:
   --max-lockout-ratio <n>        Threshold max lockout ratio 0.0..1.0
   --max-mean-failures <n>        Threshold max mean failures
   --require-final-source <name>  Required latest onboarding source
+  --require-final-last-event <name>
+                                  Required latest onboarding telemetry last_event
+  --min-guard-cleared-ratio <n>  Minimum required guard_cleared run ratio 0.0..1.0
   --allow-any-final-source       Disable final source threshold check
+  --allow-any-final-last-event   Disable latest last_event threshold check
   --dry-run                      Print effective config and build command only
   -h, --help                     Show this help
 USAGE
@@ -95,6 +103,7 @@ required_int_fields = [
 required_float_fields = [
     "max_lockout_ratio",
     "max_mean_failures",
+    "min_guard_cleared_ratio",
 ]
 for field in required_int_fields:
     if field not in profile:
@@ -115,6 +124,13 @@ if require_final_source is None:
     require_final_source = ""
 if not isinstance(require_final_source, str):
     raise SystemExit(f"Error: policy field 'require_final_source' in profile '{profile_name}' must be string or null")
+require_final_last_event = profile.get("require_final_last_event", "")
+if require_final_last_event is None:
+    require_final_last_event = ""
+if not isinstance(require_final_last_event, str):
+    raise SystemExit(
+        f"Error: policy field 'require_final_last_event' in profile '{profile_name}' must be string or null"
+    )
 
 print(f"PROFILE_NAME={profile_name}")
 print(f"QEMU_TIMEOUT_SECONDS={profile['qemu_timeout_seconds']}")
@@ -122,7 +138,9 @@ print(f"INSTALLER_TIMEOUT_SECONDS={profile['installer_timeout_seconds']}")
 print(f"WINDOW={profile['window']}")
 print(f"MAX_LOCKOUT_RATIO={float(profile['max_lockout_ratio'])}")
 print(f"MAX_MEAN_FAILURES={float(profile['max_mean_failures'])}")
+print(f"MIN_GUARD_CLEARED_RATIO={float(profile['min_guard_cleared_ratio'])}")
 print(f"REQUIRE_FINAL_SOURCE={require_final_source}")
+print(f"REQUIRE_FINAL_LAST_EVENT={require_final_last_event}")
 PY
 }
 
@@ -174,9 +192,24 @@ while [[ $# -gt 0 ]]; do
       HAS_REQUIRE_FINAL_SOURCE=1
       shift 2
       ;;
+    --require-final-last-event)
+      REQUIRE_FINAL_LAST_EVENT="${2:-}"
+      HAS_REQUIRE_FINAL_LAST_EVENT=1
+      shift 2
+      ;;
+    --min-guard-cleared-ratio)
+      MIN_GUARD_CLEARED_RATIO="${2:-}"
+      HAS_MIN_GUARD_CLEARED_RATIO=1
+      shift 2
+      ;;
     --allow-any-final-source)
       REQUIRE_FINAL_SOURCE=""
       HAS_REQUIRE_FINAL_SOURCE=1
+      shift
+      ;;
+    --allow-any-final-last-event)
+      REQUIRE_FINAL_LAST_EVENT=""
+      HAS_REQUIRE_FINAL_LAST_EVENT=1
       shift
       ;;
     --dry-run)
@@ -203,7 +236,9 @@ if (( USE_POLICY == 1 )); then
   POLICY_WINDOW=""
   POLICY_MAX_LOCKOUT_RATIO=""
   POLICY_MAX_MEAN_FAILURES=""
+  POLICY_MIN_GUARD_CLEARED_RATIO=""
   POLICY_REQUIRE_FINAL_SOURCE=""
+  POLICY_REQUIRE_FINAL_LAST_EVENT=""
   for kv in "${POLICY_KV[@]}"; do
     key="${kv%%=*}"
     value="${kv#*=}"
@@ -214,7 +249,9 @@ if (( USE_POLICY == 1 )); then
       WINDOW) POLICY_WINDOW="$value" ;;
       MAX_LOCKOUT_RATIO) POLICY_MAX_LOCKOUT_RATIO="$value" ;;
       MAX_MEAN_FAILURES) POLICY_MAX_MEAN_FAILURES="$value" ;;
+      MIN_GUARD_CLEARED_RATIO) POLICY_MIN_GUARD_CLEARED_RATIO="$value" ;;
       REQUIRE_FINAL_SOURCE) POLICY_REQUIRE_FINAL_SOURCE="$value" ;;
+      REQUIRE_FINAL_LAST_EVENT) POLICY_REQUIRE_FINAL_LAST_EVENT="$value" ;;
     esac
   done
   if (( HAS_QEMU_TIMEOUT == 0 )); then QEMU_TIMEOUT_SECONDS="$POLICY_QEMU_TIMEOUT"; fi
@@ -222,7 +259,9 @@ if (( USE_POLICY == 1 )); then
   if (( HAS_WINDOW == 0 )); then WINDOW="$POLICY_WINDOW"; fi
   if (( HAS_MAX_LOCKOUT_RATIO == 0 )); then MAX_LOCKOUT_RATIO="$POLICY_MAX_LOCKOUT_RATIO"; fi
   if (( HAS_MAX_MEAN_FAILURES == 0 )); then MAX_MEAN_FAILURES="$POLICY_MAX_MEAN_FAILURES"; fi
+  if (( HAS_MIN_GUARD_CLEARED_RATIO == 0 )); then MIN_GUARD_CLEARED_RATIO="$POLICY_MIN_GUARD_CLEARED_RATIO"; fi
   if (( HAS_REQUIRE_FINAL_SOURCE == 0 )); then REQUIRE_FINAL_SOURCE="$POLICY_REQUIRE_FINAL_SOURCE"; fi
+  if (( HAS_REQUIRE_FINAL_LAST_EVENT == 0 )); then REQUIRE_FINAL_LAST_EVENT="$POLICY_REQUIRE_FINAL_LAST_EVENT"; fi
   echo "Loaded ISO onboarding gate policy profile: ${EFFECTIVE_PROFILE} (${POLICY_JSON})"
 fi
 
@@ -256,15 +295,23 @@ if ! is_number "$MAX_MEAN_FAILURES"; then
   exit 1
 fi
 
-python3 - "$MAX_LOCKOUT_RATIO" "$MAX_MEAN_FAILURES" <<'PY'
+if ! is_number "$MIN_GUARD_CLEARED_RATIO"; then
+  echo "Error: --min-guard-cleared-ratio must be numeric" >&2
+  exit 1
+fi
+
+python3 - "$MAX_LOCKOUT_RATIO" "$MAX_MEAN_FAILURES" "$MIN_GUARD_CLEARED_RATIO" <<'PY'
 import sys
 
 ratio = float(sys.argv[1])
 mean_failures = float(sys.argv[2])
+min_guard_cleared_ratio = float(sys.argv[3])
 if not (0.0 <= ratio <= 1.0):
     raise SystemExit("Error: --max-lockout-ratio must be in range 0.0..1.0")
 if mean_failures < 0.0:
     raise SystemExit("Error: --max-mean-failures must be >= 0.0")
+if not (0.0 <= min_guard_cleared_ratio <= 1.0):
+    raise SystemExit("Error: --min-guard-cleared-ratio must be in range 0.0..1.0")
 PY
 
 BUILD_CMD=(
@@ -277,10 +324,14 @@ BUILD_CMD=(
   --onboarding-rollup-window "$WINDOW"
   --onboarding-rollup-max-lockout-ratio "$MAX_LOCKOUT_RATIO"
   --onboarding-rollup-max-mean-failures "$MAX_MEAN_FAILURES"
+  --onboarding-rollup-min-guard-cleared-ratio "$MIN_GUARD_CLEARED_RATIO"
 )
 
 if [[ -n "$REQUIRE_FINAL_SOURCE" ]]; then
   BUILD_CMD+=(--onboarding-rollup-require-final-source "$REQUIRE_FINAL_SOURCE")
+fi
+if [[ -n "$REQUIRE_FINAL_LAST_EVENT" ]]; then
+  BUILD_CMD+=(--onboarding-rollup-require-final-last-event "$REQUIRE_FINAL_LAST_EVENT")
 fi
 
 BUILD_CMD+=(--enforce-onboarding-rollup-thresholds)
@@ -293,7 +344,9 @@ if (( DRY_RUN == 1 )); then
   echo "  window=$WINDOW"
   echo "  max_lockout_ratio=$MAX_LOCKOUT_RATIO"
   echo "  max_mean_failures=$MAX_MEAN_FAILURES"
+  echo "  min_guard_cleared_ratio=$MIN_GUARD_CLEARED_RATIO"
   echo "  require_final_source=${REQUIRE_FINAL_SOURCE:-<any>}"
+  echo "  require_final_last_event=${REQUIRE_FINAL_LAST_EVENT:-<any>}"
   printf "  command="
   printf '%q ' "${BUILD_CMD[@]}"
   echo
