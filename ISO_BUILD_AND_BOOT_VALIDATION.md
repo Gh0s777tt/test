@@ -129,6 +129,7 @@ Build + smoke + enforced onboarding rollup threshold gate (CI-equivalent local r
 Gate thresholds are sourced from:
 
 - `governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json` (profile `ci_default`)
+- preflight validator: `scripts/validate_iso_onboarding_rollup_gate_policy.sh`
 
 Tuned threshold gate example:
 
