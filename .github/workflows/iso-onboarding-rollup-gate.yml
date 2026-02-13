@@ -64,6 +64,7 @@ jobs:
       - name: Validate onboarding gate policy
         run: >
           ./scripts/validate_iso_onboarding_rollup_gate_policy.sh
+          --validate-workflow-options
           --require-profile ci_default
           --require-profile local_fast
 

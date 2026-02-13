@@ -3,21 +3,26 @@
 # Usage:
 #   ./scripts/validate_iso_onboarding_rollup_gate_policy.sh
 #   ./scripts/validate_iso_onboarding_rollup_gate_policy.sh --require-profile ci_default
+#   ./scripts/validate_iso_onboarding_rollup_gate_policy.sh --validate-workflow-options
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY_JSON="$ROOT/governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json"
+WORKFLOW_YAML="$ROOT/.github/workflows/iso-onboarding-rollup-gate.yml"
 REQUIRED_PROFILES=()
+VALIDATE_WORKFLOW_OPTIONS=0
 
 usage() {
   cat <<'USAGE'
 Usage: ./scripts/validate_iso_onboarding_rollup_gate_policy.sh [options]
 
 Options:
-  --policy-json <path>       Policy JSON path (default: governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json)
-  --require-profile <name>   Require profile to exist (repeatable)
-  -h, --help                 Show this help
+  --policy-json <path>             Policy JSON path (default: governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json)
+  --require-profile <name>         Require profile to exist (repeatable)
+  --workflow-yaml <path>           Workflow YAML path used for option sync check
+  --validate-workflow-options      Validate workflow_dispatch.policy_profile options against policy profiles
+  -h, --help                       Show this help
 USAGE
 }
 
@@ -31,6 +36,14 @@ while [[ $# -gt 0 ]]; do
       REQUIRED_PROFILES+=("${2:-}")
       shift 2
       ;;
+    --workflow-yaml)
+      WORKFLOW_YAML="${2:-}"
+      shift 2
+      ;;
+    --validate-workflow-options)
+      VALIDATE_WORKFLOW_OPTIONS=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -43,13 +56,16 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-python3 - "$POLICY_JSON" "${REQUIRED_PROFILES[@]}" <<'PY'
+python3 - "$POLICY_JSON" "$WORKFLOW_YAML" "$VALIDATE_WORKFLOW_OPTIONS" "${REQUIRED_PROFILES[@]}" <<'PY'
 import json
+import re
 import sys
 from pathlib import Path
 
 policy_path = Path(sys.argv[1])
-required_profiles = sys.argv[2:]
+workflow_path = Path(sys.argv[2])
+validate_workflow_options = sys.argv[3] == "1"
+required_profiles = sys.argv[4:]
 
 if not policy_path.exists():
     raise SystemExit(f"Error: policy file not found: {policy_path}")
@@ -115,6 +131,68 @@ for profile_name, profile in profiles.items():
         raise SystemExit(f"Error: profile '{profile_name}' max_mean_failures must be numeric >= 0.0")
     if require_final_source is not None and not isinstance(require_final_source, str):
         raise SystemExit(f"Error: profile '{profile_name}' require_final_source must be string or null")
+
+if validate_workflow_options:
+    if not workflow_path.exists():
+        raise SystemExit(f"Error: workflow YAML not found: {workflow_path}")
+
+    workflow_text = workflow_path.read_text(encoding="utf-8")
+    lines = workflow_text.splitlines()
+    profile_idx = None
+    profile_indent = None
+    for idx, line in enumerate(lines):
+        match = re.match(r"^(\s*)policy_profile:\s*$", line)
+        if match:
+            profile_idx = idx
+            profile_indent = len(match.group(1))
+            break
+    if profile_idx is None:
+        raise SystemExit("Error: workflow does not define workflow_dispatch input 'policy_profile'")
+
+    options_idx = None
+    options_indent = None
+    for idx in range(profile_idx + 1, len(lines)):
+        line = lines[idx]
+        stripped = line.strip()
+        if not stripped:
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        if indent <= profile_indent:
+            break
+        if re.match(r"^\s*options:\s*$", line):
+            options_idx = idx
+            options_indent = indent
+            break
+    if options_idx is None:
+        raise SystemExit("Error: workflow policy_profile input does not define options list")
+
+    observed_options = []
+    for idx in range(options_idx + 1, len(lines)):
+        line = lines[idx]
+        stripped = line.strip()
+        if not stripped:
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        if indent <= options_indent:
+            break
+        item_match = re.match(r"^\s*-\s*(.+?)\s*$", line)
+        if not item_match:
+            continue
+        value = item_match.group(1).strip().strip("'\"")
+        if value:
+            observed_options.append(value)
+
+    if not observed_options:
+        raise SystemExit("Error: workflow policy_profile options list is empty")
+
+    expected = sorted(profiles.keys())
+    observed = sorted(dict.fromkeys(observed_options))
+    if observed != expected:
+        raise SystemExit(
+            "Error: workflow policy_profile options do not match policy profiles; "
+            f"expected={expected}, observed={observed}"
+        )
+    print(f"OK workflow_options_synced path={workflow_path}")
 
 print(f"OK policy_valid path={policy_path}")
 print(f"OK active_profile={active_profile}")
