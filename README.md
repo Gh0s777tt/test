@@ -634,6 +634,8 @@ cargo check --manifest-path src/verified/Cargo.toml --locked
 ./scripts/validate_iso_onboarding_rollup_gate_policy.sh --validate-workflow-options --require-profile ci_default
 # fast threshold evaluator self-test (no QEMU):
 ./scripts/selftest_iso_onboarding_rollup_thresholds.sh
+# fast wrapper policy/override self-test (no QEMU):
+./scripts/selftest_iso_onboarding_ci_gate_wrapper.sh
 # inspect effective config without running QEMU:
 ./scripts/run_iso_onboarding_ci_gate.sh --policy-profile local_fast --dry-run
 # GitHub Actions PR gate:

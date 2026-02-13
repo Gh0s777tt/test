@@ -135,6 +135,7 @@ See [../history/](../history/) for:
 - **Running ISO onboarding CI gate locally (full smoke + rollup threshold enforcement)**: `../scripts/run_iso_onboarding_ci_gate.sh`
 - **Validating ISO onboarding rollup gate policy schema/bounds and workflow option sync**: `../scripts/validate_iso_onboarding_rollup_gate_policy.sh`
 - **Self-testing ISO onboarding rollup threshold evaluator logic (fast/no-QEMU)**: `../scripts/selftest_iso_onboarding_rollup_thresholds.sh`
+- **Self-testing ISO onboarding CI gate wrapper policy/override behavior (fast/no-QEMU)**: `../scripts/selftest_iso_onboarding_ci_gate_wrapper.sh`
 - **ISO onboarding rollup gate policy profiles**: `../governance/performance/ISO_ONBOARDING_ROLLUP_GATE_POLICY.json`
 - **Rolling up ISO onboarding telemetry summaries (JSON + Markdown trend report + threshold pass/fail evaluation)**: `../scripts/generate_iso_onboarding_telemetry_rollup.sh`
 - **Enforcing ISO onboarding telemetry threshold gate in CI (build + smoke + rollup fail-on-breach)**: `../.github/workflows/iso-onboarding-rollup-gate.yml`

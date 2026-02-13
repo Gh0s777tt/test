@@ -15,6 +15,7 @@ on:
       - "scripts/install_iso_build_deps_ubuntu.sh"
       - "scripts/validate_iso_onboarding_rollup_gate_policy.sh"
       - "scripts/selftest_iso_onboarding_rollup_thresholds.sh"
+      - "scripts/selftest_iso_onboarding_ci_gate_wrapper.sh"
       - "userspace/init.rs"
       - "userspace/shell.rs"
   pull_request:
@@ -27,6 +28,7 @@ on:
       - "scripts/install_iso_build_deps_ubuntu.sh"
       - "scripts/validate_iso_onboarding_rollup_gate_policy.sh"
       - "scripts/selftest_iso_onboarding_rollup_thresholds.sh"
+      - "scripts/selftest_iso_onboarding_ci_gate_wrapper.sh"
       - "userspace/init.rs"
       - "userspace/shell.rs"
   workflow_dispatch:
@@ -72,6 +74,9 @@ jobs:
 
       - name: Self-test onboarding rollup threshold evaluator
         run: ./scripts/selftest_iso_onboarding_rollup_thresholds.sh
+
+      - name: Self-test onboarding CI gate wrapper
+        run: ./scripts/selftest_iso_onboarding_ci_gate_wrapper.sh
 
       - name: Install host dependencies
         run: ./scripts/install_iso_build_deps_ubuntu.sh --with-qemu
