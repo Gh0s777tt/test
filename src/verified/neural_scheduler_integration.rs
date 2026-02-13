@@ -47,7 +47,7 @@ impl NeuralSchedulerIntegration {
     pub const fn new() -> Self {
         NeuralSchedulerIntegration {
             neural_scheduler: NeuralScheduler::new(),
-            predictors: [WorkloadPredictor::new(); MAX_TRACKED_THREADS],
+            predictors: [const { WorkloadPredictor::new() }; MAX_TRACKED_THREADS],
             num_predictors: 0,
             gaming_mode: false,
             adjustments_made: 0,

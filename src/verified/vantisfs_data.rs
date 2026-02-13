@@ -165,7 +165,7 @@ impl DataBlockManager {
     /// Create a new data block manager
     pub const fn new() -> Self {
         DataBlockManager {
-            cache: [CacheEntry::new(); 64],
+            cache: [const { CacheEntry::new() }; 64],
             cache_hits: 0,
             cache_misses: 0,
             blocks_read: 0,
