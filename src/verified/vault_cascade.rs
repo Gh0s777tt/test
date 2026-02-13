@@ -163,6 +163,12 @@ impl VantisVaultCascade {
     }
 }
 
+impl Default for VantisVaultCascade {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drop for VantisVaultCascade {
     fn drop(&mut self) {
         // Ensure keys are zeroized on drop

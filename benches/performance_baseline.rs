@@ -3,8 +3,7 @@
 //! Simple benchmarks to establish baseline performance metrics
 //! without requiring full VantisOS module compilation.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use std::time::Duration;
+use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 
 // ============================================================================
 // SYSCALL OVERHEAD SIMULATION
@@ -328,7 +327,7 @@ fn minimal_syscall(x: i32) -> i32 {
 
 #[inline(never)]
 fn syscall_with_validation(x: i32) -> i32 {
-    if x >= 0 && x < 1000 {
+    if (0..1000).contains(&x) {
         x * 2
     } else {
         0
@@ -347,7 +346,7 @@ fn syscall_with_result(x: i32) -> Result<i32, &'static str> {
 #[inline(never)]
 fn full_syscall_simulation(x: i32) -> Result<i32, &'static str> {
     // Validation
-    if x < 0 || x >= 1000 {
+    if !(0..1000).contains(&x) {
         return Err("out of range");
     }
     
@@ -410,8 +409,8 @@ fn path_resolve(path: &Path) -> PathBuf {
 }
 
 #[inline(never)]
-fn path_resolve_relative(base: &PathBuf, path: &Path) -> PathBuf {
-    let mut result = base.clone();
+fn path_resolve_relative(base: &Path, path: &Path) -> PathBuf {
+    let mut result = base.to_path_buf();
     result.push(path);
     result
 }

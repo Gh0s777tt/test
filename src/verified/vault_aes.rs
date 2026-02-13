@@ -90,8 +90,8 @@ pub fn encrypt_aes256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8>, A
     buffer[..plaintext.len()].copy_from_slice(plaintext);
     
     // Add PKCS#7 padding
-    for i in plaintext.len()..padded_len {
-        buffer[i] = padding_len as u8;
+    for byte in buffer.iter_mut().take(padded_len).skip(plaintext.len()) {
+        *byte = padding_len as u8;
     }
     
     // Encrypt in place - iterate over blocks
@@ -140,7 +140,7 @@ pub fn decrypt_aes256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, AesErr
     let (iv, ciphertext) = data.split_at(16);
     
     // Create decryptor
-    let mut decryptor = Aes256CbcDec::new(key.into(), iv.try_into().unwrap());
+    let mut decryptor = Aes256CbcDec::new(key.into(), iv.into());
     
     // Decrypt in place
     let mut buffer = ciphertext.to_vec();
@@ -161,8 +161,8 @@ pub fn decrypt_aes256_cbc(key: &[u8; 32], data: &[u8]) -> Result<Vec<u8>, AesErr
     }
     
     // Verify padding
-    for i in (buffer.len() - padding_len)..buffer.len() {
-        if buffer[i] != padding_len as u8 {
+    for byte in buffer.iter().skip(buffer.len() - padding_len) {
+        if *byte != padding_len as u8 {
             return Err(AesError::DecryptionFailed);
         }
     }
@@ -202,8 +202,8 @@ pub fn encrypt_aes256_cbc_with_iv(
     buffer[..plaintext.len()].copy_from_slice(plaintext);
     
     // Add PKCS#7 padding
-    for i in plaintext.len()..padded_len {
-        buffer[i] = padding_len as u8;
+    for byte in buffer.iter_mut().take(padded_len).skip(plaintext.len()) {
+        *byte = padding_len as u8;
     }
     
     // Encrypt in place - iterate over blocks
@@ -259,7 +259,7 @@ pub fn fips_kat_aes256_cbc() -> Result<(), AesError> {
     let result = encrypt_aes256_cbc_with_iv(&key, &iv, &plaintext)?;
     
     // Verify ciphertext (skip IV in result)
-    if &result[16..32] != &expected_ciphertext[..] {
+    if result[16..32] != expected_ciphertext[..] {
         return Err(AesError::DecryptionFailed);
     }
     
