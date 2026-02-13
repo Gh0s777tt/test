@@ -201,7 +201,7 @@ impl SchedTask {
     /// - Precondition: -20 <= nice <= 19
     /// - Postcondition: self.nice == nice
     pub fn set_nice(&mut self, nice: i8) -> Result<(), &'static str> {
-        if nice < -20 || nice > 19 {
+        if !(-20..=19).contains(&nice) {
             return Err("Nice value out of range");
         }
         
@@ -524,6 +524,12 @@ impl Scheduler {
             context_switches: self.context_switches,
             current_time: self.current_time,
         }
+    }
+}
+
+impl Default for Scheduler {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

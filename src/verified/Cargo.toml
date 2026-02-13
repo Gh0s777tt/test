@@ -24,6 +24,9 @@ vulkan = ["ash"]
 metal = ["metal-rs", "objc"]
 all-backends = ["vulkan", "metal"]
 
+# Opt-in feature for legacy/experimental IPC complete benchmark harness
+ipc-complete-bench = []
+
 # Default features
 default = ["hw-accel"]
 
@@ -77,6 +80,7 @@ harness = false
 name = "ipc_complete_benchmark"
 harness = false
 path = "../../benches/ipc_complete_benchmark.rs"
+required-features = ["ipc-complete-bench"]
 
 [[bench]]
 name = "performance_baseline"

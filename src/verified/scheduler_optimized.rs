@@ -133,6 +133,12 @@ impl SchedStats {
     }
 }
 
+impl Default for SchedStats {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Task in the scheduler
 #[derive(Debug, Clone)]
 pub struct SchedTask {
@@ -362,6 +368,12 @@ impl PriorityBitmap {
     }
 }
 
+impl Default for PriorityBitmap {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Optimized Scheduler with Priority Bitmap
 pub struct SchedulerOptimized {
     /// Run queues for each priority level (256 levels)
@@ -500,6 +512,12 @@ impl SchedulerOptimized {
     /// Get total number of tasks
     pub fn task_count(&self) -> usize {
         self.run_queues.iter().map(|q| q.len()).sum()
+    }
+}
+
+impl Default for SchedulerOptimized {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
