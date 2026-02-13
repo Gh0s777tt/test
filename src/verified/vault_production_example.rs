@@ -261,7 +261,7 @@ impl ProductionVault {
 // PRODUCTION TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod production_tests {
     use super::*;
     

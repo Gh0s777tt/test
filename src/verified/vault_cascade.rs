@@ -32,11 +32,11 @@
 //! 4. **Formal Verification**: All operations are formally verified
 //! 5. **Maximum Security**: If any algorithm is broken, others still protect data
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 use super::vault::{CascadeKeys, MAX_DATA_SIZE};
@@ -186,7 +186,7 @@ impl Drop for VantisVaultCascade {
 // FORMAL VERIFICATION WITH VERUS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     impl VantisVaultCascade {
         /// Verify encryption/decryption roundtrip
@@ -285,7 +285,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     use super::super::vault::KEY_SIZE;

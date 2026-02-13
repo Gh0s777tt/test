@@ -3,11 +3,11 @@
 //! This module provides mathematically proven implementations of
 //! memory allocation and management with safety guarantees.
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 /// Memory allocation error types
@@ -25,7 +25,7 @@ pub enum BufferError {
 }
 
 /// Memory allocator with formal verification
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub struct VerifiedAllocator {
         heap_start: usize,
@@ -104,14 +104,14 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub struct VerifiedAllocator {
     heap_start: usize,
     heap_size: usize,
     allocated: usize,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl VerifiedAllocator {
     pub fn new(start: usize, size: usize) -> Self {
         assert!(size > 0, "Size must be greater than 0");
@@ -144,7 +144,7 @@ impl VerifiedAllocator {
 }
 
 /// Verified buffer with bounds checking
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub struct VerifiedBuffer {
         data: Vec<u8>,
@@ -205,13 +205,13 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub struct VerifiedBuffer {
     data: Vec<u8>,
     capacity: usize,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl VerifiedBuffer {
     pub fn new(capacity: usize) -> Self {
         assert!(capacity > 0, "Capacity must be greater than 0");
@@ -333,7 +333,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

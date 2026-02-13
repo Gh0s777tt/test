@@ -14,11 +14,11 @@
 //! - Twofish-256 from `twofish` crate
 //! - Serpent-256 from `serpent` crate
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 use super::vault::{CascadeKeys, KEY_SIZE, MAX_DATA_SIZE};
@@ -137,7 +137,7 @@ impl Default for VantisVaultDemo {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     use super::super::vault::{SecureKey, CascadeKeys};

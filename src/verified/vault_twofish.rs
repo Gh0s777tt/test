@@ -225,7 +225,7 @@ pub fn kat_twofish256_cbc() -> Result<(), TwofishError> {
     Ok(())
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

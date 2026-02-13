@@ -26,10 +26,10 @@ pub mod syscall_advanced_ops;
 // Time and Timer Operations
 pub mod syscall_time_ops;
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

@@ -10,8 +10,11 @@ license = "MIT"
 path = "lib.rs"
 
 [features]
-# Enable formal verification with Verus
+# Enable Verus compatibility crates for cargo builds
 verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+
+# Enable full Verus proof code paths (verus! blocks and proof-only cfgs)
+verus-full = ["verus"]
 
 # Enable Kani verification
 kani = []

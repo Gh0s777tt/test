@@ -13,17 +13,17 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures};
 use crate::workload_predictor::WorkloadPredictor;
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
 
 /// Neural scheduler integration state
@@ -253,11 +253,11 @@ pub struct SchedulerStatistics {
     pub gaming_mode_enabled: bool,
 }
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 } // verus!
 
 // Non-Verus version (without formal verification)
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[allow(dead_code)]
 pub struct NeuralSchedulerIntegration {
     neural_scheduler: NeuralScheduler,
@@ -267,7 +267,7 @@ pub struct NeuralSchedulerIntegration {
     gaming_threads_detected: u64,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl NeuralSchedulerIntegration {
     pub fn new() -> Self {
         Self {
@@ -309,14 +309,14 @@ impl NeuralSchedulerIntegration {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl Default for NeuralSchedulerIntegration {
     fn default() -> Self {
         Self::new()
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

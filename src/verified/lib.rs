@@ -3,7 +3,7 @@
 //! This library contains all formally verified components of VANTIS OS.
 
 // Verus shim for conditional compilation
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[macro_use]
 pub mod verus_shim;
 

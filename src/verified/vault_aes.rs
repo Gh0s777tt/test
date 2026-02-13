@@ -272,7 +272,7 @@ pub fn fips_kat_aes256_cbc() -> Result<(), AesError> {
     Ok(())
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

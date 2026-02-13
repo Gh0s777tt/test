@@ -18,11 +18,11 @@
 //! 4. **Memory Safety**: No buffer overflows in crypto operations
 //! 5. **Key Zeroization**: Keys securely erased after use
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 
@@ -348,7 +348,7 @@ impl Drop for VantisVault {
 // FORMAL VERIFICATION WITH VERUS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     impl SecureKey {
         /// Verify key zeroization
@@ -473,7 +473,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

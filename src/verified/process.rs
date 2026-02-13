@@ -11,11 +11,11 @@
 //! 4. **Parent-Child Relationships**: Process tree is always valid
 //! 5. **No Resource Leaks**: All allocated resources are tracked
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 use super::allocator::PhysAddr;
@@ -586,7 +586,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

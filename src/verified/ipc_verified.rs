@@ -31,7 +31,7 @@ pub const MAX_IPC_MEMORY: usize = 256 * 1024 * 1024;
 pub struct MessageId(u64);
 
 impl MessageId {
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn wf(self) -> bool {
         self.0 > 0
     }
@@ -60,33 +60,33 @@ pub enum Capability {
 
 impl Capability {
     /// Check if capability allows sending
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::when_used_as_spec(can_send_spec)]
     pub const fn can_send(&self) -> bool {
         matches!(self, Capability::Send | Capability::SendReceive)
     }
     
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn can_send_spec(&self) -> bool;
     
     /// Check if capability allows receiving
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::when_used_as_spec(can_receive_spec)]
     pub const fn can_receive(&self) -> bool {
         matches!(self, Capability::Receive | Capability::SendReceive)
     }
     
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn can_receive_spec(&self) -> bool;
     
     /// Check if capability allows transfer
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::when_used_as_spec(can_transfer_spec)]
     pub const fn can_transfer(&self) -> bool {
         matches!(self, Capability::Transfer)
     }
     
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn can_transfer_spec(&self) -> bool;
 }
 
@@ -120,7 +120,7 @@ pub struct Message {
 
 impl Message {
     /// Specification: Message well-formedness
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn wf(&self) -> bool {
         &&& self.id.wf()
         &&& self.data.len() <= MAX_MESSAGE_SIZE
@@ -128,7 +128,7 @@ impl Message {
     }
     
     /// Specification: Compute checksum
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn compute_checksum_spec(&self) -> u64;
     
     /// Create a new message
@@ -148,7 +148,7 @@ impl Message {
     ///   - result.receiver == receiver
     ///   - result.checksum is correct
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn new(
         id: MessageId,
         sender: Pid,
@@ -184,7 +184,7 @@ impl Message {
         msg
     }
     
-    #[cfg(not(feature = "verus"))]
+    #[cfg(not(feature = "verus-full"))]
     pub fn new(
         id: MessageId,
         sender: Pid,
@@ -223,7 +223,7 @@ impl Message {
     /// ensures:
     ///   - result == true <==> message is not corrupted
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn verify_integrity(&self) -> (result: bool)
         requires self.wf()
         ensures result == (self.checksum == Self::compute_checksum(&self.data))
@@ -232,7 +232,7 @@ impl Message {
         computed == self.checksum
     }
     
-    #[cfg(not(feature = "verus"))]
+    #[cfg(not(feature = "verus-full"))]
     pub fn verify_integrity(&self) -> bool {
         let computed = Self::compute_checksum(&self.data);
         computed == self.checksum
@@ -274,7 +274,7 @@ pub struct MessageQueue {
 
 impl MessageQueue {
     /// Specification: Queue well-formedness
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn wf(&self) -> bool {
         &&& self.capacity == MAX_QUEUE_SIZE
         &&& self.messages.len() <= self.capacity
@@ -292,7 +292,7 @@ impl MessageQueue {
     ///   - result.is_empty()
     ///   - result.capacity() == MAX_QUEUE_SIZE
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn new() -> (result: Self)
         ensures
             result.wf(),
@@ -305,7 +305,7 @@ impl MessageQueue {
         }
     }
     
-    #[cfg(not(feature = "verus"))]
+    #[cfg(not(feature = "verus-full"))]
     pub fn new() -> Self {
         MessageQueue {
             messages: Vec::new(),
@@ -328,7 +328,7 @@ impl MessageQueue {
     ///   - self.len() == old(self.len()) + 1
     ///   - self.messages[self.len() - 1] == msg
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn push(&mut self, msg: Message) -> (result: Result<(), &'static str>)
         requires
             old(self).wf(),
@@ -359,7 +359,7 @@ impl MessageQueue {
         Ok(())
     }
     
-    #[cfg(not(feature = "verus"))]
+    #[cfg(not(feature = "verus-full"))]
     pub fn push(&mut self, msg: Message) -> Result<(), &'static str> {
         if self.messages.len() >= self.capacity {
             return Err("Queue is full");
@@ -386,7 +386,7 @@ impl MessageQueue {
     ///       None =>
     ///         - old(self).is_empty()
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn pop(&mut self) -> (result: Option<Message>)
         requires old(self).wf()
         ensures
@@ -412,7 +412,7 @@ impl MessageQueue {
         Some(msg)
     }
     
-    #[cfg(not(feature = "verus"))]
+    #[cfg(not(feature = "verus-full"))]
     pub fn pop(&mut self) -> Option<Message> {
         if self.messages.is_empty() {
             return None;
@@ -454,7 +454,7 @@ pub struct IpcManager {
 
 impl IpcManager {
     /// Specification: Manager well-formedness
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     spec fn wf(&self) -> bool {
         &&& self.next_msg_id > 0
         &&& forall|pid: Pid| self.queues.contains_key(&pid) ==> 
@@ -462,7 +462,7 @@ impl IpcManager {
     }
     
     /// Create a new IPC manager
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn new() -> (result: Self)
         ensures result.wf()
     {
@@ -473,7 +473,7 @@ impl IpcManager {
         }
     }
     
-    #[cfg(not(feature = "verus"))]
+    #[cfg(not(feature = "verus-full"))]
     pub fn new() -> Self {
         IpcManager {
             queues: HashMap::new(),
@@ -603,7 +603,7 @@ impl IpcManager {
 // FORMAL PROOFS
 // ============================================================================
 
-#[cfg(all(feature = "verus", test))]
+#[cfg(all(feature = "verus-full", test))]
 mod proofs {
     use super::*;
     
@@ -677,7 +677,7 @@ mod proofs {
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

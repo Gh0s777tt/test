@@ -162,7 +162,7 @@ pub fn get_cached_filesystem() -> Option<&'static CachedFilesystem> {
     CACHED_FS.get()
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

@@ -250,7 +250,7 @@ pub fn kat_serpent256_cbc() -> Result<(), SerpentError> {
     Ok(())
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

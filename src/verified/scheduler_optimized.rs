@@ -19,11 +19,11 @@
 //! 5. **Context Switch Safety**: State is preserved across switches
 //! 6. **Bitmap Consistency**: Bitmap always reflects queue state
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 use super::process::{Pid, ProcessState};
@@ -529,7 +529,7 @@ impl Default for SchedulerOptimized {
 // FORMAL VERIFICATION WITH VERUS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     impl PriorityBitmap {
         /// Verify bitmap set operation
@@ -675,7 +675,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     
