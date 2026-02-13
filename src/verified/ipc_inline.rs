@@ -20,7 +20,11 @@
 //! 4. **No Leaks**: Proper cleanup of both inline and heap storage
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 

@@ -4,7 +4,11 @@
 //! memory allocation and management with safety guarantees.
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 /// Memory allocation error types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

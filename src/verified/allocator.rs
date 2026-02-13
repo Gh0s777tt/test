@@ -12,7 +12,11 @@
 //! 5. **Consistency**: Allocator state is always valid
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 /// Physical address type (page-aligned)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

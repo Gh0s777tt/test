@@ -12,7 +12,11 @@
 //! 5. **Resource Limits**: All operations respect resource limits
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 use super::ipc::{Priority, Capability};

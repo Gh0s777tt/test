@@ -33,7 +33,11 @@
 //! 5. **Maximum Security**: If any algorithm is broken, others still protect data
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::vault::{CascadeKeys, MAX_DATA_SIZE};
 use super::vault_aes::{encrypt_aes256_cbc, decrypt_aes256_cbc};

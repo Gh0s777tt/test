@@ -12,7 +12,11 @@
 //! 5. **No Resource Leaks**: All allocated resources are tracked
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::allocator::PhysAddr;
 

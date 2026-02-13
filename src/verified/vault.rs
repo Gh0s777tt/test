@@ -19,7 +19,11 @@
 //! 5. **Key Zeroization**: Keys securely erased after use
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 
 /// Key size for all algorithms (256 bits = 32 bytes)

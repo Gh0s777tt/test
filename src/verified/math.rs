@@ -4,7 +4,11 @@
 //! basic arithmetic operations with overflow protection.
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 /// Safely add two u32 numbers with overflow checking
 /// 

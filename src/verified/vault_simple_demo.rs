@@ -15,7 +15,11 @@
 //! - Serpent-256 from `serpent` crate
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::vault::{CascadeKeys, KEY_SIZE, MAX_DATA_SIZE};
 

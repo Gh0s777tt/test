@@ -11,7 +11,7 @@ path = "lib.rs"
 
 [features]
 # Enable formal verification with Verus
-verus = []
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
 
 # Enable Kani verification
 kani = []
@@ -31,6 +31,11 @@ ipc-complete-bench = []
 default = ["hw-accel"]
 
 [dependencies]
+# Verus verification toolchain crates
+builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
+builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
+vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+
 # Cryptographic implementations from RustCrypto
 aes = { version = "0.8", default-features = false }
 twofish = { version = "0.7", default-features = false }

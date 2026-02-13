@@ -12,7 +12,11 @@
 //! 5. **Resource Bounds**: Message queues have bounded size
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 use std::collections::HashMap;

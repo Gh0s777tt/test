@@ -12,7 +12,11 @@
 //! 5. **Context Switch Safety**: State is preserved across switches
 
 #[cfg(feature = "verus")]
-use verus::prelude::*;
+use builtin::*;
+#[cfg(feature = "verus")]
+use builtin_macros::*;
+#[cfg(feature = "verus")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 
