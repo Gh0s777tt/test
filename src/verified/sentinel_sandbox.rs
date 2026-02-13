@@ -436,11 +436,8 @@ impl SandboxManager {
     pub fn receive_message(&mut self, receiver: SandboxId) -> Option<IpcMessage> {
         // In a real implementation, this would retrieve from a message queue
         // For now, we just validate the receiver exists
-        if self.sandboxes.contains_key(&receiver) {
-            None
-        } else {
-            None
-        }
+        self.sandboxes.get(&receiver)?;
+        None
     }
 
     /// Get sandbox statistics
@@ -589,6 +586,12 @@ impl SandboxManager {
         sandbox.ipc_channel = None;
 
         Ok(())
+    }
+}
+
+impl Default for SandboxManager {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

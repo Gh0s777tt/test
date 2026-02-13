@@ -316,7 +316,6 @@ impl GpuPipeline {
     }
 }
 #[allow(dead_code)]
-
 /// GPU scheduler for managing GPU workloads
 #[derive(Debug)]
 pub struct GpuScheduler {
@@ -426,6 +425,12 @@ impl GpuStats {
         self.memory_freed = 0;
         self.fences_created = 0;
         self.pipelines_created = 0;
+    }
+}
+
+impl Default for GpuStats {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

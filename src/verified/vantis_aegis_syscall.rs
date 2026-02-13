@@ -156,7 +156,7 @@ impl SyscallTranslator {
         use std::sync::OnceLock;
         static INSTANCE: OnceLock<SyscallTranslator> = OnceLock::new();
         
-        INSTANCE.get_or_init(|| SyscallTranslator::new())
+        INSTANCE.get_or_init(SyscallTranslator::new)
     }
     
     // ========================================================================

@@ -89,7 +89,6 @@ struct MetalDevice {
     library: Option<u64>,
 }
 #[allow(dead_code)]
-
 /// Metal buffer (represents GPU memory in Metal's unified memory model)
 struct MetalBuffer {
     /// Buffer handle
@@ -112,7 +111,6 @@ struct MetalBuffer {
 unsafe impl Send for MetalBuffer {}
 unsafe impl Sync for MetalBuffer {}
 #[allow(dead_code)]
-
 /// Metal storage mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum MetalStorageMode {

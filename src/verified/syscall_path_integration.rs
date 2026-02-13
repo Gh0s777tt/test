@@ -154,7 +154,7 @@ static CACHED_FS: OnceLock<CachedFilesystem> = OnceLock::new();
 
 /// Initialize the global cached filesystem
 pub fn init_cached_filesystem() {
-    CACHED_FS.get_or_init(|| CachedFilesystem::new());
+    CACHED_FS.get_or_init(CachedFilesystem::new);
 }
 
 /// Get the global cached filesystem instance

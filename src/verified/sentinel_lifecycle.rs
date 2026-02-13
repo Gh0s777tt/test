@@ -510,6 +510,12 @@ impl LifecycleManager {
     }
 }
 
+impl Default for LifecycleManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(all(test, feature = "verus"))]
 mod tests {
     use super::*;

@@ -201,7 +201,7 @@ impl GamingMode {
             return Err("Invalid output ID");
         }
 
-        if refresh_rate < 30 || refresh_rate > 360 {
+        if !(30..=360).contains(&refresh_rate) {
             return Err("Refresh rate must be 30-360 Hz");
         }
 
@@ -435,6 +435,12 @@ impl GamingMode {
         }
 
         Some(self.target_refresh_rate[output_id as usize])
+    }
+}
+
+impl Default for GamingMode {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

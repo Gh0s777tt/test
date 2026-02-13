@@ -104,7 +104,6 @@ struct VulkanMemoryHeap {
     device_local: bool,
 }
 #[allow(dead_code)]
-
 /// Vulkan queue family
 #[derive(Clone)]
 struct VulkanQueueFamily {

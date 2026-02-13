@@ -14,6 +14,12 @@ pub enum AllocError {
     InvalidAlignment,
 }
 
+/// Verified buffer error types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BufferError {
+    Full,
+}
+
 /// Memory allocator with formal verification
 #[cfg(feature = "verus")]
 verus! {
@@ -212,12 +218,12 @@ impl VerifiedBuffer {
         }
     }
     
-    pub fn push(&mut self, value: u8) -> Result<(), ()> {
+    pub fn push(&mut self, value: u8) -> Result<(), BufferError> {
         if self.data.len() < self.capacity {
             self.data.push(value);
             Ok(())
         } else {
-            Err(())
+            Err(BufferError::Full)
         }
     }
     
