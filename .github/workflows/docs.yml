@@ -1,12 +1,46 @@
+name: Documentation Assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 0.4.1
+    paths:
+      - "src/verified/**/*.rs"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "src/verified/**/*.rs"
+      - ".github/workflows/docs.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-architecture-map:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
       - name: Install cargo-depgraph
         run: cargo install cargo-depgraph
 
-      - name: Generate Map
+      - name: Generate dependency graph PNG
         run: |
-          cargo depgraph --all-deps | dot -Tpng > assets/architecture_map.png
-          
-      - name: Commit Map
-        uses: stefanzweifel/git-auto-commit-action@v5
+          cd src/verified
+          cargo depgraph --all-deps | dot -Tpng > architecture_map.png
+
+      - name: Upload architecture map
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "docs: update neural architecture map"
-          file_pattern: assets/architecture_map.png
+          name: architecture-map
+          path: src/verified/architecture_map.png
