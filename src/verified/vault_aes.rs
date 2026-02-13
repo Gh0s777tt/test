@@ -67,6 +67,8 @@ pub fn generate_iv() -> Result<[u8; 16], AesError> {
 /// 
 /// # Example
 /// ```rust
+/// use vantis_verified::vault_aes::encrypt_aes256_cbc;
+///
 /// let key = [0u8; 32];
 /// let plaintext = b"Hello, World!";
 /// let ciphertext = encrypt_aes256_cbc(&key, plaintext).unwrap();
@@ -122,6 +124,8 @@ pub fn encrypt_aes256_cbc(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8>, A
 /// 
 /// # Example
 /// ```rust
+/// use vantis_verified::vault_aes::{decrypt_aes256_cbc, encrypt_aes256_cbc};
+///
 /// let key = [0u8; 32];
 /// let ciphertext = encrypt_aes256_cbc(&key, b"Hello, World!").unwrap();
 /// let plaintext = decrypt_aes256_cbc(&key, &ciphertext).unwrap();

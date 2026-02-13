@@ -46,6 +46,8 @@ type Aes256CbcDec = cbc::Decryptor<Aes256>;
 /// 
 /// # Example
 /// ```rust
+/// use vantis_verified::vault_production_example::generate_secure_iv;
+///
 /// let iv = generate_secure_iv();
 /// assert_eq!(iv.len(), 16);
 /// ```
@@ -88,9 +90,11 @@ pub fn generate_secure_iv() -> [u8; 16] {
 /// 
 /// # Example
 /// ```rust
-/// let key = SecureKey::new(&[0x42; 32]);
+/// use vantis_verified::vault_production_example::aes_encrypt_production;
+///
+/// let key = [0x42u8; 32];
 /// let plaintext = b"Hello, World!";
-/// let ciphertext = aes_encrypt_production(plaintext, &key)?;
+/// let ciphertext = aes_encrypt_production(plaintext, &key).unwrap();
 /// ```
 pub fn aes_encrypt_production(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>, &'static str> {
     // Production implementation with RustCrypto:
