@@ -20,8 +20,12 @@ use builtin_macros::*;
 #[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
-use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures, MAX_TRACKED_THREADS};
-use crate::workload_predictor::{WorkloadPattern, WorkloadPredictor};
+use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures};
+#[cfg(feature = "verus-full")]
+use crate::neural_scheduler::MAX_TRACKED_THREADS;
+use crate::workload_predictor::WorkloadPredictor;
+#[cfg(feature = "verus-full")]
+use crate::workload_predictor::WorkloadPattern;
 
 #[cfg(feature = "verus-full")]
 verus! {
