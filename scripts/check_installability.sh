@@ -121,6 +121,7 @@ check_cmd nasm "NASM assembler"
 check_cmd ld "Linker"
 check_cmd objcopy "Objcopy"
 check_any_cmd "ISO builder toolchain" xorriso genisoimage mkisofs
+check_cmd isohybrid "ISO hybridizer"
 check_any_cmd "QEMU runtime" qemu-system-x86_64 qemu-system-x86
 check_toolchain_installed "${KERNEL_TOOLCHAIN}"
 
@@ -137,6 +138,7 @@ check_path_exists "boot/bootloader.toml" "Boot config"
 # Critical directories/files expected by Makefile targets
 check_legacy_path "kernel/linkers/x86_64.ld" "Kernel linker script"
 check_legacy_path "bootloader" "Bootloader directory"
+check_legacy_path "bootloader/x86_64/disk.asm" "Legacy bootloader assembly layout"
 check_legacy_path "isolinux" "ISOLINUX directory"
 
 echo

@@ -6,6 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+BOOTLOADER_LEGACY_COMMIT="${BOOTLOADER_LEGACY_COMMIT:-60b87c44774d799699ca50989f283f833ca54da7}"
 
 REFRESH=false
 DRY_RUN=false
@@ -118,11 +119,42 @@ clone_or_refresh() {
     ok "Cloned ${dir}"
 }
 
+ensure_legacy_bootloader_layout() {
+    local target="${REPO_ROOT}/bootloader"
+    local asm_path="${target}/x86_64/disk.asm"
+
+    if [[ -f "${asm_path}" ]]; then
+        ok "Bootloader legacy disk.asm layout available"
+        return
+    fi
+
+    warn "Bootloader repository is on modern layout; applying legacy compatibility checkout"
+
+    if ! git -C "${target}" rev-parse --verify "${BOOTLOADER_LEGACY_COMMIT}^{commit}" >/dev/null 2>&1; then
+        run_cmd git -C "${target}" fetch origin "${BOOTLOADER_LEGACY_COMMIT}"
+    fi
+
+    run_cmd git -C "${target}" checkout "${BOOTLOADER_LEGACY_COMMIT}"
+
+    if [[ "${DRY_RUN}" == true ]]; then
+        ok "Dry-run: legacy bootloader pin would be applied"
+        return
+    fi
+
+    if [[ ! -f "${asm_path}" ]]; then
+        fail "Legacy bootloader layout still missing after checkout"
+    fi
+
+    ok "Pinned bootloader to legacy-compatible commit ${BOOTLOADER_LEGACY_COMMIT}"
+}
+
 main() {
     log "Bootstrapping legacy source tree at ${REPO_ROOT}"
     for dir in "${DIRS[@]}"; do
         clone_or_refresh "${dir}"
     done
+
+    ensure_legacy_bootloader_layout
 
     if [[ "${DRY_RUN}" == true ]]; then
         log "Dry run complete. No files were changed."

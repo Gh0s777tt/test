@@ -42,6 +42,7 @@ jobs:
             nasm \
             qemu-system-x86 \
             qemu-utils \
+            syslinux-utils \
             xorriso
 
       - name: Install kernel Rust toolchain

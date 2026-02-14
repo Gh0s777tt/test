@@ -100,6 +100,7 @@ install_debian() {
         nasm
         pkg-config
         qemu-system-x86
+        syslinux-utils
         xorriso
     )
 
