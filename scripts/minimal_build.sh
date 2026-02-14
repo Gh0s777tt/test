@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # VantisOS Minimal Build Script
 # For environments with limited disk space (< 1GB free)
 
-set -e
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+VERIFIED_DIR="${REPO_ROOT}/src/verified"
+REPORT_PATH="${REPO_ROOT}/BUILD_REPORT.md"
 
 # Colors
 RED='\033[0;31m'
@@ -31,7 +36,9 @@ print_info() {
 
 # Main
 main() {
-    clear
+    if [[ -t 1 ]] && [[ -n "${TERM:-}" ]]; then
+        clear
+    fi
     print_header "VantisOS Minimal Build"
     echo ""
     print_info "This script will:"
@@ -51,7 +58,7 @@ main() {
     echo ""
     
     # Navigate to verified directory
-    cd /workspace/VantisOS/src/verified
+    cd "${VERIFIED_DIR}"
     
     # Step 1: Build
     print_header "Step 1: Building Components"
@@ -77,7 +84,7 @@ main() {
     # Step 3: Report
     print_header "Step 3: Generating Report"
     
-    cat > /workspace/VantisOS/BUILD_REPORT.md << 'EOF'
+    cat > "${REPORT_PATH}" << EOF
 # VantisOS Minimal Build Report
 ## Generated: $(date)
 
@@ -94,32 +101,35 @@ EOF
     
     # List compiled artifacts
     if [ -d "target/release" ]; then
-        echo "" >> /workspace/VantisOS/BUILD_REPORT.md
-        echo "```" >> /workspace/VantisOS/BUILD_REPORT.md
-        ls -lh target/release/*.rlib 2>/dev/null | head -20 >> /workspace/VantisOS/BUILD_REPORT.md || echo "No .rlib files found"
-        echo "```" >> /workspace/VantisOS/BUILD_REPORT.md
+        echo "" >> "${REPORT_PATH}"
+        echo '```' >> "${REPORT_PATH}"
+        ls -lh target/release/*.rlib 2>/dev/null | head -20 >> "${REPORT_PATH}" || echo "No .rlib files found"
+        echo '```' >> "${REPORT_PATH}"
     fi
     
-    cat >> /workspace/VantisOS/BUILD_REPORT.md << 'EOF'
+    cat >> "${REPORT_PATH}" << 'EOF'
 
 ### Test Results
 EOF
     
     # Add test summary
     if [ -f "test.log" ]; then
-        echo "" >> /workspace/VantisOS/BUILD_REPORT.md
-        echo "```" >> /workspace/VantisOS/BUILD_REPORT.md
-        grep -E "(test result:|running)" test.log | tail -20 >> /workspace/VantisOS/BUILD_REPORT.md
-        echo "```" >> /workspace/VantisOS/BUILD_REPORT.md
+        echo "" >> "${REPORT_PATH}"
+        echo '```' >> "${REPORT_PATH}"
+        grep -E "(test result:|running)" test.log | tail -20 >> "${REPORT_PATH}"
+        echo '```' >> "${REPORT_PATH}"
     fi
     
-    cat >> /workspace/VantisOS/BUILD_REPORT.md << 'EOF'
+    local build_date
+    build_date="$(date)"
+
+    cat >> "${REPORT_PATH}" << 'EOF'
 
 ## Next Steps
 
 ### For Full Build
 1. Setup environment with 20GB+ disk space
-2. Use `scripts/start_full_build.sh`
+2. Use scripts/start_full_build.sh
 3. Follow FULL_BUILD_PLAN.md
 
 ### Resources
@@ -128,11 +138,11 @@ EOF
 - REALISTIC_BUILD_OPTIONS.md - Current situation analysis
 
 ---
-**Build Date**: $(date)
-**Status**: Minimal build completed
 EOF
+    printf "**Build Date**: %s\n" "${build_date}" >> "${REPORT_PATH}"
+    printf "**Status**: Minimal build completed\n" >> "${REPORT_PATH}"
     
-    print_success "Report generated: BUILD_REPORT.md"
+    print_success "Report generated: ${REPORT_PATH}"
     echo ""
     
     # Summary

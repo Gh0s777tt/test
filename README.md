@@ -115,6 +115,9 @@ cd VantisOS
 # Install dependencies
 ./scripts/install_deps.sh
 
+# Preflight check for installable build prerequisites
+./scripts/check_installability.sh
+
 # Build the system
 make build
 
@@ -581,6 +584,9 @@ cd VantisOS
 
 # Install dependencies
 ./scripts/install_deps.sh
+
+# Preflight check for installable build prerequisites
+./scripts/check_installability.sh
 
 # Choose profile
 # - core: Stability (default)
