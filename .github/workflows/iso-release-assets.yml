@@ -1,0 +1,98 @@
+name: ISO Release Assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to build from (for example: v0.5.0-500-functions)"
+        required: true
+        type: string
+      run_smoke_test:
+        description: "Run QEMU ISO smoke test after build"
+        required: false
+        default: true
+        type: boolean
+      publish_assets:
+        description: "Upload generated assets to the selected GitHub release"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-package:
+    name: Build and package ISO assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout source at selected tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            genisoimage \
+            nasm \
+            qemu-system-x86 \
+            qemu-utils \
+            xorriso
+
+      - name: Install xargo
+        run: cargo install xargo
+
+      - name: Bootstrap legacy tree
+        run: ./scripts/bootstrap_legacy_tree.sh
+
+      - name: Run installability preflight
+        run: ./scripts/check_installability.sh
+
+      - name: Build ISO
+        run: ./scripts/build_installable_iso.sh --skip-preflight
+
+      - name: Run QEMU smoke test
+        if: ${{ inputs.run_smoke_test }}
+        run: ./scripts/test_install_e2e.sh --boot-timeout 90
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+
+      - name: Package release assets
+        run: |
+          ./scripts/package_iso_assets.sh \
+            --iso build/livedisk.iso \
+            --output-dir release/assets \
+            --name "vantis-os-${{ inputs.tag }}.iso" \
+            --sign
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso-release-assets
+          path: |
+            release/assets/*
+            build/e2e/*.log
+
+  publish-release-assets:
+    name: Publish assets to GitHub release
+    if: ${{ inputs.publish_assets }}
+    needs: build-package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download built assets
+        uses: actions/download-artifact@v4
+        with:
+          name: iso-release-assets
+          path: release-assets
+
+      - name: Upload assets to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ inputs.tag }}" release-assets/* --clobber

@@ -579,6 +579,9 @@ sudo dd if=vantis.iso of=/dev/sdX bs=4M status=progress
 # Boot from USB and follow instructions
 ```
 
+Maintainers can publish signed ISO assets from a tagged build using the
+`ISO Release Assets` GitHub Actions workflow (`.github/workflows/iso-release-assets.yml`).
+
 ### Method 2: Build from Source
 
 ```bash

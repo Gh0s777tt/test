@@ -108,6 +108,9 @@ Use this flow to validate ISO boot behavior in QEMU before writing to USB:
 
 The smoke test stores logs in `build/e2e/` for postmortem analysis.
 
+For tagged releases, maintainers can build and package signed ISO assets with
+the `ISO Release Assets` workflow (`.github/workflows/iso-release-assets.yml`).
+
 </details>
 
 <details>
