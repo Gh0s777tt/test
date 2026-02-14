@@ -13,9 +13,9 @@ build/kernel: kernel/Cargo.toml $(KERNEL_TARGET_SPEC) $(KERNEL_LINKER_SCRIPT) bu
 		-Z build-std-features=compiler-builtins-mem \
 		-- \
 		$(KERNEL_RUSTFLAGS) \
-		--emit link=$@.all
-	objcopy --only-keep-debug $@.all $@.sym
-	objcopy --strip-debug $@.all $@
+		--emit link=$(ROOT)/$@.all
+	objcopy --only-keep-debug $(ROOT)/$@.all $(ROOT)/$@.sym
+	objcopy --strip-debug $(ROOT)/$@.all $(ROOT)/$@
 
 build/kernel_live: kernel/Cargo.toml $(KERNEL_TARGET_SPEC) $(KERNEL_LINKER_SCRIPT) build/initfs_live.tag
 	INITFS_FOLDER=$(ROOT)/build/initfs_live $(KERNEL_CARGO) rustc \
@@ -27,5 +27,5 @@ build/kernel_live: kernel/Cargo.toml $(KERNEL_TARGET_SPEC) $(KERNEL_LINKER_SCRIP
 		-Z build-std-features=compiler-builtins-mem \
 		-- \
 		$(KERNEL_RUSTFLAGS) \
-		--emit link=$@.all
-	objcopy --strip-debug $@.all $@
+		--emit link=$(ROOT)/$@.all
+	objcopy --strip-debug $(ROOT)/$@.all $(ROOT)/$@
