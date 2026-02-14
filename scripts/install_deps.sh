@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+KERNEL_TOOLCHAIN="${KERNEL_TOOLCHAIN:-nightly-2025-10-03}"
 
 ASSUME_YES=false
 MINIMAL=false
@@ -72,6 +73,16 @@ install_rust_toolchain() {
     # shellcheck disable=SC1091
     source "${HOME}/.cargo/env"
     ok "Rustup installed"
+}
+
+install_kernel_toolchain() {
+    if ! command_exists rustup; then
+        fail "rustup is required before installing kernel toolchain"
+    fi
+
+    info "Ensuring kernel toolchain ${KERNEL_TOOLCHAIN} with rust-src"
+    rustup toolchain install "${KERNEL_TOOLCHAIN}" --component rust-src --profile minimal
+    ok "Kernel toolchain ready"
 }
 
 install_debian() {
@@ -199,6 +210,7 @@ main() {
 
     detect_and_install_system_packages
     install_rust_toolchain
+    install_kernel_toolchain
 
     info "Dependency bootstrap completed."
     info "Recommended next step: ./scripts/check_installability.sh"

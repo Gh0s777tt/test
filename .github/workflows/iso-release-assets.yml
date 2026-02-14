@@ -43,8 +43,8 @@ jobs:
             qemu-utils \
             xorriso
 
-      - name: Install xargo
-        run: cargo install xargo
+      - name: Install kernel Rust toolchain
+        run: rustup toolchain install nightly-2025-10-03 --component rust-src --profile minimal
 
       - name: Bootstrap legacy tree
         run: ./scripts/bootstrap_legacy_tree.sh

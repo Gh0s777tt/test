@@ -6,6 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+KERNEL_TOOLCHAIN="${KERNEL_TOOLCHAIN:-nightly-2025-10-03}"
 cd "${REPO_ROOT}"
 
 FAILURES=0
@@ -49,6 +50,20 @@ check_any_cmd() {
         fi
     done
     fail "${label} is missing (checked: $*)"
+}
+
+check_toolchain_installed() {
+    local toolchain="$1"
+    if ! command -v rustup >/dev/null 2>&1; then
+        fail "rustup not found; cannot verify toolchain ${toolchain}"
+        return
+    fi
+
+    if rustup toolchain list | awk '{print $1}' | rg -q "^${toolchain}$"; then
+        pass "Kernel Rust toolchain available (${toolchain})"
+    else
+        fail "Kernel Rust toolchain missing (${toolchain})"
+    fi
 }
 
 check_path_exists() {
@@ -101,11 +116,13 @@ check_cmd git "Git"
 check_cmd make "Make"
 check_cmd rustc "Rust compiler"
 check_cmd cargo "Cargo"
+check_cmd rustup "Rustup"
 check_cmd nasm "NASM assembler"
 check_cmd ld "Linker"
 check_cmd objcopy "Objcopy"
 check_any_cmd "ISO builder toolchain" xorriso genisoimage mkisofs
 check_any_cmd "QEMU runtime" qemu-system-x86_64 qemu-system-x86
+check_toolchain_installed "${KERNEL_TOOLCHAIN}"
 
 echo
 echo "Legacy build graph checks"
