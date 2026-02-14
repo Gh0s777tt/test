@@ -91,8 +91,20 @@ clone_or_refresh() {
         else
             ok "Already present: ${dir}"
         fi
-        run_cmd git -C "${target}" submodule sync --recursive
-        run_cmd git -C "${target}" submodule update --init --recursive
+        if ! run_cmd git -C "${target}" submodule sync --recursive; then
+            if [[ "${dir}" == "rust" ]]; then
+                warn "Failed to sync rust submodules; continuing without full rust tree"
+            else
+                fail "Failed to sync submodules for ${dir}"
+            fi
+        fi
+        if ! run_cmd git -C "${target}" submodule update --init --recursive; then
+            if [[ "${dir}" == "rust" ]]; then
+                warn "Failed to update rust submodules; continuing without full rust tree"
+            else
+                fail "Failed to initialize submodules for ${dir}"
+            fi
+        fi
         return
     fi
 
