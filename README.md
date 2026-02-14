@@ -118,6 +118,9 @@ cd VantisOS
 # Preflight check for installable build prerequisites
 ./scripts/check_installability.sh
 
+# If preflight reports missing bootloader/kernel tree, bootstrap it once
+./scripts/bootstrap_legacy_tree.sh
+
 # Build the system
 make build
 
@@ -587,6 +590,9 @@ cd VantisOS
 
 # Preflight check for installable build prerequisites
 ./scripts/check_installability.sh
+
+# If preflight reports missing bootloader/kernel tree, bootstrap it once
+./scripts/bootstrap_legacy_tree.sh
 
 # Choose profile
 # - core: Stability (default)

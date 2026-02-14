@@ -11,6 +11,7 @@ cd "${REPO_ROOT}"
 FAILURES=0
 WARNINGS=0
 CHECKS=0
+LEGACY_GRAPH_FAILURES=0
 
 pass() {
     echo "[PASS] $1"
@@ -44,6 +45,17 @@ check_path_exists() {
         pass "${label}: ${path}"
     else
         fail "${label}: ${path} is missing"
+    fi
+}
+
+check_legacy_path() {
+    local path="$1"
+    local label="$2"
+    if [[ -e "${path}" ]]; then
+        pass "${label}: ${path}"
+    else
+        fail "${label}: ${path} is missing"
+        LEGACY_GRAPH_FAILURES=$((LEGACY_GRAPH_FAILURES + 1))
     fi
 }
 
@@ -94,9 +106,9 @@ check_path_exists "scripts/build_iso.sh" "ISO script"
 check_path_exists "boot/bootloader.toml" "Boot config"
 
 # Critical directories/files expected by Makefile targets
-check_path_exists "kernel/linkers/x86_64.ld" "Kernel linker script"
-check_path_exists "bootloader" "Bootloader directory"
-check_path_exists "isolinux" "ISOLINUX directory"
+check_legacy_path "kernel/linkers/x86_64.ld" "Kernel linker script"
+check_legacy_path "bootloader" "Bootloader directory"
+check_legacy_path "isolinux" "ISOLINUX directory"
 
 echo
 echo "Boot artifact checks for scripts/build_iso.sh"
@@ -114,6 +126,10 @@ echo "  failures: ${FAILURES}"
 if [[ "${FAILURES}" -gt 0 ]]; then
     echo
     echo "Installability check failed."
+    if [[ "${LEGACY_GRAPH_FAILURES}" -gt 0 ]]; then
+        echo "Detected missing legacy build tree components."
+        echo "Try: ./scripts/bootstrap_legacy_tree.sh"
+    fi
     echo "Fix failures first, then rerun ./scripts/check_installability.sh"
     exit 1
 fi
