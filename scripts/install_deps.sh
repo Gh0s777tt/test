@@ -95,6 +95,7 @@ install_debian() {
         file
         genisoimage
         git
+        libfuse3-dev
         mtools
         nasm
         pkg-config

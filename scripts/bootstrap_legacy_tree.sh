@@ -91,6 +91,8 @@ clone_or_refresh() {
         else
             ok "Already present: ${dir}"
         fi
+        run_cmd git -C "${target}" submodule sync --recursive
+        run_cmd git -C "${target}" submodule update --init --recursive
         return
     fi
 
@@ -100,7 +102,7 @@ clone_or_refresh() {
     fi
 
     log "Cloning ${dir} from ${url}"
-    run_cmd git clone --depth "${DEPTH}" "${url}" "${target}"
+    run_cmd git clone --depth "${DEPTH}" --recursive "${url}" "${target}"
     ok "Cloned ${dir}"
 }
 

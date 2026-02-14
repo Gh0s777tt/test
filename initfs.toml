@@ -7,9 +7,17 @@ prompt = false
 
 # Package settings
 [packages]
-drivers-041 = {}
-init = {}
+base-initfs = {}
 redoxfs = {}
+
+[[files]]
+path="/etc/pkg.d"
+data=""
+directory=true
+
+[[files]]
+path="/etc/pkg.d/50_redox"
+data="https://static.redox-os.org/pkg"
 
 [[files]]
 path="/etc/init.rc"

@@ -59,7 +59,7 @@ check_toolchain_installed() {
         return
     fi
 
-    if rustup toolchain list | awk '{print $1}' | rg -q "^${toolchain}$"; then
+    if rustup toolchain list | awk '{print $1}' | rg -q "^${toolchain}([[:space:]]|$|-.*)"; then
         pass "Kernel Rust toolchain available (${toolchain})"
     else
         fail "Kernel Rust toolchain missing (${toolchain})"
