@@ -104,6 +104,9 @@ Use this flow to validate ISO boot behavior in QEMU before writing to USB:
 ./scripts/bootstrap_legacy_tree.sh
 ./scripts/build_installable_iso.sh --bootstrap
 ./scripts/test_install_e2e.sh --boot-timeout 90
+
+# Optional installer-based disk provisioning + disk boot validation
+./scripts/test_install_e2e.sh --disk-format raw --disk build/e2e-install.raw --provision-disk --expect-disk-boot
 ```
 
 The smoke test stores logs in `build/e2e/` for postmortem analysis.

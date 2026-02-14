@@ -12,6 +12,11 @@ on:
         required: false
         default: true
         type: boolean
+      run_disk_install_test:
+        description: "Run installer-based disk provisioning and disk boot validation"
+        required: false
+        default: false
+        type: boolean
       publish_assets:
         description: "Upload generated assets to the selected GitHub release"
         required: false
@@ -60,6 +65,17 @@ jobs:
       - name: Run QEMU smoke test
         if: ${{ inputs.run_smoke_test }}
         run: ./scripts/test_install_e2e.sh --boot-timeout 90
+
+      - name: Run installer disk boot test
+        if: ${{ inputs.run_disk_install_test }}
+        run: |
+          ./scripts/test_install_e2e.sh \
+            --boot-timeout 60 \
+            --expect-disk-boot \
+            --disk-format raw \
+            --disk build/e2e-install.raw \
+            --provision-disk \
+            --install-config filesystem.toml
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1

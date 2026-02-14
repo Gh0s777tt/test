@@ -13,14 +13,21 @@ DISK_PATH="${REPO_ROOT}/build/e2e-install.qcow2"
 LOG_DIR="${REPO_ROOT}/build/e2e"
 BOOT_TIMEOUT=60
 DISK_TIMEOUT=45
+INSTALL_TIMEOUT=600
 MEMORY_MB=2048
 CPUS=2
+DISK_SIZE="20G"
+DISK_FORMAT="qcow2"
+INSTALL_CONFIG="${REPO_ROOT}/filesystem.toml"
+INSTALLER_MANIFEST="${REPO_ROOT}/installer/Cargo.toml"
 
 AUTO_BUILD=false
 EXPECT_DISK_BOOT=false
 KEEP_DISK=false
 DISABLE_KVM=false
 OVMF_BIOS=""
+PROVISION_DISK=false
+INSTALLER_NO_MOUNT=true
 
 usage() {
     cat <<'USAGE'
@@ -32,9 +39,16 @@ Options:
   --log-dir <path>        Directory for QEMU logs (default: build/e2e)
   --boot-timeout <sec>    Live ISO boot smoke timeout (default: 60)
   --disk-timeout <sec>    Installed disk boot timeout (default: 45)
+  --install-timeout <sec> Installer provisioning timeout (default: 600)
   --memory <mb>           VM memory in MB (default: 2048)
   --cpus <count>          VM vCPU count (default: 2)
+  --disk-size <size>      Disk size for qemu-img create (default: 20G)
+  --disk-format <fmt>     Disk format: qcow2|raw (default: qcow2)
   --ovmf-bios <path>      Optional OVMF BIOS file
+  --provision-disk        Provision disk with redox_installer before disk boot test
+  --install-config <path> Installer config TOML (default: filesystem.toml)
+  --installer-manifest    Path to installer Cargo.toml
+  --installer-mount       Use installer mount mode (default: --no-mount)
   --auto-build            Build ISO before running tests
   --expect-disk-boot      Run phase 2 boot check from disk (after install)
   --keep-disk             Do not recreate test disk
@@ -44,6 +58,7 @@ Options:
 Examples:
   ./scripts/test_install_e2e.sh
   ./scripts/test_install_e2e.sh --auto-build --boot-timeout 90
+  ./scripts/test_install_e2e.sh --disk-format raw --provision-disk --expect-disk-boot
   ./scripts/test_install_e2e.sh --expect-disk-boot --disk build/installed.qcow2
 USAGE
 }
@@ -70,6 +85,10 @@ while [[ $# -gt 0 ]]; do
             DISK_TIMEOUT="$2"
             shift 2
             ;;
+        --install-timeout)
+            INSTALL_TIMEOUT="$2"
+            shift 2
+            ;;
         --memory)
             MEMORY_MB="$2"
             shift 2
@@ -78,9 +97,33 @@ while [[ $# -gt 0 ]]; do
             CPUS="$2"
             shift 2
             ;;
+        --disk-size)
+            DISK_SIZE="$2"
+            shift 2
+            ;;
+        --disk-format)
+            DISK_FORMAT="$2"
+            shift 2
+            ;;
         --ovmf-bios)
             OVMF_BIOS="$2"
             shift 2
+            ;;
+        --provision-disk)
+            PROVISION_DISK=true
+            shift
+            ;;
+        --install-config)
+            INSTALL_CONFIG="$2"
+            shift 2
+            ;;
+        --installer-manifest)
+            INSTALLER_MANIFEST="$2"
+            shift 2
+            ;;
+        --installer-mount)
+            INSTALLER_NO_MOUNT=false
+            shift
             ;;
         --auto-build)
             AUTO_BUILD=true
@@ -166,9 +209,14 @@ run_timed_qemu() {
 main() {
     cd "${REPO_ROOT}"
     require_cmd qemu-img
+    require_cmd cargo
     local qemu_bin timeout_bin
     qemu_bin="$(detect_qemu)"
     timeout_bin="$(detect_timeout_bin)"
+
+    if [[ "${DISK_FORMAT}" != "qcow2" && "${DISK_FORMAT}" != "raw" ]]; then
+        fail "Unsupported disk format: ${DISK_FORMAT}. Use qcow2 or raw."
+    fi
 
     if [[ "${AUTO_BUILD}" == true ]]; then
         log "Building ISO before test"
@@ -187,10 +235,48 @@ main() {
     mkdir -p "$(dirname "${DISK_PATH}")"
 
     if [[ ! -f "${DISK_PATH}" ]]; then
-        qemu-img create -f qcow2 "${DISK_PATH}" 20G >/dev/null
+        qemu-img create -f "${DISK_FORMAT}" "${DISK_PATH}" "${DISK_SIZE}" >/dev/null
         ok "Created test disk: ${DISK_PATH}"
     else
         warn "Reusing existing test disk: ${DISK_PATH}"
+    fi
+
+    if [[ "${PROVISION_DISK}" == true ]]; then
+        if [[ ! -f "${INSTALLER_MANIFEST}" ]]; then
+            fail "Installer manifest not found: ${INSTALLER_MANIFEST}"
+        fi
+        if [[ ! -f "${INSTALL_CONFIG}" ]]; then
+            fail "Installer config not found: ${INSTALL_CONFIG}"
+        fi
+        if [[ "${DISK_FORMAT}" != "raw" ]]; then
+            fail "--provision-disk currently requires --disk-format raw"
+        fi
+
+        local installer_log="${LOG_DIR}/installer_provision.log"
+        local -a install_cmd=(
+            cargo
+            run
+            --manifest-path "${INSTALLER_MANIFEST}"
+            --
+            "${DISK_PATH}"
+            "--config=${INSTALL_CONFIG}"
+        )
+        if [[ "${INSTALLER_NO_MOUNT}" == true ]]; then
+            install_cmd+=(--no-mount)
+        fi
+
+        log "Provisioning disk via redox_installer (${INSTALL_TIMEOUT}s)"
+        if ! "${timeout_bin}" --signal=TERM "${INSTALL_TIMEOUT}" "${install_cmd[@]}" >"${installer_log}" 2>&1; then
+            echo
+            echo "Installer provisioning failed. Last log lines:"
+            tail -n 60 "${installer_log}" || true
+            if grep -q 'Package PackageName("bootloader") not found' "${installer_log}"; then
+                echo "Hint: remote package index does not currently expose 'bootloader' for this target."
+                echo "      Disk provisioning may require a local cookbook with prebuilt bootloader artifacts."
+            fi
+            fail "Disk provisioning failed"
+        fi
+        ok "Disk provisioning completed (log: ${installer_log})"
     fi
 
     local -a common_flags=(

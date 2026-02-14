@@ -132,6 +132,9 @@ make run
 
 # Optional: automated VM smoke test for ISO boot
 ./scripts/test_install_e2e.sh --boot-timeout 90
+
+# Optional: provision disk via installer and validate disk boot
+./scripts/test_install_e2e.sh --disk-format raw --disk build/e2e-install.raw --provision-disk --expect-disk-boot
 ```
 
 ---
@@ -624,6 +627,9 @@ make run
 
 # Optional: automated VM smoke test for ISO boot
 ./scripts/test_install_e2e.sh --boot-timeout 90
+
+# Optional: provision disk via installer and validate disk boot
+./scripts/test_install_e2e.sh --disk-format raw --disk build/e2e-install.raw --provision-disk --expect-disk-boot
 ```
 
 ### Method 3: Mobile Update 📱
