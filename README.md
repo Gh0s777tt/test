@@ -129,6 +129,9 @@ make build
 
 # Run in QEMU
 make run
+
+# Optional: automated VM smoke test for ISO boot
+./scripts/test_install_e2e.sh --boot-timeout 90
 ```
 
 ---
@@ -615,6 +618,9 @@ make iso
 
 # Test in QEMU
 make run
+
+# Optional: automated VM smoke test for ISO boot
+./scripts/test_install_e2e.sh --boot-timeout 90
 ```
 
 ### Method 3: Mobile Update 📱

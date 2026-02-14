@@ -95,6 +95,19 @@ Before inserting the USB drive, enter your BIOS (usually `F2`, `Del`, or `F12`) 
 
 > **System will reboot automatically.** Remove USB drive when prompted.
 
+### 🧪 Optional: Automated VM Smoke Test (Developers)
+
+Use this flow to validate ISO boot behavior in QEMU before writing to USB:
+
+```bash
+./scripts/check_installability.sh
+./scripts/bootstrap_legacy_tree.sh
+./scripts/build_installable_iso.sh --bootstrap
+./scripts/test_install_e2e.sh --boot-timeout 90
+```
+
+The smoke test stores logs in `build/e2e/` for postmortem analysis.
+
 </details>
 
 <details>
