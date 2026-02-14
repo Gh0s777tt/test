@@ -121,6 +121,9 @@ cd VantisOS
 # If preflight reports missing bootloader/kernel tree, bootstrap it once
 ./scripts/bootstrap_legacy_tree.sh
 
+# One-command path: preflight + ISO build
+./scripts/build_installable_iso.sh --bootstrap
+
 # Build the system
 make build
 
@@ -593,6 +596,9 @@ cd VantisOS
 
 # If preflight reports missing bootloader/kernel tree, bootstrap it once
 ./scripts/bootstrap_legacy_tree.sh
+
+# One-command path: preflight + ISO build
+./scripts/build_installable_iso.sh --bootstrap
 
 # Choose profile
 # - core: Stability (default)

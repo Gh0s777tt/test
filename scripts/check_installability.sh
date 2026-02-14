@@ -38,6 +38,19 @@ check_cmd() {
     fi
 }
 
+check_any_cmd() {
+    local label="$1"
+    shift
+    local cmd
+    for cmd in "$@"; do
+        if command -v "${cmd}" >/dev/null 2>&1; then
+            pass "${label} (${cmd})"
+            return
+        fi
+    done
+    fail "${label} is missing (checked: $*)"
+}
+
 check_path_exists() {
     local path="$1"
     local label="$2"
@@ -91,9 +104,8 @@ check_cmd cargo "Cargo"
 check_cmd nasm "NASM assembler"
 check_cmd ld "Linker"
 check_cmd objcopy "Objcopy"
-check_cmd xorriso "ISO builder (xorriso)"
-check_cmd genisoimage "ISO builder compatibility (genisoimage)"
-check_cmd qemu-system-x86_64 "QEMU runtime"
+check_any_cmd "ISO builder toolchain" xorriso genisoimage mkisofs
+check_any_cmd "QEMU runtime" qemu-system-x86_64 qemu-system-x86
 
 echo
 echo "Legacy build graph checks"
