@@ -69,14 +69,16 @@
 - [ ] Test in QEMU
 - [ ] Prepare for release
 
-### Option B: Merge PR #36 (ISO Installer) - NEW PRIORITY
+### Option B: Merge PR #36 (ISO Installer) - COMPLETED ✅
 - [x] Analyze PR #36: "Analiza stanu projektu"
 - [x] Create detailed PR analysis document
 - [x] Review PR #36 code changes
 - [x] Create comprehensive review document
-- [ ] Merge PR #36 after review
-- [ ] Test merged changes
+- [x] Mark PR as ready for review
+- [x] Merge PR #36 (squash + delete branch)
+- [x] Pull merged changes to local
 - [ ] Monitor CI workflow runs
+- [ ] Test build_installable_iso.sh locally
 
 ### Option B: Quick Alpine Build (Alternative)
 - [ ] Setup environment with 5GB+ disk space
