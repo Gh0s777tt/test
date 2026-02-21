@@ -156,7 +156,7 @@ impl NtApiEmulator {
         use std::sync::OnceLock;
         static INSTANCE: OnceLock<NtApiEmulator> = OnceLock::new();
         
-        INSTANCE.get_or_init(|| NtApiEmulator::new())
+        INSTANCE.get_or_init(NtApiEmulator::new)
     }
     
     /// Create system basic information
@@ -449,8 +449,14 @@ impl NtApiEmulator {
     /// Convert Linux path to Windows-style path
     fn linux_to_windows_path(&self, linux_path: &str) -> String {
         // Simple conversion: /path/to/file -> C:\path\to\file
-        let windows_path = linux_path.replace('/', r"");
+        let windows_path = linux_path.replace('/', "\\");
         format!("C:{}", windows_path)
+    }
+}
+
+impl Default for NtApiEmulator {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -472,7 +478,7 @@ mod num_cpus {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

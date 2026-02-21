@@ -32,7 +32,7 @@ impl GpuDevice {
     /// 
     /// # Verification
     /// Ensures device_id and vendor_id are valid
-    #[cfg_attr(feature = "verus", verus::spec)]
+    #[cfg_attr(feature = "verus-full", builtin_macros::verus_spec)]
     pub fn new(device_id: u32, vendor_id: u32, memory_size: u64) -> Self {
         Self {
             device_id,
@@ -72,7 +72,7 @@ impl GpuMemory {
     /// - Size must be > 0
     /// - Size must be <= device memory size
     /// - Address must be properly aligned
-    #[cfg_attr(feature = "verus", verus::ensures(ret.is_ok() ==> ret.unwrap().size() == size))]
+    #[cfg_attr(feature = "verus-full", builtin_macros::verus_spec(ensures(ret.is_ok() ==> ret.unwrap().size() == size)))]
     pub fn allocate(device: GpuDevice, size: u64) -> Result<Self, GpuError> {
         if size == 0 {
             return Err(GpuError::InvalidSize);
@@ -158,7 +158,7 @@ impl CommandBuffer {
     /// # Verification
     /// - Buffer must not be empty
     /// - All commands must be valid
-    #[cfg_attr(feature = "verus", verus::requires(self.command_count() > 0))]
+    #[cfg_attr(feature = "verus-full", builtin_macros::verus_spec(requires(self.command_count() > 0)))]
     pub fn submit(self) -> Result<(), GpuError> {
         if self.commands.is_empty() {
             return Err(GpuError::EmptyCommandBuffer);
@@ -316,7 +316,6 @@ impl GpuPipeline {
     }
 }
 #[allow(dead_code)]
-
 /// GPU scheduler for managing GPU workloads
 #[derive(Debug)]
 pub struct GpuScheduler {
@@ -429,11 +428,17 @@ impl GpuStats {
     }
 }
 
+impl Default for GpuStats {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // ============================================================================
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

@@ -11,8 +11,12 @@
 //! 4. **No Privilege Escalation**: User processes cannot gain kernel privileges
 //! 5. **Resource Limits**: All operations respect resource limits
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 use super::ipc::{Priority, Capability};
@@ -603,7 +607,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

@@ -208,18 +208,13 @@ impl FluxEngine {
 
         self.running = true;
 
-        // Main event loop (simplified for now)
-        while self.running {
+        // Single-iteration placeholder until the real event loop is integrated.
+        if self.running {
             // Process events
             // Render frame
             // Present to display
-            
-            // Increment frame counter
             self.frame_count.fetch_add(1, Ordering::SeqCst);
-            
-            // In a real implementation, would wait for vblank
-            // For now, just break after one iteration
-            break;
+            self.running = false;
         }
 
         Ok(())
@@ -447,7 +442,13 @@ impl FluxEngine {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+impl Default for FluxEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

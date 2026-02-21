@@ -101,7 +101,7 @@ impl IntegrityMessage {
     /// ensures(result.data() == data)
     /// ensures(result.checksum() == compute_checksum(data))
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(
         id: MessageId,
@@ -132,20 +132,20 @@ impl IntegrityMessage {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.data.len() <= MAX_MESSAGE_SIZE
         &&& self.checksum == compute_checksum_spec(self.data@)
     }
     
     /// Get message data
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn data(&self) -> Seq<u8> {
         self.data@
     }
     
     /// Get message checksum
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn checksum(&self) -> u32 {
         self.checksum
     }
@@ -158,7 +158,7 @@ impl IntegrityMessage {
     /// requires(self.wf())
     /// ensures(result == true)
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn verify_integrity(&self) -> (result: bool)
         requires(self.wf())
@@ -203,7 +203,7 @@ pub struct IntegrityBuffer {
 
 impl IntegrityBuffer {
     /// Create a new integrity buffer
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn new(max_size: usize) -> (result: Self)
         ensures(result.wf())
     {
@@ -214,7 +214,7 @@ impl IntegrityBuffer {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.messages.len() <= self.max_size
         &&& forall|i: int| 0 <= i < self.messages.len() ==> 
@@ -233,7 +233,7 @@ impl IntegrityBuffer {
     /// ensures(self.messages.len() == old(self).messages.len() + 1)
     /// ensures(self.messages[self.messages.len() - 1] == msg)
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn push(&mut self, msg: IntegrityMessage) -> Result<(), &'static str>
         requires([
@@ -266,7 +266,7 @@ impl IntegrityBuffer {
     ///     None => self.messages.len() == 0,
     /// })
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn pop(&mut self) -> (result: Option<IntegrityMessage>)
         requires(old(self).wf())
@@ -371,7 +371,7 @@ pub proof fn theorem_end_to_end_integrity()
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

@@ -11,8 +11,12 @@
 //! 4. **Bounds**: All allocations are within valid memory range
 //! 5. **Consistency**: Allocator state is always valid
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 /// Physical address type (page-aligned)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,7 +28,7 @@ impl PhysAddr {
     /// # Safety
     /// Address must be page-aligned (multiple of 4096)
     pub const fn new(addr: u64) -> Option<Self> {
-        if addr % 4096 == 0 {
+        if addr.is_multiple_of(4096) {
             Some(PhysAddr(addr))
         } else {
             None
@@ -38,7 +42,7 @@ impl PhysAddr {
     
     /// Check if address is page-aligned
     pub const fn is_aligned(&self) -> bool {
-        self.0 % 4096 == 0
+        self.0.is_multiple_of(4096)
     }
 }
 
@@ -98,7 +102,7 @@ impl BuddyAllocator {
     /// * `base_addr` - Base physical address (must be page-aligned)
     /// * `total_size` - Total size in bytes (must be multiple of page size)
     pub fn new(base_addr: PhysAddr, total_size: u64) -> Option<Self> {
-        if !base_addr.is_aligned() || total_size % 4096 != 0 {
+        if !base_addr.is_aligned() || !total_size.is_multiple_of(4096) {
             return None;
         }
         
@@ -409,7 +413,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

@@ -13,17 +13,21 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
 use crate::neural_scheduler::{NeuralScheduler, ThreadFeatures};
+#[cfg(feature = "verus-full")]
+use crate::neural_scheduler::MAX_TRACKED_THREADS;
 use crate::workload_predictor::WorkloadPredictor;
+#[cfg(feature = "verus-full")]
+use crate::workload_predictor::WorkloadPattern;
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
 
 /// Neural scheduler integration state
@@ -47,7 +51,7 @@ impl NeuralSchedulerIntegration {
     pub const fn new() -> Self {
         NeuralSchedulerIntegration {
             neural_scheduler: NeuralScheduler::new(),
-            predictors: [WorkloadPredictor::new(); MAX_TRACKED_THREADS],
+            predictors: [const { WorkloadPredictor::new() }; MAX_TRACKED_THREADS],
             num_predictors: 0,
             gaming_mode: false,
             adjustments_made: 0,
@@ -253,11 +257,10 @@ pub struct SchedulerStatistics {
     pub gaming_mode_enabled: bool,
 }
 
-#[cfg(feature = "verus")]
 } // verus!
 
 // Non-Verus version (without formal verification)
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[allow(dead_code)]
 pub struct NeuralSchedulerIntegration {
     neural_scheduler: NeuralScheduler,
@@ -267,7 +270,7 @@ pub struct NeuralSchedulerIntegration {
     gaming_threads_detected: u64,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl NeuralSchedulerIntegration {
     pub fn new() -> Self {
         Self {
@@ -309,7 +312,14 @@ impl NeuralSchedulerIntegration {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
+impl Default for NeuralSchedulerIntegration {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

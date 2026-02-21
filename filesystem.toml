@@ -72,6 +72,15 @@ uutils = {}
 #xz = {}
 zerod = {}
 
+[[files]]
+path = "/etc/pkg.d"
+data = ""
+directory = true
+
+[[files]]
+path = "/etc/pkg.d/50_redox"
+data = "https://static.redox-os.org/pkg"
+
 # User settings
 [users.root]
 # Password is set to "password"

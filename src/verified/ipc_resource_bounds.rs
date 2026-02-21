@@ -57,7 +57,7 @@ impl BoundedMessage {
     /// ensures(result.size() == data.len())
     /// ensures(result.size() <= MAX_MESSAGE_SIZE)
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(sender: Pid, receiver: Pid, data: Vec<u8>) -> Result<Self, &'static str>
         requires(data.len() <= MAX_MESSAGE_SIZE)
@@ -78,13 +78,13 @@ impl BoundedMessage {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         self.data.len() <= MAX_MESSAGE_SIZE
     }
     
     /// Get message size
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn size(&self) -> usize {
         self.data.len()
     }
@@ -130,7 +130,7 @@ impl BoundedQueue {
     /// ensures(result.len() == 0)
     /// ensures(result.memory_usage() == 0)
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(max_size: usize) -> (result: Self)
         requires(max_size <= MAX_QUEUE_SIZE)
@@ -148,7 +148,7 @@ impl BoundedQueue {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.messages.len() <= self.max_size
         &&& self.max_size <= MAX_QUEUE_SIZE
@@ -158,13 +158,13 @@ impl BoundedQueue {
     }
     
     /// Get queue length
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn len(&self) -> usize {
         self.messages.len()
     }
     
     /// Get memory usage
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn memory_usage(&self) -> usize {
         self.memory_usage
     }
@@ -181,7 +181,7 @@ impl BoundedQueue {
     /// ensures(self.len() == old(self).len() + 1)
     /// ensures(self.memory_usage() == old(self).memory_usage() + msg.size())
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn push(&mut self, msg: BoundedMessage) -> Result<(), &'static str>
         requires([
@@ -227,7 +227,7 @@ impl BoundedQueue {
     ///     None => self.len() == 0,
     /// })
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn pop(&mut self) -> (result: Option<BoundedMessage>)
         requires(old(self).wf())
@@ -291,7 +291,7 @@ impl BoundedIpcManager {
     /// ensures(result.wf())
     /// ensures(result.total_memory() == 0)
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(max_memory: usize) -> (result: Self)
         requires(max_memory <= MAX_IPC_MEMORY)
@@ -308,7 +308,7 @@ impl BoundedIpcManager {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.total_memory <= self.max_memory
         &&& self.max_memory <= MAX_IPC_MEMORY
@@ -318,7 +318,7 @@ impl BoundedIpcManager {
     }
     
     /// Get total memory usage
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn total_memory(&self) -> usize {
         self.total_memory
     }
@@ -337,7 +337,7 @@ impl BoundedIpcManager {
     ///     Err(_) => self.total_memory() == old(self).total_memory(),
     /// })
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn send(&mut self, sender: Pid, receiver: Pid, data: Vec<u8>) -> Result<(), &'static str>
         requires([
@@ -388,7 +388,7 @@ impl BoundedIpcManager {
     ///     None => self.total_memory() == old(self).total_memory(),
     /// })
     /// ```
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn receive(&mut self, receiver: Pid) -> (result: Option<BoundedMessage>)
         requires(old(self).wf())
@@ -489,7 +489,7 @@ pub proof fn theorem_memory_accounting_correct()
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

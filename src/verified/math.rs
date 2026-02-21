@@ -3,8 +3,12 @@
 //! This module provides mathematically proven implementations of
 //! basic arithmetic operations with overflow protection.
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 /// Safely add two u32 numbers with overflow checking
 /// 
@@ -20,7 +24,7 @@ use verus::prelude::*;
 /// let result = safe_add(10, 20);
 /// assert_eq!(result, 30);
 /// ```
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub fn safe_add(a: u32, b: u32) -> (result: u32)
         requires a as u64 + b as u64 <= u32::MAX as u64,
@@ -30,7 +34,7 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub fn safe_add(a: u32, b: u32) -> u32 {
     a.checked_add(b).expect("Addition overflow")
 }
@@ -40,7 +44,7 @@ pub fn safe_add(a: u32, b: u32) -> u32 {
 /// # Formal Specification (Verus)
 /// - Precondition: a >= b
 /// - Postcondition: result == a - b
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub fn safe_sub(a: u32, b: u32) -> (result: u32)
         requires a >= b,
@@ -50,7 +54,7 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub fn safe_sub(a: u32, b: u32) -> u32 {
     a.checked_sub(b).expect("Subtraction underflow")
 }
@@ -60,7 +64,7 @@ pub fn safe_sub(a: u32, b: u32) -> u32 {
 /// # Formal Specification (Verus)
 /// - Precondition: a * b <= u32::MAX
 /// - Postcondition: result == a * b
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub fn safe_mul(a: u32, b: u32) -> (result: u32)
         requires a as u64 * b as u64 <= u32::MAX as u64,
@@ -70,7 +74,7 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub fn safe_mul(a: u32, b: u32) -> u32 {
     a.checked_mul(b).expect("Multiplication overflow")
 }
@@ -80,7 +84,7 @@ pub fn safe_mul(a: u32, b: u32) -> u32 {
 /// # Formal Specification (Verus)
 /// - Precondition: b != 0
 /// - Postcondition: result == a / b
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub fn safe_div(a: u32, b: u32) -> (result: u32)
         requires b != 0,
@@ -90,7 +94,7 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub fn safe_div(a: u32, b: u32) -> u32 {
     a.checked_div(b).expect("Division by zero")
 }
@@ -100,7 +104,7 @@ pub fn safe_div(a: u32, b: u32) -> u32 {
 /// # Formal Specification (Verus)
 /// - Postcondition: result <= a && result <= b
 /// - Postcondition: result == a || result == b
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub fn min(a: u32, b: u32) -> (result: u32)
         ensures 
@@ -111,7 +115,7 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub fn min(a: u32, b: u32) -> u32 {
     if a < b { a } else { b }
 }
@@ -121,7 +125,7 @@ pub fn min(a: u32, b: u32) -> u32 {
 /// # Formal Specification (Verus)
 /// - Postcondition: result >= a && result >= b
 /// - Postcondition: result == a || result == b
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub fn max(a: u32, b: u32) -> (result: u32)
         ensures 
@@ -132,7 +136,7 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub fn max(a: u32, b: u32) -> u32 {
     if a > b { a } else { b }
 }
@@ -235,7 +239,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

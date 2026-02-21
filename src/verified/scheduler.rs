@@ -11,8 +11,12 @@
 //! 4. **Bounded Wait Time**: Maximum wait time is bounded
 //! 5. **Context Switch Safety**: State is preserved across switches
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 
@@ -127,6 +131,12 @@ impl SchedStats {
     }
 }
 
+impl Default for SchedStats {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Schedulable task
 #[derive(Debug, Clone)]
 pub struct SchedTask {
@@ -195,7 +205,7 @@ impl SchedTask {
     /// - Precondition: -20 <= nice <= 19
     /// - Postcondition: self.nice == nice
     pub fn set_nice(&mut self, nice: i8) -> Result<(), &'static str> {
-        if nice < -20 || nice > 19 {
+        if !(-20..=19).contains(&nice) {
             return Err("Nice value out of range");
         }
         
@@ -521,6 +531,12 @@ impl Scheduler {
     }
 }
 
+impl Default for Scheduler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Scheduler statistics
 #[derive(Debug, Clone, Copy)]
 pub struct SchedulerStats {
@@ -600,7 +616,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

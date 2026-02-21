@@ -120,7 +120,7 @@ impl Default for WorkingDirectory {
 ///
 /// # Returns
 /// Success or error
-#[cfg_attr(feature = "verus", verus::verify)]
+#[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
 pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
     // Validate path
     if path.as_os_str().is_empty() {
@@ -160,7 +160,7 @@ pub fn sys_mkdir(path: &Path, mode: Option<u32>) -> DirOpResult<()> {
 ///
 /// # Returns
 /// Success or error
-#[cfg_attr(feature = "verus", verus::verify)]
+#[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
 pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
     // Validate path
     if path.as_os_str().is_empty() {
@@ -203,7 +203,7 @@ pub fn sys_rmdir(path: &Path) -> DirOpResult<()> {
 ///
 /// # Returns
 /// Success or error
-#[cfg_attr(feature = "verus", verus::verify)]
+#[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
 pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
     // Validate path
     if path.as_os_str().is_empty() {
@@ -267,7 +267,7 @@ pub fn sys_chdir(wd: &mut WorkingDirectory, path: &Path) -> DirOpResult<()> {
 ///
 /// # Returns
 /// Path length or error
-#[cfg_attr(feature = "verus", verus::verify)]
+#[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
 pub fn sys_getcwd(
     wd: &WorkingDirectory,
     buf: &mut [u8],
@@ -310,12 +310,12 @@ pub fn sys_getcwd(
 ///
 /// # Returns
 /// Current working directory path
-#[cfg_attr(feature = "verus", verus::verify)]
+#[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
 pub fn sys_getcwd_path(wd: &WorkingDirectory) -> PathBuf {
     wd.get().to_path_buf()
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

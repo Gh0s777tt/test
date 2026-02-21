@@ -1,25 +1,31 @@
-build/libkernel.a: kernel/Cargo.toml kernel/src/* kernel/src/*/* kernel/src/*/*/* kernel/src/*/*/*/* build/initfs.tag
-# Temporary fix for https://github.com/redox-os/redox/issues/963 allowing to build on macOS
-ifeq ($(UNAME),Darwin)
-	cd kernel && CC=$(ARCH)-elf-gcc AR=$(ARCH)-elf-ar CFLAGS=-ffreestanding INITFS_FOLDER=$(ROOT)/build/initfs xargo rustc --lib --target $(KTARGET) --release -- -C soft-float -C debuginfo=2 --emit link=../$@
-else
-	cd kernel && INITFS_FOLDER=$(ROOT)/build/initfs xargo rustc --lib --target $(KTARGET) --release -- -C soft-float -C debuginfo=2 --emit link=../$@
-endif
+KERNEL_TARGET_SPEC=$(ROOT)/kernel/targets/$(ARCH)-unknown-kernel.json
+KERNEL_LINKER_SCRIPT=$(ROOT)/kernel/linkers/$(ARCH).ld
+KERNEL_CARGO=cargo +$(KERNEL_TOOLCHAIN)
+KERNEL_RUSTFLAGS=-C link-arg=-T -C link-arg=$(KERNEL_LINKER_SCRIPT) -C link-arg=-z -C link-arg=max-page-size=0x1000
 
-build/libkernel_live.a: kernel/Cargo.toml kernel/src/* kernel/src/*/* kernel/src/*/*/* kernel/src/*/*/*/* build/initfs_live.tag
-	cd kernel && INITFS_FOLDER=$(ROOT)/build/initfs_live xargo rustc --lib --features live --target $(KTARGET) --release -- -C soft-float --emit link=../$@
+build/kernel: kernel/Cargo.toml $(KERNEL_TARGET_SPEC) $(KERNEL_LINKER_SCRIPT) build/initfs.tag
+	INITFS_FOLDER=$(ROOT)/build/initfs $(KERNEL_CARGO) rustc \
+		--manifest-path $(ROOT)/kernel/Cargo.toml \
+		--bin kernel \
+		--target $(KERNEL_TARGET_SPEC) \
+		--release \
+		-Z build-std=core,alloc \
+		-Z build-std-features=compiler-builtins-mem \
+		-- \
+		$(KERNEL_RUSTFLAGS) \
+		--emit link=$(ROOT)/$@.all
+	objcopy --only-keep-debug $(ROOT)/$@.all $(ROOT)/$@.sym
+	objcopy --strip-debug $(ROOT)/$@.all $(ROOT)/$@
 
-build/kernel: kernel/linkers/$(ARCH).ld build/libkernel.a
-	$(LD) --gc-sections -z max-page-size=0x1000 -T $< -o $@ build/libkernel.a
-	objcopy --only-keep-debug $@ $@.sym
-	objcopy --strip-debug $@
-
-build/kernel_live: kernel/linkers/$(ARCH).ld build/libkernel_live.a build/live.o
-	$(LD) --gc-sections -z max-page-size=0x1000 -T $< -o $@ build/libkernel_live.a build/live.o
-
-build/live.o: build/filesystem.bin
-	#TODO: More general use of $(ARCH)
-	objcopy -I binary -O elf64-x86-64 -B i386:x86-64 $< $@ \
-		--redefine-sym _binary_build_filesystem_bin_start=__live_start \
-		--redefine-sym _binary_build_filesystem_bin_end=__live_end \
-		--redefine-sym _binary_build_filesystem_bin_size=__live_size
+build/kernel_live: kernel/Cargo.toml $(KERNEL_TARGET_SPEC) $(KERNEL_LINKER_SCRIPT) build/initfs_live.tag
+	INITFS_FOLDER=$(ROOT)/build/initfs_live $(KERNEL_CARGO) rustc \
+		--manifest-path $(ROOT)/kernel/Cargo.toml \
+		--bin kernel \
+		--target $(KERNEL_TARGET_SPEC) \
+		--release \
+		-Z build-std=core,alloc \
+		-Z build-std-features=compiler-builtins-mem \
+		-- \
+		$(KERNEL_RUSTFLAGS) \
+		--emit link=$(ROOT)/$@.all
+	objcopy --strip-debug $(ROOT)/$@.all $(ROOT)/$@

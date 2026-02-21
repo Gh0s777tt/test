@@ -1,6 +1,9 @@
 # Configuration
 ARCH?=x86_64
-INSTALLER_FLAGS?=--cookbook=cookbook
+# Use remote package repository by default; override with INSTALLER_FLAGS=--cookbook=cookbook
+# if you have a fully prepared local cookbook cache.
+INSTALLER_FLAGS?=
+KERNEL_TOOLCHAIN?=nightly-2025-10-03
 
 # Per host variables
 UNAME := $(shell uname)
@@ -25,8 +28,6 @@ endif
 # Automatic variables
 ROOT=$(PWD)
 export RUST_TARGET_PATH=$(ROOT)/kernel/targets
-export XARGO_HOME=$(ROOT)/build/xargo
-export XARGO_RUST_SRC=$(ROOT)/rust/src
 
 # Kernel variables
 KTARGET=$(ARCH)-unknown-none

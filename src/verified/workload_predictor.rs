@@ -13,14 +13,14 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
 
 /// Maximum history size for prediction
@@ -392,16 +392,15 @@ impl WorkloadPredictor {
     }
 }
 
-#[cfg(feature = "verus")]
 } // verus!
 
 // Non-Verus version (without formal verification)
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub const MAX_HISTORY_SIZE: usize = 32;
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub const CONFIDENCE_THRESHOLD: u8 = 70;
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct BurstHistoryEntry {
     pub cpu_burst_us: u64,
@@ -409,7 +408,7 @@ pub struct BurstHistoryEntry {
     pub timestamp_us: u64,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum WorkloadPattern {
     Unknown,
@@ -420,7 +419,7 @@ pub enum WorkloadPattern {
     Batch,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub struct WorkloadPredictor {
     history: [BurstHistoryEntry; MAX_HISTORY_SIZE],
     history_count: usize,
@@ -428,7 +427,7 @@ pub struct WorkloadPredictor {
     pattern_confidence: u8,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl WorkloadPredictor {
     pub fn new() -> Self {
         Self {
@@ -513,7 +512,14 @@ impl WorkloadPredictor {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
+impl Default for WorkloadPredictor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

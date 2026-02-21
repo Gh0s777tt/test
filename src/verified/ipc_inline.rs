@@ -19,8 +19,12 @@
 //! 3. **Data Integrity**: Message content preserved correctly
 //! 4. **No Leaks**: Proper cleanup of both inline and heap storage
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 
@@ -347,7 +351,7 @@ pub struct MessageQueueStats {
 // FORMAL VERIFICATION WITH VERUS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     impl MessageStorage {
         /// Verify inline storage for small messages
@@ -517,7 +521,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

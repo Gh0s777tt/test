@@ -79,7 +79,7 @@ impl VerifiedMessage {
     /// - Integrity: Checksum computed and verified
     /// - Bounds: Size checked against MAX_MESSAGE_SIZE
     /// - Isolation: Sender and receiver recorded
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(
         id: u64,
@@ -113,14 +113,14 @@ impl VerifiedMessage {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.data.len() <= MAX_MESSAGE_SIZE
         &&& self.checksum == compute_checksum_spec(self.data@)
     }
     
     /// Get message size
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn size(&self) -> usize {
         self.data.len()
     }
@@ -194,7 +194,7 @@ pub struct VerifiedQueue {
 
 impl VerifiedQueue {
     /// Create a new verified queue
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(owner: Pid, max_size: usize) -> (result: Self)
         requires(max_size <= MAX_QUEUE_SIZE)
@@ -214,7 +214,7 @@ impl VerifiedQueue {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.messages.len() <= self.max_size
         &&& self.max_size <= MAX_QUEUE_SIZE
@@ -226,25 +226,25 @@ impl VerifiedQueue {
     }
     
     /// Get owner
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn owner(&self) -> Pid {
         self.owner
     }
     
     /// Get queue length
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn len(&self) -> usize {
         self.messages.len()
     }
     
     /// Get memory usage
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn memory_usage(&self) -> usize {
         self.memory_usage
     }
     
     /// Push a message to the queue
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn push(&mut self, msg: VerifiedMessage) -> Result<(), &'static str>
         requires([
@@ -287,7 +287,7 @@ impl VerifiedQueue {
     }
     
     /// Pop a message from the queue
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn pop(&mut self, requester: Pid) -> (result: Option<VerifiedMessage>)
         requires([
@@ -369,7 +369,7 @@ pub struct IntegratedIpcManager {
 
 impl IntegratedIpcManager {
     /// Create a new integrated IPC manager
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(max_memory: usize) -> (result: Self)
         requires(max_memory <= MAX_IPC_MEMORY)
@@ -389,7 +389,7 @@ impl IntegratedIpcManager {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& self.total_memory <= self.max_memory
         &&& self.max_memory <= MAX_IPC_MEMORY
@@ -405,7 +405,7 @@ impl IntegratedIpcManager {
     }
     
     /// Get total memory usage
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn total_memory(&self) -> usize {
         self.total_memory
     }
@@ -551,7 +551,7 @@ pub struct QueueStats {
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

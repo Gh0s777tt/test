@@ -384,7 +384,13 @@ impl HardwareScanner {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+impl Default for HardwareScanner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

@@ -135,7 +135,7 @@ impl RegistryEmulator {
         use std::sync::OnceLock;
         static INSTANCE: OnceLock<RegistryEmulator> = OnceLock::new();
         
-        INSTANCE.get_or_init(|| RegistryEmulator::new())
+        INSTANCE.get_or_init(RegistryEmulator::new)
     }
     
     /// Populate system registry keys
@@ -470,6 +470,12 @@ impl RegistryEmulator {
         };
         
         Ok((root, subpath))
+    }
+}
+
+impl Default for RegistryEmulator {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

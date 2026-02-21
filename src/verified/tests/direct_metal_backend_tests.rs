@@ -9,19 +9,19 @@ mod backend_integration_tests {
     
     #[test]
     fn test_backend_factory_available_backends() {
-        let backends = BackendFactory::available_backends();
+        let _backends = BackendFactory::available_backends();
         
         // Should have at least one backend on supported platforms
         #[cfg(any(feature = "vulkan", all(target_os = "macos", feature = "metal")))]
-        assert!(!backends.is_empty());
+        assert!(!_backends.is_empty());
         
         // Vulkan should be available if feature is enabled
         #[cfg(feature = "vulkan")]
-        assert!(backends.contains(&BackendType::Vulkan));
+        assert!(_backends.contains(&BackendType::Vulkan));
         
         // Metal should be available on macOS if feature is enabled
         #[cfg(all(target_os = "macos", feature = "metal"))]
-        assert!(backends.contains(&BackendType::Metal));
+        assert!(_backends.contains(&BackendType::Metal));
     }
     
     #[test]
@@ -53,7 +53,7 @@ mod backend_integration_tests {
     
     #[test]
     fn test_memory_type_variants() {
-        let types = vec![
+        let types = [
             MemoryType::DeviceLocal,
             MemoryType::HostVisible,
             MemoryType::HostCached,
@@ -74,7 +74,7 @@ mod backend_integration_tests {
     
     #[test]
     fn test_pipeline_type_variants() {
-        let types = vec![
+        let types = [
             PipelineType::Graphics,
             PipelineType::Compute,
             PipelineType::RayTracing,
@@ -94,7 +94,7 @@ mod backend_integration_tests {
     
     #[test]
     fn test_device_type_variants() {
-        let types = vec![
+        let types = [
             DeviceType::Discrete,
             DeviceType::Integrated,
             DeviceType::Virtual,
@@ -115,7 +115,7 @@ mod backend_integration_tests {
     
     #[test]
     fn test_backend_error_variants() {
-        let errors = vec![
+        let errors = [
             BackendError::NoDeviceFound,
             BackendError::UnsupportedPlatform,
             BackendError::InitializationFailed("test".to_string()),
@@ -125,6 +125,7 @@ mod backend_integration_tests {
             BackendError::SynchronizationFailed("test".to_string()),
             BackendError::InvalidOperation("test".to_string()),
         ];
+        assert_eq!(errors.len(), 8);
         
         // Ensure errors can be compared
         assert_eq!(BackendError::NoDeviceFound, BackendError::NoDeviceFound);
@@ -365,6 +366,7 @@ mod metal_backend_tests {
 
 #[cfg(test)]
 mod cross_backend_tests {
+    #[allow(unused_imports)]
     use vantis_verified::direct_metal_backend::*;
     
     /// Test that both backends implement the same interface

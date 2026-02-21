@@ -357,7 +357,7 @@ pub fn create_government_profile() -> Profile {
         .build()
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

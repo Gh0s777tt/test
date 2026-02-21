@@ -1,9 +1,15 @@
 //! VANTIS OS Verified Components Library
 //! 
 //! This library contains all formally verified components of VANTIS OS.
+// The verus-full feature compiles proof-oriented sources with rustc for CI sanity checks.
+// These paths intentionally include verification-only constructs that appear unused outside Verus.
+#![cfg_attr(
+    feature = "verus-full",
+    allow(unused_imports, unused_doc_comments, unused_variables, dead_code)
+)]
 
 // Verus shim for conditional compilation
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[macro_use]
 pub mod verus_shim;
 

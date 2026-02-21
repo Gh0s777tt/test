@@ -489,7 +489,13 @@ impl RecoveryManager {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+impl Default for RecoveryManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

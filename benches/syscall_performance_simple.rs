@@ -3,13 +3,14 @@
 //! This benchmark measures the performance of individual syscall operations
 //! without requiring the full VantisOS library to compile.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Duration;
 
 // Mock syscall implementations for benchmarking
 // These simulate the overhead and operations without full OS integration
 
 #[derive(Debug, Clone, Copy)]
+#[allow(dead_code)]
 enum SyscallNumber {
     Read = 0,
     Write = 1,

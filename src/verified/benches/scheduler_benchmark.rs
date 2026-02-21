@@ -14,7 +14,7 @@
 //! - Real-time responsiveness
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use std::collections::HashMap;
 
 // Mock thread structure for benchmarking

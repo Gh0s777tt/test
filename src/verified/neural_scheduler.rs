@@ -20,14 +20,14 @@
 //! # Safety
 //! All operations are formally verified with mathematical proofs.
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
 
 /// Maximum number of threads the neural scheduler can track
@@ -368,14 +368,13 @@ impl NeuralScheduler {
     }
 }
 
-#[cfg(feature = "verus")]
 } // verus!
 
 // Non-Verus version of the same code (without formal verification)
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub const MAX_TRACKED_THREADS: usize = 256;
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub struct NeuralScheduler {
     weights_l1: [[i32; 16]; 8],
     weights_l2: [[i32; 16]; 16],
@@ -387,7 +386,7 @@ pub struct NeuralScheduler {
     next_thread_index: usize,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 #[derive(Clone, Copy, Debug)]
 pub struct ThreadFeatures {
     pub priority: u8,
@@ -400,7 +399,7 @@ pub struct ThreadFeatures {
     pub is_gaming: u8,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl ThreadFeatures {
     pub fn to_input_array(&self) -> [i32; 8] {
         [
@@ -416,7 +415,7 @@ impl ThreadFeatures {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl NeuralScheduler {
     pub fn new() -> Self {
         Self {
@@ -443,26 +442,26 @@ impl NeuralScheduler {
     pub fn predict_priority(&self, features: &ThreadFeatures) -> i8 {
         let input = features.to_input_array();
         let mut hidden1 = [0i32; 16];
-        for i in 0..16 {
+        for (i, hidden1_i) in hidden1.iter_mut().enumerate() {
             let mut sum = self.bias_l1[i];
-            for j in 0..8 {
-                sum += input[j] * self.weights_l1[j][i] / 1000;
+            for (j, input_j) in input.iter().enumerate() {
+                sum += *input_j * self.weights_l1[j][i] / 1000;
             }
-            hidden1[i] = if sum > 0 { sum } else { 0 };
+            *hidden1_i = if sum > 0 { sum } else { 0 };
         }
         let mut hidden2 = [0i32; 16];
-        for i in 0..16 {
+        for (i, hidden2_i) in hidden2.iter_mut().enumerate() {
             let mut sum = self.bias_l2[i];
-            for j in 0..16 {
-                sum += hidden1[j] * self.weights_l2[j][i] / 1000;
+            for (j, hidden1_j) in hidden1.iter().enumerate() {
+                sum += *hidden1_j * self.weights_l2[j][i] / 1000;
             }
-            hidden2[i] = if sum > 0 { sum } else { 0 };
+            *hidden2_i = if sum > 0 { sum } else { 0 };
         }
         let mut output = self.bias_output;
-        for i in 0..16 {
-            output += hidden2[i] * self.weights_output[i] / 1000;
+        for (i, hidden2_i) in hidden2.iter().enumerate() {
+            output += *hidden2_i * self.weights_output[i] / 1000;
         }
-        if output > 20 { 20 } else if output < -20 { -20 } else { output as i8 }
+        output.clamp(-20, 20) as i8
     }
 
     pub fn record_thread(&mut self, features: ThreadFeatures) {
@@ -482,7 +481,14 @@ impl NeuralScheduler {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
+impl Default for NeuralScheduler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

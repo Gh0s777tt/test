@@ -19,8 +19,12 @@
 //! 5. **Context Switch Safety**: State is preserved across switches
 //! 6. **Bitmap Consistency**: Bitmap always reflects queue state
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::process::{Pid, ProcessState};
 
@@ -130,6 +134,12 @@ impl SchedStats {
     /// Update wait time
     pub fn add_wait_time(&mut self, wait_time: u64) {
         self.wait_time += wait_time;
+    }
+}
+
+impl Default for SchedStats {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -362,6 +372,12 @@ impl PriorityBitmap {
     }
 }
 
+impl Default for PriorityBitmap {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Optimized Scheduler with Priority Bitmap
 pub struct SchedulerOptimized {
     /// Run queues for each priority level (256 levels)
@@ -503,11 +519,17 @@ impl SchedulerOptimized {
     }
 }
 
+impl Default for SchedulerOptimized {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // ============================================================================
 // FORMAL VERIFICATION WITH VERUS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     impl PriorityBitmap {
         /// Verify bitmap set operation
@@ -653,7 +675,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

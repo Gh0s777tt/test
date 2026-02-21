@@ -32,8 +32,12 @@
 //! 4. **Formal Verification**: All operations are formally verified
 //! 5. **Maximum Security**: If any algorithm is broken, others still protect data
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::vault::{CascadeKeys, MAX_DATA_SIZE};
 use super::vault_aes::{encrypt_aes256_cbc, decrypt_aes256_cbc};
@@ -163,6 +167,12 @@ impl VantisVaultCascade {
     }
 }
 
+impl Default for VantisVaultCascade {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drop for VantisVaultCascade {
     fn drop(&mut self) {
         // Ensure keys are zeroized on drop
@@ -176,7 +186,7 @@ impl Drop for VantisVaultCascade {
 // FORMAL VERIFICATION WITH VERUS
 // ============================================================================
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     impl VantisVaultCascade {
         /// Verify encryption/decryption roundtrip
@@ -193,8 +203,8 @@ verus! {
             let plaintext = [1u8, 2, 3, 4, 5];
             let ciphertext = vault.encrypt(&plaintext).unwrap();
             let decrypted = vault.decrypt(&ciphertext).unwrap();
-            
-            ensures(decrypted == plaintext);
+
+            assert!(decrypted == plaintext);
         }
         
         /// Verify panic mode zeroizes keys
@@ -209,9 +219,9 @@ verus! {
             
             vault.initialize(keys);
             vault.panic();
-            
-            ensures(!vault.is_initialized());
-            ensures(vault.is_panic_mode());
+
+            assert!(!vault.is_initialized());
+            assert!(vault.is_panic_mode());
         }
     }
 }
@@ -275,7 +285,7 @@ mod kani_verification {
 // UNIT TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     use super::super::vault::KEY_SIZE;

@@ -10,8 +10,11 @@ license = "MIT"
 path = "lib.rs"
 
 [features]
-# Enable formal verification with Verus
-verus = []
+# Enable Verus compatibility crates for cargo builds
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+
+# Enable full Verus proof code paths (verus! blocks and proof-only cfgs)
+verus-full = ["verus"]
 
 # Enable Kani verification
 kani = []
@@ -24,10 +27,18 @@ vulkan = ["ash"]
 metal = ["metal-rs", "objc"]
 all-backends = ["vulkan", "metal"]
 
+# Opt-in feature for legacy/experimental IPC complete benchmark harness
+ipc-complete-bench = []
+
 # Default features
 default = ["hw-accel"]
 
 [dependencies]
+# Verus verification toolchain crates
+builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
+builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
+vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+
 # Cryptographic implementations from RustCrypto
 aes = { version = "0.8", default-features = false }
 twofish = { version = "0.7", default-features = false }
@@ -77,6 +88,7 @@ harness = false
 name = "ipc_complete_benchmark"
 harness = false
 path = "../../benches/ipc_complete_benchmark.rs"
+required-features = ["ipc-complete-bench"]
 
 [[bench]]
 name = "performance_baseline"

@@ -104,7 +104,6 @@ struct VulkanMemoryHeap {
     device_local: bool,
 }
 #[allow(dead_code)]
-
 /// Vulkan queue family
 #[derive(Clone)]
 struct VulkanQueueFamily {
@@ -348,6 +347,12 @@ impl VulkanBackend {
         // In real implementation, this would query actual available memory
         // For now, assume 80% is available
         (self.get_total_memory(physical_device) as f64 * 0.8) as u64
+    }
+}
+
+impl Default for VulkanBackend {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -729,7 +734,7 @@ impl GpuBackend for VulkanBackend {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

@@ -23,7 +23,7 @@ use sentinel_recovery::*;
 use sentinel_fingerprint::*;
 use sentinel_api::*;
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

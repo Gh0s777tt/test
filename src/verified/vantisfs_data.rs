@@ -15,14 +15,14 @@
 //! - Corrupted blocks detected automatically
 //! - Safe error handling
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
 
 /// Block size in bytes (4KB)
@@ -165,7 +165,7 @@ impl DataBlockManager {
     /// Create a new data block manager
     pub const fn new() -> Self {
         DataBlockManager {
-            cache: [CacheEntry::new(); 64],
+            cache: [const { CacheEntry::new() }; 64],
             cache_hits: 0,
             cache_misses: 0,
             blocks_read: 0,
@@ -334,10 +334,9 @@ impl DataBlockManager {
     }
 }
 
-#[cfg(feature = "verus")]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

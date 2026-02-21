@@ -15,14 +15,14 @@
 //! - Validates partition before switch
 //! - Automatic rollback on boot failure
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use builtin_macros::*;
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 use vstd::prelude::*;
 
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
 
 /// Partition identifier
@@ -372,10 +372,9 @@ impl ABSystem {
     }
 }
 
-#[cfg(feature = verus)]
 } // verus!
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

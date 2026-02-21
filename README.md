@@ -115,11 +115,26 @@ cd VantisOS
 # Install dependencies
 ./scripts/install_deps.sh
 
+# Preflight check for installable build prerequisites
+./scripts/check_installability.sh
+
+# If preflight reports missing bootloader/kernel tree, bootstrap it once
+./scripts/bootstrap_legacy_tree.sh
+
+# One-command path: preflight + ISO build
+./scripts/build_installable_iso.sh --bootstrap
+
 # Build the system
 make build
 
 # Run in QEMU
 make run
+
+# Optional: automated VM smoke test for ISO boot
+./scripts/test_install_e2e.sh --boot-timeout 90
+
+# Optional: provision disk via installer and validate disk boot
+./scripts/test_install_e2e.sh --disk-format raw --disk build/e2e-install.raw --provision-disk --expect-disk-boot
 ```
 
 ---
@@ -567,6 +582,9 @@ sudo dd if=vantis.iso of=/dev/sdX bs=4M status=progress
 # Boot from USB and follow instructions
 ```
 
+Maintainers can publish signed ISO assets from a tagged build using the
+`ISO Release Assets` GitHub Actions workflow (`.github/workflows/iso-release-assets.yml`).
+
 ### Method 2: Build from Source
 
 ```bash
@@ -581,6 +599,15 @@ cd VantisOS
 
 # Install dependencies
 ./scripts/install_deps.sh
+
+# Preflight check for installable build prerequisites
+./scripts/check_installability.sh
+
+# If preflight reports missing bootloader/kernel tree, bootstrap it once
+./scripts/bootstrap_legacy_tree.sh
+
+# One-command path: preflight + ISO build
+./scripts/build_installable_iso.sh --bootstrap
 
 # Choose profile
 # - core: Stability (default)
@@ -597,6 +624,12 @@ make iso
 
 # Test in QEMU
 make run
+
+# Optional: automated VM smoke test for ISO boot
+./scripts/test_install_e2e.sh --boot-timeout 90
+
+# Optional: provision disk via installer and validate disk boot
+./scripts/test_install_e2e.sh --disk-format raw --disk build/e2e-install.raw --provision-disk --expect-disk-boot
 ```
 
 ### Method 3: Mobile Update 📱

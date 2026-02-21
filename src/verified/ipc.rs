@@ -11,8 +11,12 @@
 //! 4. **Capability Correctness**: Capability propagation is secure
 //! 5. **Resource Bounds**: Message queues have bounded size
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::process::Pid;
 use std::collections::HashMap;
@@ -366,7 +370,7 @@ impl IpcManager {
         cap: Capability,
     ) -> Result<(), &'static str> {
         // Use HashMap for O(1) insertion
-        let caps = self.capabilities.entry((from, to)).or_insert_with(Vec::new);
+        let caps = self.capabilities.entry((from, to)).or_default();
         
         // Check if capability already exists
         if !caps.contains(&cap) {
@@ -472,6 +476,12 @@ impl IpcManager {
     }
 }
 
+impl Default for IpcManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // Kani verification harnesses
 #[cfg(kani)]
 mod verification {
@@ -560,7 +570,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

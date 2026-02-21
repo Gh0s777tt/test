@@ -3,8 +3,12 @@
 //! This module provides mathematically proven implementations of
 //! memory allocation and management with safety guarantees.
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 /// Memory allocation error types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -14,14 +18,19 @@ pub enum AllocError {
     InvalidAlignment,
 }
 
+/// Verified buffer error types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BufferError {
+    Full,
+}
+
 /// Memory allocator with formal verification
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub struct VerifiedAllocator {
         heap_start: usize,
         heap_size: usize,
         allocated: usize,
-        ghost invariant: bool,
     }
     
     impl VerifiedAllocator {
@@ -46,7 +55,6 @@ verus! {
                 heap_start: start,
                 heap_size: size,
                 allocated: 0,
-                ghost invariant: true,
             }
         }
         
@@ -94,14 +102,14 @@ verus! {
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub struct VerifiedAllocator {
     heap_start: usize,
     heap_size: usize,
     allocated: usize,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl VerifiedAllocator {
     pub fn new(start: usize, size: usize) -> Self {
         assert!(size > 0, "Size must be greater than 0");
@@ -134,12 +142,12 @@ impl VerifiedAllocator {
 }
 
 /// Verified buffer with bounds checking
-#[cfg(feature = "verus")]
+#[cfg(feature = "verus-full")]
 verus! {
     pub struct VerifiedBuffer {
         data: Vec<u8>,
         capacity: usize,
-        ghost size: nat,
+    size: usize,
     }
     
     impl VerifiedBuffer {
@@ -158,7 +166,7 @@ verus! {
             VerifiedBuffer {
                 data: Vec::new(),
                 capacity,
-                ghost size: 0,
+                size: 0,
             }
         }
         
@@ -167,19 +175,19 @@ verus! {
         /// # Formal Specification
         /// - Postcondition: On success, size increases by 1
         /// - Postcondition: On failure, size unchanged
-        pub fn push(&mut self, value: u8) -> (result: Result<(), ()>)
+        pub fn push(&mut self, value: u8) -> (result: Result<(), BufferError>)
             ensures 
                 match result {
                     Ok(()) => self.size == old(self).size + 1,
-                    Err(()) => self.size == old(self).size,
+                    Err(_) => self.size == old(self).size,
                 },
         {
             if self.data.len() < self.capacity {
                 self.data.push(value);
-                proof { self.size = self.size + 1; }
+                self.size = self.size + 1;
                 Ok(())
             } else {
-                Err(())
+                Err(BufferError::Full)
             }
         }
         
@@ -192,16 +200,23 @@ verus! {
         {
             self.data.len()
         }
+
+        /// Check if buffer is empty
+        pub fn is_empty(&self) -> (result: bool)
+            ensures result == (self.size == 0),
+        {
+            self.data.is_empty()
+        }
     }
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 pub struct VerifiedBuffer {
     data: Vec<u8>,
     capacity: usize,
 }
 
-#[cfg(not(feature = "verus"))]
+#[cfg(not(feature = "verus-full"))]
 impl VerifiedBuffer {
     pub fn new(capacity: usize) -> Self {
         assert!(capacity > 0, "Capacity must be greater than 0");
@@ -212,17 +227,21 @@ impl VerifiedBuffer {
         }
     }
     
-    pub fn push(&mut self, value: u8) -> Result<(), ()> {
+    pub fn push(&mut self, value: u8) -> Result<(), BufferError> {
         if self.data.len() < self.capacity {
             self.data.push(value);
             Ok(())
         } else {
-            Err(())
+            Err(BufferError::Full)
         }
     }
     
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 }
 
@@ -319,7 +338,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

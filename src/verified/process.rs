@@ -11,8 +11,12 @@
 //! 4. **Parent-Child Relationships**: Process tree is always valid
 //! 5. **No Resource Leaks**: All allocated resources are tracked
 
-#[cfg(feature = "verus")]
-use verus::prelude::*;
+#[cfg(feature = "verus-full")]
+use builtin::*;
+#[cfg(feature = "verus-full")]
+use builtin_macros::*;
+#[cfg(feature = "verus-full")]
+use vstd::prelude::*;
 
 use super::allocator::PhysAddr;
 
@@ -129,6 +133,12 @@ impl CpuTime {
     }
 }
 
+impl Default for CpuTime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Memory statistics
 #[derive(Debug, Clone, Copy)]
 pub struct MemoryStats {
@@ -147,6 +157,12 @@ impl MemoryStats {
             rss_size: 0,
             shared_size: 0,
         }
+    }
+}
+
+impl Default for MemoryStats {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -491,6 +507,12 @@ impl ProcessTable {
     }
 }
 
+impl Default for ProcessTable {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // Kani verification harnesses
 #[cfg(kani)]
 mod verification {
@@ -564,7 +586,7 @@ mod verification {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

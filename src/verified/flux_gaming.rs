@@ -201,7 +201,7 @@ impl GamingMode {
             return Err("Invalid output ID");
         }
 
-        if refresh_rate < 30 || refresh_rate > 360 {
+        if !(30..=360).contains(&refresh_rate) {
             return Err("Refresh rate must be 30-360 Hz");
         }
 
@@ -438,7 +438,13 @@ impl GamingMode {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+impl Default for GamingMode {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

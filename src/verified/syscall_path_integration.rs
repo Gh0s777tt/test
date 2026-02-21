@@ -154,7 +154,7 @@ static CACHED_FS: OnceLock<CachedFilesystem> = OnceLock::new();
 
 /// Initialize the global cached filesystem
 pub fn init_cached_filesystem() {
-    CACHED_FS.get_or_init(|| CachedFilesystem::new());
+    CACHED_FS.get_or_init(CachedFilesystem::new);
 }
 
 /// Get the global cached filesystem instance
@@ -162,7 +162,7 @@ pub fn get_cached_filesystem() -> Option<&'static CachedFilesystem> {
     CACHED_FS.get()
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

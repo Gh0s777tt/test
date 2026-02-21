@@ -146,7 +146,7 @@ pub fn verify_module_integrity() -> bool {
     true
 }
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

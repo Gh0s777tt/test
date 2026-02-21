@@ -483,7 +483,13 @@ impl DriverApi {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+impl Default for DriverApi {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 

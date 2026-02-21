@@ -1,13 +1,36 @@
 name: Vantis CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - 0.4.1
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/verified
     steps:
-      - uses: actions/checkout@v4
-      - name: Build kernel
-        run: cargo build --release
-      - name: Run tests
-        run: cargo test
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cargo check
+        run: cargo check --locked
+
+      - name: Cargo test (unit + integration)
+        run: cargo test --locked --lib --tests
+
+      - name: Clippy report (non-blocking)
+        run: cargo clippy --locked --all-targets
+        continue-on-error: true

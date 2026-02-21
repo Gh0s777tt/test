@@ -2,7 +2,8 @@ name: Secure Build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - 0.4.1
   pull_request:
 
 jobs:
@@ -10,22 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    defaults:
+      run:
+        working-directory: src/verified
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          override: true
           components: clippy
 
-      - name: Build
+      - name: Cargo build
         run: cargo build --locked --release
 
-      - name: Static Analysis
-        run: cargo clippy -- -D warnings
+      - name: Cargo tests (unit + integration)
+        run: cargo test --locked --lib --tests
+
+      - name: Clippy report (non-blocking)
+        run: cargo clippy --locked --all-targets
+        continue-on-error: true

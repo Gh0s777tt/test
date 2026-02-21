@@ -32,7 +32,7 @@ pub enum IpcCapability {
 
 impl IpcCapability {
     /// Check if capability allows sending to a process
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::when_used_as_spec(can_send_to_spec)]
     pub fn can_send_to(&self, target: Pid) -> bool {
         match self {
@@ -42,17 +42,17 @@ impl IpcCapability {
         }
     }
     
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn can_send_to_spec(&self, target: Pid) -> bool;
     
     /// Check if capability allows receiving
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::when_used_as_spec(can_receive_spec)]
     pub fn can_receive(&self) -> bool {
         matches!(self, IpcCapability::Receive)
     }
     
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn can_receive_spec(&self) -> bool;
 }
 
@@ -67,7 +67,7 @@ pub struct CapabilitySet {
 
 impl CapabilitySet {
     /// Create a new capability set
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub fn new(owner: Pid) -> (result: Self)
         ensures(result.wf() && result.owner() == owner)
     {
@@ -78,19 +78,19 @@ impl CapabilitySet {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         true // Always well-formed
     }
     
     /// Get owner
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn owner(&self) -> Pid {
         self.owner
     }
     
     /// Check if has capability
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn has_capability(&self, cap: &IpcCapability) -> (result: bool)
         requires(self.wf())
@@ -99,7 +99,7 @@ impl CapabilitySet {
     }
     
     /// Add capability
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn add_capability(&mut self, cap: IpcCapability)
         requires(old(self).wf())
@@ -140,7 +140,7 @@ pub struct IsolatedMessage {
 
 impl IsolatedMessage {
     /// Create a new isolated message
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(id: u64, sender: Pid, receiver: Pid, data: Vec<u8>) -> (result: Self)
         ensures([
@@ -158,35 +158,35 @@ impl IsolatedMessage {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         true
     }
     
     /// Get sender
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn sender(&self) -> Pid {
         self.sender
     }
     
     /// Get receiver
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn receiver(&self) -> Pid {
         self.receiver
     }
     
     /// Check if process can read this message
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::when_used_as_spec(can_read_spec)]
     pub fn can_read(&self, process: Pid) -> bool {
         self.receiver == process
     }
     
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn can_read_spec(&self, process: Pid) -> bool;
     
     /// Get message data (only if authorized)
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn read_data(&self, process: Pid) -> (result: Option<&[u8]>)
         requires(self.wf())
@@ -232,7 +232,7 @@ pub struct IsolatedQueue {
 
 impl IsolatedQueue {
     /// Create a new isolated queue
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new(owner: Pid) -> (result: Self)
         ensures([
@@ -248,7 +248,7 @@ impl IsolatedQueue {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         forall|i: int| 0 <= i < self.messages.len() ==> 
             self.messages[i].wf() && 
@@ -256,19 +256,19 @@ impl IsolatedQueue {
     }
     
     /// Get owner
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn owner(&self) -> Pid {
         self.owner
     }
     
     /// Get queue length
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn len(&self) -> usize {
         self.messages.len()
     }
     
     /// Push a message (only if addressed to owner)
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn push(&mut self, msg: IsolatedMessage) -> Result<(), &'static str>
         requires([
@@ -293,7 +293,7 @@ impl IsolatedQueue {
     }
     
     /// Pop a message (only by owner)
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn pop(&mut self, requester: Pid) -> (result: Option<IsolatedMessage>)
         requires([
@@ -351,7 +351,7 @@ pub struct IsolatedIpcManager {
 
 impl IsolatedIpcManager {
     /// Create a new isolated IPC manager
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn new() -> (result: Self)
         ensures(result.wf())
@@ -364,7 +364,7 @@ impl IsolatedIpcManager {
     }
     
     /// Well-formedness predicate
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     pub spec fn wf(&self) -> bool {
         &&& forall|pid: Pid| self.queues.contains_key(&pid) ==> 
             self.queues[&pid].wf() && self.queues[&pid].owner() == pid
@@ -373,7 +373,7 @@ impl IsolatedIpcManager {
     }
     
     /// Register a process
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn register_process(&mut self, pid: Pid)
         requires(old(self).wf())
@@ -386,7 +386,7 @@ impl IsolatedIpcManager {
     }
     
     /// Grant send capability
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn grant_send_capability(&mut self, from: Pid, to: Pid)
         requires(old(self).wf())
@@ -398,7 +398,7 @@ impl IsolatedIpcManager {
     }
     
     /// Send a message
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn send(&mut self, sender: Pid, receiver: Pid, data: Vec<u8>) -> Result<u64, &'static str>
         requires(old(self).wf())
@@ -438,7 +438,7 @@ impl IsolatedIpcManager {
     }
     
     /// Receive a message
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn receive(&mut self, receiver: Pid) -> (result: Option<IsolatedMessage>)
         requires(old(self).wf())
@@ -468,7 +468,7 @@ impl IsolatedIpcManager {
     }
     
     /// Try to read message from another process's queue (should fail)
-    #[cfg(feature = "verus")]
+    #[cfg(feature = "verus-full")]
     #[verifier::external_body]
     pub fn try_unauthorized_read(&mut self, attacker: Pid, victim: Pid) -> (result: Option<IsolatedMessage>)
         requires([
@@ -560,7 +560,7 @@ pub proof fn theorem_unauthorized_read_fails()
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

@@ -15,7 +15,7 @@
 //! - Space efficiency
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use std::collections::HashMap;
 
 // Mock block structure
@@ -28,6 +28,7 @@ struct Block {
 }
 
 impl Block {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             data: vec![0u8; BLOCK_SIZE],
@@ -78,6 +79,7 @@ impl VantisFS {
         self.free_blocks.pop()
     }
 
+    #[allow(dead_code)]
     fn free_block(&mut self, block_id: u64) {
         self.blocks.remove(&block_id);
         self.free_blocks.push(block_id);
@@ -142,6 +144,7 @@ impl Ext4FS {
         self.free_blocks.pop()
     }
 
+    #[allow(dead_code)]
     fn free_block(&mut self, block_id: u64) {
         self.blocks.remove(&block_id);
         self.free_blocks.push(block_id);
@@ -154,10 +157,12 @@ impl Ext4FS {
         self.blocks.insert(block_id, block);
     }
 
+    #[allow(dead_code)]
     fn read_block(&self, block_id: u64) -> Option<&Block> {
         self.blocks.get(&block_id)
     }
 
+    #[allow(dead_code)]
     fn commit_journal(&mut self) {
         self.journal.clear();
     }
@@ -186,18 +191,20 @@ impl BtrFS {
         self.free_blocks.pop()
     }
 
+    #[allow(dead_code)]
     fn free_block(&mut self, block_id: u64) {
         self.blocks.remove(&block_id);
         self.free_blocks.push(block_id);
     }
 
-    fn write_block(&mut self, block_id: u64, data: Vec<u8>) {
+    fn write_block(&mut self, _block_id: u64, data: Vec<u8>) {
         // CoW: always allocate new block
         if let Some(new_block_id) = self.allocate_block() {
             self.blocks.insert(new_block_id, Block::with_data(data));
         }
     }
 
+    #[allow(dead_code)]
     fn read_block(&self, block_id: u64) -> Option<&Block> {
         self.blocks.get(&block_id)
     }

@@ -1,12 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # VantisOS Dependency Analysis Script
 # Analyzes POSIX and external dependencies in the codebase
 
-set -e
+set -euo pipefail
 
-REPO_ROOT="/workspace/VantisOS"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VERIFIED_DIR="${REPO_ROOT}/src/verified"
 OUTPUT_DIR="$REPO_ROOT/analysis"
 mkdir -p "$OUTPUT_DIR"
+
+if [[ ! -d "${VERIFIED_DIR}" ]]; then
+    echo "Verified sources directory not found: ${VERIFIED_DIR}" >&2
+    exit 1
+fi
 
 echo "🔍 VantisOS Dependency Analysis"
 echo "================================"
@@ -14,7 +20,7 @@ echo ""
 
 # 1. Analyze std library usage
 echo "1. Analyzing std library dependencies..."
-grep -rh "^use std::" "$REPO_ROOT/src/verified" 2>/dev/null | \
+grep -rh "^use std::" "${VERIFIED_DIR}" 2>/dev/null | \
     sed 's/use std:://g' | \
     sed 's/;.*//g' | \
     sort | uniq -c | sort -rn > "$OUTPUT_DIR/std_dependencies.txt"
@@ -23,7 +29,7 @@ echo "   Found $(wc -l < "$OUTPUT_DIR/std_dependencies.txt") unique std imports"
 
 # 2. Analyze alloc library usage
 echo "2. Analyzing alloc library dependencies..."
-grep -rh "^use alloc::" "$REPO_ROOT/src/verified" 2>/dev/null | \
+grep -rh "^use alloc::" "${VERIFIED_DIR}" 2>/dev/null | \
     sed 's/use alloc:://g' | \
     sed 's/;.*//g' | \
     sort | uniq -c | sort -rn > "$OUTPUT_DIR/alloc_dependencies.txt"
@@ -32,7 +38,7 @@ echo "   Found $(wc -l < "$OUTPUT_DIR/alloc_dependencies.txt") unique alloc impo
 
 # 3. Analyze core library usage
 echo "3. Analyzing core library dependencies..."
-grep -rh "^use core::" "$REPO_ROOT/src/verified" 2>/dev/null | \
+grep -rh "^use core::" "${VERIFIED_DIR}" 2>/dev/null | \
     sed 's/use core:://g' | \
     sed 's/;.*//g' | \
     sort | uniq -c | sort -rn > "$OUTPUT_DIR/core_dependencies.txt"
@@ -41,7 +47,7 @@ echo "   Found $(wc -l < "$OUTPUT_DIR/core_dependencies.txt") unique core import
 
 # 4. Analyze external crate dependencies
 echo "4. Analyzing external crate dependencies..."
-grep -rh "^use [a-z_]*::" "$REPO_ROOT/src/verified" 2>/dev/null | \
+grep -rh "^use [a-z_]*::" "${VERIFIED_DIR}" 2>/dev/null | \
     grep -v "^use std::" | \
     grep -v "^use alloc::" | \
     grep -v "^use core::" | \
@@ -55,7 +61,7 @@ echo "   Found $(wc -l < "$OUTPUT_DIR/external_dependencies.txt") unique externa
 
 # 5. Analyze internal module dependencies
 echo "5. Analyzing internal module dependencies..."
-grep -rh "^use crate::" "$REPO_ROOT/src/verified" 2>/dev/null | \
+grep -rh "^use crate::" "${VERIFIED_DIR}" 2>/dev/null | \
     sed 's/use crate:://g' | \
     sed 's/::.*//g' | \
     sort | uniq -c | sort -rn > "$OUTPUT_DIR/internal_dependencies.txt"

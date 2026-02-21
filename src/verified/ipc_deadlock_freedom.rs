@@ -515,7 +515,7 @@ spec fn eventually(condition: bool) -> bool;
 // TESTS
 // ============================================================================
 
-#[cfg(all(test, feature = "verus"))]
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
     

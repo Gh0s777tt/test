@@ -534,7 +534,13 @@ impl Compositor {
     }
 }
 
-#[cfg(all(test, feature = "verus"))]
+impl Default for Compositor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(all(test, feature = "verus-full"))]
 mod tests {
     use super::*;
 
