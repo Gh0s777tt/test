@@ -69,6 +69,16 @@
 - [ ] Test in QEMU
 - [ ] Prepare for release
 
+### Option B: Merge PR #36 (ISO Installer) - NEW PRIORITY
+- [x] Analyze PR #36: "Analiza stanu projektu"
+- [x] Create detailed PR analysis document
+- [ ] Review PR #36 code changes
+- [ ] Test build_installable_iso.sh locally
+- [ ] Test test_install_e2e.sh locally (if QEMU available)
+- [ ] Verify CI workflow changes
+- [ ] Merge PR #36 after review
+- [ ] Test merged changes
+
 ### Option B: Quick Alpine Build (Alternative)
 - [ ] Setup environment with 5GB+ disk space
 - [ ] Follow Alpine Linux integration guide
