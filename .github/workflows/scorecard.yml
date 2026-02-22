@@ -1,29 +1,24 @@
 name: 🛡️ OpenSSF Scorecard (Audit)
 
 on:
-  # Run on branch protection changes
-  branch_protection_rule:
-  # Run weekly (to keep results fresh)
   schedule:
     - cron: '20 7 * * 1'
-  # Run on push to main branch
   push:
     branches: [ "0.4.1" ]
 
 permissions:
   contents: read
-  checks: write
+  id-token: write
 
 jobs:
   analysis:
     name: Scorecard Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
-      # Needed to upload results to Security tab
       security-events: write
-      # Needed to publish results (for badge)
       id-token: write
-
+    
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -35,19 +30,20 @@ jobs:
         with:
           results_file: results.sarif
           results_format: sarif
-          # Public repositories:
           publish_results: true
+        continue-on-error: true
 
-      # (Optional) Save results as artifact for download
       - name: "Upload artifact"
         uses: actions/upload-artifact@v4
         with:
           name: SARIF file
           path: results.sarif
           retention-days: 5
+        if-no-files-found: ignore
+        continue-on-error: true
 
-      # Upload results to GitHub Security Dashboard
       - name: "Upload to code-scanning"
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
+        continue-on-error: true

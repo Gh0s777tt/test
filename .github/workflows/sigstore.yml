@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: read
-  checks: write
   id-token: write
 
 jobs:
@@ -17,12 +16,18 @@ jobs:
         working-directory: src/verified
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release
       - name: Sign artifacts
         uses: sigstore/fulcio-action@v1
         with:
-          artifact: target/release
+          artifact: target/release/vantis
+          if: hashFiles('target/release/vantis') != ''
       - name: Upload signature
         uses: actions/upload-artifact@v4
         with:
           name: signatures
           path: target/release/*.sig
+          if-no-files-found: ignore

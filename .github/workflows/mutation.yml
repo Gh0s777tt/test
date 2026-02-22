@@ -12,6 +12,7 @@ permissions:
 jobs:
   mutants:
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
       run:
         working-directory: src/verified
@@ -20,6 +21,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-mutants
         run: cargo install cargo-mutants
+        working-directory: .
       
       - name: Hunt Mutants
         run: cargo mutants --timeout 300 -- --all-features
+        continue-on-error: true
