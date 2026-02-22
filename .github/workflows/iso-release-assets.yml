@@ -78,7 +78,7 @@ jobs:
             --install-config filesystem.toml
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.1.1
+        uses: sigstore/cosign-installer@v4.0.0
 
       - name: Package release assets
         run: |
