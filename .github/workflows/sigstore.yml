@@ -16,7 +16,7 @@ jobs:
       run:
         working-directory: src/verified
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Sign artifacts
         uses: sigstore/fulcio-action@v1
         with:

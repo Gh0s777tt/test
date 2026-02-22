@@ -41,7 +41,7 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install host dependencies
         run: |
@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install host dependencies
         run: |
