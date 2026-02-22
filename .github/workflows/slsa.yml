@@ -2,18 +2,24 @@ name: SLSA Provenance Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ 0.4.1 ]
   pull_request:
+
+permissions:
+  contents: read
+  checks: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/verified
     steps:
       - uses: actions/checkout@v4
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
       - name: Build
         run: cargo build --release
       - name: Generate provenance

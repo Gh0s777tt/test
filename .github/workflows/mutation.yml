@@ -2,12 +2,19 @@ name: 🧬 Mutation Testing (Gene Splicing)
 
 on:
   push:
-    branches: [master]
+    branches: [0.4.1]
   pull_request:
+
+permissions:
+  contents: read
+  checks: write
 
 jobs:
   mutants:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/verified
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable

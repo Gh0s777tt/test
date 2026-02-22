@@ -6,13 +6,14 @@ on:
     types:
       - completed
 
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+
 jobs:
   provenance:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
       - name: Generate Provenance
         run: |

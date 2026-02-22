@@ -2,9 +2,12 @@ name: 🧹 Janitor Protocol
 
 on:
   schedule:
-    - cron: '30 1 * * *'
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 permissions:
+  contents: read
+  checks: write
   issues: write
   pull-requests: write
 
@@ -12,11 +15,14 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Stale action
+        uses: actions/stale@v9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          stale-issue-message: '📡 **SIGNAL LOST:** This issue has been inactive for 60 days. Closing in 7 days.'
-          stale-pr-message: '❄️ **FROZEN:** This PR is stale.'
-          days-before-stale: 60
+          stale-issue-message: 'This issue is stale because it has been open 30 days with no activity.'
+          stale-pr-message: 'This PR is stale because it has been open 30 days with no activity.'
+          days-before-stale: 30
           days-before-close: 7
-          stale-issue-label: '💀 stale'

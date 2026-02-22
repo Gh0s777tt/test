@@ -2,11 +2,19 @@ name: Sigstore Sign
 
 on:
   push:
-    branches: [ main ]
+    branches: [ 0.4.1 ]
+
+permissions:
+  contents: read
+  checks: write
+  id-token: write
 
 jobs:
   sign:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/verified
     steps:
       - uses: actions/checkout@v4
       - name: Sign artifacts

@@ -1,46 +1,37 @@
 name: Documentation Assets
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - 0.4.1
     paths:
-      - "src/verified/**/*.rs"
-      - ".github/workflows/docs.yml"
+      - 'docs/**'
+      - '**.md'
   pull_request:
     paths:
-      - "src/verified/**/*.rs"
-      - ".github/workflows/docs.yml"
+      - 'docs/**'
+      - '**.md'
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
-  generate-architecture-map:
+  docs-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install Graphviz
+      - name: Check markdown files
         run: |
-          sudo apt-get update
-          sudo apt-get install -y graphviz
+          find . -name "*.md" -type f | head -10
 
-      - name: Install cargo-depgraph
-        run: cargo install cargo-depgraph
-
-      - name: Generate dependency graph PNG
+      - name: Check documentation structure
         run: |
-          cd src/verified
-          cargo depgraph --all-deps | dot -Tpng > architecture_map.png
-
-      - name: Upload architecture map
-        uses: actions/upload-artifact@v4
-        with:
-          name: architecture-map
-          path: src/verified/architecture_map.png
+          if [ -d "docs" ]; then
+            echo "Documentation directory exists"
+            ls -la docs/
+          else
+            echo "No docs directory found"
+          fi
