@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VANTIS OS - WASM Terminal Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #39FF14;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .terminal-container {
+            background: #111111;
+            border: 2px solid #39FF14;
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #39FF14;
+        }
+
+        .terminal-title {
+            font-weight: bold;
+            color: #39FF14;
+        }
+
+        .terminal-status {
+            color: #00CC0A;
+            font-size: 12px;
+        }
+
+        #terminal-output {
+            background: #000000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 400px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #39FF14;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        #command-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+            caret-color: #39FF14;
+        }
+
+        .command-history {
+            color: #888;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .welcome-text {
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: #00CC0A;
+        }
+
+        .error {
+            color: #FF0000;
+        }
+
+        .info {
+            color: #00BFFF;
+        }
+
+        .warning {
+            color: #FFA500;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .cursor {
+            animation: blink 1s infinite;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <span class="terminal-title">🖥️ VANTIS OS - WASM Terminal</span>
+            <span class="terminal-status">Status: Online | Latency: <1μs</span>
+        </div>
+
+        <div id="terminal-output">
+            <div class="welcome-text">
+                <strong>VANTIS OS v5.0</strong><br>
+                Operating System Protocol<br>
+                Secure • Fast • Immutable<br><br>
+                <span class="info">Type 'help' for available commands</span>
+            </div>
+            <br>
+            <div class="command-history">
+                <div><span class="prompt">vantis@kernel:~$</span> help</div>
+                <div class="success">Available commands:</div>
+                <div>  help    - Show this help message</div>
+                <div>  status  - Show system status</div>
+                <div>  ver     - Show version information</div>
+                <div>  uname   - Show system information</div>
+                <div>  top     - Show running processes</div>
+                <div>  free    - Show memory usage</div>
+                <div>  df      - Show disk usage</div>
+                <div>  clear   - Clear terminal</div>
+                <br>
+            </div>
+        </div>
+
+        <div class="input-line">
+            <span class="prompt">vantis@kernel:~$</span>
+            <input type="text" id="command-input" placeholder="Type a command..." autocomplete="off">
+        </div>
+    </div>
+
+    <div class="command-history">
+        <strong>Quick Commands:</strong> 
+        <a href="#" onclick="executeCommand('status')" style="color: #39FF14;">status</a> | 
+        <a href="#" onclick="executeCommand('ver')" style="color: #39FF14;">ver</a> | 
+        <a href="#" onclick="executeCommand('top')" style="color: #39FF14;">top</a> | 
+        <a href="#" onclick="executeCommand('free')" style="color: #39FF14;">free</a>
+    </div>
+
+    <script>
+        const terminalOutput = document.getElementById('terminal-output');
+        const commandInput = document.getElementById('command-input');
+
+        // Command history
+        let history = [];
+        let historyIndex = -1;
+
+        // Available commands
+        const commands = {
+            help: () => {
+                return `
+<span class="success">Available commands:</span>
+  help    - Show this help message
+  status  - Show system status
+  ver     - Show version information
+  uname   - Show system information
+  top     - Show running processes
+  free    - Show memory usage
+  df      - Show disk usage
+  clear   - Clear terminal
+  echo    - Echo a message
+  date    - Show current date/time
+  uptime  - Show system uptime
+                `;
+            },
+
+            status: () => {
+                return `
+<span class="success">VANTIS OS System Status:</span>
+  Kernel:       v5.0.0 (Formally Verified)
+  Boot Time:    2.8 seconds
+  Uptime:       ${Math.floor(Math.random() * 1000)} days
+  Security:     EAL 7+ Certified
+  IPC Latency:  <1μs
+  Memory:       256MB / 4GB
+  CPU Usage:    ${Math.floor(Math.random() * 30)}%
+  Processes:    127
+  
+<span class="info">All systems nominal ✓</span>
+                `;
+            },
+
+            ver: () => {
+                return `
+<span class="success">VANTIS OS v5.0</span>
+  Build: 2025.02.24.0
+  Edition: Professional
+  License: MIT
+  Features: Formal Verification, Neural Scheduler, Wraith Mode
+  
+<span class="info">550 functions verified • EAL 7+ • FIPS 140-3 L4</span>
+                `;
+            },
+
+            uname: () => {
+                return `
+VANTIS 5.0.0 #1 SMP PREEMPT_DYNAMIC x86_64
+                `;
+            },
+
+            top: () => {
+                const processes = [
+                    { pid: 1, user: 'root', cpu: 0.0, mem: 0.1, cmd: 'vantis_init' },
+                    { pid: 2, user: 'root', cpu: 0.0, mem: 0.0, cmd: 'kthreadd' },
+                    { pid: 123, user: 'vantis', cpu: 1.2, mem: 2.3, cmd: 'neural_scheduler' },
+                    { pid: 456, user: 'vantis', cpu: 0.5, mem: 3.1, cmd: 'flux_engine' },
+                    { pid: 789, user: 'vantis', cpu: 0.3, mem: 1.8, cmd: 'horizon_ui' },
+                    { pid: 1011, user: 'root', cpu: 0.1, mem: 0.5, cmd: 'sentinel_daemon' },
+                    { pid: 1345, user: 'vantis', cpu: 2.1, mem: 4.2, cmd: 'vantis_vault' },
+                    { pid: 1678, user: 'vantis', cpu: 0.2, mem: 0.8, cmd: 'cortex_ai' },
+                ];
+
+                let output = `<span class="success">Running Processes:</span>\n`;
+                output += `  PID  USER     %CPU %MEM  COMMAND\n`;
+                output += `  ---  ----     ---- ----  -------\n`;
+                
+                processes.forEach(p => {
+                    output += `  ${p.pid.toString().padStart(4)}  ${p.user.padStart(7)}  ${p.cpu.toFixed(1).padStart(4)}  ${p.mem.toFixed(1).padStart(4)}  ${p.cmd}\n`;
+                });
+
+                output += `\n<span class="info">Total: 8 processes</span>`;
+                return output;
+            },
+
+            free: () => {
+                const total = 4096;
+                const used = Math.floor(Math.random() * 500) + 200;
+                const free = total - used;
+
+                return `
+<span class="success">Memory Usage:</span>
+              total        used        free      shared  buff/cache   available
+Mem:          ${total}        ${used}        ${free}          0          50        ${total - 100}
+Swap:          2048           0        2048
+
+<span class="info">Memory efficient • 8x less than Windows 11</span>
+                `;
+            },
+
+            df: () => {
+                return `
+<span class="success">Disk Usage:</span>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p2   50G    2G   48G   4% /
+/dev/nvme0n1p1  512M  128M  384M  25% /boot
+/dev/nvme0n1p3  100G   10G   90G  10% /home
+
+<span class="info">VantisFS: Copy-on-Write • Bit-rot resistant</span>
+                `;
+            },
+
+            clear: () => {
+                terminalOutput.innerHTML = '';
+                return '';
+            },
+
+            echo: (args) => {
+                return args.join(' ');
+            },
+
+            date: () => {
+                return new Date().toString();
+            },
+
+            uptime: () => {
+                const days = Math.floor(Math.random() * 100);
+                const hours = Math.floor(Math.random() * 24);
+                const minutes = Math.floor(Math.random() * 60);
+
+                return `up ${days} days, ${hours} hours, ${minutes} minutes`;
+            }
+        };
+
+        function executeCommand(input) {
+            const trimmedInput = input.trim();
+            if (!trimmedInput) return;
+
+            // Add to history
+            history.unshift(trimmedInput);
+            if (history.length > 50) history.pop();
+            historyIndex = -1;
+
+            // Parse command
+            const parts = trimmedInput.split(' ');
+            const command = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            // Add command to output
+            addOutput(`<span class="prompt">vantis@kernel:~$</span> ${escapeHtml(trimmedInput)}`);
+
+            // Execute command
+            if (commands[command]) {
+                const result = commands[command](args);
+                if (result) {
+                    addOutput(result);
+                }
+            } else {
+                addOutput(`<span class="error">Command not found: ${command}</span>`);
+                addOutput(`Type 'help' for available commands.`);
+            }
+        }
+
+        function addOutput(content) {
+            const line = document.createElement('div');
+            line.innerHTML = content;
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event listeners
+        commandInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand(commandInput.value);
+                commandInput.value = '';
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < history.length - 1) {
+                    historyIndex++;
+                    commandInput.value = history[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    commandInput.value = history[historyIndex];
+                } else {
+                    historyIndex = -1;
+                    commandInput.value = '';
+                }
+            }
+        });
+
+        // Focus input on load
+        window.addEventListener('load', () => {
+            commandInput.focus();
+        });
+    </script>
+</body>
+</html>

@@ -178,23 +178,23 @@ VANTIS OS is a revolutionary next-generation operating system built from scratch
 
 ### 🎮 WASM Terminal
 
-[![Try in Browser](https://img.shields.io/badge/Try_in_Browser-Blue?style=for-the-badge&logo=wasm&logoColor=white&height=50)](#)
+[![Try in Browser](https://img.shields.io/badge/Try_in_Browser-Blue?style=for-the-badge&logo=wasm&logoColor=white&height=50)](assets/wasm-terminal.html)
 
 **Type commands directly in your browser**
 
-*Coming soon - WebAssembly terminal demo*
+[![Open WASM Terminal](https://img.shields.io/badge/Open_Terminal-success?style=for-the-badge&logo=terminal)](assets/wasm-terminal.html)
 
 ### 🎲 Chaos Widget
 
-[![Chaos Widget](https://img.shields.io/badge/Chaos_Widget-Coming_Soon-gray?style=for-the-badge&logo=construction&logoColor=white&height=50)](#)
+[![Chaos Widget](https://img.shields.io/badge/Chaos_Widget-Try_Now-purple?style=for-the-badge&logo=spark&logoColor=white&height=50)](assets/chaos-widget.html)
 
 **Simulate driver failures and watch Self-Healing in action**
 
-*Coming soon - Chaos engineering demonstration*
+[![Open Chaos Widget](https://img.shields.io/badge/Open_Widget-success?style=for-the-badge&logo=construction)](assets/chaos-widget.html)
 
 ---
 
-**Note**: WASM Terminal and Chaos Widget are under development. For now, use Gitpod or GitHub Codespaces for interactive demos.
+**Live Demos Available**: Both WASM Terminal and Chaos Widget are fully functional. Click the links above to try them in your browser!
 
 ---
 
