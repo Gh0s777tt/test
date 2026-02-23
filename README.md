@@ -876,7 +876,94 @@ Development history and milestones
 - **Sessions**: Development session summaries (19 documents)
 - **Releases**: Release notes archive
 
+
 ---
+
+## ⚠️ Deprecated APIs & Migration Guide
+
+### What's Deprecated?
+
+As of **v0.5.0** (February 2025), several POSIX timer syscalls have been deprecated in favor of a modern, object-oriented API. These functions will emit compiler warnings and will be **removed in v0.7.0**.
+
+#### Deprecated Timer Syscalls (4 functions)
+
+| Deprecated Function | Replacement | Status |
+|---------------------|-------------|--------|
+| `sys_pause_timer()` | `UserSpaceTimer::pause()` | ⚠️ Deprecated |
+| `sys_resume_timer()` | `UserSpaceTimer::resume()` | ⚠️ Deprecated |
+| `sys_get_timer_info()` | `UserSpaceTimer::get_info()` | ⚠️ Deprecated |
+| `sys_get_timer_resolution()` | `TIMER_RESOLUTION_NS` constant | ⚠️ Deprecated |
+
+**Planned Removal**: v0.7.0  
+**Timeline**:
+- **v0.5.0** (Current): Functions work with deprecation warnings
+- **v0.6.0**: Warnings become more prominent, new features only in new API
+- **v0.7.0**: Functions removed
+
+### Why These Changes?
+
+The deprecated syscalls had several limitations:
+- **No encapsulation**: Timer state managed through raw IDs
+- **Error-prone**: Easy to pass wrong timer IDs
+- **Poor type safety**: No guarantee of valid timers
+- **Inconsistent API**: Mixed borrowing patterns
+
+The new `UserSpaceTimer` API provides:
+- **Object-oriented**: Encapsulated timer state
+- **Type-safe**: Timer ID bound to instance
+- **Modern API**: Consistent borrowing patterns
+- **Better safety**: Prevents common mistakes
+
+### Migration Examples
+
+#### Old API (Deprecated)
+```rust
+let mut manager = TimerManager::new();
+let timer_id = sys_set_timer(&mut manager, interval, TimerMode::Periodic, None)?;
+
+// Pause timer
+sys_pause_timer(&mut manager, timer_id)?;
+
+// Get info
+let info = sys_get_timer_info(&manager, timer_id)?;
+```
+
+#### New API (Recommended)
+```rust
+let mut manager = TimerManager::new();
+let mut timer = UserSpaceTimer::new(&mut manager, interval, TimerMode::Periodic, None)?;
+
+// Pause timer
+timer.pause(&mut manager)?;
+
+// Get info
+let info = timer.get_info(&manager);
+```
+
+### Benefits of New API
+
+1. **Type Safety**: Timer ID is encapsulated in struct
+2. **Better Error Messages**: Clearer error context
+3. **Ownership Model**: Prevents accidental misuse
+4. **More Intuitive**: Object-oriented design
+
+### Need Help?
+
+📖 **Full Migration Guide**: [docs/posix_migration_guide.md](docs/posix_migration_guide.md)
+
+This comprehensive guide includes:
+- Side-by-side API comparisons
+- Multiple migration examples
+- Error handling best practices
+- Migration checklist
+
+If you encounter any issues:
+1. Review the migration guide
+2. Check the examples in `src/verified/syscall_time_ops.rs`
+3. Open a GitHub issue with the tag `migration-help`
+
+---
+
 
 ## 🤝 CONTRIBUTING
 
