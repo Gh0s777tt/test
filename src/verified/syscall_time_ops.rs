@@ -309,7 +309,8 @@ pub fn sys_cancel_timer(
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
-pub fn sys_pause_timer(
+#[deprecated(since = "0.5.0", note = "Use UserSpaceTimer::pause() instead")]
+    pub fn sys_pause_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
 ) -> TimeOpResult<()> {
@@ -339,7 +340,8 @@ pub fn sys_pause_timer(
 /// # Returns
 /// Success or error
 #[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
-pub fn sys_resume_timer(
+#[deprecated(since = "0.5.0", note = "Use UserSpaceTimer::resume() instead")]
+    pub fn sys_resume_timer(
     manager: &mut TimerManager,
     timer_id: TimerId,
 ) -> TimeOpResult<()> {
@@ -368,7 +370,8 @@ pub fn sys_resume_timer(
 /// # Returns
 /// Timer information
 #[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
-pub fn sys_get_timer_info(
+#[deprecated(since = "0.5.0", note = "Use UserSpaceTimer::get_info() instead")]
+    pub fn sys_get_timer_info(
     manager: &TimerManager,
     timer_id: TimerId,
 ) -> TimeOpResult<TimerInfo> {
@@ -389,11 +392,138 @@ pub fn sys_get_timer_info(
 /// # Returns
 /// Timer resolution information
 #[cfg_attr(feature = "verus-full", builtin_macros::verus_verify)]
-pub fn sys_get_timer_resolution(manager: &TimerManager) -> TimerResolution {
+#[deprecated(since = "0.5.0", note = "Use TIMER_RESOLUTION_NS constant instead")]
+    pub fn sys_get_timer_resolution(manager: &TimerManager) -> TimerResolution {
     manager.resolution
 }
 
 #[cfg(all(test, feature = "verus-full"))]
+
+/// Default system timer resolution in nanoseconds (1ms tick)
+pub const TIMER_RESOLUTION_NS: u64 = 1_000_000;
+
+/// User-space timer - modern, object-oriented timer interface
+///
+/// UserSpaceTimer provides a cleaner, more ergonomic API compared to
+/// the deprecated sys_* timer functions. It encapsulates timer state
+/// and provides type-safe methods for timer management.
+///
+/// # Example
+/// ```
+/// use std::time::Duration;
+/// use crate::syscall_time_ops::{UserSpaceTimer, TimerMode};
+///
+/// let mut manager = TimerManager::new();
+/// let mut timer = UserSpaceTimer::new(
+///     &mut manager,
+///     Duration::from_millis(100),
+///     TimerMode::Periodic,
+///     None
+/// ).unwrap();
+///
+/// // Pause the timer
+/// timer.pause(&mut manager).unwrap();
+///
+/// // Get timer information
+/// let info = timer.get_info(&manager);
+/// assert_eq!(info.state, TimerState::Paused);
+///
+/// // Resume the timer
+/// timer.resume(&mut manager).unwrap();
+/// ```
+pub struct UserSpaceTimer {
+    /// Timer ID
+    pub id: TimerId,
+}
+
+impl UserSpaceTimer {
+    /// Create a new user-space timer
+    ///
+    /// # Arguments
+    /// * `manager` - Timer manager reference
+    /// * `interval` - Timer interval
+    /// * `mode` - Timer mode (one-shot or periodic)
+    /// * `callback` - Optional callback function
+    ///
+    /// # Returns
+    /// UserSpaceTimer instance or error
+    pub fn new(
+        manager: &mut TimerManager,
+        interval: Duration,
+        mode: TimerMode,
+        callback: Option<TimerCallback>,
+    ) -> TimeOpResult<Self> {
+        let timer_id = sys_set_timer(manager, interval, mode, callback)?;
+        Ok(Self { id: timer_id })
+    }
+
+    /// Pause the timer
+    ///
+    /// # Arguments
+    /// * `manager` - Timer manager reference
+    ///
+    /// # Returns
+    /// Success or error
+    pub fn pause(&self, manager: &mut TimerManager) -> TimeOpResult<()> {
+        let timer = manager.get_timer_mut(self.id)?;
+        
+        if timer.info.state != TimerState::Active {
+            return Err(TimeOpError::TimerNotActive);
+        }
+        
+        timer.info.state = TimerState::Paused;
+        Ok(())
+    }
+
+    /// Resume the timer
+    ///
+    /// # Arguments
+    /// * `manager` - Timer manager reference
+    ///
+    /// # Returns
+    /// Success or error
+    pub fn resume(&self, manager: &mut TimerManager) -> TimeOpResult<()> {
+        let timer = manager.get_timer_mut(self.id)?;
+        
+        if timer.info.state != TimerState::Paused {
+            return Err(TimeOpError::InvalidArgument);
+        }
+        
+        timer.info.state = TimerState::Active;
+        Ok(())
+    }
+
+    /// Get timer information
+    ///
+    /// # Arguments
+    /// * `manager` - Timer manager reference
+    ///
+    /// # Returns
+    /// Timer information
+    pub fn get_info(&self, manager: &TimerManager) -> TimerInfo {
+        manager.get_timer(self.id)
+            .map(|t| t.info.clone())
+            .unwrap_or_else(|_| TimerInfo {
+                id: self.id,
+                interval: Duration::ZERO,
+                mode: TimerMode::OneShot,
+                state: TimerState::Inactive,
+                remaining: Duration::ZERO,
+                fire_count: 0,
+            })
+    }
+
+    /// Cancel the timer
+    ///
+    /// # Arguments
+    /// * `manager` - Timer manager reference
+    ///
+    /// # Returns
+    /// Success or error
+    pub fn cancel(self, manager: &mut TimerManager) -> TimeOpResult<()> {
+        sys_cancel_timer(manager, self.id)
+    }
+}
 mod tests {
     use super::*;
     

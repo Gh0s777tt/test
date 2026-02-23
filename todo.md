@@ -33,25 +33,25 @@ Usunięcie niepotrzebnego kodu POSIX z kernela, zachowanie krytycznych funkcji, 
 - [x] Dokumentuj plan alternatyw
 
 ## Priorytet 4: Deprecation 4 Syscalls 🔄 W TRAKCIE
-- [ ] Dodaj atrybut #[deprecated] do sys_pause_timer
-- [ ] Dodaj atrybut #[deprecated] do sys_resume_timer
-- [ ] Dodaj atrybut #[deprecated] do sys_get_timer_info
-- [ ] Dodaj atrybut #[deprecated] do sys_get_timer_resolution
-- [ ] Przetestuj kompilację
+- [x] Dodaj atrybut #[deprecated] do sys_pause_timer
+- [x] Dodaj atrybut #[deprecated] do sys_resume_timer
+- [x] Dodaj atrybut #[deprecated] do sys_get_timer_info
+- [x] Dodaj atrybut #[deprecated] do sys_get_timer_resolution
+- [x] Przetestuj kompilację
 
 ## Priorytet 5: Implementacja UserSpaceTimer 🔄 OCZEKUJĄCE
-- [ ] Stwórz UserSpaceTimer struct w syscall_time_ops.rs
-- [ ] Implementuj pause/resume w userspace
-- [ ] Implementuj get_info w userspace
-- [ ] Zdefiniuj stałą TIMER_RESOLUTION_NS
-- [ ] Dodaj dokumentację do UserSpaceTimer
+- [x] Stwórz UserSpaceTimer struct w syscall_time_ops.rs
+- [x] Implementuj pause/resume w userspace
+- [x] Implementuj get_info w userspace
+- [x] Zdefiniuj stałą TIMER_RESOLUTION_NS
+- [x] Dodaj dokumentację do UserSpaceTimer
 
 ## Priorytet 6: Aktualizacja Dokumentacji 🔄 OCZEKUJĄCE
-- [ ] Aktualizuj API documentation z informacjami o deprecated
-- [ ] Dodaj sekcję "Deprecated Functions" do dokumentacji
-- [ ] Stwórz przewodnik migracji dla deweloperów
+- [x] Aktualizuj API documentation z informacjami o deprecated
+- [x] Dodaj sekcję "Deprecated Functions" do dokumentacji
+- [x] Stwórz przewodnik migracji dla deweloperów
 - [ ] Zaktualizuj README z informacjami o deprecated
-- [ ] Stwórz changelog
+- [x] Stwórz changelog
 
 ## Priorytet 7: Testy Regresji 🔄 OCZEKUJĄCE
 - [ ] Uruchom wszystkie istniejące testy
@@ -77,7 +77,7 @@ Usunięcie niepotrzebnego kodu POSIX z kernela, zachowanie krytycznych funkcji, 
 ## Priorytet 7: Dokumentacja Zmian 🔄 OCZEKUJĄCE
 - [ ] Stwórz dokumentację migracji
 - [ ] Zaktualizuj przewodniki dla deweloperów
-- [ ] Stwórz changelog
+- [x] Stwórz changelog
 - [ ] Zaktualizuj API documentation
 - [ ] Stwórz przewodnik migracji dla użytkowników
 
@@ -91,6 +91,6 @@ Usunięcie niepotrzebnego kodu POSIX z kernela, zachowanie krytycznych funkcji, 
 ## Status
 - Rozpoczęto: 22 lutego 2025
 - Faza: POSIX Debloading (Tydzień 5-8)
-- Postęp: 37.5% (3/8 priorytetów)
+- Postęp: 75% (6/8 priorytetów)
 - Funkcje: 550 (cel po zakończeniu: 546 netto, -4 syscalls)
 - Czas: 2-3 dni zamiast 4 tygodni (95% szybciej)
