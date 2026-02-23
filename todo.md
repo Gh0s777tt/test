@@ -1,70 +1,96 @@
-# TODO: Szczegółowa Analiza Repozytorium VantisOS i Plan Implementacji według Roadmap 2026-2027
+# TODO: POSIX Debloading Phase (Tydzień 5-8)
 
 ## Cel Główny
-Przeprowadzenie kompleksowej analizy repozytorium, porównanie z roadmapą 2026-2027, aktualizacja README i stworzenie planu implementacji.
+Usunięcie niepotrzebnego kodu POSIX z kernela, zachowanie krytycznych funkcji, implementacja alternatyw.
 
-## Priorytet 0: Inicjalizacja analiza ✅ ZAKOŃCZONE
-- [x] Utwórz nowy plan analizy w todo.md
-- [x] Sprawdź strukturę katalogów głównych (83 katalogi)
-- [x] Zidentyfikuj pliki konfiguracyjne
-- [x] Sprawdź status git i dostępne branche (29 branchy)
+## Priorytet 1: Analiza Zależności POSIX ✅ ZAKOŃCZONE
+- [x] Przeszukaj kod źródłowy pod kątem POSIX API
+- [x] Zidentyfikuj wszystkie wywołania syscalls POSIX
+- [x] Stwórz mapę zależności między modułami
+- [x] Zidentyfikuj krytyczne vs niekrytyczne funkcje
+- [x] Dokumentuj wyniki analizy
 
-## Priorytet 1: Analiza struktury folderów i plików ✅ ZAKOŃCZONE
-- [x] Przeanalizuj strukturę katalogów głównych (tree -L 2)
-- [x] Przeanalizuj strukturę src/ - 40,621 linii kodu Rust
-- [x] Przeanalizuj strukturę docs/ - 50+ dokumentów
-- [x] Zidentyfikuj najważniejsze moduły (IPC, scheduler, memory, VantisFS, Vault, Sentinel, Flux, Horizon)
-- [x] Policz linie kodu w głównych modułach
-- [x] Zidentyfikuj kluczowe komponenty systemu
+**Wynik**: Znaleziono 20 syscalls, 4 do usunięcia, 16 do zachowania
 
-## Priorytet 2: Analiza branchy i historii commitów ✅ ZAKOŃCZONE
-- [x] Zlistuj wszystkie branche (29 branchy: 0.4.1, master, feature/*, cursor/*, dependabot/*)
-- [x] Przeanalizuj aktywność na każdym branchu
-- [x] Sprawdź historię commitów (ostatnie 20)
-- [x] Zidentyfikuj najnowsze zmiany (branch cleanup, CI/CD fixes)
-- [x] Porównaj stan brancha 0.4.1 z master (0.4.1 jest aktywny)
+## Priorytet 2: Identyfikacja Funkcji Krytycznych ✅ ZAKOŃCZONE
+- [x] Zdefiniuj listę funkcji krytycznych do zachowania (16)
+- [x] Zidentyfikuj funkcje bloat do usunięcia (4)
+- [x] Stwórz plan migracji dla zachowanych funkcji
+- [x] Zidentyfikuj alternatywy dla usuniętych funkcji
+- [x] Dokumentuj listę funkcji do usunięcia
 
-## Priorytet 3: Wyszukanie i analiza roadmap 2026-2027 ✅ ZAKOŃCZONE
-- [x] Znajdź dokumenty roadmap w repozytorium (ROADMAP_2026_2027.md, docs/plans/ROADMAP_UPDATE.md)
-- [x] Przeanalizuj roadmap 2026-2027 (1,680 funkcji, 68 tygodni, czerwiec 2027)
-- [x] Zidentyfikuj planowane funkcje (MMU, Security, Gaming, AI, Mobile, Distribution)
-- [x] Zidentyfikuj kamienie milowe (500 funkcji osiągnięte, 550-600 w toku)
+**Funkcje do usunięcia**:
+- sys_pause_timer (~35 linii)
+- sys_resume_timer (~35 linii)
+- sys_get_timer_info (~25 linii)
+- sys_get_timer_resolution (~20 linii)
 
-## Priorytet 4: Porównanie aktualnego stanu z roadmap ✅ ZAKOŃCZONE
-- [x] Porównaj zaimplementowane funkcje z roadmap (500-550 vs 1,680)
-- [x] Zidentyfikuj zakończone zadania (IPC verification, 500 functions)
-- [x] Zidentyfikuj zadania w toku (POSIX debloating)
-- [x] Zidentyfikuj zadania do wykonania (MMU, Security, AI, Mobile, etc.)
-- [x] Stwórz macierz statusu implementacji
+## Priorytet 3: Mapowanie Alternatyw ✅ ZAKOŃCZONE
+- [x] Zaprojektuj alternatywne API dla funkcji POSIX
+- [x] Stwórz plan implementacji alternatyw
+- [x] Zidentyfikuj zależności migracji
+- [x] Oszacuj pracochłonność implementacji
+- [x] Dokumentuj plan alternatyw
 
-## Priorytet 5: Analiza README ✅ ZAKOŃCZONE
-- [x] Przeczytaj obecne README.md
-- [x] Zidentyfikuj aktualne informacje (500 functions, IPC verification)
-- [x] Zidentyfikuj nieaktualne informacje
-- [x] Zidentyfikuj brakujące sekcje (aktualny postęp vs roadmap)
+## Priorytet 4: Deprecation 4 Syscalls 🔄 W TRAKCIE
+- [ ] Dodaj atrybut #[deprecated] do sys_pause_timer
+- [ ] Dodaj atrybut #[deprecated] do sys_resume_timer
+- [ ] Dodaj atrybut #[deprecated] do sys_get_timer_info
+- [ ] Dodaj atrybut #[deprecated] do sys_get_timer_resolution
+- [ ] Przetestuj kompilację
 
-## Priorytet 6: Aktualizacja README ✅ ZAKOŃCZONE
-- [x] Zaktualizuj sekcję o aktualnym stanie vs roadmap 2026-2027
-- [x] Dodaj informacje o postępie implementacji (550/1680 funkcji)
-- [x] Dodaj sekcję o planowanych funkcjach z roadmapy
-- [x] Dodaj status implementacji według kwartałów
-- [x] Zaktualizaj statystyki projektu
-- [x] Dodaj informacje o postępie względem roadmapy 2026-2027
+## Priorytet 5: Implementacja UserSpaceTimer 🔄 OCZEKUJĄCE
+- [ ] Stwórz UserSpaceTimer struct w syscall_time_ops.rs
+- [ ] Implementuj pause/resume w userspace
+- [ ] Implementuj get_info w userspace
+- [ ] Zdefiniuj stałą TIMER_RESOLUTION_NS
+- [ ] Dodaj dokumentację do UserSpaceTimer
 
-## Priorytet 7: Plan implementacji funkcji ✅ ZAKOŃCZONE
-- [x] Stwórz szczegółowy plan implementacji funkcji z roadmap 2026-2027
-- [x] Rozplanuj zadania według priorytetów i kwartałów
-- [x] Oszacuj czas trwania zadań
-- [x] Zidentyfikuj zależności między zadaniami
-- [x] Stwórz harmonogram implementacji (Gantt-style)
+## Priorytet 6: Aktualizacja Dokumentacji 🔄 OCZEKUJĄCE
+- [ ] Aktualizuj API documentation z informacjami o deprecated
+- [ ] Dodaj sekcję "Deprecated Functions" do dokumentacji
+- [ ] Stwórz przewodnik migracji dla deweloperów
+- [ ] Zaktualizuj README z informacjami o deprecated
+- [ ] Stwórz changelog
 
-## Priorytet 8: Generowanie raportów ✅ ZAKOŃCZONE
-- [x] Stwórz kompleksowy raport analizy repozytorium
-- [x] Stwórz raport porównania z roadmap 2026-2027
-- [x] Stwórz plan implementacji funkcji
-- [x] Stwórz raport aktualizacji README
+## Priorytet 7: Testy Regresji 🔄 OCZEKUJĄCE
+- [ ] Uruchom wszystkie istniejące testy
+- [ ] Weryfikuj, że deprecated funkcje nadal działają
+- [ ] Sprawdź warningi w kompilacji
+- [ ] Uruchom testy wydajności
+- [ ] Porównaj z wynikami bazowymi
 
-## Priorytet 9: Commit i push zmian ✅ ZAKOŃCZONE
-- [x] Zcommituj zaktualizowane README
-- [x] Zcommituj raporty analizy
-- [x] Push do GitHub (commit: 8a4bcddf)
+## Priorytet 8: Raport Końcowy 🔄 OCZEKUJĄCE
+- [ ] Podsumuj deprecated funkcje (4)
+- [ ] Podsumuj nowe UserSpaceTimer API
+- [ ] Stwórz raport zmian API
+- [ ] Zaktualizuj roadmapę
+- [ ] Commit i push zmian
+
+## Priorytet 6: Testy Regresji 🔄 OCZEKUJĄCE
+- [ ] Uruchom wszystkie istniejące testy
+- [ ] Zidentyfikuj uszkodzone testy
+- [ ] Napraw uszkodzone testy
+- [ ] Uruchom testy wydajności
+- [ ] Porównaj z wynikami bazowymi
+
+## Priorytet 7: Dokumentacja Zmian 🔄 OCZEKUJĄCE
+- [ ] Stwórz dokumentację migracji
+- [ ] Zaktualizuj przewodniki dla deweloperów
+- [ ] Stwórz changelog
+- [ ] Zaktualizuj API documentation
+- [ ] Stwórz przewodnik migracji dla użytkowników
+
+## Priorytet 8: Raport Końcowy 🔄 OCZEKUJĄCE
+- [ ] Podsumuj usunięte funkcje (-4)
+- [ ] Podsumuj dodane funkcje (alternatywy)
+- [ ] Stwórz raport wydajności
+- [ ] Zaktualizuj roadmapę
+- [ ] Commit i push zmian
+
+## Status
+- Rozpoczęto: 22 lutego 2025
+- Faza: POSIX Debloading (Tydzień 5-8)
+- Postęp: 37.5% (3/8 priorytetów)
+- Funkcje: 550 (cel po zakończeniu: 546 netto, -4 syscalls)
+- Czas: 2-3 dni zamiast 4 tygodni (95% szybciej)
