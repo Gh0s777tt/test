@@ -43,6 +43,9 @@ pub mod network_wifi7;
 pub mod network_ebpf;
 pub mod network_zerocopy;
 
+// Self-Healing System - Real-time failure detection and recovery
+pub mod self_healing;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
