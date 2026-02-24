@@ -86,6 +86,9 @@ pub mod laboratory_submission;
 // Release management module
 pub mod release_management;
 
+// Grand premiere module
+pub mod grand_premiere;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
