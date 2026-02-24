@@ -56,6 +56,15 @@ pub mod ray_tracing_bvh;
 pub mod ray_tracing_gpu;
 pub mod ray_tracing_tests;
 
+// Cinema Enclave - DRM and premium content protection
+pub mod cinema_enclave;
+pub mod cinema_widevine;
+pub mod cinema_playready;
+pub mod cinema_fairplay;
+pub mod cinema_hdcp;
+pub mod cinema_audio;
+pub mod cinema_tests;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
