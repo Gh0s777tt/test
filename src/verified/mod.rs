@@ -33,6 +33,16 @@ pub mod iommu_amd;
 pub mod iommu_arm;
 pub mod iommu_usb4;
 
+// Network Stack - TCP/IP, Wi-Fi 7, eBPF/XDP, Zero-Copy
+pub mod network;
+pub mod network_ipv4;
+pub mod network_ipv6;
+pub mod network_tcp;
+pub mod network_udp;
+pub mod network_wifi7;
+pub mod network_ebpf;
+pub mod network_zerocopy;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
