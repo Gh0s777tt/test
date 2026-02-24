@@ -26,8 +26,18 @@ pub mod syscall_advanced_ops;
 // Time and Timer Operations
 pub mod syscall_time_ops;
 
+// IOMMU System - DMA attack prevention and device isolation
+pub mod iommu;
+pub mod iommu_intel;
+pub mod iommu_amd;
+pub mod iommu_arm;
+pub mod iommu_usb4;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
+
+#[cfg(all(test, feature = "verus-full"))]
+mod iommu_tests;
 
 #[cfg(all(test, feature = "verus-full"))]
 mod tests {
