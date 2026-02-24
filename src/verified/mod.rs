@@ -76,6 +76,10 @@ pub mod nexus_analytics;
 pub mod nexus_updates;
 pub mod nexus_tests;
 
+// Compliance modules
+pub mod compliance_soc2;
+pub mod compliance_iso27001;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
