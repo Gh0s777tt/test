@@ -277,11 +277,13 @@
 
 #### Priorytet 1: Krytyczne dla Bezpieczeństwa (6 tygodni)
 1. ✅ **IOMMU Implementation** (2 tygodnie) - 6 funkcji, ~3,000 LOC - UKOŃCZONE
-   - Intel VT-d, AMD-Vi, ARM SMMU
+2. ✅ **Network Stack** (3 tygodnie) - 7 funkcji, ~5,000 LOC - UKOŃCZONE
    - USB4/Thunderbolt security
    - DMA attack prevention
    - Commit: 85645131
    - Raport: docs/reports/PRIORITY_1_IOMMU_COMPLETE_FEB_24_2025.md
+   - Commit: ca5f88ab
+   - Raport: docs/reports/PRIORITY_1_NETWORK_STACK_COMPLETE_FEB_24_2025.md
 
 2. ⏰ **Network Stack** (3 tygodnie) - 7 funkcji, ~5,000 LOC
    - TCP/IP stack (IPv4/IPv6)
