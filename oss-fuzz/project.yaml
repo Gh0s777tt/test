@@ -1,0 +1,82 @@
+# OSS-Fuzz Project Configuration for VantisOS
+
+homepage: "https://github.com/vantisCorp/VantisOS"
+primary_contact: "security@vantisos.org"
+auto_ccs:
+  - "vantisos-dev@googlegroups.com"
+
+# Fuzzing targets
+fuzzing_engines:
+  - libfuzzer
+  - honggfuzz
+  - afl
+
+# Sanitizers
+sanitizers:
+  - address
+  - undefined
+  - memory
+
+# Build system
+build_system: "custom"
+
+# Language
+language: rust
+
+# Main branch
+main_repo: "https://github.com/vantisCorp/VantisOS.git"
+
+# Dependencies
+dependencies:
+  - "rust"
+  - "cargo-fuzz"
+
+# Fuzzing targets
+fuzz_targets:
+  - name: "ipc_fuzzer"
+    main_repo: "https://github.com/vantisCorp/VantisOS.git"
+    language: rust
+    harness: "src/verified/fuzz/fuzz_targets/ipc_fuzzer.rs"
+    
+  - name: "scheduler_fuzzer"
+    main_repo: "https://github.com/vantisCorp/VantisOS.git"
+    language: rust
+    harness: "src/verified/fuzz/fuzz_targets/scheduler_fuzzer.rs"
+    
+  - name: "memory_fuzzer"
+    main_repo: "https://github.com/vantisCorp/VantisOS.git"
+    language: rust
+    harness: "src/verified/fuzz/fuzz_targets/memory_fuzzer.rs"
+    
+  - name: "filesystem_fuzzer"
+    main_repo: "https://github.com/vantisCorp/VantisOS.git"
+    language: rust
+    harness: "src/verified/fuzz/fuzz_targets/filesystem_fuzzer.rs"
+    
+  - name: "vault_fuzzer"
+    main_repo: "https://github.com/vantisCorp/VantisOS.git"
+    language: rust
+    harness: "src/verified/fuzz/fuzz_targets/vault_fuzzer.rs"
+
+# Corpus pruning
+prune_corpus: true
+
+# Dictionary support
+dictionaries:
+  - "oss-fuzz/dictionaries/ipc.dict"
+  - "oss-fuzz/dictionaries/scheduler.dict"
+  - "oss-fuzz/dictionaries/memory.dict"
+  - "oss-fuzz/dictionaries/filesystem.dict"
+  - "oss-fuzz/dictionaries/vault.dict"
+
+# Architecture support
+architectures:
+  - x86_64
+  - aarch64
+
+# CI integration
+ci:
+  - "github.com/vantisCorp/VantisOS/.github/workflows/fuzz.yml"
+
+# Badge
+badge: "https://oss-fuzz-build-logs.storage.googleapis.com/badges/vantisos.svg"
