@@ -46,6 +46,16 @@ pub mod network_zerocopy;
 // Self-Healing System - Real-time failure detection and recovery
 pub mod self_healing;
 
+// Ray Tracing System - Vendor-agnostic ray tracing with Vulkan, DirectX 12, Metal
+pub mod ray_tracing;
+pub mod ray_tracing_vulkan;
+pub mod ray_tracing_dx12;
+pub mod ray_tracing_metal;
+pub mod ray_tracing_unified;
+pub mod ray_tracing_bvh;
+pub mod ray_tracing_gpu;
+pub mod ray_tracing_tests;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
