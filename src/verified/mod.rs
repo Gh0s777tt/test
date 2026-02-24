@@ -83,6 +83,9 @@ pub mod compliance_iso27001;
 // Laboratory submission module
 pub mod laboratory_submission;
 
+// Release management module
+pub mod release_management;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
