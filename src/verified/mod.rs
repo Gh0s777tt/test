@@ -65,6 +65,17 @@ pub mod cinema_hdcp;
 pub mod cinema_audio;
 pub mod cinema_tests;
 
+// Nexus Server modules
+pub mod nexus_server;
+pub mod nexus_api;
+pub mod nexus_engine;
+pub mod nexus_compliance;
+pub mod nexus_storage;
+pub mod nexus_auth;
+pub mod nexus_analytics;
+pub mod nexus_updates;
+pub mod nexus_tests;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
