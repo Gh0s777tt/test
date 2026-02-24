@@ -80,6 +80,9 @@ pub mod nexus_tests;
 pub mod compliance_soc2;
 pub mod compliance_iso27001;
 
+// Laboratory submission module
+pub mod laboratory_submission;
+
 #[cfg(all(test, feature = "verus-full"))]
 mod ipc_complete_tests;
 
