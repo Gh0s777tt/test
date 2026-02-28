@@ -8,6 +8,7 @@ use core::sync::atomic::{AtomicU64, Ordering};
 pub mod process;
 pub mod filesystem;
 pub mod network;
+pub mod advanced;
 
 // ============================================================================
 // System Call Numbers
@@ -482,18 +483,42 @@ pub fn sys_chown(args: &[u64]) -> Result<u64, &'static str> {
 }
 
 /// Default mmap handler
-pub fn sys_mmap(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_mmap(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_mmap_impl(args)
+}
+pub fn sys_mmap(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_mmap_impl(args)
+pub fn sys_munmap(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_munmap_impl(args)
+}
+pub fn sys_munmap(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_munmap_impl(args)
+}
+pub fn sys_munmap(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_munmap_impl(args)
+}
 }
 
-/// Default munmap handler
-pub fn sys_munmap(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_brk(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_brk_impl(args)
+}
+pub fn sys_brk(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_brk_impl(args)
+}
+pub fn sys_brk(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_brk_impl(args)
+}
 }
 
-/// Default brk handler
-pub fn sys_brk(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_mprotect(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_mprotect_impl(args)
+}
+pub fn sys_mprotect(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_mprotect_impl(args)
+}
+pub fn sys_mprotect(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_mprotect_impl(args)
+}
 }
 
 /// Default mprotect handler
@@ -591,39 +616,81 @@ pub fn sys_shmat(_args: &[u64]) -> Result<u64, &'static str> {
     Ok(0)
 }
 
-/// Default shmdt handler
-pub fn sys_shmdt(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_ioctl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_ioctl_impl(args)
+}
+pub fn sys_ioctl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_ioctl_impl(args)
+}
+pub fn sys_ioctl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_ioctl_impl(args)
+}
 }
 
-/// Default ioctl handler
-pub fn sys_ioctl(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_fcntl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_fcntl_impl(args)
+}
+pub fn sys_fcntl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_fcntl_impl(args)
+}
+pub fn sys_fcntl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_fcntl_impl(args)
+}
 }
 
-/// Default fcntl handler
-pub fn sys_fcntl(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_poll(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_poll_impl(args)
+}
+pub fn sys_poll(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_poll_impl(args)
+}
+pub fn sys_poll(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_poll_impl(args)
+}
 }
 
-/// Default poll handler
-pub fn sys_poll(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_select(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_select_impl(args)
+}
+pub fn sys_select(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_select_impl(args)
+}
+pub fn sys_select(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_select_impl(args)
+}
 }
 
-/// Default select handler
-pub fn sys_select(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_epoll_create(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_create_impl(args)
+}
+pub fn sys_epoll_create(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_create_impl(args)
+}
+pub fn sys_epoll_create(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_create_impl(args)
+}
 }
 
-/// Default epoll_create handler
-pub fn sys_epoll_create(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_epoll_ctl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_ctl_impl(args)
+}
+pub fn sys_epoll_ctl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_ctl_impl(args)
+}
+pub fn sys_epoll_ctl(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_ctl_impl(args)
+}
 }
 
-/// Default epoll_ctl handler
-pub fn sys_epoll_ctl(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_epoll_wait(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_wait_impl(args)
+}
+pub fn sys_epoll_wait(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_wait_impl(args)
+}
+pub fn sys_epoll_wait(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::advanced::sys_epoll_wait_impl(args)
+}
 }
 
 /// Default epoll_wait handler
