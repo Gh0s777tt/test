@@ -5,6 +5,8 @@
 pub mod pcb;
 pub mod process;
 pub mod state;
+pub mod process_manager;
+pub mod process_scheduler;
 
 use pcb::ProcessControlBlock;
 use process::ProcessManager;

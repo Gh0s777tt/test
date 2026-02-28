@@ -15,6 +15,8 @@ use crate::verified::minimal_kernel::timer::{init as init_timer, set_frequency};
 use crate::verified::minimal_kernel::keyboard::init as init_keyboard;
 use crate::verified::minimal_kernel::serial::{init_default, set_log_level, LogLevel, info, error, warn};
 use crate::verified::minimal_kernel::process::ProcessManager;
+use crate::verified::minimal_kernel::process::process_manager::ProcessManager as ProcessManagerImpl;
+use crate::verified::minimal_kernel::process::process_scheduler::ProcessScheduler;
 use crate::verified::minimal_kernel::thread::{ThreadManager, Scheduler};
 use crate::verified::minimal_kernel::io::{CharDeviceManager, BlockDeviceManager};
 
@@ -32,7 +34,9 @@ static mut PAGE_ALLOCATOR: Option<PageAllocator> = None;
 static mut VIRTUAL_MEMORY: Option<VirtualMemory> = None;
 
 /// Process manager
-static mut PROCESS_MANAGER: Option<ProcessManager> = None;
+static mut PROCESS_MANAGER: Option<ProcessManagerImpl> = None;
+/// Process scheduler
+static mut PROCESS_SCHEDULER: Option<ProcessScheduler> = None;
 
 /// Thread manager
 static mut THREAD_MANAGER: Option<ThreadManager> = None;
@@ -130,8 +134,12 @@ fn init_memory() {
 fn init_process_thread() {
     unsafe {
         // Create process manager
-        PROCESS_MANAGER = Some(ProcessManager::new());
+        PROCESS_MANAGER = Some(ProcessManagerImpl::new());
         info!("Process manager initialized");
+
+        // Create process scheduler
+        PROCESS_SCHEDULER = Some(ProcessScheduler::new(ProcessManagerImpl::new()));
+        info!("Process scheduler initialized");
 
         // Create thread manager
         THREAD_MANAGER = Some(ThreadManager::new());
@@ -210,13 +218,23 @@ pub fn get_virtual_memory_mut() -> Option<&'static mut VirtualMemory> {
 }
 
 /// Get process manager
-pub fn get_process_manager() -> Option<&'static ProcessManager> {
+pub fn get_process_manager() -> Option<&'static ProcessManagerImpl> {
     unsafe { PROCESS_MANAGER.as_ref() }
 }
 
 /// Get process manager mutable
-pub fn get_process_manager_mut() -> Option<&'static mut ProcessManager> {
+pub fn get_process_manager_mut() -> Option<&'static mut ProcessManagerImpl> {
     unsafe { PROCESS_MANAGER.as_mut() }
+}
+
+/// Get process scheduler
+pub fn get_process_scheduler() -> Option<&'static ProcessScheduler> {
+    unsafe { PROCESS_SCHEDULER.as_ref() }
+}
+
+/// Get process scheduler mutable
+pub fn get_process_scheduler_mut() -> Option<&'static mut ProcessScheduler> {
+    unsafe { PROCESS_SCHEDULER.as_mut() }
 }
 
 /// Get thread manager
