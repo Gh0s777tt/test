@@ -7,6 +7,7 @@ use core::sync::atomic::{AtomicU64, Ordering};
 
 pub mod process;
 pub mod filesystem;
+pub mod network;
 
 // ============================================================================
 // System Call Numbers
@@ -501,48 +502,48 @@ pub fn sys_mprotect(_args: &[u64]) -> Result<u64, &'static str> {
 }
 
 /// Default socket handler
-pub fn sys_socket(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_socket(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_socket_impl(args)
 }
 
 /// Default bind handler
-pub fn sys_bind(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_bind(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_bind_impl(args)
 }
 
 /// Default listen handler
-pub fn sys_listen(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_listen(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_listen_impl(args)
 }
 
 /// Default accept handler
-pub fn sys_accept(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_accept(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_accept_impl(args)
 }
 
 /// Default connect handler
-pub fn sys_connect(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_connect(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_connect_impl(args)
 }
 
 /// Default send handler
-pub fn sys_send(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_send(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_send_impl(args)
 }
 
 /// Default recv handler
-pub fn sys_recv(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_recv(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_recv_impl(args)
 }
 
 /// Default sendto handler
-pub fn sys_sendto(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_sendto(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_sendto_impl(args)
 }
 
 /// Default recvfrom handler
-pub fn sys_recvfrom(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_recvfrom(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::network::sys_recvfrom_impl(args)
 }
 
 /// Default pipe handler
