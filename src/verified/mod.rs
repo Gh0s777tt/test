@@ -127,6 +127,9 @@ pub mod threat_model;
 // New Development Phase - Network Stack
 
 // New Development Phase - Storage Drivers
+
+// New Development Phase - Filesystem
+pub mod filesystem;
 pub mod drivers;
 pub mod network;
 pub mod minimal_kernel;
