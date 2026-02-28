@@ -12,7 +12,7 @@ on:
       - '.github/workflows/live-trust-dashboard.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   update-dashboard:
