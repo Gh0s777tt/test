@@ -5,6 +5,11 @@ use alloc::vec::Vec;
 use alloc::string::String;
 use core::sync::atomic::{AtomicU64, Ordering};
 
+pub mod libc;
+pub mod libm;
+pub mod libpthread;
+pub mod ldso;
+
 // ============================================================================
 // User Space Memory Layout
 // ============================================================================
