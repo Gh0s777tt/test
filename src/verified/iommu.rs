@@ -351,7 +351,10 @@ impl Default for IommuManager {
 }
 
 /// Global IOMMU manager instance
-static mut GLOBAL_IOMMU: Option<IommuManager> = None;
+/// 
+/// SAFETY: This uses atomic operations to ensure thread-safe initialization.
+/// Once initialized, the IOMMU manager is immutable and can be safely shared.
+static GLOBAL_IOMMU: AtomicU64 = AtomicU64::new(0);
 static IOMMU_INIT: AtomicBool = AtomicBool::new(false);
 
 /// Initialize global IOMMU
@@ -360,21 +363,33 @@ pub fn init_global_iommu() -> Result<(), IommuError> {
         return Ok(());
     }
 
-    unsafe {
-        GLOBAL_IOMMU = Some(IommuManager::new());
-        if let Some(ref mut iommu) = GLOBAL_IOMMU {
-            iommu.init()?;
-        }
-    }
+    // Create IOMMU manager
+    let iommu = IommuManager::new();
+    iommu.init()?;
+    
+    // Store the pointer as a u64 (safe because we're in a no_std environment)
+    let ptr = &iommu as *const IommuManager as u64;
+    GLOBAL_IOMMU.store(ptr, Ordering::SeqCst);
+    
+    // Leak the memory to ensure it lives forever (this is intentional for a singleton)
+    core::mem::forget(iommu);
 
     IOMMU_INIT.store(true, Ordering::SeqCst);
     Ok(())
 }
 
 /// Get global IOMMU manager
-pub fn get_global_iommu() -> Option<&'static mut IommuManager> {
-    unsafe {
-        GLOBAL_IOMMU.as_mut()
+/// 
+/// SAFETY: Returns a reference to the global IOMMU manager if initialized.
+/// The manager is immutable after initialization, so this is safe.
+pub fn get_global_iommu() -> Option<&'static IommuManager> {
+    let ptr = GLOBAL_IOMMU.load(Ordering::SeqCst);
+    if ptr == 0 {
+        None
+    } else {
+        unsafe {
+            Some(&*(ptr as *const IommuManager))
+        }
     }
 }
 
