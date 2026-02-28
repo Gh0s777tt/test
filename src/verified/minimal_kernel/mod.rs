@@ -10,11 +10,16 @@
 //! - IPC integration
 
 pub mod init;
+pub mod entry;
 pub mod memory;
 pub mod process;
 pub mod thread;
 pub mod io;
 pub mod ipc;
+pub mod interrupt;
+pub mod timer;
+pub mod keyboard;
+pub mod serial;
 
 use init::kernel_init;
 

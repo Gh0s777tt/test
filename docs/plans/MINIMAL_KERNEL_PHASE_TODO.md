@@ -28,11 +28,11 @@
 
 ## Week 2: Core Kernel Components
 
-### Day 6-8: Kernel Initialization
-- [ ] Implement kernel entry point
-- [ ] Initialize kernel subsystems
-- [ ] Set up memory management
-- [ ] Configure interrupt handling
+### Day 6-8: Kernel Initialization ✅ COMPLETE
+- [x] Implement kernel entry point
+- [x] Initialize kernel subsystems
+- [x] Set up memory management
+- [x] Configure interrupt handling
 
 ### Day 9-10: Memory Management
 - [ ] Implement page allocator
