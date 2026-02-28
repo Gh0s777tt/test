@@ -10,6 +10,7 @@ pub mod vfs;
 pub mod vantisfs;
 pub mod vantisfs_features;
 pub mod vantisfs_advanced;
+pub mod vantisfs_utils;
 
 pub use vfs::{
     Vfs,
