@@ -18,6 +18,8 @@ use crate::verified::minimal_kernel::process::ProcessManager;
 use crate::verified::minimal_kernel::process::process_manager::ProcessManager as ProcessManagerImpl;
 use crate::verified::minimal_kernel::process::process_scheduler::ProcessScheduler;
 use crate::verified::minimal_kernel::thread::{ThreadManager, Scheduler};
+use crate::verified::minimal_kernel::thread::thread_manager::ThreadManager as ThreadManagerImpl;
+use crate::verified::minimal_kernel::thread::thread_scheduler::ThreadScheduler;
 use crate::verified::minimal_kernel::io::{CharDeviceManager, BlockDeviceManager};
 
 /// Kernel version
@@ -39,7 +41,9 @@ static mut PROCESS_MANAGER: Option<ProcessManagerImpl> = None;
 static mut PROCESS_SCHEDULER: Option<ProcessScheduler> = None;
 
 /// Thread manager
-static mut THREAD_MANAGER: Option<ThreadManager> = None;
+static mut THREAD_MANAGER: Option<ThreadManagerImpl> = None;
+/// Thread scheduler
+static mut THREAD_SCHEDULER: Option<ThreadScheduler> = None;
 
 /// Scheduler
 static mut SCHEDULER: Option<Scheduler> = None;
@@ -142,8 +146,12 @@ fn init_process_thread() {
         info!("Process scheduler initialized");
 
         // Create thread manager
-        THREAD_MANAGER = Some(ThreadManager::new());
+        THREAD_MANAGER = Some(ThreadManagerImpl::new());
         info!("Thread manager initialized");
+
+        // Create thread scheduler
+        THREAD_SCHEDULER = Some(ThreadScheduler::new(ThreadManagerImpl::new()));
+        info!("Thread scheduler initialized");
 
         // Create scheduler
         SCHEDULER = Some(Scheduler::new());
@@ -238,13 +246,23 @@ pub fn get_process_scheduler_mut() -> Option<&'static mut ProcessScheduler> {
 }
 
 /// Get thread manager
-pub fn get_thread_manager() -> Option<&'static ThreadManager> {
+pub fn get_thread_manager() -> Option<&'static ThreadManagerImpl> {
     unsafe { THREAD_MANAGER.as_ref() }
 }
 
 /// Get thread manager mutable
-pub fn get_thread_manager_mut() -> Option<&'static mut ThreadManager> {
+pub fn get_thread_manager_mut() -> Option<&'static mut ThreadManagerImpl> {
     unsafe { THREAD_MANAGER.as_mut() }
+}
+
+/// Get thread scheduler
+pub fn get_thread_scheduler() -> Option<&'static ThreadScheduler> {
+    unsafe { THREAD_SCHEDULER.as_ref() }
+}
+
+/// Get thread scheduler mutable
+pub fn get_thread_scheduler_mut() -> Option<&'static mut ThreadScheduler> {
+    unsafe { THREAD_SCHEDULER.as_mut() }
 }
 
 /// Get scheduler

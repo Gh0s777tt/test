@@ -5,6 +5,8 @@
 pub mod tcb;
 pub mod thread;
 pub mod scheduler;
+pub mod thread_manager;
+pub mod thread_scheduler;
 pub mod sync;
 
 use tcb::ThreadControlBlock;
