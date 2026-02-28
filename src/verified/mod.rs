@@ -137,6 +137,9 @@ pub mod minimal_kernel;
 // New Development Phase - System Calls
 pub mod syscall;
 
+// New Development Phase - User Space
+pub mod userspace;
+
 // Release management module
 pub mod release_management;
 
