@@ -9,6 +9,7 @@ pub mod libc;
 pub mod libm;
 pub mod libpthread;
 pub mod ldso;
+pub mod apps;
 
 // ============================================================================
 // User Space Memory Layout
