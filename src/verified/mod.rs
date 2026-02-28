@@ -134,6 +134,9 @@ pub mod drivers;
 pub mod network;
 pub mod minimal_kernel;
 
+// New Development Phase - System Calls
+pub mod syscall;
+
 // Release management module
 pub mod release_management;
 
