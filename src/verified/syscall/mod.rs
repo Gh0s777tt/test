@@ -5,6 +5,8 @@ use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
 use core::sync::atomic::{AtomicU64, Ordering};
 
+pub mod process;
+
 // ============================================================================
 // System Call Numbers
 // ============================================================================
@@ -378,33 +380,33 @@ impl SyscallValidator {
 // ============================================================================
 
 /// Default exit handler
-pub fn sys_exit(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_exit(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::process::sys_exit_impl(args)
 }
 
 /// Default fork handler
-pub fn sys_fork(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_fork(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::process::sys_fork_impl(args)
 }
 
 /// Default exec handler
-pub fn sys_exec(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_exec(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::process::sys_exec_impl(args)
 }
 
 /// Default wait handler
-pub fn sys_wait(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_wait(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::process::sys_wait_impl(args)
 }
 
 /// Default getpid handler
-pub fn sys_getpid(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(1)
+pub fn sys_getpid(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::process::sys_getpid_impl(args)
 }
 
 /// Default getppid handler
-pub fn sys_getppid(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_getppid(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::process::sys_getppid_impl(args)
 }
 
 /// Default open handler
