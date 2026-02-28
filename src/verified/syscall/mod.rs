@@ -6,6 +6,7 @@ use alloc::collections::BTreeMap;
 use core::sync::atomic::{AtomicU64, Ordering};
 
 pub mod process;
+pub mod filesystem;
 
 // ============================================================================
 // System Call Numbers
@@ -410,73 +411,73 @@ pub fn sys_getppid(args: &[u64]) -> Result<u64, &'static str> {
 }
 
 /// Default open handler
-pub fn sys_open(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(3)
+pub fn sys_open(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_open_impl(args)
 }
 
 /// Default close handler
-pub fn sys_close(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_close(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_close_impl(args)
 }
 
 /// Default read handler
-pub fn sys_read(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_read(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_read_impl(args)
 }
 
 /// Default write handler
-pub fn sys_write(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_write(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_write_impl(args)
 }
 
 /// Default seek handler
-pub fn sys_seek(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_seek(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_seek_impl(args)
 }
 
 /// Default stat handler
-pub fn sys_stat(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_stat(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_stat_impl(args)
 }
 
 /// Default fstat handler
-pub fn sys_fstat(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_fstat(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_fstat_impl(args)
 }
 
 /// Default lstat handler
-pub fn sys_lstat(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_lstat(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_lstat_impl(args)
 }
 
 /// Default mkdir handler
-pub fn sys_mkdir(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_mkdir(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_mkdir_impl(args)
 }
 
 /// Default rmdir handler
-pub fn sys_rmdir(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_rmdir(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_rmdir_impl(args)
 }
 
 /// Default unlink handler
-pub fn sys_unlink(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_unlink(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_unlink_impl(args)
 }
 
 /// Default rename handler
-pub fn sys_rename(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_rename(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_rename_impl(args)
 }
 
 /// Default chmod handler
-pub fn sys_chmod(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_chmod(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_chmod_impl(args)
 }
 
 /// Default chown handler
-pub fn sys_chown(_args: &[u64]) -> Result<u64, &'static str> {
-    Ok(0)
+pub fn sys_chown(args: &[u64]) -> Result<u64, &'static str> {
+    crate::verified::syscall::filesystem::sys_chown_impl(args)
 }
 
 /// Default mmap handler
