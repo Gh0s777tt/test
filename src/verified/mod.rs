@@ -125,6 +125,9 @@ pub mod threat_model;
 // Minimal Kernel Phase (Weeks 9-12)
 
 // New Development Phase - Network Stack
+
+// New Development Phase - Storage Drivers
+pub mod drivers;
 pub mod network;
 pub mod minimal_kernel;
 
