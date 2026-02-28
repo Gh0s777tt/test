@@ -122,6 +122,9 @@ pub mod privacy;
 pub mod telemetry;
 pub mod threat_model;
 
+// Minimal Kernel Phase (Weeks 9-12)
+pub mod minimal_kernel;
+
 // Release management module
 pub mod release_management;
 
