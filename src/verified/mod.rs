@@ -79,9 +79,48 @@ pub mod nexus_tests;
 // Compliance modules
 pub mod compliance_soc2;
 pub mod compliance_iso27001;
+pub mod compliance_pci_dss;
+pub mod compliance_medical;
+
+// Laboratory submission module
 
 // Laboratory submission module
 pub mod laboratory_submission;
+
+// Priority 11: Audio 3D i Multimedia
+pub mod audio_mixer;
+pub mod babel_protocol;
+pub mod polyglot_ai;
+
+// Priority 12: Vantis Cortex AI
+pub mod cortex_ai;
+
+// Priority 13: Cytadela - Profile i Interfejsy
+pub mod profiles;
+pub mod permission_cards;
+pub mod interfaces;
+pub mod phantom_run;
+
+// Priority 14: Aplikacje i Kompatybilność
+pub mod vnt_apps;
+pub mod android_subsystem;
+pub mod legacy_airlock;
+
+// Priority 16: Accessibility i Self-Healing
+pub mod spectrum_2_0;
+pub mod voice_assistant;
+pub mod braille_display;
+pub mod bci_interface;
+pub mod haptic_language;
+
+// Priority 17: Automotive i Industrial
+pub mod automotive_iso26262;
+pub mod industrial_iec61508;
+
+// Priority 18: Privacy i Security
+pub mod privacy;
+pub mod telemetry;
+pub mod threat_model;
 
 // Release management module
 pub mod release_management;
