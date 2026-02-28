@@ -21,6 +21,8 @@ use crate::verified::minimal_kernel::thread::{ThreadManager, Scheduler};
 use crate::verified::minimal_kernel::thread::thread_manager::ThreadManager as ThreadManagerImpl;
 use crate::verified::minimal_kernel::thread::thread_scheduler::ThreadScheduler;
 use crate::verified::minimal_kernel::io::{CharDeviceManager, BlockDeviceManager};
+use crate::verified::minimal_kernel::io::char_device::CharDeviceManager as CharDeviceManagerImpl;
+use crate::verified::minimal_kernel::io::block_device::BlockDeviceManager as BlockDeviceManagerImpl;
 
 /// Kernel version
 pub const KERNEL_VERSION: &str = "0.4.1";
@@ -49,10 +51,10 @@ static mut THREAD_SCHEDULER: Option<ThreadScheduler> = None;
 static mut SCHEDULER: Option<Scheduler> = None;
 
 /// Character device manager
-static mut CHAR_DEVICE_MANAGER: Option<CharDeviceManager> = None;
+static mut CHAR_DEVICE_MANAGER: Option<CharDeviceManagerImpl> = None;
 
 /// Block device manager
-static mut BLOCK_DEVICE_MANAGER: Option<BlockDeviceManager> = None;
+static mut BLOCK_DEVICE_MANAGER: Option<BlockDeviceManagerImpl> = None;
 
 /// Kernel initialization
 ///
@@ -163,11 +165,11 @@ fn init_process_thread() {
 fn init_io() {
     unsafe {
         // Create character device manager
-        CHAR_DEVICE_MANAGER = Some(CharDeviceManager::new());
+        CHAR_DEVICE_MANAGER = Some(CharDeviceManagerImpl::new());
         info!("Character device manager initialized");
 
         // Create block device manager
-        BLOCK_DEVICE_MANAGER = Some(BlockDeviceManager::new());
+        BLOCK_DEVICE_MANAGER = Some(BlockDeviceManagerImpl::new());
         info!("Block device manager initialized");
     }
 }
@@ -276,22 +278,22 @@ pub fn get_scheduler_mut() -> Option<&'static mut Scheduler> {
 }
 
 /// Get character device manager
-pub fn get_char_device_manager() -> Option<&'static CharDeviceManager> {
+pub fn get_char_device_manager() -> Option<&'static CharDeviceManagerImpl> {
     unsafe { CHAR_DEVICE_MANAGER.as_ref() }
 }
 
 /// Get character device manager mutable
-pub fn get_char_device_manager_mut() -> Option<&'static mut CharDeviceManager> {
+pub fn get_char_device_manager_mut() -> Option<&'static mut CharDeviceManagerImpl> {
     unsafe { CHAR_DEVICE_MANAGER.as_mut() }
 }
 
 /// Get block device manager
-pub fn get_block_device_manager() -> Option<&'static BlockDeviceManager> {
+pub fn get_block_device_manager() -> Option<&'static BlockDeviceManagerImpl> {
     unsafe { BLOCK_DEVICE_MANAGER.as_ref() }
 }
 
 /// Get block device manager mutable
-pub fn get_block_device_manager_mut() -> Option<&'static mut BlockDeviceManager> {
+pub fn get_block_device_manager_mut() -> Option<&'static mut BlockDeviceManagerImpl> {
     unsafe { BLOCK_DEVICE_MANAGER.as_mut() }
 }
 

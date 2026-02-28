@@ -5,6 +5,8 @@
 pub mod char_dev;
 pub mod block_dev;
 pub mod request;
+pub mod char_device;
+pub mod block_device;
 
 use char_dev::CharDevice;
 use block_dev::BlockDevice;

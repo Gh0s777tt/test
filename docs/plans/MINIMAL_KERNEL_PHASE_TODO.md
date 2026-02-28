@@ -42,12 +42,19 @@
 
 ---
 
-## Week 3: Process and Thread Management 🔄 IN PROGRESS
+## Week 3: Process and Thread Management ✅ COMPLETE
 
 ### Day 11-13: Process Management ✅ COMPLETE
 - [x] Implement process control block (PCB)
 - [x] Implement process creation
 - [x] Implement process termination
+
+### Day 14-16: Thread Management ✅ COMPLETE
+- [x] Implement thread control block (TCB)
+- [x] Implement thread creation
+- [x] Implement thread termination
+- [x] Implement thread scheduling algorithms
+- [x] Implement thread synchronization primitives
 - [ ] Implement process state management
 
 ### Day 14-15: Thread Scheduling
