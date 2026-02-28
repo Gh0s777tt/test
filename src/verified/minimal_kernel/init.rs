@@ -9,7 +9,7 @@
 #![no_std]
 
 use crate::verified::minimal_kernel::entry::{BootInfo, parse_boot_info, MultibootInfo};
-use crate::verified::minimal_kernel::memory::{PageAllocator, VirtualMemory};
+use crate::verified::minimal_kernel::memory::{PageAllocator, VirtualMemory, memory_region::MemoryRegionManager, memory_protection::MemoryProtectionManager, memory_stats::init_global_stats};
 use crate::verified::minimal_kernel::interrupt::{init as init_interrupts, enable_interrupts};
 use crate::verified::minimal_kernel::timer::{init as init_timer, set_frequency};
 use crate::verified::minimal_kernel::keyboard::init as init_keyboard;
@@ -111,6 +111,18 @@ fn init_memory() {
         // Create virtual memory manager
         VIRTUAL_MEMORY = Some(VirtualMemory::new());
         info!("Virtual memory manager initialized");
+
+        // Initialize memory region manager
+        let mut region_manager = MemoryRegionManager::new();
+        info!("Memory region manager initialized");
+
+        // Initialize memory protection manager
+        let protection_manager = MemoryProtectionManager::new();
+        info!("Memory protection manager initialized");
+
+        // Initialize global memory statistics
+        init_global_stats();
+        info!("Global memory statistics initialized");
     }
 }
 

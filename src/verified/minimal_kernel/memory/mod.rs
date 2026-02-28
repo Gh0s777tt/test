@@ -11,6 +11,9 @@
 pub mod page_alloc;
 pub mod slab_alloc;
 pub mod vmem;
+pub mod memory_region;
+pub mod memory_protection;
+pub mod memory_stats;
 
 use page_alloc::PageAllocator;
 use slab_alloc::SlabAllocator;
