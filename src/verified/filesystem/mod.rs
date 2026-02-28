@@ -3,10 +3,12 @@
 // This module provides filesystem functionality for VantisOS, including:
 // - Virtual File System (VFS) layer
 // - VantisFS implementation
+// - VantisFS features
 // - File system utilities
 
 pub mod vfs;
 pub mod vantisfs;
+pub mod vantisfs_features;
 
 pub use vfs::{
     Vfs,
@@ -28,8 +30,19 @@ pub use vantisfs::{
     VantisfsInodeAllocator,
 };
 
+pub use vantisfs_features::{
+    VantisfsSymlink,
+    VantisfsHardlink,
+    VantisfsExtendedAttributes,
+    VantisfsPermissionsManager,
+    VantisfsLinkManager,
+    VantisfsAttributesManager,
+    VantisfsFeatures,
+};
+
 /// Filesystem initialization
 pub fn init() {
     vfs::init();
     vantisfs::init();
+    vantisfs_features::init();
 }
