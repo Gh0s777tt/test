@@ -1,0 +1,18 @@
+[package]
+name = "vantis-network"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+[features]
+default = ["hw-accel"]
+hw-accel = []
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+verus-full = ["verus"]
+kani = []

@@ -1,0 +1,23 @@
+[package]
+name = "vantis-direct-metal"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+ash = { workspace = true, optional = true }
+metal-rs = { workspace = true, optional = true }
+
+[features]
+default = ["hw-accel"]
+hw-accel = []
+vulkan = ["ash"]
+metal = ["metal-rs"]
+all-backends = ["vulkan", "metal"]
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+verus-full = ["verus"]
+kani = []

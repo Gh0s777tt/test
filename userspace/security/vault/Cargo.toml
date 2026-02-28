@@ -1,0 +1,25 @@
+[package]
+name = "vantis-vault"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+aes.workspace = true
+twofish.workspace = true
+serpent.workspace = true
+cbc.workspace = true
+cipher.workspace = true
+rand.workspace = true
+rand_core.workspace = true
+
+[features]
+default = ["hw-accel"]
+hw-accel = []
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+verus-full = ["verus"]
+kani = []
