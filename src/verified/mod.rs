@@ -123,6 +123,9 @@ pub mod telemetry;
 pub mod threat_model;
 
 // Minimal Kernel Phase (Weeks 9-12)
+
+// New Development Phase - Network Stack
+pub mod network;
 pub mod minimal_kernel;
 
 // Release management module
