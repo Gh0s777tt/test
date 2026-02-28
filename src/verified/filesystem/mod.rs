@@ -6,6 +6,7 @@
 // - File system utilities
 
 pub mod vfs;
+pub mod vantisfs;
 
 pub use vfs::{
     Vfs,
@@ -18,7 +19,17 @@ pub use vfs::{
     FileAttributes,
 };
 
+pub use vantisfs::{
+    Vantisfs,
+    VantisfsSuperblock,
+    VantisfsInode,
+    VantisfsDirectoryEntry,
+    VantisfsBlockAllocator,
+    VantisfsInodeAllocator,
+};
+
 /// Filesystem initialization
 pub fn init() {
     vfs::init();
+    vantisfs::init();
 }
