@@ -290,6 +290,18 @@ pub fn disable_interrupts() {
     }
 }
 
+pub fn is_interrupts_enabled() -> bool {
+    let rflags: u64;
+    unsafe {
+        core::arch::asm!(
+            "pushfq",
+            "pop {}",
+            out(reg) rflags
+        );
+    }
+    (rflags & 0x200) != 0
+}
+
 // Print function (uses VGA console)
 fn print(s: &str) {
     use crate::vga_console::write_string;

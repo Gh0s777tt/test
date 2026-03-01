@@ -4,10 +4,12 @@
 mod vga_console;
 mod memory;
 mod interrupt;
+mod integration;
 
 use vga_console::{init as console_init, write_string, write_dec, write_hex32};
 use memory::{init as memory_init, get_stats, MemoryStats};
 use interrupt::{init_idt, load_idt, enable_interrupts};
+use integration::{kernel_init, display_kernel_status, test_all_components};
 
 // Multiboot header
 #[repr(C, packed)]
@@ -64,12 +66,9 @@ struct MemoryMapEntry {
 // Kernel entry point
 #[no_mangle]
 pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
-    // Initialize VGA console
-    console_init();
-    
     // Print boot message
-    write_string("VantisOS v0.5.0 - Memory Management Test\n");
-    write_string("=========================================\n\n");
+    write_string("VantisOS v0.5.0 - System Integration Test\n");
+    write_string("======================================\n\n");
     
     // Print boot information
     write_string("Boot Information:\n");
@@ -148,77 +147,19 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
     ];
     
     memory_init(&memory_regions);
+    write_string("  [OK] Memory manager initialized\n");
     
-    // Get memory statistics
-    let stats = get_stats();
-    
-    write_string("\nMemory Statistics:\n");
-    write_string("  Total Memory: ");
-    write_dec(stats.total_memory / 1024);
-    write_string(" KB\n");
-    
-    write_string("  Available Memory: ");
-    write_dec(stats.available_memory / 1024);
-    write_string(" KB\n");
-    
-    write_string("  Free Pages: ");
-    write_dec(stats.free_pages as u64);
+    // Unified kernel initialization
     write_string("\n");
+    kernel_init();
     
-    write_string("  Used Pages: ");
-    write_dec(stats.used_pages as u64);
-    write_string("\n");
+    // Display kernel status
+    display_kernel_status();
     
-    write_string("  Heap Free: ");
-    write_dec(stats.heap_free as u64);
-    write_string(" bytes\n");
+    // Test all components
+    test_all_components();
     
-    write_string("  Heap Used: ");
-    write_dec(stats.heap_used as u64);
-    write_string(" bytes\n");
-    
-    // Test page allocation
-    write_string("\nTesting Page Allocation...\n");
-    if let Some(page) = allocate_page() {
-        write_string("  Allocated page at: 0x");
-        write_hex32(page as u32);
-        write_string("\n");
-        
-        // Free the page
-        free_page(page);
-        write_string("  Page freed\n");
-    } else {
-        write_string("  Failed to allocate page\n");
-    }
-    
-    // Test heap allocation
-    write_string("\nTesting Heap Allocation...\n");
-    if let Some(heap) = allocate_heap(1024, 8) {
-        write_string("  Allocated heap at: 0x");
-        write_hex32(heap as u32);
-        write_string("\n");
-        
-        // Free the heap
-        free_heap(heap);
-        write_string("  Heap freed\n");
-    } else {
-        write_string("  Failed to allocate heap\n");
-    }
-    
-    write_string("\nMemory Management Test Complete!\n");
-    
-    // Initialize interrupts
-    write_string("\nInitializing Interrupts...\n");
-    init_idt();
-    load_idt();
-    write_string("  IDT initialized and loaded\n");
-    
-    // Enable interrupts
-    write_string("\nEnabling Interrupts...\n");
-    enable_interrupts();
-    write_string("  Interrupts enabled\n");
-    
-    write_string("\nInterrupt Handling Test Complete!\n");
+    write_string("\nSystem Integration Test Complete!\n");
     write_string("System halted.\n");
     
     loop {
@@ -227,8 +168,6 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
         }
     }
 }
-
-use memory::{allocate_page, free_page, allocate_heap, free_heap};
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
