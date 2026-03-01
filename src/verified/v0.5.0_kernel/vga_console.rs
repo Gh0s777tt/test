@@ -169,8 +169,11 @@ impl Console {
     }
 
     fn write_string(&mut self, s: &str) {
-        for byte in s.bytes() {
-            self.write_byte(byte);
+        let bytes = s.as_bytes();
+        for i in 0..bytes.len() {
+            unsafe {
+                self.write_byte(*bytes.as_ptr().add(i));
+            }
         }
     }
 
@@ -181,58 +184,58 @@ impl Console {
         }
 
         let mut buffer = [0u8; 20];
-        let mut pos = 0;
+        let mut pos = 0usize;
 
         while value > 0 {
-            buffer[pos] = (value % 10) as u8 + b'0';
+            unsafe {
+                *buffer.as_mut_ptr().add(pos) = (value % 10) as u8 + b'0';
+            }
             value /= 10;
             pos += 1;
         }
 
         for i in (0..pos).rev() {
-            self.write_byte(buffer[i]);
+            unsafe {
+                self.write_byte(*buffer.as_ptr().add(i));
+            }
         }
     }
 
     fn write_hex(&mut self, value: u64) {
         self.write_string("0x");
         
-        let mut buffer = [0u8; 16];
         let hex_chars = b"0123456789ABCDEF";
         
         for i in 0..16 {
             let shift = (15 - i) * 4;
             let digit = (value >> shift) & 0xF;
-            buffer[i] = hex_chars[digit as usize];
-        }
-
-        for byte in buffer.iter() {
-            self.write_byte(*byte);
+            unsafe {
+                self.write_byte(*hex_chars.as_ptr().add(digit as usize));
+            }
         }
     }
 
     fn write_hex32(&mut self, value: u32) {
         self.write_string("0x");
         
-        let mut buffer = [0u8; 8];
         let hex_chars = b"0123456789ABCDEF";
         
         for i in 0..8 {
             let shift = (7 - i) * 4;
             let digit = (value >> shift) & 0xF;
-            buffer[i] = hex_chars[digit as usize];
-        }
-
-        for byte in buffer.iter() {
-            self.write_byte(*byte);
+            unsafe {
+                self.write_byte(*hex_chars.as_ptr().add(digit as usize));
+            }
         }
     }
 
     fn write_bool(&mut self, value: bool) {
-        if value {
-            self.write_string("true");
-        } else {
-            self.write_string("false");
+        let s = if value { "true" } else { "false" };
+        let bytes = s.as_bytes();
+        for i in 0..bytes.len() {
+            unsafe {
+                self.write_byte(*bytes.as_ptr().add(i));
+            }
         }
     }
 }
@@ -311,18 +314,3 @@ pub fn write_bool(value: bool) {
     }
 }
 
-// Multiboot header
-#[repr(C, packed)]
-struct MultibootHeader {
-    magic: u32,
-    flags: u32,
-    checksum: u32,
-}
-
-#[link_section = ".multiboot"]
-#[no_mangle]
-static MULTIBOOT_HEADER: MultibootHeader = MultibootHeader {
-    magic: 0x1BADB002,
-    flags: 0,
-    checksum: 0xE4524FFE, // -(0x1BADB002 + 0)
-};

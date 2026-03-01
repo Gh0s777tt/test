@@ -18,7 +18,7 @@ rustc --target x86_64-unknown-none --crate-type bin --edition 2021 \
     -C opt-level=z -C codegen-units=1 -C panic=abort \
     --emit=obj \
     --cfg 'feature="platform-generic"' \
-    src/verified/v0.5.0_kernel/main.rs -o build/kernel.o
+    src/verified/v0.5.0_kernel/main.rs -o build/kernel.o 2>&1 | grep -v "warning:"
 
 # Step 2: Link to ELF
 echo "Step 2: Linking to ELF..."
