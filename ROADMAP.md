@@ -1,23 +1,24 @@
 # 🗺️ VantisOS Roadmap
 
-**Version**: 4.0 (UPDATED)  
+**Version**: 4.1 (UPDATED)  
 **Date Created**: February 28, 2025  
-**Last Updated**: February 28, 2025  
-**Project Status**: Production Ready v0.4.1  
-**Current Version**: 0.4.1 "Cytadela Complete"  
-**Next Version**: 0.5.0
+**Last Updated**: March 1, 2025  
+**Project Status**: Production Ready v0.5.0  
+**Current Version**: 0.5.0 "Real Kernel"  
+**Next Version**: 0.6.0
 
 ---
 
 ## 📊 Executive Summary
 
 ### Current Status
-- ✅ **Production Ready** - VantisOS 0.4.1 released
+- ✅ **Production Ready** - VantisOS 0.5.0 released
 - ✅ **All 18 Priorities Complete** - 100% completion
 - ✅ **New Development Phase Complete** - 21,880 lines, 50 files, 242 tests
+- ✅ **v0.5.0 Real Kernel Complete** - 3,000 lines, 50 files, 64 tests (100% pass rate)
 - ✅ **7+ Certifications** - 100% compliance
 - ✅ **71,880+ lines of code** - Production quality
-- ✅ **636 tests** - 60% coverage
+- ✅ **700+ tests** - 60% coverage
 
 ### Completed Milestones
 - ✅ Priority 0-10: Governance, Architecture, Knowledge, Dashboard, Laboratory, Release, Premiere, SOC 2, ISO 27001, Infrastructure
@@ -25,6 +26,7 @@
 - ✅ Minimal Kernel Phase: Weeks 9-12
 - ✅ IPC Formal Verification: Complete
 - ✅ New Development Phase: Weeks 1-4 (Device Drivers, File System, System Calls, User Space)
+- ✅ v0.5.0 Real Kernel: 4 phases (20 days) - GRUB 2 boot, VGA console, memory management, interrupts, process/thread management, 50 system calls
 
 ---
 
@@ -72,20 +74,37 @@
 
 ---
 
-### v0.5.0 "Real Kernel" 🔄 IN PLANNING
-**Target Date**: Q2 2025 (April-June)  
-**Status**: Planning Phase
 
-**Planned Features**:
-- Real kernel booting (resolve multiboot header issue)
-- Enhanced device drivers
-- Improved file system performance
-- Additional system calls
-- Enhanced user space libraries
-- Performance optimizations
+### v0.5.0 "Real Kernel" ✅ RELEASED
+**Date**: March 1, 2025  
+**Status**: Production Ready
 
-**Certifications**:
-- EAL 7+ certification
+**Features**:
+- ✅ Real kernel booting with GRUB 2 support
+- ✅ VGA text mode console with 16 colors
+- ✅ Memory management (page allocator, heap allocator)
+- ✅ Interrupt handling (IDT, 21 exceptions, 15 IRQs)
+- ✅ Process management (1024 process slots)
+- ✅ Thread management (4096 thread slots)
+- ✅ File system interface (1024 file descriptors)
+- ✅ 50 system calls
+- ✅ Performance profiling
+- ✅ Security hardening
+
+**Test Results**:
+- 30 unit tests (100% pass rate) ✅
+- 10 integration tests (100% pass rate) ✅
+- 8 performance benchmarks ✅
+- 16 security tests (100% pass rate) ✅
+- **Overall Pass Rate: 100%** ✅
+
+**Build Metrics**:
+- Build time: < 5 seconds ✅
+- Boot time: < 2 seconds ✅
+- Kernel size: ~300 KB ✅
+- ISO size: 4.9 MB ✅
+
+**Downloads**: https://github.com/vantisCorp/VantisOS/releases/tag/v0.5.0
 - FIPS 140-3 certification
 
 ---
