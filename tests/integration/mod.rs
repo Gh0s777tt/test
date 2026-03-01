@@ -1,11 +1,13 @@
-// VantisOS v0.mod system_integration_test;
+// Integration tests for VantisOS vantisOS v0.6.0 ARM64 kernel
+// Phase 4: Testing and Documentation - Integration Tests
 
-pub use system_integration_test::{
-    TestResult,
-    TestSuite,
-    test_console_output,
-    test_memory_allocation,
-    test_heap_allocation,
-    test_interrupt_handling,
-    run_all_tests,
-};
+pub mod kernel_integration_test;
+pub mod driver_integration_test;
+pub mod ui_integration_test;
+pub mod app_integration_test;
+
+// Re-export test functions
+pub use kernel_integration_test::run_kernel_integration_tests;
+pub use driver_integration_test::run_driver_integration_tests;
+pub use ui_integration_test::run_ui_integration_tests;
+pub use app_integration_test::run_app_integration_tests;
