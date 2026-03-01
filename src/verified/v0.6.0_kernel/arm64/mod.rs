@@ -11,3 +11,4 @@ pub mod display;
 pub mod input;
 pub mod network;
 pub mod storage;
+pub mod ui;
