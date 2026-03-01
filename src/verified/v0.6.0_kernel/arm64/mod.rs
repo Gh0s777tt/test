@@ -7,3 +7,4 @@ pub mod interrupt;
 pub mod memset_memcpy;
 pub mod optimization;
 pub mod benchmark;
+pub mod display;
