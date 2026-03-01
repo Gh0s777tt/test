@@ -1,14 +1,26 @@
-// ARM64 Boot Process for VantisOS v0.6.0
-// ARMv8-A Architecture Support
+// Simple implementations of memset and memcpy
+#[no_mangle]
+pub unsafe extern "C" fn memset(dest: *mut u8, c: i32, n: usize) -> *mut u8 {
+    let mut i = 0;
+    while i < n {
+        *dest.add(i) = c as u8;
+        i += 1;
+    }
+    dest
+}
 
-#![no_std]
-#![no_main]
+unsafe fn memcpy(dest: *mut u8, src: *const u8, n: usize) -> *mut u8 {
+    let mut i = 0;
+    while i < n {
+        *dest.add(i) = *src.add(i);
+        i += 1;
+    }
+    dest
+}
 
 use core::panic::PanicInfo;
 
-mod memory;
-
-use memory::{Arm64MemoryManager, Arm64CacheManager, Arm64MemoryProtection};
+use super::memory::{Arm64MemoryManager, Arm64CacheManager, Arm64MemoryProtection};
 
 // ARM64 Boot Parameters
 #[repr(C)]

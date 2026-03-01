@@ -1,7 +1,15 @@
-// ARM64 Memory Management for VantisOS v0.6.0
-// ARMv8-A Architecture Support
+// Simple implementation of memcpy
+#[no_mangle]
+pub unsafe extern "C" fn memcpy(dest: *mut u8, src: *const u8, n: usize) -> *mut u8 {
+    let mut i = 0;
+    while i < n {
+        *dest.add(i) = *src.add(i);
+        i += 1;
+    }
+    dest
+}
 
-#![no_std]
+
 
 use core::sync::atomic::{AtomicU64, Ordering};
 
@@ -88,11 +96,11 @@ impl Arm64PageTable {
     }
 
     pub fn get_entry(&self, index: usize) -> Arm64PageTableEntry {
-        self.entries[index]
+        unsafe { *self.entries.as_ptr().add(index) }
     }
 
     pub fn set_entry(&mut self, index: usize, entry: Arm64PageTableEntry) {
-        self.entries[index] = entry;
+        unsafe { *self.entries.as_mut_ptr().add(index) = entry };
     }
 }
 
@@ -153,11 +161,11 @@ impl Arm64MemoryManager {
     pub fn get_stats(&self) -> Arm64MemoryStats {
         Arm64MemoryStats {
             total_pages: self.page_allocator.total_pages,
-            free_pages: self.page_allocator.free_pages,
-            used_pages: self.page_allocator.used_pages,
+            free_pages: self.page_allocator.free_pages.load(core::sync::atomic::Ordering::SeqCst),
+            used_pages: self.page_allocator.used_pages.load(core::sync::atomic::Ordering::SeqCst),
             total_heap: self.heap_allocator.total_heap,
-            free_heap: self.heap_allocator.free_heap,
-            used_heap: self.heap_allocator.used_heap,
+            free_heap: self.heap_allocator.free_heap.load(core::sync::atomic::Ordering::SeqCst),
+            used_heap: self.heap_allocator.used_heap.load(core::sync::atomic::Ordering::SeqCst),
         }
     }
 }
@@ -189,11 +197,11 @@ impl Arm64PageAllocator {
 
     pub fn allocate(&mut self) -> Option<u64> {
         for i in 0..8192 {
-            if self.bitmap[i] != 0xFFFFFFFFFFFFFFFF {
+            if unsafe { *self.bitmap.as_ptr().add(i) } != 0xFFFFFFFFFFFFFFFF {
                 for j in 0..64 {
                     let mask = 1u64 << j;
-                    if (self.bitmap[i] & mask) == 0 {
-                        self.bitmap[i] |= mask;
+                    if (unsafe { *self.bitmap.as_ptr().add(i) } & mask) == 0 {
+                        unsafe { *self.bitmap.as_mut_ptr().add(i) |= mask };
                         self.free_pages.fetch_sub(1, Ordering::SeqCst);
                         self.used_pages.fetch_add(1, Ordering::SeqCst);
                         let page_num = (i * 64 + j) as u64;
@@ -211,7 +219,7 @@ impl Arm64PageAllocator {
         let i = (page_num / 64) as usize;
         let j = (page_num % 64) as usize;
         let mask = 1u64 << j;
-        self.bitmap[i] &= !mask;
+        unsafe { *self.bitmap.as_mut_ptr().add(i) &= !mask };
         self.free_pages.fetch_add(1, Ordering::SeqCst);
         self.used_pages.fetch_sub(1, Ordering::SeqCst);
     }
