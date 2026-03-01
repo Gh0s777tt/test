@@ -5,11 +5,13 @@ mod vga_console;
 mod memory;
 mod interrupt;
 mod integration;
+mod performance;
 
 use vga_console::{init as console_init, write_string, write_dec, write_hex32};
 use memory::{init as memory_init, get_stats, MemoryStats};
 use interrupt::{init_idt, load_idt, enable_interrupts};
 use integration::{kernel_init, display_kernel_status, test_all_components};
+use performance::{rdtsc, cycles_to_ms, record_boot_time, display_performance_stats};
 
 // Multiboot header
 #[repr(C, packed)]
@@ -66,6 +68,9 @@ struct MemoryMapEntry {
 // Kernel entry point
 #[no_mangle]
 pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
+    // Record boot start time
+    let boot_start = rdtsc();
+    
     // Print boot message
     write_string("VantisOS v0.5.0 - System Integration Test\n");
     write_string("======================================\n\n");
@@ -158,6 +163,18 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
     
     // Test all components
     test_all_components();
+    
+    // Record boot end time
+    let boot_end = rdtsc();
+    let boot_time = cycles_to_ms(boot_end - boot_start);
+    record_boot_time(boot_time);
+    
+    write_string("\nBoot Time: ");
+    write_dec(boot_time);
+    write_string(" ms\n");
+    
+    // Display performance statistics
+    display_performance_stats();
     
     write_string("\nSystem Integration Test Complete!\n");
     write_string("System halted.\n");
