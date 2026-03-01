@@ -3,9 +3,11 @@
 
 mod vga_console;
 mod memory;
+mod interrupt;
 
 use vga_console::{init as console_init, write_string, write_dec, write_hex32};
 use memory::{init as memory_init, get_stats, MemoryStats};
+use interrupt::{init_idt, load_idt, enable_interrupts};
 
 // Multiboot header
 #[repr(C, packed)]
@@ -103,7 +105,7 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
             let entry = mmap_addr as *const MemoryMapEntry;
             let entry = &*entry.add((offset / 4) as usize);
             
-            let base = entry.base;
+            let _base = entry.base;
             let length = entry.length;
             let region_type = entry.region_type;
             
@@ -204,6 +206,19 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
     }
     
     write_string("\nMemory Management Test Complete!\n");
+    
+    // Initialize interrupts
+    write_string("\nInitializing Interrupts...\n");
+    init_idt();
+    load_idt();
+    write_string("  IDT initialized and loaded\n");
+    
+    // Enable interrupts
+    write_string("\nEnabling Interrupts...\n");
+    enable_interrupts();
+    write_string("  Interrupts enabled\n");
+    
+    write_string("\nInterrupt Handling Test Complete!\n");
     write_string("System halted.\n");
     
     loop {

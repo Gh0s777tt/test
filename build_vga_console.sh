@@ -22,7 +22,7 @@ rustc --target x86_64-unknown-none --crate-type bin --edition 2021 \
 
 # Step 2: Link to ELF
 echo "Step 2: Linking to ELF..."
-ld -m elf_x86_64 -T kernel/linker.ld -o build/kernel.elf build/kernel.o
+ld -m elf_x86_64 -T src/verified/v0.5.0_kernel/linker.ld -o build/kernel.elf build/kernel.o
 
 # Step 3: Convert to raw binary
 echo "Step 3: Converting to raw binary..."
