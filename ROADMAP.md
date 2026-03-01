@@ -41,7 +41,7 @@
 
 ### Medium-term Goals (Q3-Q4 2025)
 - [ ] Recruit full team of 15 members
-- [ ] Complete v0.6.0 release with mobile support preparation
+- [x] Complete v0.6.0 release with mobile support preparation
 - [ ] Expand ecosystem and community
 - [ ] Establish enterprise partnerships
 - [ ] Reach 10,000+ active users
@@ -381,9 +381,9 @@
 - [ ] 5 team members recruited
 
 ### v0.6.0 Success Criteria
-- [ ] Mobile architecture ready
-- [ ] ARM64 support
-- [ ] Touch interface
+- [x] Mobile architecture ready
+- [x] ARM64 support
+- [x] Touch interface
 - [ ] 10 team members recruited
 - [ ] 1,000+ active users
 
