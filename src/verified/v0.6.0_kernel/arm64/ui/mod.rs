@@ -5,6 +5,7 @@ pub mod touch_event;
 pub mod framework;
 pub mod widgets;
 pub mod event_routing;
+pub mod system_ui;
 
 // Re-export touch event types
 pub use touch_event::{
