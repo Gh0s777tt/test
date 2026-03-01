@@ -2,6 +2,7 @@
 // Touch UI Framework
 
 pub mod touch_event;
+pub mod framework;
 
 // Re-export common types
 pub use touch_event::{
