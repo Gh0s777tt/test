@@ -25,6 +25,7 @@ rustc --target aarch64-unknown-none \
      -C panic=abort \
      -C codegen-units=1 \
      arm64/boot.rs \
+     arm64/memory.rs \
      -o build/arm64_kernel.o
 
 # Step 2: Link to ELF

@@ -6,6 +6,10 @@
 
 use core::panic::PanicInfo;
 
+mod memory;
+
+use memory::{Arm64MemoryManager, Arm64CacheManager, Arm64MemoryProtection};
+
 // ARM64 Boot Parameters
 #[repr(C)]
 pub struct Arm64BootParams {
@@ -83,6 +87,7 @@ pub enum Arm64BootState {
 // Global boot state
 static mut BOOT_STATE: Arm64BootState = Arm64BootState::NotStarted;
 static mut BOOT_PARAMS: Option<Arm64BootParams> = None;
+static mut MEMORY_MANAGER: Option<Arm64MemoryManager> = None;
 
 // ARM64 kernel entry point
 #[no_mangle]
@@ -221,25 +226,48 @@ fn arm64_memory_init() {
             }
         }
         
-        // Initialize page allocator
-        arm64_page_allocator_init();
+        // Initialize memory manager
+        MEMORY_MANAGER = Some(Arm64MemoryManager::new());
+        if let Some(ref mut mm) = MEMORY_MANAGER {
+            mm.init();
+        }
         
-        // Initialize heap allocator
-        arm64_heap_allocator_init();
+        // Initialize cache manager
+        Arm64CacheManager::init();
+        
+        // Initialize memory protection
+        Arm64MemoryProtection::init();
+        
+        // Display memory statistics
+        if let Some(ref mm) = MEMORY_MANAGER {
+            let stats = mm.get_stats();
+            arm64_print("  Memory statistics:\n");
+            arm64_print("    - Total pages: ");
+            arm64_print_dec(stats.total_pages);
+            arm64_print("\n");
+            arm64_print("    - Free pages: ");
+            arm64_print_dec(stats.free_pages);
+            arm64_print("\n");
+            arm64_print("    - Used pages: ");
+            arm64_print_dec(stats.used_pages);
+            arm64_print("\n");
+            arm64_print("    - Total heap: ");
+            arm64_print_dec(stats.total_heap);
+            arm64_print(" bytes\n");
+            arm64_print("    - Free heap: ");
+            arm64_print_dec(stats.free_heap);
+            arm64_print(" bytes\n");
+            arm64_print("    - Used heap: ");
+            arm64_print_dec(stats.used_heap);
+            arm64_print(" bytes\n");
+        }
         
         arm64_print("Memory initialization complete\n");
     }
 }
 
-// Page allocator initialization
-fn arm64_page_allocator_init() {
-    arm64_print("  Page allocator: 4KB pages initialized\n");
-}
-
-// Heap allocator initialization
-fn arm64_heap_allocator_init() {
-    arm64_print("  Heap allocator: 16MB heap initialized\n");
-}
+// Page allocator initialization (moved to memory.rs)
+// Heap allocator initialization (moved to memory.rs)
 
 // Interrupt initialization
 fn arm64_interrupt_init() {
