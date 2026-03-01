@@ -896,7 +896,8 @@ gantt
 - [ ] Vantis Aegis (gaming)
 - [ ] EAL 7+ certification
 
-**Details:** [docs/ROADMAP.md](docs/ROADMAP.md)
+**Details:** [ROADMAP.md](ROADMAP.md) - Updated English roadmap (February 28, 2025)
+**Legacy:** [ROADMAP_2026_2027.md](ROADMAP_2026_2027.md) - Polish roadmap (legacy)
 
 ---
 

@@ -15,7 +15,8 @@ This document provides a comprehensive index of all documentation in the VantisO
 
 ### Development
 - [todo.md](todo.md) - Current development tasks
-- [ROADMAP_2026_2027.md](ROADMAP_2026_2027.md) - Project roadmap
+- [ROADMAP.md](ROADMAP.md) - Project roadmap (English, updated February 28, 2025)
+- [ROADMAP_2026_2027.md](ROADMAP_2026_2027.md) - Project roadmap (Polish, legacy)
 - [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md) - Development workflow guide
 - [GOVERNANCE.md](GOVERNANCE.md) - Project governance structure
 - [MANIFEST.md](MANIFEST.md) - Project manifest and goals
@@ -121,6 +122,8 @@ This document provides a comprehensive index of all documentation in the VantisO
 
 ## 👥 Team & Recruitment
 
+- [docs/recruitment/TEAM_RECRUITMENT_JOB_DESCRIPTIONS.md](docs/recruitment/TEAM_RECRUITMENT_JOB_DESCRIPTIONS.md) - 12 detailed job descriptions
+- [docs/recruitment/RECRUITMENT_STRATEGY.md](docs/recruitment/RECRUITMENT_STRATEGY.md) - Comprehensive recruitment strategy
 - [docs/recruitment/RECRUITMENT_POSTING_GUIDE.md](docs/recruitment/RECRUITMENT_POSTING_GUIDE.md) - Recruitment posting guide
 - [docs/recruitment/RECRUITMENT_TRACKING.md](docs/recruitment/RECRUITMENT_TRACKING.md) - Recruitment tracking
 - [docs/recruitment/QUICK_RECRUITMENT_POSTS.md](docs/recruitment/QUICK_RECRUITMENT_POSTS.md) - Quick recruitment posts
