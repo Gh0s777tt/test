@@ -6,12 +6,14 @@ mod memory;
 mod interrupt;
 mod integration;
 mod performance;
+mod security;
 
 use vga_console::{init as console_init, write_string, write_dec, write_hex32};
 use memory::{init as memory_init, get_stats, MemoryStats};
 use interrupt::{init_idt, load_idt, enable_interrupts};
 use integration::{kernel_init, display_kernel_status, test_all_components};
 use performance::{rdtsc, cycles_to_ms, record_boot_time, display_performance_stats};
+use security::{init_security, display_security_stats};
 
 // Multiboot header
 #[repr(C, packed)]
@@ -154,6 +156,10 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
     memory_init(&memory_regions);
     write_string("  [OK] Memory manager initialized\n");
     
+    // Initialize security subsystem
+    write_string("\nInitializing Security Subsystem...\n");
+    init_security();
+    
     // Unified kernel initialization
     write_string("\n");
     kernel_init();
@@ -175,6 +181,9 @@ pub extern "C" fn _start(multiboot_info: *const BootInfo) -> ! {
     
     // Display performance statistics
     display_performance_stats();
+    
+    // Display security statistics
+    display_security_stats();
     
     write_string("\nSystem Integration Test Complete!\n");
     write_string("System halted.\n");
