@@ -4,6 +4,7 @@
 pub mod touch_event;
 pub mod framework;
 pub mod widgets;
+pub mod event_routing;
 
 // Re-export common types
 pub use touch_event::{
