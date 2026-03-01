@@ -14,7 +14,7 @@ mkdir -p build
 
 # Step 1: Compile as object file
 echo "Step 1: Compiling as object file..."
-rustc --target x86_64-unknown-none --crate-type bin --edition 2021 \
+rustc --target x86_64-unknown-none --crate-type lib --edition 2021 \
     -C opt-level=z -C codegen-units=1 -C panic=abort \
     --emit=obj \
     --cfg 'feature="platform-generic"' \

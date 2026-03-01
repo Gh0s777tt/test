@@ -89,7 +89,9 @@ static MULTIBOOT_HEADER: MultibootHeader = MultibootHeader {
 
 // Kernel entry point
 #[no_mangle]
-pub extern "C" fn _start(multiboot_info: u64) -> ! {
+pub extern "C" fn _start() -> ! {
+    // For now, ignore multiboot_info parameter
+    let multiboot_info: u64 = 0;
     // Initialize kernel
     kernel_init(multiboot_info);
     
