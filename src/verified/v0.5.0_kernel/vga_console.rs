@@ -314,3 +314,8 @@ pub fn write_bool(value: bool) {
     }
 }
 
+// Print function for convenience
+pub fn print(s: &str) {
+    write_string(s);
+}
+
