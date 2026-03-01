@@ -69,7 +69,7 @@ static MULTIBOOT_HEADER: MultibootHeader = MultibootHeader {
     checksum: 0xE4514FFF, // -(magic + flags)
 };
 
-/// External kernel initialization functions
+// External kernel initialization functions
 extern "Rust" {
     fn kernel_init(boot_info: &MultibootInfo);
     fn kernel_main() -> !;
@@ -80,7 +80,6 @@ extern "Rust" {
 /// This is the first function executed by the kernel after the bootloader
 /// transfers control. It performs minimal setup and calls kernel_init.
 #[no_mangle]
-#[naked]
 pub extern "C" fn _start() -> ! {
     unsafe {
         // Set up stack pointer
@@ -169,7 +168,7 @@ pub fn get_cpu_vendor() -> [u8; 12] {
         asm!(
             "cpuid",
             inlateout("eax") 0 => eax,
-            lateout("ebx") ebx,
+            lateout("r15") ebx,
             lateout("ecx") ecx,
             lateout("edx") edx,
         );
@@ -208,7 +207,7 @@ pub fn get_cpu_features() -> u32 {
         asm!(
             "cpuid",
             inlateout("eax") 1 => eax,
-            lateout("ebx") ebx,
+            lateout("r15") ebx,
             lateout("ecx") ecx,
             lateout("edx") edx,
         );
@@ -313,7 +312,7 @@ pub struct BootInfo {
     pub memory_size: u64,
     pub command_line: Option<&'static str>,
     pub boot_loader_name: Option<&'static str>,
-    pub modules: Vec<BootModule>,
+    pub modules: *const BootModule,
 }
 
 #[derive(Debug)]
@@ -347,7 +346,7 @@ pub fn parse_boot_info(boot_info: &MultibootInfo) -> BootInfo {
         None
     };
     
-    let mut modules = Vec::new();
+    let mut modules: [BootModule; 16] = [BootModule { start: 0, end: 0, string: 0 }; 16];
     if (boot_info.flags & (1 << 3)) != 0 && boot_info.mods_count > 0 {
         unsafe {
             let module_ptr = boot_info.mods_addr as *const u32;
