@@ -131,12 +131,12 @@
 - [x] Container networking
 - [x] Container storage
 
-#### Faza 5: Virtualization (1 tydzień)
-- [ ] Hypervisor support
-- [ ] VM management
-- [ ] Device passthrough
-- [ ] Live migration
-- [ ] Snapshot/restore
+#### Faza 5: Virtualization (1 tydzień) 🔄 100% UKOŃCZONE
+- [x] Hypervisor support
+- [x] VM management
+- [x] Device passthrough
+- [x] Live migration
+- [x] Snapshot/restore
 
 #### Faza 6: High Availability (1 tydzień)
 - [ ] Failover mechanisms

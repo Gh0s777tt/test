@@ -59,6 +59,9 @@ pub mod networking;
 
 // v0.8.0 "Server Ready" - Containerization
 pub mod container;
+
+// v0.8.0 "Server Ready" - Virtualization
+pub mod virtualization;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
