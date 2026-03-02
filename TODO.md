@@ -56,11 +56,11 @@
 - [x] Recovery mechanisms
 
 #### Faza 6: Network Stack (1 tydzień)
-- [ ] IPv6 support
-- [ ] TLS/SSL implementation
-- [ ] VPN support
-- [ ] MQTT protocol
-- [ ] CoAP protocol
+- [x] IPv6 support
+- [x] TLS/SSL implementation
+- [x] VPN support
+- [x] MQTT protocol
+- [x] CoAP protocol
 
 #### Faza 7: Testing & Documentation (1 tydzień)
 - [x] Dokumentacja początkowa v0.7.0
