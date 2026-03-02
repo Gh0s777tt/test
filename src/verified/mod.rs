@@ -48,6 +48,11 @@ pub mod self_healing;
 
 // Ray Tracing System - Vendor-agnostic ray tracing with Vulkan, DirectX 12, Metal
 pub mod ray_tracing;
+
+// v0.8.0 "Server Ready" - Multi-core Support
+pub mod smp;
+pub mod numa;
+pub mod scheduler;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
