@@ -27,12 +27,12 @@
 - [x] Testy podstawowe RISC-V
 
 #### Faza 2: IoT Device Drivers (2 tygodnie)
-- [ ] Sterowniki sensorów (temperatura, wilgotność, ciśnienie)
-- [ ] Sterowniki GPIO
-- [ ] Sterowniki I2C/SPI
-- [ ] Sterowniki UART
-- [ ] Sterowniki PWM
-- [ ] Sterowniki ADC/DAC
+- [x] Sterowniki sensorów (temperatura, wilgotność, ciśnienie)
+- [x] Sterowniki GPIO
+- [x] Sterowniki I2C/SPI
+- [x] Sterowniki UART
+- [x] Sterowniki PWM
+- [x] Sterowniki ADC/DAC
 
 #### Faza 3: Power Management (1 tydzień)
 - [ ] System zarządzania energią
@@ -302,7 +302,7 @@
 ### Krótkoterminowe (2-4 tygodnie)
 - [x] Implementacja bootloadera RISC-V
 - [ ] Portowanie podstawowych funkcji kernela
-- [ ] Sterowniki GPIO i I2C
+- [x] Sterowniki GPIO i I2C
 - [ ] Podstawowe testy RISC-V
 - [ ] Dokumentacja początkowa v0.7.0
 
