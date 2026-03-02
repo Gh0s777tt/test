@@ -5,10 +5,35 @@
 
 ## 📊 Status Projektu
 
-- **Aktualna wersja:** v0.6.0 "Mobile Ready" ✅ (PRODUCTION READY)
-- **Następna wersja:** v0.7.0 "IoT Ready" (PLANOWANE)
+- **Aktualna wersja:** v0.7.0 "IoT Ready" ✅ (PRODUCTION READY)
+- **Następna wersja:** v0.8.0 "Server Ready" (PLANOWANE)
 - **Branch roboczy:** 0.4.1
-- **Status:** Gotowy do rozwoju v0.7.0
+- **Status:** Gotowy do rozwoju v0.8.0
+
+---
+
+## 🎉 v0.7.0 "IoT Ready" - Podsumowanie
+
+**Data wydania:** 2 marca 2026  
+**Pull Request:** https://github.com/vantisCorp/VantisOS/pull/52
+
+### Zrealizowane funkcje:
+- ✅ Pełne wsparcie dla architektury RISC-V 64-bit (RV64GC)
+- ✅ 12 sterowników IoT (GPIO, I2C, SPI, UART, PWM, ADC + 5 sensorów)
+- ✅ Zaawansowane zarządzanie energią (6 stanów, 4 polityki, DFS)
+- ✅ Framework obliczeń brzegowych (zadania, przetwarzanie, synchronizacja)
+- ✅ 3 systemy plików (ext4, FAT32, exFAT) z journaling
+- ✅ 5 protokołów sieciowych (IPv6, TLS/SSL, VPN, MQTT, CoAP)
+- ✅ Kompleksowe testy i dokumentacja
+
+### Statystyki:
+- **Pliki:** 50+
+- **Kod:** 10,000+ linii
+- **Dokumentacja:** 2,000+ linii
+- **Testy:** 30+ testów
+- **Przykłady:** 3 kompleksowe przykłady
+
+---
 
 ---
 
