@@ -56,6 +56,9 @@ pub mod scheduler;
 
 // v0.8.0 "Server Ready" - High Performance Networking
 pub mod networking;
+
+// v0.8.0 "Server Ready" - Containerization
+pub mod container;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
