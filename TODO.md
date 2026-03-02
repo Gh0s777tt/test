@@ -42,11 +42,11 @@
 - [x] Wake-up mechanisms
 
 #### Faza 4: Edge Computing (1 tydzień)
-- [ ] Framework obliczeń brzegowych
-- [ ] Przetwarzanie lokalne
-- [ ] Synchronizacja z chmurą
-- [ ] Offline mode
-- [ ] Data aggregation
+- [x] Framework obliczeń brzegowych
+- [x] Przetwarzanie lokalne
+- [x] Synchronizacja z chmurą
+- [x] Offline mode
+- [x] Data aggregation
 
 #### Faza 5: File Systems (1 tydzień)
 - [ ] Implementacja ext4
