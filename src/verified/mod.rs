@@ -53,6 +53,9 @@ pub mod ray_tracing;
 pub mod smp;
 pub mod numa;
 pub mod scheduler;
+
+// v0.8.0 "Server Ready" - High Performance Networking
+pub mod networking;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
