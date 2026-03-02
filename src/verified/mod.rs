@@ -80,6 +80,9 @@ pub mod management;
 
 // v0.9.0 "Enterprise Ready" - Backup & Recovery
 pub mod backup;
+
+// v0.9.0 "Enterprise Ready" - Enterprise Integration
+pub mod integration;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
