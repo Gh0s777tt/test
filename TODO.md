@@ -64,11 +64,11 @@
 
 #### Faza 7: Testing & Documentation (1 tydzień)
 - [x] Dokumentacja początkowa v0.7.0
-- [ ] Testy integracyjne IoT
-- [ ] Testy wydajnościowe
-- [ ] Testy bezpieczeństwa
-- [ ] Dokumentacja IoT
-- [ ] Przykłady użycia
+- [x] Testy integracyjne IoT
+- [x] Testy wydajnościowe
+- [x] Testy bezpieczeństwa
+- [x] Dokumentacja IoT
+- [x] Przykłady użycia
 
 ---
 
@@ -185,7 +185,7 @@
 - [x] Dokumentacja początkowa v0.7.0
 - [ ] Testy enterprise
 - [ ] Testy compliance
-- [ ] Testy bezpieczeństwa
+- [x] Testy bezpieczeństwa
 - [ ] Dokumentacja enterprise
 - [ ] Deployment guides
 
@@ -308,7 +308,7 @@
 
 ### Średnioterminowe (1-2 miesiące)
 - [ ] Kompletna implementacja v0.7.0
-- [ ] Testy integracyjne IoT
+- [x] Testy integracyjne IoT
 - [ ] Dokumentacja v0.7.0
 - [ ] Release v0.7.0
 - [ ] Planowanie v0.8.0
