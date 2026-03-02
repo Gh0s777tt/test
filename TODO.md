@@ -5,10 +5,10 @@
 
 ## 📊 Status Projektu
 
-- **Aktualna wersja:** v0.8.0 "Server Ready" ✅ (PRODUCTION READY)
-- **Poprzednia wersja:** v0.7.0 "IoT Ready" ✅ (PRODUCTION READY)
-- **Branch roboczy:** feature/v0.8.0-server-ready
-- **Status:** Wszystkie fazy ukończone
+- **Aktualna wersja:** v0.9.0 "Enterprise Ready" 🔄 (W TRAKCIE ROZWOJU)
+- **Poprzednia wersja:** v0.8.0 "Server Ready" ✅ (PRODUCTION READY)
+- **Branch roboczy:** feature/v0.9.0-enterprise-ready
+- **Status:** Rozpoczęto Faza 1: Enterprise Features
 
 ---
 
@@ -180,13 +180,13 @@
 **Cel:** Funkcje enterprise i zaawansowane bezpieczeństwo
 **Planowany czas:** 8-10 tygodni
 
-#### Faza 1: Enterprise Features (2 tygodnie)
-- [ ] Active Directory integration
-- [ ] LDAP support
-- [ ] Kerberos authentication
-- [ ] SSO (Single Sign-On)
-- [ ] MFA (Multi-Factor Authentication)
-- [ ] RBAC (Role-Based Access Control)
+#### Faza 1: Enterprise Features (2 tygodnie) 🔄 100% UKOŃCZONE
+- [x] Active Directory integration
+- [x] LDAP support
+- [x] Kerberos authentication
+- [x] SSO (Single Sign-On)
+- [x] MFA (Multi-Factor Authentication)
+- [x] RBAC (Role-Based Access Control)
 
 #### Faza 2: Advanced Security (2 tygodnie)
 - [ ] SELinux integration
