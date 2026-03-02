@@ -62,6 +62,9 @@ pub mod container;
 
 // v0.8.0 "Server Ready" - Virtualization
 pub mod virtualization;
+
+// v0.8.0 "Server Ready" - High Availability
+pub mod ha;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
