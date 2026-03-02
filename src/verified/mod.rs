@@ -92,6 +92,9 @@ pub mod performance;
 
 // v1.0.0 "Production Ready" - Full Certification
 pub mod certification;
+
+// v1.0.0 "Production Ready" - Mobile Support
+pub mod mobile;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
