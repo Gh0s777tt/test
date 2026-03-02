@@ -188,13 +188,13 @@
 - [x] MFA (Multi-Factor Authentication)
 - [x] RBAC (Role-Based Access Control)
 
-#### Faza 2: Advanced Security (2 tygodnie)
-- [ ] SELinux integration
-- [ ] AppArmor support
-- [ ] Trusted Platform Module (TPM)
-- [ ] Secure Boot
-- [ ] Measured Boot
-- [ ] Runtime integrity checking
+#### Faza 2: Advanced Security (2 tygodnie) 🔄 100% UKOŃCZONE
+- [x] SELinux integration
+- [x] AppArmor support
+- [x] Trusted Platform Module (TPM)
+- [x] Secure Boot
+- [x] Measured Boot
+- [x] Runtime integrity checking
 
 #### Faza 3: Compliance Features (2 tygodnie)
 - [ ] Audit logging

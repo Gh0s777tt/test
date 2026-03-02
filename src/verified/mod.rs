@@ -68,6 +68,9 @@ pub mod ha;
 
 // v0.9.0 "Enterprise Ready" - Enterprise Features
 pub mod enterprise;
+
+// v0.9.0 "Enterprise Ready" - Advanced Security
+pub mod security;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
