@@ -95,6 +95,9 @@ pub mod certification;
 
 // v1.0.0 "Production Ready" - Mobile Support
 pub mod mobile;
+
+// v1.0.0 "Production Ready" - Legacy Integration
+pub mod legacy;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
