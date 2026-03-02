@@ -86,6 +86,9 @@ pub mod integration;
 
 // v1.0.0 "Production Ready" - Stability & Reliability
 pub mod stability;
+
+// v1.0.0 "Production Ready" - Performance Optimization
+pub mod performance;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
