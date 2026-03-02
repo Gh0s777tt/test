@@ -24,7 +24,7 @@
 - [x] Portowanie kernela na RISC-V
 - [x] Obsługa przerwań RISC-V
 - [x] Zarządzanie pamięcią RISC-V
-- [ ] Testy podstawowe RISC-V
+- [x] Testy podstawowe RISC-V
 
 #### Faza 2: IoT Device Drivers (2 tygodnie)
 - [ ] Sterowniki sensorów (temperatura, wilgotność, ciśnienie)
@@ -63,6 +63,7 @@
 - [ ] CoAP protocol
 
 #### Faza 7: Testing & Documentation (1 tydzień)
+- [x] Dokumentacja początkowa v0.7.0
 - [ ] Testy integracyjne IoT
 - [ ] Testy wydajnościowe
 - [ ] Testy bezpieczeństwa
@@ -120,6 +121,7 @@
 - [ ] Disaster recovery
 
 #### Faza 7: Testing & Documentation (1 tydzień)
+- [x] Dokumentacja początkowa v0.7.0
 - [ ] Testy serwerowe
 - [ ] Testy skalowalności
 - [ ] Testy HA
@@ -180,6 +182,7 @@
 - [ ] Third-party integrations
 
 #### Faza 7: Testing & Documentation (1 tydzień)
+- [x] Dokumentacja początkowa v0.7.0
 - [ ] Testy enterprise
 - [ ] Testy compliance
 - [ ] Testy bezpieczeństwa

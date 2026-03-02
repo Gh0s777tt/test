@@ -8,6 +8,9 @@ pub mod interrupt;
 pub mod context;
 pub mod sbi;
 
+#[cfg(test)]
+pub mod tests;
+
 pub use boot::*;
 pub use mmu::*;
 pub use interrupt::*;
