@@ -35,11 +35,11 @@
 - [x] Sterowniki ADC/DAC
 
 #### Faza 3: Power Management (1 tydzień)
-- [ ] System zarządzania energią
-- [ ] Tryby oszczędzania energii
-- [ ] Monitorowanie zużycia energii
-- [ ] Dynamiczne skalowanie częstotliwości
-- [ ] Wake-up mechanisms
+- [x] System zarządzania energią
+- [x] Tryby oszczędzania energii
+- [x] Monitorowanie zużycia energii
+- [x] Dynamiczne skalowanie częstotliwości
+- [x] Wake-up mechanisms
 
 #### Faza 4: Edge Computing (1 tydzień)
 - [ ] Framework obliczeń brzegowych
