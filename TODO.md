@@ -49,11 +49,11 @@
 - [x] Data aggregation
 
 #### Faza 5: File Systems (1 tydzień)
-- [ ] Implementacja ext4
-- [ ] Implementacja FAT32
-- [ ] Implementacja exFAT
-- [ ] Journaling
-- [ ] Recovery mechanisms
+- [x] Implementacja ext4
+- [x] Implementacja FAT32
+- [x] Implementacja exFAT
+- [x] Journaling
+- [x] Recovery mechanisms
 
 #### Faza 6: Network Stack (1 tydzień)
 - [ ] IPv6 support
