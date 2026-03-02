@@ -18,12 +18,12 @@
 **Cel:** Wsparcie RISC-V i urządzeń IoT
 **Planowany czas:** 6-8 tygodni
 
-#### Faza 1: RISC-V Support (2 tygodnie)
-- [ ] Analiza architektury RISC-V
-- [ ] Implementacja bootloadera RISC-V
-- [ ] Portowanie kernela na RISC-V
-- [ ] Obsługa przerwań RISC-V
-- [ ] Zarządzanie pamięcią RISC-V
+#### Faza 1: RISC-V Support (2 tygodnie) ✅ 85% UKOŃCONE
+- [x] Analiza architektury RISC-V
+- [x] Implementacja bootloadera RISC-V
+- [x] Portowanie kernela na RISC-V
+- [x] Obsługa przerwań RISC-V
+- [x] Zarządzanie pamięcią RISC-V
 - [ ] Testy podstawowe RISC-V
 
 #### Faza 2: IoT Device Drivers (2 tygodnie)
@@ -297,7 +297,7 @@
 - [ ] Stworzenie planu szczegółowego v0.7.0
 
 ### Krótkoterminowe (2-4 tygodnie)
-- [ ] Implementacja bootloadera RISC-V
+- [x] Implementacja bootloadera RISC-V
 - [ ] Portowanie podstawowych funkcji kernela
 - [ ] Sterowniki GPIO i I2C
 - [ ] Podstawowe testy RISC-V
