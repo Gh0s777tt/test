@@ -109,13 +109,13 @@
 - [x] Core isolation
 - [x] Hot-plug CPU
 
-#### Faza 2: Server Device Drivers (2 tygodnie)
-- [ ] Sterowniki NIC 10GbE
-- [ ] Sterowniki RDMA
-- [ ] Sterowniki NVMe
-- [ ] Sterowniki RAID
-- [ ] Sterowniki HBA
-- [ ] Sterowniki GPU (compute)
+#### Faza 2: Server Device Drivers (2 tygodnie) 🔄 100% UKOŃCZONE
+- [x] Sterowniki NIC 10GbE
+- [x] Sterowniki RDMA
+- [x] Sterowniki NVMe
+- [x] Sterowniki RAID
+- [x] Sterowniki HBA
+- [x] Sterowniki GPU (compute)
 
 #### Faza 3: High Performance Networking (2 tygodnie)
 - [ ] DPDK integration
