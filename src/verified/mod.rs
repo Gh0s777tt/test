@@ -74,6 +74,9 @@ pub mod security;
 
 // v0.9.0 "Enterprise Ready" - Compliance Features
 pub mod compliance;
+
+// v0.9.0 "Enterprise Ready" - Management Tools
+pub mod management;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
