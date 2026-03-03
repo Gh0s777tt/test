@@ -317,7 +317,59 @@
 
 ---
 
-### PRIORYTET 5: Maintenance & Improvements - NISKI
+### PRIORYTET 5: Installer & Desktop Environment - WYSOKI
+**Cel:** Kompletny instalator i środowisko graficzne dla użytkowników końcowych
+**Planowany czas:** 4-6 tygodni
+
+#### Faza 1: Installer Wizard (2 tygodnie)
+- [x] Installer framework (mod.rs, wizard.rs, progress.rs)
+- [x] Partition management (partition.rs)
+- [x] Filesystem operations (filesystem.rs)
+- [x] User account management (user.rs)
+- [ ] Network configuration (network.rs) - W TRAKCIE
+- [ ] System configuration (config.rs) - W TRAKCIE
+- [ ] Graphical installer UI (Flux-based)
+- [ ] Text-based installer (TUI)
+- [ ] Automated installation mode
+- [ ] Recovery installation mode
+
+#### Faza 2: Desktop Environment Shell (2 tygodnie)
+- [ ] Classic Shell implementation (taskbar, start menu, windows)
+- [ ] Radial Shell implementation (gesture-driven)
+- [ ] Start Menu with applications list and categories
+- [ ] Application launcher and search
+- [ ] System tray and notifications
+- [ ] Desktop icons and folders
+- [ ] Multiple desktop workspaces
+- [ ] Window decoration and controls
+- [ ] Keyboard shortcuts
+- [ ] Desktop settings panel
+
+#### Faza 3: System Applications (1-2 tygodnie)
+- [ ] File manager
+- [ ] Terminal emulator
+- [ ] Text editor
+- [ ] System monitor
+- [ ] Task manager
+- [ ] Network manager
+- [ ] Display settings
+- [ ] Sound settings
+- [ ] Package manager GUI
+- [ ] Control Panel
+
+#### Faza 4: Testing & Documentation (1 tydzień)
+- [ ] Installer testing on real hardware
+- [ ] Desktop environment testing
+- [ ] User experience testing
+- [ ] Accessibility testing
+- [ ] Installer documentation
+- [ ] Desktop environment documentation
+- [ ] User guides and tutorials
+- [ ] Screenshots and videos
+
+---
+
+### PRIORYTET 6: Maintenance & Improvements - NISKI
 **Cel:** Ciągłe ulepszanie i utrzymanie
 
 #### Code Quality
