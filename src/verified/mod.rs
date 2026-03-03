@@ -65,6 +65,24 @@ pub mod virtualization;
 
 // v0.8.0 "Server Ready" - High Availability
 pub mod ha;
+
+// v0.9.0 "Enterprise Ready" - Enterprise Features
+pub mod enterprise;
+
+// v0.9.0 "Enterprise Ready" - Advanced Security
+pub mod security;
+
+// v0.9.0 "Enterprise Ready" - Compliance Features
+pub mod compliance;
+
+// v0.9.0 "Enterprise Ready" - Management Tools
+pub mod management;
+
+// v0.9.0 "Enterprise Ready" - Backup & Recovery
+pub mod backup;
+
+// v0.9.0 "Enterprise Ready" - Enterprise Integration
+pub mod integration;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
