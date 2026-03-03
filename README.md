@@ -305,6 +305,8 @@ cargo test --test security
 
 We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+**Quick Start**: Get started in 5 minutes with our [Quick Start Guide](QUICK_START.md) 🚀
+
 **Getting Started**:
 1. Fork the repository
 2. Create a feature branch
