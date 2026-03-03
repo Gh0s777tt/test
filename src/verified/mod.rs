@@ -83,6 +83,24 @@ pub mod backup;
 
 // v0.9.0 "Enterprise Ready" - Enterprise Integration
 pub mod integration;
+
+// v1.0.0 "Production Ready" - Stability & Reliability
+pub mod stability;
+
+// v1.0.0 "Production Ready" - Performance Optimization
+pub mod performance;
+
+// v1.0.0 "Production Ready" - Full Certification
+pub mod certification;
+
+// v1.0.0 "Production Ready" - Mobile Support
+pub mod mobile;
+
+// v1.0.0 "Production Ready" - Legacy Integration
+pub mod legacy;
+
+// v1.0.0 "Production Ready" - Production Readiness
+pub mod production;
 pub mod ray_tracing_vulkan;
 pub mod ray_tracing_dx12;
 pub mod ray_tracing_metal;
