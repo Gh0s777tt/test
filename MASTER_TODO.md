@@ -325,7 +325,8 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 - [x] userspace/ui/mod.rs - UI module
 - [x] userspace/ui/horizon.rs - Horizon UI
 - [x] userspace/ui/shells/mod.rs - Shells module
-- [ ] userspace/ui/shells/classic.rs - Classic shell (placeholder)
+- [x] userspace/ui/shells/classic.rs - Classic shell (updated)
+- [x] userspace/ui/shells/classic_shell.rs - Complete Classic Shell implementation (346 lines)
 - [ ] userspace/ui/shells/radial.rs - Radial shell (placeholder)
 - [ ] userspace/ui/shells/spatial.rs - Spatial shell (missing)
 
