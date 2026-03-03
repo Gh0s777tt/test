@@ -15,10 +15,10 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 ## Metryki Projektu (Aktualne na 3 marca 2025)
 | Kategoria | Obecnie | Cel | Status |
 |-----------|---------|-----|--------|
-| **Wersja** | v1.0.0 | v1.1.0 | ✅ Production Ready |
-| **Pliki Rust** | 587 | 650+ | ⚠️ 90% |
-| **Linie Kodu** | ~150,000 | 170,000+ | ⚠️ 88% |
-| **Moduły Verified** | 444 | 500+ | ⚠️ 89% |
+| **Wersja** | v1.1.0-dev | v1.1.0 | 🔄 In Development |
+| **Pliki Rust** | 593 | 650+ | ⚠️ 91% |
+| **Linie Kodu** | ~153,000 | 170,000+ | ⚠️ 90% |
+| **Moduły Verified** | 448 | 500+ | ⚠️ 90% |
 | **Testy** | 37 plików | 100+ plików | ⚠️ 37% |
 | **Test Coverage** | 60% | 80%+ | ⚠️ 75% |
 | **Dokumentacja** | 526 plików | 600+ plików | ⚠️ 88% |
@@ -26,6 +26,7 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 | **Przykłady** | 3 | 10+ | ⚠️ 30% |
 | **Skrypty** | 44 | 50+ | ⚠️ 88% |
 | **Certifikaty** | 7 | 7+ | ✅ 100% |
+| **Aplikacje** | 5 | 8+ | ⚠️ 63% |
 
 ---
 
@@ -612,10 +613,16 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 
 # 📊 PRIORYTETY I FAZY ROZWOJU
 
-## Faza 1: Installer & Desktop (4-6 tygodni) - W TRAKCIE
-- [ ] Installer UI (GUI/TUI/Recovery/Automated)
-- [ ] Desktop Environment (Classic/Radial/Spatial Shells)
-- [ ] System Applications (File Manager, Terminal, Text Editor, System Monitor)
+## Faza 1: Installer & Desktop (4-6 tygodni) - W TRAKCIE (70%)
+- [x] Installer UI (GUI/TUI/Recovery/Automated) - 100% ✅
+- [x] Classic Shell Desktop Environment - 100% ✅
+- [ ] Radial Shell - 0% (placeholder)
+- [ ] Spatial Shell - 0% (missing)
+- [x] File Manager Application - 100% ✅
+- [x] Terminal Emulator Application - 100% ✅
+- [x] Text Editor Application - 100% ✅
+- [x] System Monitor Application - 100% ✅
+- [x] Settings Panel Application - 100% ✅
 
 ## Faza 2: Testing & Quality (3-4 tygodni) - PLANOWANE
 - [ ] Unit tests for all modules
