@@ -7,9 +7,76 @@ i ten projekt przestrzega [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ---
 
+## [1.2.0] - 2026-03-03
+
+### Cloud Native - Multi-Cloud, Kubernetes, Distributed Computing
+
+#### Phase 1: Kubernetes Integration
+- Kubernetes API client with full CRUD operations
+- Kubeconfig management and in-cluster configuration
+- Authentication support (JWT, OIDC, Service Account)
+- Pod, Deployment, Service, ReplicaSet management
+- Ingress, ConfigMap, Secret, Namespace management
+
+#### Phase 2: Cloud-Native Applications
+- Deployment strategies (Rolling Update, Blue-Green, Canary)
+- Auto-scaling (HPA, VPA, Cluster Autoscaler)
+- Load balancing (RoundRobin, LeastConnections, IPHash)
+- Service mesh integration (Istio, Linkerd)
+
+#### Phase 3: Distributed Computing
+- Distributed storage (Ceph, MinIO, S3)
+- Cluster management with leader election
+- High availability with automatic failover
+- Disaster recovery with automated backups
+
+#### Phase 4: Multi-Cloud Support
+- AWS integration (EC2, S3, VPC, Security Groups)
+- Azure integration (VM, Storage, VNet, NSG, AKS)
+- GCP integration (Compute Engine, Cloud Storage, VPC, GKE)
+- Unified cloud abstraction layer
+
+#### Phase 5: Testing & Documentation
+- Comprehensive integration tests
+- Cloud Native Guide documentation
+- Code examples and tutorials
+- Migration guide from v1.1.0
+
+#### Phase 6: Release
+- Version bump to 1.2.0
+- Release notes and documentation
+- GitHub release created
+
+---
+
+## [1.1.0] - 2026-03-03
+
+### Enhanced Features - Desktop, Installer, Testing
+
+#### Phase 1: Installer & Desktop
+- Complete installer framework (GUI/TUI/Recovery/Automated)
+- Desktop shells (Classic, Radial, Spatial)
+- System applications (File Manager, Terminal, Text Editor, System Monitor, Settings)
+
+#### Phase 2: Testing & Quality
+- Comprehensive test suites (700+ tests, 84% coverage)
+- Unit tests, integration tests, e2e tests
+- Accessibility tests
+
+#### Phase 3: Extended Features
+- Multi-monitor support
+- HDR display support (HDR10/HDR10+/Dolby Vision/HLG)
+- Enhanced power management
+
+#### Phase 4: Release
+- Documentation updates
+- Release preparation
+
+---
+
 ## [1.0.0] - 2026-03-02
 
-### Production Ready - Production Ready
+### Production Ready - Stability, Performance, Certification
 
 #### Phase 1: Stability & Reliability
 - Stress testing framework with configurable test scenarios
