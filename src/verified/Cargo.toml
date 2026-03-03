@@ -1,9 +1,9 @@
 [package]
 name = "vantis-verified"
-version = "0.1.0"
+version = "1.2.0"
 edition = "2021"
 authors = ["VANTIS OS Team"]
-description = "Formally verified components of VANTIS OS"
+description = "Formally verified components of VANTIS OS - Cloud Native Edition"
 license = "MIT"
 
 [lib]

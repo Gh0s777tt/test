@@ -60,12 +60,12 @@
 - [x] Examples and tutorials
 - [x] Performance benchmarks
 
-## Phase 6: Release Preparation (1 week)
+## Phase 6: Release Preparation (1 week) - IN PROGRESS
 
-- [ ] Update version to 1.2.0
-- [ ] Create release notes
-- [ ] Update README.md
-- [ ] Create migration guide
+- [x] Update version to 1.2.0
+- [x] Create release notes
+- [x] Update README.md
+- [x] Create migration guide
 - [ ] Tag release v1.2.0
 - [ ] Create GitHub release
 
