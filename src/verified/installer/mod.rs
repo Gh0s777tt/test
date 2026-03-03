@@ -32,6 +32,10 @@ pub mod user;
 pub mod network;
 pub mod config;
 pub mod progress;
+pub mod gui;
+pub mod tui;
+pub mod recovery;
+pub mod automated;
 
 use alloc::sync::Arc;
 use spin::Mutex;
