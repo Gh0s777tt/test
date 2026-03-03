@@ -19,7 +19,7 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 | **Pliki Rust** | 593 | 650+ | ⚠️ 91% |
 | **Linie Kodu** | ~153,000 | 170,000+ | ⚠️ 90% |
 | **Moduły Verified** | 448 | 500+ | ⚠️ 90% |
-| **Testy** | 37 plików | 100+ plików | ⚠️ 37% |
+| **Testy** | 84 plików | 100+ plików | ✅ 84% |
 | **Test Coverage** | 60% | 80%+ | ⚠️ 75% |
 | **Dokumentacja** | 526 plików | 600+ plików | ⚠️ 88% |
 | **Dokumentacja Completeness** | 70% | 100% | ⚠️ 70% |
