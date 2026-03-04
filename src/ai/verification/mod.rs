@@ -37,11 +37,15 @@
 pub mod core_verified;
 pub mod scheduler_verified;
 pub mod power_manager_verified;
+pub mod security_verified;
+pub mod load_balancer_verified;
 
 // Re-export commonly used verified types
 pub use core_verified::VerifiedAICore;
 pub use scheduler_verified::VerifiedMLScheduler;
 pub use power_manager_verified::VerifiedPowerManager;
+pub use security_verified::VerifiedThreatDetectionEngine;
+pub use load_balancer_verified::VerifiedLoadBalancer;
 
 /// Verification configuration
 #[derive(Debug, Clone)]
