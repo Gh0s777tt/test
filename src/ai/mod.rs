@@ -39,6 +39,9 @@ pub mod modules;
 // ML Algorithms Module
 pub mod ml;
 
+// Formal Verification Module
+pub mod verification;
+
 /// AI Module version
 pub const VERSION: &str = "1.3.0";
 
