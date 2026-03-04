@@ -43,6 +43,10 @@ pub mod ml;
 // Formal Verification Module
 pub mod verification;
 
+// Integration Tests Module
+#[cfg(test)]
+pub mod tests;
+
 /// AI Module version
 pub const VERSION: &str = "1.3.1";
 
@@ -263,6 +267,6 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert_eq!(VERSION, "1.3.0");
+        assert_eq!(VERSION, "1.3.1");
     }
 }
