@@ -35,6 +35,7 @@ pub mod types;
 pub mod error;
 pub mod config;
 pub mod modules;
+pub mod integration;
 
 // ML Algorithms Module
 pub mod ml;
@@ -43,7 +44,13 @@ pub mod ml;
 pub mod verification;
 
 /// AI Module version
-pub const VERSION: &str = "1.3.0";
+pub const VERSION: &str = "1.3.1";
+
+// Re-export integration types
+pub use integration::{
+    AIIntegration, SchedulerIntegration, PowerManagerIntegration,
+    LoadBalancerIntegration, ThreatDetectionIntegration,
+};
 
 /// Maximum AI inference latency in milliseconds
 pub const MAX_INFERENCE_LATENCY_MS: u64 = 10;
