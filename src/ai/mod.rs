@@ -36,6 +36,9 @@ pub mod error;
 pub mod config;
 pub mod modules;
 
+// ML Algorithms Module
+pub mod ml;
+
 /// AI Module version
 pub const VERSION: &str = "1.3.0";
 
