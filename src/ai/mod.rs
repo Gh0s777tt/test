@@ -47,6 +47,10 @@ pub mod verification;
 #[cfg(test)]
 pub mod tests;
 
+// Benchmarking Module
+#[cfg(feature = "benchmarking")]
+pub mod benchmarks;
+
 /// AI Module version
 pub const VERSION: &str = "1.3.1";
 
