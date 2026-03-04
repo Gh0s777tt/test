@@ -27,6 +27,16 @@ pub enum AIError {
     HardwareNotSupported,
     /// Insufficient data for training/inference
     InsufficientData,
+    /// Alert deduplicated
+    AlertDeduplicated,
+    /// Too many alerts
+    TooManyAlerts,
+    /// Alert not found
+    AlertNotFound(String),
+    /// Queue full
+    QueueFull,
+    /// Template not found
+    TemplateNotFound(String),
 }
 
 impl core::fmt::Display for AIError {
@@ -44,12 +54,23 @@ impl core::fmt::Display for AIError {
             AIError::MemoryAllocationError => write!(f, "AI memory allocation failed"),
             AIError::HardwareNotSupported => write!(f, "Hardware not supported for AI"),
             AIError::InsufficientData => write!(f, "Insufficient data for AI operation"),
+            AIError::AlertDeduplicated => write!(f, "Alert was deduplicated"),
+            AIError::TooManyAlerts => write!(f, "Too many active alerts"),
+            AIError::AlertNotFound(id) => write!(f, "Alert not found: {}", id),
+            AIError::QueueFull => write!(f, "Notification queue is full"),
+            AIError::TemplateNotFound(name) => write!(f, "Template not found: {}", name),
         }
     }
 }
 
 #[cfg(feature = "std")]
 impl std::error::Error for AIError {}
+
+/// Type alias for AI service errors
+pub type AIServiceError = AIError;
+
+/// Result type for AI operations
+pub type Result<T> = core::result::Result<T, AIServiceError>;
 
 #[cfg(test)]
 mod tests {

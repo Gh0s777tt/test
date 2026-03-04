@@ -17,6 +17,16 @@
 //! - **multi_objective**: Multi-objective optimization
 //! - **nas**: Neural Architecture Search
 //! 
+//! v1.4.0 Phase 3 adds advanced anomaly detection:
+//! - **anomaly_detection**: Core anomaly detection (Isolation Forest, One-Class SVM)
+//! - **streaming_anomaly**: Real-time streaming anomaly detection
+//! - **concept_drift**: Concept drift detection (ADWIN, KS, CUSUM)
+//! - **contextual_anomaly**: Contextual anomaly detection
+//! - **time_series_anomaly**: Time series-specific anomaly detection
+//! - **alerts**: Multi-level alert system
+//! - **notification**: Multi-channel notification system
+//! - **root_cause**: Root cause analysis
+//! 
 //! ## Architecture
 //! 
 //! ```text
@@ -56,6 +66,16 @@ pub mod blending;
 pub mod hyperopt;
 pub mod multi_objective;
 pub mod nas;
+
+// v1.4.0 Phase 3 Anomaly Detection Modules
+pub mod anomaly_detection;
+pub mod streaming_anomaly;
+pub mod concept_drift;
+pub mod contextual_anomaly;
+pub mod time_series_anomaly;
+pub mod alerts;
+pub mod notification;
+pub mod root_cause;
 
 // Re-exports
 pub use data_collector::DataCollector;
