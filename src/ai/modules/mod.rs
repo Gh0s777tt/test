@@ -77,6 +77,20 @@ pub mod alerts;
 pub mod notification;
 pub mod root_cause;
 
+// v1.4.0 Phase 4 Automated Optimization Modules
+pub mod optimization_types;
+pub mod optimization_engine;
+pub mod constraint_solver;
+pub mod safety_checker;
+pub mod rollback_manager;
+pub mod rollout_controller;
+pub mod validation_framework;
+pub mod impact_analyzer;
+pub mod multi_objective_optimizer;
+pub mod ab_testing;
+pub mod feedback_collector;
+pub mod optimization_metrics;
+
 // Re-exports
 pub use data_collector::DataCollector;
 pub use data_processor::DataProcessor;
