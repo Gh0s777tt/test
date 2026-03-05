@@ -1,7 +1,7 @@
-# VantisOS v0.5.0 - Developer Guide
+# VantisOS v1.4.0 - Developer Guide
 
 ## Overview
-This guide provides developers with information on building, modifying, and extending VantisOS v0.5.0.
+This guide provides developers with information on building, modifying, and extending VantisOS v1.4.0.
 
 ## Development Environment
 

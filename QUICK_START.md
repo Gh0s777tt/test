@@ -48,7 +48,7 @@ cd VantisOS
 
 ## 🐳 Cloud Native Quick Start
 
-VantisOS v1.2.0 includes comprehensive cloud-native capabilities:
+VantisOS v1.4.0 includes comprehensive AI features, advanced security, and cloud-native capabilities:
 
 ### 1. Set up Cloud Provider Credentials
 
@@ -112,7 +112,7 @@ cargo test --test integration_cloud_native  # Cloud-native tests
 ### Specialized Guides
 
 - **[CLOUD_NATIVE_GUIDE.md](docs/CLOUD_NATIVE_GUIDE.md)** - Cloud-native features
-- **[MIGRATION_GUIDE_v1.2.0.md](docs/MIGRATION_GUIDE_v1.2.0.md)** - Migration from v1.1.0
+- **[MIGRATION_GUIDE_v1.4.0.md](docs/MIGRATION_GUIDE_v1.4.0.md)** - Migration from v1.3.1
 - **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Developer documentation
 - **[API_REFERENCE.md](API_REFERENCE.md)** - Complete API documentation
 
@@ -229,7 +229,7 @@ sudo apt-get install qemu-system-x86
 
 ## 📈 Metrics
 
-- **Version**: v1.2.0 "Cloud Native"
+- **Version**: v1.4.0 "AI Advanced Features"
 - **Lines of Code**: ~141,000+
 - **Test Coverage**: 65% (800+ tests)
 - **Supported Architectures**: x86_64, ARM64, RISC-V

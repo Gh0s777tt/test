@@ -4,15 +4,19 @@
 
 VantisOS follows semantic versioning. Security updates are provided for:
 
-| Version | Supported | Security Updates |
-|---------|-----------|------------------|
-| 0.5.x | ✅ Yes | Until 0.6.0 release |
-| 0.4.x | ✅ Yes | Until 0.5.0 release |
-| 0.3.x | ❌ No | End of Life |
+| Version | Supported | Security Updates | Status |
+|---------|-----------|------------------|--------|
+| 1.4.x | ✅ Yes | Until 1.5.0 release | Latest |
+| 1.3.x | ✅ Yes | Until 1.4.0 release | Maintained |
+| 1.2.x | ⚠️ Limited | Critical only | Maintenance |
+| 1.1.x | ❌ No | End of Life | EOL |
+| 1.0.x | ❌ No | End of Life | EOL |
+| 0.9.x | ❌ No | End of Life | EOL |
 
-**Stable Version**: 0.4.1 (current development branch)  
-**Production Version**: None (in development)  
-**Beta Version**: None (in development)
+**Stable Version**: v1.4.0 (current production version)
+**Development Branch**: 0.4.1
+**Latest Release**: v1.4.0 "AI Advanced Features" (March 5, 2026)
+**Next Release**: v1.5.0 "Quantum Ready" (Q2 2026)
 
 ---
 
