@@ -1,0 +1,1 @@
+docs/SCRIPTS_REFERENCE.md
