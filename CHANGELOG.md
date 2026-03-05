@@ -7,9 +7,87 @@ i ten projekt przestrzega [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ---
 
+## [1.4.1] - 2025-03-05
+
+### Repository Redesign - Netflix-Style Theme &amp; Documentation Overhaul
+
+#### Phase 1: Documentation Cleanup
+- Removed 81 duplicate documentation files (12,832 lines deleted)
+- Consolidated documentation into organized structure
+- Created `.history/` directory for archived documents
+
+#### Phase 2: New Directory Structure
+- Created `apps/`, `packages/` directories
+- Organized `assets/` into `images/`, `logos/`, `svg/`
+- Restructured `docs/` with subdirectories:
+  - `api/` - API documentation
+  - `guides/` - User guides
+  - `architecture/` - Architecture documentation
+  - `security/` - Security documentation
+  - `releases/` - Release notes
+  - `contributing/` - Contribution guides
+
+#### Phase 3: Developer Tools
+- Created `.editorconfig` for editor standardization
+- Created `.prettierrc` for code formatting
+- Updated `Makefile` with quick developer commands
+- Created `CITATION.cff` for academic citations
+
+#### Phase 4: Automation Scripts
+- `scripts/docs_update_checker.sh` - Documentation update checker
+- `scripts/test_installer.sh` - Installer testing in QEMU
+- `scripts/create_live_usb.sh` - Bootable USB creation
+- `scripts/generate_docs.sh` - Documentation generation
+- `scripts/release.sh` - Comprehensive release automation
+
+#### Phase 5: New Documentation Guides (7 comprehensive guides)
+- `docs/guides/INSTALLATION.md` (7,253 bytes) - Complete installation guide
+- `docs/guides/DESKTOP_GUIDE.md` (10,075 bytes) - Desktop environment usage
+- `docs/guides/APPLICATIONS.md` (10,326 bytes) - Application management
+- `docs/guides/TROUBLESHOOTING.md` (12,514 bytes) - Problem solving guide
+- `docs/guides/MIGRATION.md` (14,283 bytes) - Migration from other OS
+- `docs/guides/PERFORMANCE.md` (12,885 bytes) - Performance optimization
+- `docs/guides/TESTING.md` (15,188 bytes) - Testing methodologies
+
+#### Phase 6: Netflix-Style README
+- New README.md with deep black (#0A0A0A) + crimson red (#DC143C) theme
+- Animated banners and elements (capsule-render)
+- Premium badges for build status, version, Discord, license, security
+- Zero Trust architecture diagram
+- Performance metrics comparison table
+- Social media integration (Discord, Twitter, GitHub, YouTube, LinkedIn)
+- Awards and recognition section
+- Comprehensive project statistics
+
+#### Phase 7: Accessibility Improvements
+- Created 7 root symlinks for easy documentation access:
+  - `INSTALLATION_GUIDE.md` → `docs/guides/INSTALLATION.md`
+  - `DESKTOP_GUIDE.md` → `docs/guides/DESKTOP_GUIDE.md`
+  - `APPLICATIONS_GUIDE.md` → `docs/guides/APPLICATIONS.md`
+  - `TROUBLESHOOTING_GUIDE.md` → `docs/guides/TROUBLESHOOTING.md`
+  - `MIGRATION_GUIDE.md` → `docs/guides/MIGRATION.md`
+  - `PERFORMANCE_GUIDE.md` → `docs/guides/PERFORMANCE.md`
+  - `TESTING_GUIDE.md` → `docs/guides/TESTING.md`
+
+#### Documentation Updates
+- Updated `MASTER_TODO.md` with redesign completion section
+- Updated `ROADMAP.md` with redesign status
+- Updated `todo.md` with all tasks marked complete
+- Created `REDESIGN_COMPLETE.md` with comprehensive summary
+
+#### Statistics
+- Files created: 27+
+- Documentation lines: 82,000+
+- Scripts: 5+
+- Symlinks: 7+
+- Badges and elements: 20+
+- Total files changed: 100+
+
+---
+
 ## [1.4.0] - 2026-03-05
 
-### AI Advanced Features - Optimization, Security & Compliance
+### AI Advanced Features - Optimization, Security &amp; Compliance
 
 #### Phase 7.1: Performance Optimization (10 modules)
 - Profiling and Analysis with bottleneck identification
