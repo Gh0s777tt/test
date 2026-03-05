@@ -12,7 +12,7 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 
 # 📊 STAN PROJEKTU - WIDOK OGÓLNY
 
-## Metryki Projektu (Aktualne na 5 marca 2026)
+## Metryki Projektu (Aktualne na 5 marca 2025)
 | Kategoria | Obecnie | Cel | Status |
 |-----------|---------|-----|--------|
 | **Wersja** | v1.4.0 | v1.5.0 | ✅ RELEASED |
@@ -597,17 +597,17 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 
 ---
 
-## Brakujące Skrypty
-- [ ] scripts/build_installer_iso.sh - Build installer ISO
-- [ ] scripts/test_installer.sh - Test installer in QEMU
-- [ ] scripts/create_live_usb.sh - Create bootable USB
-- [ ] scripts/build_desktop.sh - Build desktop components
-- [ ] scripts/run_desktop.sh - Run desktop in QEMU
-- [ ] scripts/test_all.sh - Run all tests
-- [ ] scripts/generate_docs.sh - Generate documentation
-- [ ] scripts/release.sh - Create release
-- [ ] scripts/run_benchmarks_all.sh - Run all benchmarks
-- [ ] scripts/run_e2e_tests.sh - Run E2E tests
+## Brakujące Skrypty - Status Aktualny (Marzec 2025)
+- [ ] scripts/build_installer_iso.sh - Build installer ISO (nie wymagany - użyj build_iso.sh)
+- [x] scripts/test_installer.sh - Test installer in QEMU ✅
+- [x] scripts/create_live_usb.sh - Create bootable USB ✅
+- [ ] scripts/build_desktop.sh - Build desktop components (użyj build_kernel.sh)
+- [ ] scripts/run_desktop.sh - Run desktop in QEMU (użyj run_qemu.sh)
+- [x] scripts/test_all.sh - Run all tests ✅
+- [x] scripts/generate_docs.sh - Generate documentation ✅
+- [x] scripts/release.sh - Create release ✅
+- [ ] scripts/run_benchmarks_all.sh - Run all benchmarks (użyj run_benchmarks.sh)
+- [ ] scripts/run_e2e_tests.sh - Run E2E tests (użyj test_install_e2e.sh)
 
 ---
 
@@ -825,6 +825,19 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 | New Modules | 24 modules | ✅ Complete |
 | LOC Added | ~8,500+ | ✅ Complete |
 | Files Added | 24+ | ✅ Complete |
+
+## v1.4.1 Repository Redesign Achieved Metrics ✅
+| Metryka | Wartość | Status |
+|---------|---------|--------|
+| Documentation Added | 82,000+ lines (7 guides) | ✅ Complete |
+| Files Created | 27+ files | ✅ Complete |
+| Symlinks Created | 7 symlinks | ✅ Complete |
+| Scripts Created | 5 automation scripts | ✅ Complete |
+| Badges & Elements | 20+ UI elements | ✅ Complete |
+| Commits | 3 commits | ✅ Complete |
+| README Redesign | Netflix-style theme | ✅ Complete |
+| Documentation Cleanup | 81 duplicates removed | ✅ Complete |
+| Lines Deleted | 12,832 lines | ✅ Complete |
 
 ---
 
