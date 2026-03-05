@@ -69,3 +69,4 @@ logs/
 
 # 🐳 DOCKER
 docker/*.log
+.history/
