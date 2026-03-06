@@ -1,0 +1,166 @@
+# VantisOS Development Dockerfile
+# Provides a complete development environment for VantisOS
+
+# Build stage for dependencies
+FROM rust:1.75-bookworm AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    ninja-build \
+    pkg-config \
+    libssl-dev \
+    libclang-dev \
+    llvm-dev \
+    clang \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust components
+RUN rustup component add \
+    rustfmt \
+    clippy \
+    llvm-tools-preview \
+    rust-analysis \
+    rust-src
+
+# Install cargo tools
+RUN cargo install \
+    cargo-watch \
+    cargo-expand \
+    cargo-edit \
+    cargo-outdated \
+    cargo-audit \
+    cargo-license \
+    cargo-bloat \
+    cargo-nextest \
+    mdbook \
+    mdbook-mermaid
+
+# Development stage
+FROM rust:1.75-bookworm AS development
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV RUST_BACKTRACE=1
+ENV RUST_LOG=info
+ENV CARGO_INCREMENTAL=1
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    # Build tools
+    build-essential \
+    cmake \
+    ninja-build \
+    pkg-config \
+    # Libraries
+    libssl-dev \
+    libclang-dev \
+    llvm-dev \
+    clang \
+    # QEMU for kernel testing
+    qemu-system-x86 \
+    qemu-kvm \
+    libvirt-daemon-system \
+    libvirt-clients \
+    # Development tools
+    git \
+    curl \
+    wget \
+    jq \
+    vim \
+    nano \
+    less \
+    htop \
+    strace \
+    gdb \
+    lldb \
+    # Shell and scripting
+    bash-completion \
+    shellcheck \
+    # Python for tools
+    python3 \
+    python3-pip \
+    python3-venv \
+    # Node.js for tooling
+    nodejs \
+    npm \
+    # Cleanup
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Rust installation from builder
+COPY --from=builder /usr/local/cargo /usr/local/cargo
+COPY --from=builder /usr/local/rustup /usr/local/rustup
+
+# Install Python packages
+RUN pip3 install --no-cache-dir \
+    pre-commit \
+    black \
+    isort \
+    flake8 \
+    mypy \
+    pytest \
+    sphinx \
+    mkdocs \
+    mkdocs-material
+
+# Install Node.js packages
+RUN npm install -g \
+    prettier \
+    markdownlint-cli \
+    eslint \
+    @commitlint/cli \
+    @commitlint/config-conventional
+
+# Create non-root user
+ARG USERNAME=vantis
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up workspace
+WORKDIR /workspace
+
+# Copy project files for caching
+COPY Cargo.toml Cargo.lock ./
+COPY Makefile ./
+
+# Create necessary directories
+RUN mkdir -p /workspace/target \
+    && mkdir -p /workspace/logs \
+    && mkdir -p /workspace/output \
+    && chown -R $USERNAME:$USERNAME /workspace
+
+# Set up cargo cache directories
+RUN mkdir -p /usr/local/cargo/registry \
+    && mkdir -p /usr/local/cargo/git \
+    && chown -R $USERNAME:$USERNAME /usr/local/cargo
+
+# Switch to non-root user
+USER $USERNAME
+
+# Set up shell
+RUN echo 'source /usr/local/cargo/env' >> ~/.bashrc \
+    && echo 'export PS1="\[\033[01;32m\]\u@vantis-dev\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Default command
+CMD ["/bin/bash"]
+
+# Labels
+LABEL org.opencontainers.image.title="VantisOS Development Environment"
+LABEL org.opencontainers.image.description="Complete development environment for VantisOS"
+LABEL org.opencontainers.image.vendor="VantisOS Team"
+LABEL org.opencontainers.image.source="https://github.com/vantisCorp/VantisOS"
+LABEL org.opencontainers.image.version="1.0.0"
