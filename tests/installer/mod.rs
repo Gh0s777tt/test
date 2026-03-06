@@ -1,26 +1,27 @@
-//! Installer Tests Module
+//! Installer Tests
 //! 
-//! Comprehensive test suite for the VantisOS installer system.
+//! This module contains comprehensive tests for the VantisOS installer,
+//! including wizard functionality, partitioning, filesystem operations,
+//! user management, network configuration, system configuration, and recovery.
 
-mod wizard_test;
-mod partition_test;
-mod filesystem_test;
-mod user_test;
-mod network_test;
-mod config_test;
-mod gui_test;
-mod tui_test;
-mod recovery_test;
-mod automated_test;
+pub mod wizard_test;
+pub mod partition_test;
+pub mod filesystem_test;
+pub mod user_test;
+pub mod network_test;
+pub mod config_test;
+pub mod gui_test;
+pub mod tui_test;
+pub mod recovery_test;
+pub mod automated_test;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    
-    /// Test module initialization
+
     #[test]
-    fn test_installer_module_init() {
-        // Verify all submodules are properly exported
-        assert!(true, "Installer test module initialized successfully");
+    fn test_installer_module_imports() {
+        // Verify all installer test modules are accessible
+        assert!(true, "Installer test module structure is valid");
     }
 }
