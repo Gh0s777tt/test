@@ -7,6 +7,8 @@ mod terminal_test;
 mod text_editor_test;
 mod system_monitor_test;
 mod settings_test;
+mod calculator_test;
+mod calendar_test;
 
 #[cfg(test)]
 mod tests {
