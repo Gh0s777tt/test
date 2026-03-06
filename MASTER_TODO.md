@@ -336,7 +336,10 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 
 ### Flux Components
 - [x] userspace/ui/flux/mod.rs - Flux module
-- [x] userspace/ui/flux/renderer.rs - Renderer (placeholder)
+- [x] userspace/ui/flux/renderer.rs - Renderer (GPU-accelerated with Vulkan/Metal/DX12/OpenGL/WebGPU)
+- [x] userspace/ui/flux/input.rs - Input handling (unified mouse, keyboard, touch, gestures)
+- [x] userspace/ui/flux/theme.rs - Theming system (color palettes, component styling, theme switching)
+- [x] userspace/ui/flux/animation.rs - Animation system (30+ easing functions, keyframes, transitions)
 - [x] userspace/ui/flux/scene.rs - Scene graph
 - [x] userspace/ui/flux/vector.rs - Vector math
 
@@ -454,24 +457,24 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 - [ ] tests/desktop/desktop_icons_test.rs
 
 ### Application Tests (NOWY KATALOG)
-- [ ] tests/applications/mod.rs
-- [ ] tests/applications/file_manager_test.rs
-- [ ] tests/applications/terminal_test.rs
-- [ ] tests/applications/text_editor_test.rs
-- [ ] tests/applications/system_monitor_test.rs
-- [ ] tests/applications/settings_test.rs
-- [ ] tests/applications/calculator_test.rs
-- [ ] tests/applications/calendar_test.rs
+- [x] tests/applications/mod.rs
+- [x] tests/applications/file_manager_test.rs
+- [x] tests/applications/terminal_test.rs
+- [x] tests/applications/text_editor_test.rs
+- [x] tests/applications/system_monitor_test.rs
+- [x] tests/applications/settings_test.rs
+- [x] tests/applications/calculator_test.rs
+- [x] tests/applications/calendar_test.rs
 
 ### Flux Tests (NOWY KATALOG)
-- [ ] tests/flux/mod.rs
-- [ ] tests/flux/compositor_test.rs
-- [ ] tests/flux/wayland_test.rs
-- [ ] tests/flux/window_test.rs
-- [ ] tests/flux/renderer_test.rs
-- [ ] tests/flux/input_test.rs
-- [ ] tests/flux/theme_test.rs
-- [ ] tests/flux/animation_test.rs
+- [x] tests/flux/mod.rs
+- [x] tests/flux/compositor_test.rs
+- [x] tests/flux/wayland_test.rs
+- [x] tests/flux/window_test.rs
+- [x] tests/flux/renderer_test.rs
+- [x] tests/flux/input_test.rs
+- [x] tests/flux/theme_test.rs
+- [x] tests/flux/animation_test.rs
 
 ### Mobile Tests (ROZBUDOWA)
 - [ ] tests/mobile/ios_test.rs
