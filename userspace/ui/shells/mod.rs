@@ -8,6 +8,7 @@ pub mod spatial;
 pub use classic_shell::{ClassicShell, Shell, ShellError};
 pub use radial_shell::{RadialShell, RadialConfig, RadialShellError};
 pub use spatial_shell::{SpatialShell, SpatialConfig, SpatialShellError};
+pub use spatial::{SpatialShell as NewSpatialShell, Vec3, Rotation, Transform3D, SpatialWindow, CameraView, SpatialRoom, RoomLayout};
 
 /// Re-export commonly used types
 pub mod types {
