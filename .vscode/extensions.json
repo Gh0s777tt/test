@@ -1,0 +1,77 @@
+{
+  // VantisOS Recommended Extensions
+  // Install all: code --install-extension <extension-id>
+  // Or use the "Extensions: Show Recommended Extensions" command
+
+  "recommendations": [
+    // === Core Rust Development ===
+    "rust-lang.rust-analyzer",
+    "vadimcn.vscode-lldb",
+    "serayuzgur.crates",
+    "tamasfe.even-better-toml",
+    "swellaby.vscode-rust-test-adapter",
+
+    // === Formal Verification ===
+    "github.copilot",
+    "github.copilot-chat",
+
+    // === Code Quality ===
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    "DavidAnson.vscode-markdownlint",
+    "timonwong.shellcheck",
+
+    // === Git & Version Control ===
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+
+    // === Docker & Containers ===
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+
+    // === Documentation ===
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid",
+    "bierner.markdown-preview-github-styles",
+    "davidanson.vscode-markdownlint",
+
+    // === Testing ===
+    "matepek.vscode-catch2-test-adapter",
+    "littlefoxteam.vscode-python-test-adapter",
+
+    // === Security ===
+    "github.vscode-codeql",
+    "snyk-security.snyk-vulnerability-scanner",
+
+    // === Utilities ===
+    "wayou.vscode-todo-highlight",
+    "aaron-bond.better-comments",
+    "naumovs.color-highlight",
+    "oderwat.indent-rainbow",
+    "2gua.rainbow-brackets",
+    "pkief.material-icon-theme",
+    "shardulm94.trailing-spaces",
+    "wakatime.vscode-wakatime",
+
+    // === Remote Development ===
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+    "ms-vscode.remote-explorer",
+
+    // === Performance ===
+    "wix.vscode-import-cost",
+
+    // === YAML & JSON ===
+    "redhat.vscode-yaml",
+    "ms-vscode.makefile-tools"
+  ],
+  "unwantedRecommendations": [
+    "rust-lang.rust",
+    "kalitaalexey.vscode-rust"
+  ]
+}
