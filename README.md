@@ -39,12 +39,12 @@
   <h3 style="color: #DC143C;">🌍 SELECT LANGUAGE</h3>
   
   [🇺🇸 English](README.md) • 
-  [🇵🇱 Polski](docs/README_PL.md) • 
-  [🇩🇪 Deutsch](docs/README_DE.md) • 
-  [🇫🇷 Français](docs/README_FR.md) • 
-  [🇪🇸 Español](docs/README_ES.md) • 
-  [🇨🇳 中文](docs/README_CN.md) • 
-  [🇯🇵 日本語](docs/README_JP.md)
+  [🇵🇱 Polski](docs/translations/README_PL.md) • 
+  [🇩🇪 Deutsch](docs/translations/README_DE.md) • 
+  [🇫🇷 Français](docs/translations/README_FR.md) • 
+  [🇪🇸 Español](docs/translations/README_ES.md) • 
+  [🇨🇳 中文](docs/translations/README_ZH.md) • 
+  [🇯🇵 日本語](docs/translations/README_JA.md)
   
 </div>
 
@@ -226,7 +226,7 @@ features:
 ### Developer Resources
 - 📋 [API Reference](API_REFERENCE.md) - Complete API documentation
 - 🛠️ [Developer Guide](DEVELOPER_GUIDE.md) - Development workflow
-- 🏗️ [Architecture](ARCHITECTURE.md) - System architecture
+- 🏗️ [Architecture](docs/architecture/ARCHITECTURE.md) - System architecture
 - 🔒 [Security](SECURITY.md) - Security policies
 - 🤝 [Contributing](CONTRIBUTING.md) - Contribution guidelines
 
