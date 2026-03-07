@@ -1,0 +1,11 @@
+NAME="VantisOS"
+VERSION="1.5.0 (Quantum Ready)"
+ID=vantis
+ID_LIKE=linux
+PRETTY_NAME="VantisOS 1.5.0 (Quantum Ready)"
+VERSION_ID="1.5.0"
+VERSION_CODENAME=quantum-ready
+HOME_URL="https://vantisos.org"
+DOCUMENTATION_URL="https://docs.vantisos.org"
+SUPPORT_URL="https://vantisos.org/support"
+BUG_REPORT_URL="https://github.com/vantisos/vantis/issues"
