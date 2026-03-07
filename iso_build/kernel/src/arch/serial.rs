@@ -1,25 +1,50 @@
-//! Serial port driver for debugging
+//! Serial Port Driver for Debugging
+//! Provides output to COM1 port
 
-use uart_16550::SerialPort;
 use spin::Mutex;
-use lazy_static::lazy_static;
+use uart_16550::SerialPort;
 
-lazy_static! {
-    static ref SERIAL1: Mutex<SerialPort> = {
-        let mut serial_port = unsafe { SerialPort::new(0x3F8) };
-        serial_port.init();
-        Mutex::new(serial_port)
-    };
-}
+/// Serial port address
+pub const SERIAL_PORT: u16 = 0x3F8; // COM1
+
+/// Global serial port
+pub static SERIAL: Mutex<SerialPort> = Mutex::new(unsafe { SerialPort::new(SERIAL_PORT) });
 
 /// Initialize serial port
 pub fn init() {
-    SERIAL1.lock().init();
+    let mut serial = SERIAL.lock();
+    serial.init();
 }
 
-/// Print to serial
-#[doc(hidden)]
-pub fn _print(args: ::core::fmt::Arguments) {
+/// Print a string to serial
+pub fn print(args: core::fmt::Arguments) {
     use core::fmt::Write;
-    SERIAL1.lock().write_fmt(args).expect("Printing to serial failed");
+    SERIAL.lock().write_fmt(args).unwrap();
+}
+
+/// Print a line to serial
+pub fn println() {
+    print(format_args!("\n"));
+}
+
+/// Print formatted to serial
+#[macro_export]
+macro_rules! serial_print {
+    ($($arg:tt)*) => {
+        $crate::arch::serial::print(format_args!($($arg)*))
+    };
+}
+
+/// Print formatted line to serial
+#[macro_export]
+macro_rules! serial_println {
+    () => {
+        $crate::arch::serial::print(format_args!("\n"))
+    };
+    ($fmt:expr) => {
+        $crate::arch::serial::print(format_args!(concat!($fmt, "\n")))
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        $crate::arch::serial::print(format_args!(concat!($fmt, "\n"), $($arg)*))
+    };
 }
