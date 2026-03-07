@@ -1,0 +1,78 @@
+#!/bin/bash
+# VantisOS Init System
+# System initialization script
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export HOME=/root
+export TERM=linux
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo -e "${CYAN}"
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║                 VantisOS Init System v1.5.0                   ║"
+echo "╚════════════════════════════════════════════════════════════════╝"
+echo -e "${NC}"
+
+# Mount essential filesystems
+echo -e "${GREEN}[+] Mounting filesystems...${NC}"
+mount -t proc proc /proc 2>/dev/null
+mount -t sysfs sysfs /sys 2>/dev/null
+mount -t devtmpfs devtmpfs /dev 2>/dev/null
+mkdir -p /dev/pts /dev/shm
+mount -t devpts devpts /dev/pts 2>/dev/null
+mount -t tmpfs tmpfs /dev/shm 2>/dev/null
+mount -t tmpfs tmpfs /tmp 2>/dev/null
+
+# Create essential device nodes
+echo -e "${GREEN}[+] Creating device nodes...${NC}"
+mknod -m 666 /dev/null c 1 3 2>/dev/null
+mknod -m 666 /dev/zero c 1 5 2>/dev/null
+mknod -m 666 /dev/random c 1 8 2>/dev/null
+mknod -m 666 /dev/urandom c 1 9 2>/dev/null
+mknod -m 666 /dev/tty c 5 0 2>/dev/null
+mknod -m 600 /dev/console c 5 1 2>/dev/null
+mknod -m 666 /dev/ptmx c 5 2 2>/dev/null
+
+# Set hostname
+echo "vantis" > /etc/hostname
+hostname vantis 2>/dev/null
+
+# Configure network
+echo -e "${GREEN}[+] Configuring network...${NC}"
+ip link set lo up 2>/dev/null
+ip link set eth0 up 2>/dev/null
+
+# Start system services
+echo -e "${GREEN}[+] Starting system services...${NC}"
+
+# Check if we're in live/install mode
+if grep -q "live" /proc/cmdline 2>/dev/null; then
+    echo -e "${GREEN}[+] Starting live session...${NC}"
+else
+    # Check for installer mode
+    if grep -q "install" /proc/cmdline 2>/dev/null; then
+        echo -e "${GREEN}[+] Starting installer...${NC}"
+        exec /sbin/installer
+    fi
+fi
+
+# Display login prompt
+echo ""
+echo -e "${CYAN}══════════════════════════════════════════════════════════════════${NC}"
+echo ""
+echo -e "  ${GREEN}Welcome to VantisOS v1.5.0 &quot;Quantum Ready&quot;${NC}"
+echo ""
+echo -e "  Type 'installer' to run the installation wizard"
+echo -e "  Type 'desktop' to start the desktop environment"
+echo -e "  Type 'help' for available commands"
+echo ""
+echo -e "${CYAN}══════════════════════════════════════════════════════════════════${NC}"
+echo ""
+
+# Start shell
+exec /bin/bash

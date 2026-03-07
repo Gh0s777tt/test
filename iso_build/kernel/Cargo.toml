@@ -1,0 +1,33 @@
+[package]
+name = "vantis-kernel"
+version = "1.5.0"
+edition = "2021"
+authors = ["VantisOS Team"]
+description = "VantisOS Quantum-Ready Operating System Kernel"
+license = "MIT"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+spin = "0.9"
+x86_64 = "0.14"
+uart_16550 = "0.2"
+linked_list_allocator = "0.10"
+lazy_static = { version = "1.4", features = ["spin_no_std"] }
+bitflags = "2.4"
+num-complex = { version = "0.4", default-features = false }
+volatile = "0.4"
+
+[features]
+default = []
+debug_assertions = []
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+opt-level = 3
+lto = true
+codegen-units = 1
