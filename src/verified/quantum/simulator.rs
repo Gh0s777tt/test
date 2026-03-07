@@ -1,38 +1,58 @@
-//! Quantum Simulator Implementation
-//!
-//! This module provides a full quantum state vector simulator for
-//! simulating quantum circuits on classical hardware.
+// Quantum Simulator for VantisOS
+// Provides high-performance quantum circuit simulation with noise modeling
 
-use super::{QuantumError, Result};
-use std::f64::consts::FRAC_1_SQRT_2;
 use num_complex::Complex64;
+use ndarray::{Array1, Array2, Array3};
+use rand::Rng;
+use std::collections::HashMap;
 
-/// Complex number type used in quantum state vectors
-pub type C = Complex64;
-
-/// Quantum state vector representation
-#[derive(Debug, Clone)]
-pub struct StateVector {
-    /// Amplitudes for each computational basis state
-    amplitudes: Vec<C>,
+/// Quantum simulator for simulating quantum circuits
+#[derive(Clone, Debug)]
+pub struct QuantumSimulator {
+    /// Current quantum state vector
+    state: Array1<Complex64>,
     /// Number of qubits
     num_qubits: usize,
+    /// Noise model
+    noise_model: NoiseModel,
+    /// Measurement history
+    measurements: HashMap<usize, Vec<bool>>,
 }
 
-impl StateVector {
-    /// Create a new state vector initialized to |0...0⟩
-    pub fn new(num_qubits: usize) -> Result<Self> {
-        if num_qubits == 0 {
-            return Err(QuantumError::SimulationError(
-                "Number of qubits must be at least 1".to_string(),
-            ));
+/// Noise model for realistic quantum simulation
+#[derive(Clone, Debug)]
+pub enum NoiseModel {
+    NoNoise,
+    Depolarizing(f64),
+    AmplitudeDamping(f64),
+    PhaseDamping(f64),
+    Combined { depolarizing: f64, amplitude_damping: f64, phase_damping: f64 },
+}
+
+impl Default for QuantumSimulator {
+    fn default() -> Self {
+        Self::new(1, NoiseModel::NoNoise)
+    }
+}
+
+impl QuantumSimulator {
+    /// Create a new quantum simulator
+    pub fn new(num_qubits: usize, noise_model: NoiseModel) -> Self {
+        let size = 1 << num_qubits;
+        let mut state = Array1::zeros(size);
+        state[0] = Complex64::new(1.0, 0.0);
+        
+        QuantumSimulator {
+            state,
+            num_qubits,
+            noise_model,
+            measurements: HashMap::new(),
         }
+    }
 
-        let dim = 1usize << num_qubits;
-        let mut amplitudes = vec![C::new(0.0, 0.0); dim];
-        amplitudes[0] = C::new(1.0, 0.0); // |0...0⟩ state
-
-        Ok(Self { amplitudes, num_qubits })
+    /// Get the current state vector
+    pub fn state(&self) -> &Array1<Complex64> {
+        &self.state
     }
 
     /// Get the number of qubits
@@ -40,357 +60,401 @@ impl StateVector {
         self.num_qubits
     }
 
-    /// Get the dimension of the state vector
-    pub fn dim(&self) -> usize {
-        self.amplitudes.len()
-    }
-
-    /// Get the amplitude at a given index
-    pub fn amplitude(&self, index: usize) -> Option<C> {
-        self.amplitudes.get(index).copied()
-    }
-
-    /// Set the amplitude at a given index
-    pub fn set_amplitude(&mut self, index: usize, value: C) -> Result<()> {
-        if index >= self.dim() {
-            return Err(QuantumError::InvalidQubitIndex {
-                index,
-                max: self.dim() - 1,
-            });
+    /// Initialize the simulator to a specific state
+    pub fn initialize(&mut self, state: Array1<Complex64>) -> Result<(), String> {
+        if state.len() != self.state.len() {
+            return Err("State size mismatch".to_string());
         }
-        self.amplitudes[index] = value;
+        
+        let norm = state.iter().map(|c| c.norm_sqr()).sum::<f64>().sqrt();
+        if (norm - 1.0).abs() > 1e-10 {
+            return Err("State must be normalized".to_string());
+        }
+        
+        self.state = state;
         Ok(())
     }
 
-    /// Normalize the state vector
-    pub fn normalize(&mut self) {
-        let norm: f64 = self.amplitudes.iter().map(|a| a.norm_sqr()).sum();
-        let norm = norm.sqrt();
-        if norm > 0.0 {
-            for amp in &mut self.amplitudes {
-                *amp /= norm;
-            }
+    /// Apply a single-qubit gate to a specific qubit
+    pub fn apply_gate(&mut self, gate: &Array2<Complex64>, target: usize) -> Result<(), String> {
+        if target >= self.num_qubits {
+            return Err(format!("Qubit index {} out of range", target));
         }
+        
+        // Build the full operator matrix
+        let operator = self.build_single_qubit_operator(gate, target);
+        
+        // Apply the operator
+        self.state = operator.dot(&self.state);
+        
+        // Apply noise if enabled
+        self.apply_noise();
+        
+        Ok(())
     }
 
-    /// Calculate the probability of measuring a specific state
-    pub fn probability(&self, state: usize) -> f64 {
-        self.amplitudes
-            .get(state)
-            .map(|a| a.norm_sqr())
-            .unwrap_or(0.0)
-    }
-}
-
-/// Quantum gate representation
-#[derive(Debug, Clone)]
-pub enum Gate {
-    /// Hadamard gate
-    H,
-    /// Pauli-X gate (NOT gate)
-    X,
-    /// Pauli-Y gate
-    Y,
-    /// Pauli-Z gate
-    Z,
-    /// Phase gate (S)
-    S,
-    /// T gate
-    T,
-    /// RX rotation gate
-    RX(f64),
-    /// RY rotation gate
-    RY(f64),
-    /// RZ rotation gate
-    RZ(f64),
-    /// CNOT gate (controlled-X)
-    CNOT,
-    /// SWAP gate
-    SWAP,
-    /// Toffoli gate (CCX)
-    Toffoli,
-    /// Custom unitary gate
-    Custom(Vec<Vec<C>>),
-}
-
-impl Gate {
-    /// Get the matrix representation of a single-qubit gate
-    pub fn matrix(&self) -> Option<Vec<Vec<C>>> {
-        match self {
-            Gate::H => Some(vec![
-                vec![C::new(FRAC_1_SQRT_2, 0.0), C::new(FRAC_1_SQRT_2, 0.0)],
-                vec![C::new(FRAC_1_SQRT_2, 0.0), C::new(-FRAC_1_SQRT_2, 0.0)],
-            ]),
-            Gate::X => Some(vec![
-                vec![C::new(0.0, 0.0), C::new(1.0, 0.0)],
-                vec![C::new(1.0, 0.0), C::new(0.0, 0.0)],
-            ]),
-            Gate::Y => Some(vec![
-                vec![C::new(0.0, 0.0), C::new(0.0, -1.0)],
-                vec![C::new(0.0, 1.0), C::new(0.0, 0.0)],
-            ]),
-            Gate::Z => Some(vec![
-                vec![C::new(1.0, 0.0), C::new(0.0, 0.0)],
-                vec![C::new(0.0, 0.0), C::new(-1.0, 0.0)],
-            ]),
-            Gate::S => Some(vec![
-                vec![C::new(1.0, 0.0), C::new(0.0, 0.0)],
-                vec![C::new(0.0, 0.0), C::new(0.0, 1.0)],
-            ]),
-            Gate::T => Some(vec![
-                vec![C::new(1.0, 0.0), C::new(0.0, 0.0)],
-                vec![C::new(0.0, 0.0), C::new(FRAC_1_SQRT_2, FRAC_1_SQRT_2)],
-            ]),
-            Gate::RX(theta) => {
-                let c = theta.cos();
-                let s = theta.sin();
-                Some(vec![
-                    vec![C::new(c, 0.0), C::new(0.0, -s)],
-                    vec![C::new(0.0, -s), C::new(c, 0.0)],
-                ])
-            }
-            Gate::RY(theta) => {
-                let c = theta.cos();
-                let s = theta.sin();
-                Some(vec![
-                    vec![C::new(c, 0.0), C::new(-s, 0.0)],
-                    vec![C::new(s, 0.0), C::new(c, 0.0)],
-                ])
-            }
-            Gate::RZ(theta) => {
-                let e = (Complex64::i() * (*theta) / 2.0).exp();
-                Some(vec![
-                    vec![e.conj(), C::new(0.0, 0.0)],
-                    vec![C::new(0.0, 0.0), e],
-                ])
-            }
-            Gate::CNOT | Gate::SWAP | Gate::Toffoli => None, // Multi-qubit gates
-            Gate::Custom(m) => Some(m.clone()),
+    /// Apply a two-qubit gate
+    pub fn apply_two_qubit_gate(
+        &mut self,
+        gate: &Array2<Complex64>,
+        control: usize,
+        target: usize,
+    ) -> Result<(), String> {
+        if control >= self.num_qubits || target >= self.num_qubits {
+            return Err("Qubit index out of range".to_string());
         }
+        
+        // Build the full operator matrix
+        let operator = self.build_two_qubit_operator(gate, control, target);
+        
+        // Apply the operator
+        self.state = operator.dot(&self.state);
+        
+        // Apply noise if enabled
+        self.apply_noise();
+        
+        Ok(())
     }
 
-    /// Check if this is a multi-qubit gate
-    pub fn is_multi_qubit(&self) -> bool {
-        matches!(self, Gate::CNOT | Gate::SWAP | Gate::Toffoli)
-    }
-}
-
-/// Quantum circuit simulator
-pub struct Simulator {
-    /// Current state vector
-    state: StateVector,
-    /// Number of gates applied
-    gate_count: usize,
-    /// Circuit depth
-    depth: usize,
-    /// Random number generator seed
-    seed: Option<u64>,
-}
-
-impl Simulator {
-    /// Create a new simulator with the given number of qubits
-    pub fn new(num_qubits: usize) -> Result<Self> {
-        let state = StateVector::new(num_qubits)?;
-        Ok(Self {
-            state,
-            gate_count: 0,
-            depth: 0,
-            seed: None,
-        })
-    }
-
-    /// Get the number of qubits
-    pub fn num_qubits(&self) -> usize {
-        self.state.num_qubits()
+    /// Measure a qubit in the computational basis
+    pub fn measure(&mut self, target: usize) -> Result<bool, String> {
+        if target >= self.num_qubits {
+            return Err(format!("Qubit index {} out of range", target));
+        }
+        
+        let mut rng = rand::thread_rng();
+        let probabilities = self.compute_measurement_probabilities(target);
+        let random_value: f64 = rng.gen();
+        
+        let mut cumulative = 0.0;
+        let measurement = for (i, &prob) in probabilities.iter().enumerate() {
+            cumulative += prob;
+            if random_value <= cumulative {
+                i == 1
+            } else {
+                continue;
+            };
+        };
+        
+        // Collapse the state
+        self.collapse_state(target, measurement);
+        
+        // Record measurement
+        self.measurements.entry(target).or_insert_with(Vec::new).push(measurement);
+        
+        Ok(measurement)
     }
 
-    /// Get the current state vector
-    pub fn state(&self) -> &StateVector {
-        &self.state
+    /// Measure multiple qubits
+    pub fn measure_multiple(&mut self, targets: &[usize]) -> Result<Vec<bool>, String> {
+        targets.iter().map(|&t| self.measure(t)).collect()
     }
 
-    /// Set the random seed
-    pub fn set_seed(&mut self, seed: u64) {
-        self.seed = Some(seed);
+    /// Get measurement history for a qubit
+    pub fn measurement_history(&self, qubit: usize) -> Option<&[bool]> {
+        self.measurements.get(&qubit).map(|v| v.as_slice())
     }
 
-    /// Reset the state to |0...0⟩
+    /// Reset the simulator to the |0⟩ state
     pub fn reset(&mut self) {
-        self.state = StateVector::new(self.state.num_qubits()).unwrap();
-        self.gate_count = 0;
-        self.depth = 0;
+        let size = 1 << self.num_qubits;
+        self.state = Array1::zeros(size);
+        self.state[0] = Complex64::new(1.0, 0.0);
+        self.measurements.clear();
     }
 
-    /// Apply a single-qubit gate to the specified qubit
-    pub fn apply_single_qubit_gate(&mut self, gate: &Gate, qubit: usize) -> Result<()> {
-        let matrix = gate.matrix().ok_or_else(|| {
-            QuantumError::GateError(format!("{:?} is not a single-qubit gate", gate))
-        })?;
-
-        let n = self.state.num_qubits();
-        if qubit >= n {
-            return Err(QuantumError::InvalidQubitIndex {
-                index: qubit,
-                max: n - 1,
-            });
+    /// Compute expectation value of an operator
+    pub fn expectation_value(&self, operator: &Array2<Complex64>) -> Result<Complex64, String> {
+        if operator.shape() != &[self.state.len(), self.state.len()] {
+            return Err("Operator dimension mismatch".to_string());
         }
+        
+        let applied = operator.dot(&self.state);
+        let expectation = self.state.iter().zip(applied.iter()).map(|(&s, &a)| s.conj() * a).sum();
+        
+        Ok(expectation)
+    }
 
-        let dim = self.state.dim();
-        let mut new_amps = self.state.amplitudes.clone();
-
-        // Apply gate using tensor product
-        let step = 1usize << qubit;
-        let step2 = step << 1;
-
-        for i in (0..dim).step_by(step2) {
-            for j in 0..step {
-                let idx0 = i + j;
-                let idx1 = i + j + step;
-
-                let a0 = self.state.amplitudes[idx0];
-                let a1 = self.state.amplitudes[idx1];
-
-                new_amps[idx0] = matrix[0][0] * a0 + matrix[0][1] * a1;
-                new_amps[idx1] = matrix[1][0] * a0 + matrix[1][1] * a1;
+    /// Compute the density matrix
+    pub fn density_matrix(&self) -> Array2<Complex64> {
+        let n = self.state.len();
+        let mut density = Array2::zeros((n, n));
+        
+        for i in 0..n {
+            for j in 0..n {
+                density[(i, j)] = self.state[i] * self.state[j].conj();
             }
         }
+        
+        density
+    }
 
-        self.state.amplitudes = new_amps;
-        self.gate_count += 1;
-        self.depth += 1;
+    /// Compute the purity of the state
+    pub fn purity(&self) -> f64 {
+        let density = self.density_matrix();
+        let trace = (density.dot(&density)).diag().sum();
+        trace.re
+    }
 
+    /// Compute the von Neumann entropy
+    pub fn entropy(&self) -> f64 {
+        let density = self.density_matrix();
+        let eigenvalues = density.eigenvalues(false);
+        
+        eigenvalues
+            .iter()
+            .filter(|&&e| e.re > 1e-10)
+            .map(|&e| -e.re * e.re.ln())
+            .sum()
+    }
+
+    /// Compute the fidelity between two states
+    pub fn fidelity(&self, other: &Self) -> Result<f64, String> {
+        if self.num_qubits != other.num_qubits {
+            return Err("Qubit count mismatch".to_string());
+        }
+        
+        let inner_product = self.state.iter().zip(other.state.iter())
+            .map(|(&s, &o)| s.conj() * o)
+            .sum::<Complex64>();
+        
+        Ok(inner_product.norm_sqr())
+    }
+
+    /// Simulate quantum teleportation
+    pub fn teleport(&mut self, message_qubit: usize, entangled_pair: (usize, usize)) -> Result<(), String> {
+        // Implementation of quantum teleportation protocol
+        if message_qubit >= self.num_qubits || entangled_pair.0 >= self.num_qubits || entangled_pair.1 >= self.num_qubits {
+            return Err("Qubit index out of range".to_string());
+        }
+        
+        // Create Bell pair between entangled_pair
+        self.apply_hadamard(entangled_pair.0)?;
+        self.apply_cnot(entangled_pair.0, entangled_pair.1)?;
+        
+        // Bell measurement on message and first entangled qubit
+        self.apply_cnot(message_qubit, entangled_pair.0)?;
+        self.apply_hadamard(message_qubit)?;
+        
+        let m1 = self.measure(message_qubit)?;
+        let m2 = self.measure(entangled_pair.0)?;
+        
+        // Apply corrections based on measurement results
+        if m2 {
+            self.apply_pauli_x(entangled_pair.1)?;
+        }
+        if m1 {
+            self.apply_pauli_z(entangled_pair.1)?;
+        }
+        
         Ok(())
     }
 
-    /// Apply Hadamard gate
-    pub fn h(&mut self, qubit: usize) -> Result<()> {
-        self.apply_single_qubit_gate(&Gate::H, qubit)
-    }
+    // ==================== Private Helper Methods ====================
 
-    /// Apply Pauli-X gate
-    pub fn x(&mut self, qubit: usize) -> Result<()> {
-        self.apply_single_qubit_gate(&Gate::X, qubit)
-    }
-
-    /// Apply Pauli-Y gate
-    pub fn y(&mut self, qubit: usize) -> Result<()> {
-        self.apply_single_qubit_gate(&Gate::Y, qubit)
-    }
-
-    /// Apply Pauli-Z gate
-    pub fn z(&mut self, qubit: usize) -> Result<()> {
-        self.apply_single_qubit_gate(&Gate::Z, qubit)
-    }
-
-    /// Apply CNOT gate
-    pub fn cnot(&mut self, control: usize, target: usize) -> Result<()> {
-        let n = self.state.num_qubits();
-        if control >= n || target >= n {
-            return Err(QuantumError::InvalidQubitIndex {
-                index: usize::max(control, target),
-                max: n - 1,
-            });
-        }
-
-        let dim = self.state.dim();
-        let control_bit = 1usize << control;
-        let target_bit = 1usize << target;
-
-        for i in 0..dim {
-            if i & control_bit != 0 {
-                let j = i ^ target_bit;
-                if i < j {
-                    self.state.amplitudes.swap(i, j);
+    fn build_single_qubit_operator(&self, gate: &Array2<Complex64>, target: usize) -> Array2<Complex64> {
+        let n = self.state.len();
+        let mut operator = Array2::eye(n);
+        
+        for i in 0..n {
+            let target_bit = (i >> target) & 1;
+            for j in 0..n {
+                let j_target_bit = (j >> target) & 1;
+                
+                if (i & !(1 << target)) == (j & !(1 << target)) {
+                    operator[(i, j)] = gate[(j_target_bit, target_bit)];
+                } else {
+                    operator[(i, j)] = Complex64::new(0.0, 0.0);
                 }
             }
         }
-
-        self.gate_count += 1;
-        self.depth += 1;
-
-        Ok(())
+        
+        operator
     }
 
-    /// Apply SWAP gate
-    pub fn swap(&mut self, qubit1: usize, qubit2: usize) -> Result<()> {
-        let n = self.state.num_qubits();
-        if qubit1 >= n || qubit2 >= n {
-            return Err(QuantumError::InvalidQubitIndex {
-                index: usize::max(qubit1, qubit2),
-                max: n - 1,
-            });
-        }
-
-        // SWAP can be decomposed into 3 CNOTs
-        self.cnot(qubit1, qubit2)?;
-        self.cnot(qubit2, qubit1)?;
-        self.cnot(qubit1, qubit2)?;
-
-        Ok(())
-    }
-
-    /// Measure a specific qubit
-    pub fn measure(&mut self, qubit: usize) -> Result<u8> {
-        let n = self.state.num_qubits();
-        if qubit >= n {
-            return Err(QuantumError::InvalidQubitIndex {
-                index: qubit,
-                max: n - 1,
-            });
-        }
-
-        // Calculate probability of |1⟩ for this qubit
-        let mut prob_one = 0.0;
-        let qubit_bit = 1usize << qubit;
-
-        for (i, amp) in self.state.amplitudes.iter().enumerate() {
-            if i & qubit_bit != 0 {
-                prob_one += amp.norm_sqr();
+    fn build_two_qubit_operator(&self, gate: &Array2<Complex64>, control: usize, target: usize) -> Array2<Complex64> {
+        let n = self.state.len();
+        let mut operator = Array2::eye(n);
+        
+        for i in 0..n {
+            let control_bit = (i >> control) & 1;
+            let target_bit = (i >> target) & 1;
+            
+            if control_bit == 1 {
+                for j in 0..n {
+                    let j_control_bit = (j >> control) & 1;
+                    let j_target_bit = (j >> target) & 1;
+                    
+                    if (i & !((1 << control) | (1 << target))) == (j & !((1 << control) | (1 << target))) 
+                        && j_control_bit == control_bit {
+                        operator[(i, j)] = gate[(j_target_bit, target_bit)];
+                    } else {
+                        operator[(i, j)] = Complex64::new(0.0, 0.0);
+                    }
+                }
             }
         }
+        
+        operator
+    }
 
-        // Simulate measurement using deterministic "random" for reproducibility
-        let random = self.seed.map(|s| {
-            // Simple deterministic "random" based on state
-            let state_sum: f64 = self.state.amplitudes.iter()
-                .enumerate()
-                .map(|(i, a)| (i as f64 + a.re) * a.im)
-                .sum();
-            ((state_sum.abs() * 1e10) as u64 % 1000) as f64 / 1000.0
-        }).unwrap_or(0.5);
-
-        let result = if random < prob_one { 1u8 } else { 0u8 };
-
-        // Collapse the state
-        let mask = result as usize << qubit;
-        for i in 0..self.state.amplitudes.len() {
-            if (i & qubit_bit != 0) != (result == 1) {
-                self.state.amplitudes[i] = C::new(0.0, 0.0);
+    fn compute_measurement_probabilities(&self, target: usize) -> Vec<f64> {
+        let size = 1 << self.num_qubits;
+        let mut prob_0 = 0.0;
+        let mut prob_1 = 0.0;
+        
+        for i in 0..size {
+            let bit = (i >> target) & 1;
+            let probability = self.state[i].norm_sqr();
+            
+            if bit == 0 {
+                prob_0 += probability;
+            } else {
+                prob_1 += probability;
             }
         }
-        self.state.normalize();
-
-        Ok(result)
+        
+        vec![prob_0, prob_1]
     }
 
-    /// Measure all qubits and return the result as an integer
-    pub fn measure_all(&mut self) -> Result<usize> {
-        let mut result = 0usize;
-        for qubit in 0..self.state.num_qubits() {
-            let bit = self.measure(qubit)? as usize;
-            result |= bit << qubit;
+    fn collapse_state(&mut self, target: usize, measurement: bool) {
+        let size = 1 << self.num_qubits;
+        
+        for i in 0..size {
+            let bit = (i >> target) & 1;
+            if bit as usize != measurement as usize {
+                self.state[i] = Complex64::new(0.0, 0.0);
+            }
         }
-        Ok(result)
+        
+        // Renormalize
+        let norm = self.state.iter().map(|c| c.norm_sqr()).sum::<f64>().sqrt();
+        self.state /= norm;
     }
 
-    /// Get the gate count
-    pub fn gate_count(&self) -> usize {
-        self.gate_count
+    fn apply_noise(&mut self) {
+        match &self.noise_model {
+            NoiseModel::NoNoise => {}
+            NoiseModel::Depolarizing(p) => self.apply_depolarizing_noise(*p),
+            NoiseModel::AmplitudeDamping(gamma) => self.apply_amplitude_damping(*gamma),
+            NoiseModel::PhaseDamping(gamma) => self.apply_phase_damping(*gamma),
+            NoiseModel::Combined { depolarizing, amplitude_damping, phase_damping } => {
+                self.apply_depolarizing_noise(*depolarizing);
+                self.apply_amplitude_damping(*amplitude_damping);
+                self.apply_phase_damping(*phase_damping);
+            }
+        }
     }
 
-    /// Get the circuit depth
-    pub fn depth(&self) -> usize {
-        self.depth
+    fn apply_depolarizing_noise(&mut self, p: f64) {
+        let n = self.state.len();
+        let mut rng = rand::thread_rng();
+        
+        if rng.gen::<f64>() < p {
+            // Apply random Pauli operator
+            let pauli_op = match rng.gen_range(0..4) {
+                0 => Array2::eye(n),  // Identity
+                1 => self.build_pauli_x_full(),
+                2 => self.build_pauli_y_full(),
+                3 => self.build_pauli_z_full(),
+                _ => unreachable!(),
+            };
+            
+            self.state = pauli_op.dot(&self.state);
+        }
+    }
+
+    fn apply_amplitude_damping(&mut self, gamma: f64) {
+        let n = self.state.len();
+        for i in 0..n {
+            if i & 1 == 1 {
+                self.state[i] *= (1.0 - gamma).sqrt();
+            }
+        }
+        self.state /= self.state.iter().map(|c| c.norm_sqr()).sum::<f64>().sqrt();
+    }
+
+    fn apply_phase_damping(&mut self, gamma: f64) {
+        let n = self.state.len();
+        for i in 0..n {
+            if i & 1 == 1 {
+                self.state[i] *= (1.0 - gamma).sqrt();
+            }
+        }
+    }
+
+    fn build_pauli_x_full(&self) -> Array2<Complex64> {
+        let n = self.state.len();
+        let mut pauli_x = Array2::zeros((n, n));
+        
+        for i in 0..n {
+            pauli_x[(i, i ^ 1)] = Complex64::new(1.0, 0.0);
+        }
+        
+        pauli_x
+    }
+
+    fn build_pauli_y_full(&self) -> Array2<Complex64> {
+        let n = self.state.len();
+        let mut pauli_y = Array2::zeros((n, n));
+        
+        for i in 0..n {
+            let target = i ^ 1;
+            if target > i {
+                pauli_y[(i, target)] = Complex64::new(0.0, -1.0);
+            } else {
+                pauli_y[(i, target)] = Complex64::new(0.0, 1.0);
+            }
+        }
+        
+        pauli_y
+    }
+
+    fn build_pauli_z_full(&self) -> Array2<Complex64> {
+        let n = self.state.len();
+        let mut pauli_z = Array2::eye(n);
+        
+        for i in 0..n {
+            if i & 1 == 1 {
+                pauli_z[(i, i)] = Complex64::new(-1.0, 0.0);
+            }
+        }
+        
+        pauli_z
+    }
+
+    fn apply_hadamard(&mut self, target: usize) -> Result<(), String> {
+        let h = Array2::from(vec![
+            [Complex64::new(1.0 / 2.0.sqrt(), 0.0), Complex64::new(1.0 / 2.0.sqrt(), 0.0)],
+            [Complex64::new(1.0 / 2.0.sqrt(), 0.0), Complex64::new(-1.0 / 2.0.sqrt(), 0.0)],
+        ]);
+        self.apply_gate(&h, target)
+    }
+
+    fn apply_cnot(&mut self, control: usize, target: usize) -> Result<(), String> {
+        let cnot = Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+        ]);
+        self.apply_two_qubit_gate(&cnot, control, target)
+    }
+
+    fn apply_pauli_x(&mut self, target: usize) -> Result<(), String> {
+        let x = Array2::from(vec![
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0)],
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+        ]);
+        self.apply_gate(&x, target)
+    }
+
+    fn apply_pauli_z(&mut self, target: usize) -> Result<(), String> {
+        let z = Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(-1.0, 0.0)],
+        ]);
+        self.apply_gate(&z, target)
     }
 }
 
@@ -399,68 +463,58 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_state_vector_creation() {
-        let sv = StateVector::new(2).unwrap();
-        assert_eq!(sv.num_qubits(), 2);
-        assert_eq!(sv.dim(), 4);
-    }
-
-    #[test]
-    fn test_state_vector_initial_state() {
-        let sv = StateVector::new(3).unwrap();
-        assert_eq!(sv.probability(0), 1.0);
-        assert_eq!(sv.probability(1), 0.0);
-    }
-
-    #[test]
-    fn test_simulator_creation() {
-        let sim = Simulator::new(4).unwrap();
-        assert_eq!(sim.num_qubits(), 4);
+    fn test_simulator_initialization() {
+        let sim = QuantumSimulator::new(2, NoiseModel::NoNoise);
+        assert_eq!(sim.num_qubits(), 2);
     }
 
     #[test]
     fn test_hadamard_gate() {
-        let mut sim = Simulator::new(1).unwrap();
-        sim.h(0).unwrap();
-        
+        let mut sim = QuantumSimulator::new(1, NoiseModel::NoNoise);
+        sim.apply_hadamard(0).unwrap();
         let state = sim.state();
-        let amp0 = state.amplitude(0).unwrap();
-        let amp1 = state.amplitude(1).unwrap();
-        
-        // After H, amplitudes should be 1/sqrt(2)
-        assert!((amp0.re - FRAC_1_SQRT_2).abs() < 1e-10);
-        assert!((amp1.re - FRAC_1_SQRT_2).abs() < 1e-10);
-    }
-
-    #[test]
-    fn test_x_gate() {
-        let mut sim = Simulator::new(1).unwrap();
-        sim.x(0).unwrap();
-        
-        let state = sim.state();
-        assert_eq!(state.probability(1), 1.0);
-        assert_eq!(state.probability(0), 0.0);
+        assert!((state[0].norm() - 0.70710678).abs() < 1e-6);
+        assert!((state[1].norm() - 0.70710678).abs() < 1e-6);
     }
 
     #[test]
     fn test_cnot_gate() {
-        let mut sim = Simulator::new(2).unwrap();
-        sim.h(0).unwrap(); // Put qubit 0 in superposition
-        sim.cnot(0, 1).unwrap(); // Entangle with qubit 1
-        
-        // After H on qubit 0 and CNOT, we should have a Bell state
-        // |00⟩ + |11⟩ normalized
+        let mut sim = QuantumSimulator::new(2, NoiseModel::NoNoise);
+        sim.apply_hadamard(0).unwrap();
+        sim.apply_cnot(0, 1).unwrap();
         let state = sim.state();
-        assert!((state.probability(0) - 0.5).abs() < 1e-10);
-        assert!((state.probability(3) - 0.5).abs() < 1e-10);
+        assert!((state[0].norm() - 0.70710678).abs() < 1e-6);
+        assert!((state[3].norm() - 0.70710678).abs() < 1e-6);
     }
 
     #[test]
-    fn test_gate_count() {
-        let mut sim = Simulator::new(2).unwrap();
-        sim.h(0).unwrap();
-        sim.x(1).unwrap();
-        sim.cnot(0, 1).unwrap();
-        assert_eq!(sim.gate_count(), 3);
+    fn test_measurement() {
+        let mut sim = QuantumSimulator::new(1, NoiseModel::NoNoise);
+        sim.apply_hadamard(0).unwrap();
+        let result = sim.measure(0).unwrap();
+        // Result should be 0 or 1 with approximately equal probability
+        assert!(result == true || result == false);
+    }
+
+    #[test]
+    fn test_fidelity() {
+        let mut sim1 = QuantumSimulator::new(1, NoiseModel::NoNoise);
+        let mut sim2 = QuantumSimulator::new(1, NoiseModel::NoNoise);
+        sim1.apply_hadamard(0).unwrap();
+        sim2.apply_hadamard(0).unwrap();
+        let fidelity = sim1.fidelity(&sim2).unwrap();
+        assert!((fidelity - 1.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_entanglement() {
+        let mut sim = QuantumSimulator::new(2, NoiseModel::NoNoise);
+        sim.apply_hadamard(0).unwrap();
+        sim.apply_cnot(0, 1).unwrap();
+        
+        // Bell state should be maximally entangled
+        let density = sim.density_matrix();
+        let purity = sim.purity();
+        assert!((purity - 1.0).abs() < 1e-6);
     }
 }

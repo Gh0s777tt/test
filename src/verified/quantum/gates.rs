@@ -1,404 +1,368 @@
-//! Quantum Gate Operations
-//!
-//! This module provides implementations of standard quantum gates
-//! including single-qubit gates, multi-qubit gates, and parameterized gates.
+// Quantum Gates for VantisOS
+// Comprehensive collection of quantum gate operations
 
-use super::{QuantumError, Result};
+use num_complex::Complex64;
+use ndarray::Array2;
 use std::f64::consts::{FRAC_1_SQRT_2, PI};
 
-/// Single-qubit gate trait
-pub trait SingleQubitGate: std::fmt::Debug + Clone + Send + Sync {
-    /// Get the 2x2 matrix representation of the gate
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2];
+/// Quantum gate operations
+#[derive(Clone, Debug)]
+pub enum QuantumGate {
+    /// Single-qubit gates
+    PauliX,
+    PauliY,
+    PauliZ,
+    Hadamard,
+    Phase,
+    S,
+    T,
+    RX(f64),
+    RY(f64),
+    RZ(f64),
+    U { theta: f64, phi: f64, lambda: f64 },
+    
+    /// Two-qubit gates
+    CNOT,
+    CZ,
+    SWAP,
+    ControlledPhase(f64),
+    
+    /// Three-qubit gates
+    Toffoli,
+    Fredkin,
+}
+
+impl QuantumGate {
+    /// Get the matrix representation of the gate
+    pub fn matrix(&self) -> Array2<Complex64> {
+        match self {
+            // Single-qubit gates
+            QuantumGate::PauliX => self.pauli_x(),
+            QuantumGate::PauliY => self.pauli_y(),
+            QuantumGate::PauliZ => self.pauli_z(),
+            QuantumGate::Hadamard => self.hadamard(),
+            QuantumGate::Phase => self.phase(),
+            QuantumGate::S => self.s_gate(),
+            QuantumGate::T => self.t_gate(),
+            QuantumGate::RX(theta) => self.rx(*theta),
+            QuantumGate::RY(theta) => self.ry(*theta),
+            QuantumGate::RZ(theta) => self.rz(*theta),
+            QuantumGate::U { theta, phi, lambda } => self.u(*theta, *phi, *lambda),
+            
+            // Two-qubit gates
+            QuantumGate::CNOT => self.cnot(),
+            QuantumGate::CZ => self.cz(),
+            QuantumGate::SWAP => self.swap(),
+            QuantumGate::ControlledPhase(phi) => self.controlled_phase(*phi),
+            
+            // Three-qubit gates
+            QuantumGate::Toffoli => self.toffoli(),
+            QuantumGate::Fredkin => self.fredkin(),
+        }
+    }
 
     /// Get the name of the gate
-    fn name(&self) -> &'static str;
-
-    /// Check if the gate is parameterized
-    fn is_parameterized(&self) -> bool {
-        false
-    }
-}
-
-/// Hadamard gate
-#[derive(Debug, Clone, Copy, Default)]
-pub struct H;
-
-impl H {
-    /// Create a new Hadamard gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SingleQubitGate for H {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let val = num_complex::Complex64::new(FRAC_1_SQRT_2, 0.0);
-        let neg_val = num_complex::Complex64::new(-FRAC_1_SQRT_2, 0.0);
-        [[val, val], [val, neg_val]]
+    pub fn name(&self) -> &str {
+        match self {
+            QuantumGate::PauliX => "Pauli-X",
+            QuantumGate::PauliY => "Pauli-Y",
+            QuantumGate::PauliZ => "Pauli-Z",
+            QuantumGate::Hadamard => "Hadamard",
+            QuantumGate::Phase => "Phase",
+            QuantumGate::S => "S",
+            QuantumGate::T => "T",
+            QuantumGate::RX(_) => "RX",
+            QuantumGate::RY(_) => "RY",
+            QuantumGate::RZ(_) => "RZ",
+            QuantumGate::U { .. } => "U",
+            QuantumGate::CNOT => "CNOT",
+            QuantumGate::CZ => "CZ",
+            QuantumGate::SWAP => "SWAP",
+            QuantumGate::ControlledPhase(_) => "CPhase",
+            QuantumGate::Toffoli => "Toffoli",
+            QuantumGate::Fredkin => "Fredkin",
+        }
     }
 
-    fn name(&self) -> &'static str {
-        "H"
-    }
-}
-
-/// Pauli-X gate (NOT gate)
-#[derive(Debug, Clone, Copy, Default)]
-pub struct X;
-
-impl X {
-    /// Create a new Pauli-X gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SingleQubitGate for X {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        [[zero, one], [one, zero]]
-    }
-
-    fn name(&self) -> &'static str {
-        "X"
-    }
-}
-
-/// Pauli-Y gate
-#[derive(Debug, Clone, Copy, Default)]
-pub struct Y;
-
-impl Y {
-    /// Create a new Pauli-Y gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SingleQubitGate for Y {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let i = num_complex::Complex64::new(0.0, 1.0);
-        let neg_i = num_complex::Complex64::new(0.0, -1.0);
-        [[zero, neg_i], [i, zero]]
-    }
-
-    fn name(&self) -> &'static str {
-        "Y"
-    }
-}
-
-/// Pauli-Z gate
-#[derive(Debug, Clone, Copy, Default)]
-pub struct Z;
-
-impl Z {
-    /// Create a new Pauli-Z gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SingleQubitGate for Z {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        let neg_one = num_complex::Complex64::new(-1.0, 0.0);
-        [[one, zero], [zero, neg_one]]
-    }
-
-    fn name(&self) -> &'static str {
-        "Z"
-    }
-}
-
-/// Phase gate (S)
-#[derive(Debug, Clone, Copy, Default)]
-pub struct S;
-
-impl S {
-    /// Create a new Phase gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SingleQubitGate for S {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        let i = num_complex::Complex64::new(0.0, 1.0);
-        [[one, zero], [zero, i]]
-    }
-
-    fn name(&self) -> &'static str {
-        "S"
-    }
-}
-
-/// T gate (π/8 gate)
-#[derive(Debug, Clone, Copy, Default)]
-pub struct T;
-
-impl T {
-    /// Create a new T gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl SingleQubitGate for T {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        let exp = num_complex::Complex64::from_polar(1.0, PI / 4.0);
-        [[one, zero], [zero, exp]]
-    }
-
-    fn name(&self) -> &'static str {
-        "T"
-    }
-}
-
-/// RX rotation gate
-#[derive(Debug, Clone, Copy)]
-pub struct RX {
-    pub theta: f64,
-}
-
-impl RX {
-    /// Create a new RX gate with angle theta
-    pub fn new(theta: f64) -> Self {
-        Self { theta }
-    }
-}
-
-impl SingleQubitGate for RX {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let c = num_complex::Complex64::new(self.theta.cos(), 0.0);
-        let s = num_complex::Complex64::new(0.0, -self.theta.sin());
-        [[c, s], [s, c]]
-    }
-
-    fn name(&self) -> &'static str {
-        "RX"
-    }
-
-    fn is_parameterized(&self) -> bool {
+    /// Check if the gate is unitary
+    pub fn is_unitary(&self) -> bool {
+        let matrix = self.matrix();
+        let n = matrix.nrows();
+        
+        // Compute U * U†
+        let identity = matrix.dot(&matrix.t().mapv(|c| c.conj()));
+        
+        // Check if it's identity
+        for i in 0..n {
+            for j in 0..n {
+                let expected = if i == j {
+                    Complex64::new(1.0, 0.0)
+                } else {
+                    Complex64::new(0.0, 0.0)
+                };
+                if (identity[(i, j)] - expected).norm() > 1e-10 {
+                    return false;
+                }
+            }
+        }
+        
         true
     }
-}
 
-/// RY rotation gate
-#[derive(Debug, Clone, Copy)]
-pub struct RY {
-    pub theta: f64,
-}
+    /// Get the number of qubits the gate operates on
+    pub fn num_qubits(&self) -> usize {
+        match self {
+            QuantumGate::PauliX | QuantumGate::PauliY | QuantumGate::PauliZ |
+            QuantumGate::Hadamard | QuantumGate::Phase | QuantumGate::S | QuantumGate::T |
+            QuantumGate::RX(_) | QuantumGate::RY(_) | QuantumGate::RZ(_) |
+            QuantumGate::U { .. } => 1,
+            
+            QuantumGate::CNOT | QuantumGate::CZ | QuantumGate::SWAP |
+            QuantumGate::ControlledPhase(_) => 2,
+            
+            QuantumGate::Toffoli | QuantumGate::Fredkin => 3,
+        }
+    }
 
-impl RY {
-    /// Create a new RY gate with angle theta
-    pub fn new(theta: f64) -> Self {
-        Self { theta }
+    /// Check if the gate is reversible
+    pub fn is_reversible(&self) -> bool {
+        self.is_unitary()
+    }
+
+    /// Get the inverse of the gate
+    pub fn inverse(&self) -> QuantumGate {
+        match self {
+            QuantumGate::PauliX | QuantumGate::PauliY | QuantumGate::PauliZ => self.clone(),
+            QuantumGate::Hadamard => QuantumGate::Hadamard,
+            QuantumGate::Phase => QuantumGate::Phase,
+            QuantumGate::S => QuantumGate::T,  // S = T^2, so S† = T^6 ≈ T
+            QuantumGate::T => QuantumGate::Phase,  // T = S^(1/2)
+            QuantumGate::RX(theta) => QuantumGate::RX(-theta),
+            QuantumGate::RY(theta) => QuantumGate::RY(-theta),
+            QuantumGate::RZ(theta) => QuantumGate::RZ(-theta),
+            QuantumGate::U { theta, phi, lambda } => {
+                QuantumGate::U {
+                    theta: -theta,
+                    phi: -lambda,
+                    lambda: -phi,
+                }
+            }
+            QuantumGate::CNOT | QuantumGate::CZ | QuantumGate::SWAP => self.clone(),
+            QuantumGate::ControlledPhase(phi) => QuantumGate::ControlledPhase(-phi),
+            QuantumGate::Toffoli | QuantumGate::Fredkin => self.clone(),
+        }
+    }
+
+    // ==================== Pauli Gates ====================
+
+    fn pauli_x(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0)],
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+        ])
+    }
+
+    fn pauli_y(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, -1.0)],
+            [Complex64::new(0.0, 1.0), Complex64::new(0.0, 0.0)],
+        ])
+    }
+
+    fn pauli_z(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(-1.0, 0.0)],
+        ])
+    }
+
+    // ==================== Hadamard Gate ====================
+
+    fn hadamard(&self) -> Array2<Complex64> {
+        let h = Complex64::new(FRAC_1_SQRT_2, 0.0);
+        Array2::from(vec![
+            [h, h],
+            [h, -h],
+        ])
+    }
+
+    // ==================== Phase Gates ====================
+
+    fn phase(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(-1.0, 0.0)],
+        ])
+    }
+
+    fn s_gate(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 1.0)],
+        ])
+    }
+
+    fn t_gate(&self) -> Array2<Complex64> {
+        let t = Complex64::new(1.0, 1.0) / Complex64::new(2.0, 0.0).sqrt();
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), t],
+        ])
+    }
+
+    // ==================== Rotation Gates ====================
+
+    fn rx(&self, theta: f64) -> Array2<Complex64> {
+        let cos = (theta / 2.0).cos();
+        let sin = (theta / 2.0).sin();
+        Array2::from(vec![
+            [Complex64::new(cos, 0.0), Complex64::new(0.0, -sin)],
+            [Complex64::new(0.0, -sin), Complex64::new(cos, 0.0)],
+        ])
+    }
+
+    fn ry(&self, theta: f64) -> Array2<Complex64> {
+        let cos = (theta / 2.0).cos();
+        let sin = (theta / 2.0).sin();
+        Array2::from(vec![
+            [Complex64::new(cos, 0.0), Complex64::new(-sin, 0.0)],
+            [Complex64::new(sin, 0.0), Complex64::new(cos, 0.0)],
+        ])
+    }
+
+    fn rz(&self, theta: f64) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new((-theta / 2.0).cos(), (-theta / 2.0).sin()), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new((theta / 2.0).cos(), (theta / 2.0).sin())],
+        ])
+    }
+
+    // ==================== Universal Gate ====================
+
+    fn u(&self, theta: f64, phi: f64, lambda: f64) -> Array2<Complex64> {
+        let cos_theta_2 = (theta / 2.0).cos();
+        let sin_theta_2 = (theta / 2.0).sin();
+        
+        Array2::from(vec![
+            [
+                Complex64::new(cos_theta_2, 0.0),
+                Complex64::new(-sin_theta_2 * lambda.cos(), -sin_theta_2 * lambda.sin()),
+            ],
+            [
+                Complex64::new(sin_theta_2 * phi.cos(), sin_theta_2 * phi.sin()),
+                Complex64::new(cos_theta_2 * (phi + lambda).cos(), cos_theta_2 * (phi + lambda).sin()),
+            ],
+        ])
+    }
+
+    // ==================== Two-Qubit Gates ====================
+
+    fn cnot(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+        ])
+    }
+
+    fn cz(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(-1.0, 0.0)],
+        ])
+    }
+
+    fn swap(&self) -> Array2<Complex64> {
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0)],
+        ])
+    }
+
+    fn controlled_phase(&self, phi: f64) -> Array2<Complex64> {
+        let phase = Complex64::new(phi.cos(), phi.sin());
+        Array2::from(vec![
+            [Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(1.0, 0.0), Complex64::new(0.0, 0.0)],
+            [Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), Complex64::new(0.0, 0.0), phase],
+        ])
+    }
+
+    // ==================== Three-Qubit Gates ====================
+
+    fn toffoli(&self) -> Array2<Complex64> {
+        let mut matrix = Array2::eye(8);
+        matrix[(6, 7)] = Complex64::new(1.0, 0.0);
+        matrix[(6, 6)] = Complex64::new(0.0, 0.0);
+        matrix[(7, 6)] = Complex64::new(1.0, 0.0);
+        matrix[(7, 7)] = Complex64::new(0.0, 0.0);
+        matrix
+    }
+
+    fn fredkin(&self) -> Array2<Complex64> {
+        let mut matrix = Array2::eye(8);
+        // Swap states 5 and 6 (binary 101 and 110) when control is 1
+        matrix[(5, 6)] = Complex64::new(1.0, 0.0);
+        matrix[(6, 5)] = Complex64::new(1.0, 0.0);
+        matrix[(5, 5)] = Complex64::new(0.0, 0.0);
+        matrix[(6, 6)] = Complex64::new(0.0, 0.0);
+        matrix
     }
 }
 
-impl SingleQubitGate for RY {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let c = num_complex::Complex64::new(self.theta.cos(), 0.0);
-        let s = num_complex::Complex64::new(-self.theta.sin(), 0.0);
-        let sp = num_complex::Complex64::new(self.theta.sin(), 0.0);
-        [[c, s], [sp, c]]
+/// Gate composition utilities
+pub struct GateComposer;
+
+impl GateComposer {
+    /// Compose two gates sequentially
+    pub fn compose(gate1: &QuantumGate, gate2: &QuantumGate) -> Result<Array2<Complex64>, String> {
+        if gate1.num_qubits() != gate2.num_qubits() {
+            return Err("Cannot compose gates with different qubit counts".to_string());
+        }
+        
+        let matrix1 = gate1.matrix();
+        let matrix2 = gate2.matrix();
+        Ok(matrix2.dot(&matrix1))
     }
 
-    fn name(&self) -> &'static str {
-        "RY"
+    /// Tensor product of two gates
+    pub fn tensor_product(gate1: &QuantumGate, gate2: &QuantumGate) -> Array2<Complex64> {
+        let matrix1 = gate1.matrix();
+        let matrix2 = gate2.matrix();
+        
+        let rows1 = matrix1.nrows();
+        let cols1 = matrix1.ncols();
+        let rows2 = matrix2.nrows();
+        let cols2 = matrix2.ncols();
+        
+        let mut result = Array2::zeros((rows1 * rows2, cols1 * cols2));
+        
+        for i in 0..rows1 {
+            for j in 0..cols1 {
+                for k in 0..rows2 {
+                    for l in 0..cols2 {
+                        result[(i * rows2 + k, j * cols2 + l)] = matrix1[(i, j)] * matrix2[(k, l)];
+                    }
+                }
+            }
+        }
+        
+        result
     }
 
-    fn is_parameterized(&self) -> bool {
-        true
-    }
-}
-
-/// RZ rotation gate
-#[derive(Debug, Clone, Copy)]
-pub struct RZ {
-    pub theta: f64,
-}
-
-impl RZ {
-    /// Create a new RZ gate with angle theta
-    pub fn new(theta: f64) -> Self {
-        Self { theta }
-    }
-}
-
-impl SingleQubitGate for RZ {
-    fn matrix(&self) -> [[num_complex::Complex64; 2]; 2] {
-        let e = num_complex::Complex64::from_polar(1.0, self.theta / 2.0);
-        let neg_e = num_complex::Complex64::from_polar(1.0, -self.theta / 2.0);
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        [[neg_e, zero], [zero, e]]
-    }
-
-    fn name(&self) -> &'static str {
-        "RZ"
-    }
-
-    fn is_parameterized(&self) -> bool {
-        true
-    }
-}
-
-/// CNOT gate (controlled-X)
-#[derive(Debug, Clone, Copy, Default)]
-pub struct CNOT;
-
-impl CNOT {
-    /// Create a new CNOT gate
-    pub fn new() -> Self {
-        Self
-    }
-
-    /// Get the 4x4 matrix representation
-    pub fn matrix(&self) -> [[num_complex::Complex64; 4]; 4] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        [
-            [one, zero, zero, zero],
-            [zero, one, zero, zero],
-            [zero, zero, zero, one],
-            [zero, zero, one, zero],
-        ]
-    }
-}
-
-/// SWAP gate
-#[derive(Debug, Clone, Copy, Default)]
-pub struct SWAP;
-
-impl SWAP {
-    /// Create a new SWAP gate
-    pub fn new() -> Self {
-        Self
-    }
-
-    /// Get the 4x4 matrix representation
-    pub fn matrix(&self) -> [[num_complex::Complex64; 4]; 4] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        [
-            [one, zero, zero, zero],
-            [zero, zero, one, zero],
-            [zero, one, zero, zero],
-            [zero, zero, zero, one],
-        ]
-    }
-}
-
-/// Toffoli gate (CCX)
-#[derive(Debug, Clone, Copy, Default)]
-pub struct Toffoli;
-
-impl Toffoli {
-    /// Create a new Toffoli gate
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-/// CZ gate (controlled-Z)
-#[derive(Debug, Clone, Copy, Default)]
-pub struct CZ;
-
-impl CZ {
-    /// Create a new CZ gate
-    pub fn new() -> Self {
-        Self
-    }
-
-    /// Get the 4x4 matrix representation
-    pub fn matrix(&self) -> [[num_complex::Complex64; 4]; 4] {
-        let zero = num_complex::Complex64::new(0.0, 0.0);
-        let one = num_complex::Complex64::new(1.0, 0.0);
-        let neg_one = num_complex::Complex64::new(-1.0, 0.0);
-        [
-            [one, zero, zero, zero],
-            [zero, one, zero, zero],
-            [zero, zero, one, zero],
-            [zero, zero, zero, neg_one],
-        ]
-    }
-}
-
-/// Gate builder for creating gates
-pub struct GateBuilder;
-
-impl GateBuilder {
-    /// Create a Hadamard gate
-    pub fn h() -> H {
-        H::new()
-    }
-
-    /// Create a Pauli-X gate
-    pub fn x() -> X {
-        X::new()
-    }
-
-    /// Create a Pauli-Y gate
-    pub fn y() -> Y {
-        Y::new()
-    }
-
-    /// Create a Pauli-Z gate
-    pub fn z() -> Z {
-        Z::new()
-    }
-
-    /// Create a Phase gate
-    pub fn s() -> S {
-        S::new()
-    }
-
-    /// Create a T gate
-    pub fn t() -> T {
-        T::new()
-    }
-
-    /// Create an RX gate
-    pub fn rx(theta: f64) -> RX {
-        RX::new(theta)
-    }
-
-    /// Create an RY gate
-    pub fn ry(theta: f64) -> RY {
-        RY::new(theta)
-    }
-
-    /// Create an RZ gate
-    pub fn rz(theta: f64) -> RZ {
-        RZ::new(theta)
-    }
-
-    /// Create a CNOT gate
-    pub fn cnot() -> CNOT {
-        CNOT::new()
-    }
-
-    /// Create a SWAP gate
-    pub fn swap() -> SWAP {
-        SWAP::new()
-    }
-
-    /// Create a Toffoli gate
-    pub fn toffoli() -> Toffoli {
-        Toffoli::new()
-    }
-
-    /// Create a CZ gate
-    pub fn cz() -> CZ {
-        CZ::new()
+    /// Create a controlled version of a gate
+    pub fn controlled(gate: &QuantumGate) -> QuantumGate {
+        match gate {
+            QuantumGate::PauliX => QuantumGate::CNOT,
+            QuantumGate::PauliZ => QuantumGate::CZ,
+            _ => unimplemented!("Controlled version of this gate not implemented"),
+        }
     }
 }
 
@@ -407,46 +371,71 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_h_gate_matrix() {
-        let h = H::new();
-        let m = h.matrix();
-        let val = FRAC_1_SQRT_2;
-        assert!((m[0][0].re - val).abs() < 1e-10);
-        assert!((m[1][1].re + val).abs() < 1e-10);
+    fn test_pauli_gates() {
+        assert!(QuantumGate::PauliX.is_unitary());
+        assert!(QuantumGate::PauliY.is_unitary());
+        assert!(QuantumGate::PauliZ.is_unitary());
     }
 
     #[test]
-    fn test_x_gate_matrix() {
-        let x = X::new();
-        let m = x.matrix();
-        assert_eq!(m[0][0].re, 0.0);
-        assert_eq!(m[0][1].re, 1.0);
-        assert_eq!(m[1][0].re, 1.0);
-        assert_eq!(m[1][1].re, 0.0);
+    fn test_hadamard_gate() {
+        let h = QuantumGate::Hadamard;
+        assert!(h.is_unitary());
+        assert_eq!(h.num_qubits(), 1);
     }
 
     #[test]
-    fn test_cnot_gate_matrix() {
-        let cnot = CNOT::new();
-        let m = cnot.matrix();
-        assert_eq!(m[0][0].re, 1.0);
-        assert_eq!(m[3][3].re, 0.0);
-        assert_eq!(m[3][2].re, 1.0);
+    fn test_cnot_gate() {
+        let cnot = QuantumGate::CNOT;
+        assert!(cnot.is_unitary());
+        assert_eq!(cnot.num_qubits(), 2);
     }
 
     #[test]
-    fn test_rx_gate() {
-        let rx = RX::new(PI);
-        let m = rx.matrix();
-        assert!((m[0][0].re - (-1.0)).abs() < 1e-10);
+    fn test_gate_composition() {
+        let x = QuantumGate::PauliX;
+        let h = QuantumGate::Hadamard;
+        let composed = GateComposer::compose(&x, &h);
+        assert!(composed.is_ok());
     }
 
     #[test]
-    fn test_gate_builder() {
-        let h = GateBuilder::h();
-        assert_eq!(h.name(), "H");
+    fn test_tensor_product() {
+        let h = QuantumGate::Hadamard;
+        let x = QuantumGate::PauliX;
+        let tensor = GateComposer::tensor_product(&h, &x);
+        assert_eq!(tensor.shape(), &[4, 4]);
+    }
 
-        let rx = GateBuilder::rx(PI / 2.0);
-        assert!(rx.is_parameterized());
+    #[test]
+    fn test_rotation_gates() {
+        let rx = QuantumGate::RX(PI / 4.0);
+        let ry = QuantumGate::RY(PI / 4.0);
+        let rz = QuantumGate::RZ(PI / 4.0);
+        
+        assert!(rx.is_unitary());
+        assert!(ry.is_unitary());
+        assert!(rz.is_unitary());
+    }
+
+    #[test]
+    fn test_gate_inverse() {
+        let rx = QuantumGate::RX(PI / 4.0);
+        let inverse = rx.inverse();
+        assert!(matches!(inverse, QuantumGate::RX(_)));
+    }
+
+    #[test]
+    fn test_toffoli_gate() {
+        let toffoli = QuantumGate::Toffoli;
+        assert!(toffoli.is_unitary());
+        assert_eq!(toffoli.num_qubits(), 3);
+    }
+
+    #[test]
+    fn test_fredkin_gate() {
+        let fredkin = QuantumGate::Fredkin;
+        assert!(fredkin.is_unitary());
+        assert_eq!(fredkin.num_qubits(), 3);
     }
 }
