@@ -204,17 +204,21 @@ mod tests {
 
     #[test]
     fn test_room_type_variants() {
-        assert_eq!(std::mem::discriminant(&RoomType::Workspace), 
-                   std::mem::discriminant(&RoomType::Workspace));
-        assert_eq!(std::mem::discriminant(&RoomType::Entertainment), 
-                   std::mem::discriminant(&RoomType::Entertainment));
+        assert_eq!(
+            std::mem::discriminant(&RoomType::Workspace),
+            std::mem::discriminant(&RoomType::Workspace)
+        );
+        assert_eq!(
+            std::mem::discriminant(&RoomType::Entertainment),
+            std::mem::discriminant(&RoomType::Entertainment)
+        );
     }
 
     #[test]
     fn test_object_type_variants() {
         let obj_type = ObjectType::Window("test".to_string());
         assert!(matches!(obj_type, ObjectType::Window(_)));
-        
+
         let obj_type = ObjectType::Portal("room1".to_string());
         assert!(matches!(obj_type, ObjectType::Portal(_)));
     }
@@ -223,41 +227,57 @@ mod tests {
     fn test_object_action_variants() {
         let action = ObjectAction::LaunchApp("test".to_string());
         assert!(matches!(action, ObjectAction::LaunchApp(_)));
-        
+
         let action = ObjectAction::GoToRoom("room1".to_string());
         assert!(matches!(action, ObjectAction::GoToRoom(_)));
     }
 
     #[test]
     fn test_connection_type_variants() {
-        assert_eq!(std::mem::discriminant(&ConnectionType::Door), 
-                   std::mem::discriminant(&ConnectionType::Door));
-        assert_eq!(std::mem::discriminant(&ConnectionType::Portal), 
-                   std::mem::discriminant(&ConnectionType::Portal));
+        assert_eq!(
+            std::mem::discriminant(&ConnectionType::Door),
+            std::mem::discriminant(&ConnectionType::Door)
+        );
+        assert_eq!(
+            std::mem::discriminant(&ConnectionType::Portal),
+            std::mem::discriminant(&ConnectionType::Portal)
+        );
     }
 
     #[test]
     fn test_hand_gesture_variants() {
-        assert_eq!(std::mem::discriminant(&HandGesture::Open), 
-                   std::mem::discriminant(&HandGesture::Open));
-        assert_eq!(std::mem::discriminant(&HandGesture::Grab), 
-                   std::mem::discriminant(&HandGesture::Grab));
+        assert_eq!(
+            std::mem::discriminant(&HandGesture::Open),
+            std::mem::discriminant(&HandGesture::Open)
+        );
+        assert_eq!(
+            std::mem::discriminant(&HandGesture::Grab),
+            std::mem::discriminant(&HandGesture::Grab)
+        );
     }
 
     #[test]
     fn test_shell_state_variants() {
-        assert_eq!(std::mem::discriminant(&ShellState::Idle), 
-                   std::mem::discriminant(&ShellState::Idle));
-        assert_eq!(std::mem::discriminant(&ShellState::Navigating), 
-                   std::mem::discriminant(&ShellState::Navigating));
+        assert_eq!(
+            std::mem::discriminant(&ShellState::Idle),
+            std::mem::discriminant(&ShellState::Idle)
+        );
+        assert_eq!(
+            std::mem::discriminant(&ShellState::Navigating),
+            std::mem::discriminant(&ShellState::Navigating)
+        );
     }
 
     #[test]
     fn test_shadow_quality_variants() {
-        assert_eq!(std::mem::discriminant(&ShadowQuality::Low), 
-                   std::mem::discriminant(&ShadowQuality::Low));
-        assert_eq!(std::mem::discriminant(&ShadowQuality::Ultra), 
-                   std::mem::discriminant(&ShadowQuality::Ultra));
+        assert_eq!(
+            std::mem::discriminant(&ShadowQuality::Low),
+            std::mem::discriminant(&ShadowQuality::Low)
+        );
+        assert_eq!(
+            std::mem::discriminant(&ShadowQuality::Ultra),
+            std::mem::discriminant(&ShadowQuality::Ultra)
+        );
     }
 
     #[test]

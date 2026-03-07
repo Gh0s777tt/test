@@ -14,5 +14,7 @@ use vstd::prelude::*;
 
 pub mod verus_shim;
 
+pub mod implementation;
+
 // Re-export main types
-pub use self::main::*;
+pub use self::implementation::*;

@@ -55,7 +55,7 @@ mod tests {
     fn test_handle_pointer_move() {
         let mut shell = RadialShell::new();
         shell.show_menu(100.0, 100.0).unwrap();
-        
+
         // Move pointer to trigger selection
         let result = shell.handle_pointer_move(100.0, 300.0);
         assert!(result.is_some() || result.is_none()); // Depends on position
@@ -77,7 +77,11 @@ mod tests {
     #[test]
     fn test_quick_action_names() {
         let shell = RadialShell::new();
-        let names: Vec<&str> = shell.quick_actions().iter().map(|a| a.name.as_str()).collect();
+        let names: Vec<&str> = shell
+            .quick_actions()
+            .iter()
+            .map(|a| a.name.as_str())
+            .collect();
         assert!(names.contains(&"Wi-Fi"));
         assert!(names.contains(&"Bluetooth"));
         assert!(names.contains(&"Volume"));
@@ -126,7 +130,12 @@ mod tests {
     fn test_recent_items_limit() {
         let mut shell = RadialShell::new();
         for i in 0..15 {
-            shell.add_recent_item(&format!("/file{}", i), &format!("File{}", i), "file", RecentItemType::File);
+            shell.add_recent_item(
+                &format!("/file{}", i),
+                &format!("File{}", i),
+                "file",
+                RecentItemType::File,
+            );
         }
         assert_eq!(shell.recent_items().len(), 10);
     }
@@ -160,25 +169,33 @@ mod tests {
     fn test_menu_action_variants() {
         let action = MenuAction::LaunchApp("test".to_string());
         assert!(matches!(action, MenuAction::LaunchApp(_)));
-        
+
         let action = MenuAction::System(SystemAction::Lock);
         assert!(matches!(action, MenuAction::System(_)));
     }
 
     #[test]
     fn test_system_action_variants() {
-        assert_eq!(std::mem::discriminant(&SystemAction::PowerOff), 
-                   std::mem::discriminant(&SystemAction::PowerOff));
-        assert_eq!(std::mem::discriminant(&SystemAction::Restart), 
-                   std::mem::discriminant(&SystemAction::Restart));
+        assert_eq!(
+            std::mem::discriminant(&SystemAction::PowerOff),
+            std::mem::discriminant(&SystemAction::PowerOff)
+        );
+        assert_eq!(
+            std::mem::discriminant(&SystemAction::Restart),
+            std::mem::discriminant(&SystemAction::Restart)
+        );
     }
 
     #[test]
     fn test_notification_priority() {
-        assert_eq!(std::mem::discriminant(&NotificationPriority::Low), 
-                   std::mem::discriminant(&NotificationPriority::Low));
-        assert_eq!(std::mem::discriminant(&NotificationPriority::Urgent), 
-                   std::mem::discriminant(&NotificationPriority::Urgent));
+        assert_eq!(
+            std::mem::discriminant(&NotificationPriority::Low),
+            std::mem::discriminant(&NotificationPriority::Low)
+        );
+        assert_eq!(
+            std::mem::discriminant(&NotificationPriority::Urgent),
+            std::mem::discriminant(&NotificationPriority::Urgent)
+        );
     }
 
     #[test]

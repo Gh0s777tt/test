@@ -1,11 +1,5 @@
 [workspace]
 members = [
-    "kernel",
-    "kernel/allocator",
-    "kernel/process",
-    "kernel/ipc",
-    "kernel/scheduler",
-    "kernel/syscall",
     "userspace/drivers/iommu",
     "userspace/drivers/direct_metal",
     "userspace/drivers/network",
@@ -32,6 +26,9 @@ members = [
     "userspace/ui/flux",
     "userspace/ui/shells",
 ]
+exclude = [
+    "iso_build/kernel",
+]
 
 [workspace.dependencies]
 # Shared dependencies
@@ -40,9 +37,9 @@ thiserror = "1.0"
 anyhow = "1.0"
 
 # Verification dependencies
-builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
-builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
-vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120" }
+builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120" }
+vstd = { version = "0.0.0-2026-02-08-0120" }
 
 # Cryptography
 aes = { version = "0.8", default-features = false }
@@ -57,8 +54,8 @@ rand_core = { version = "0.6", default-features = false, features = ["getrandom"
 getrandom = { version = "0.2", default-features = false, features = ["std"] }
 
 # GPU
-ash = { version = "0.37", optional = true }
-metal-rs = { version = "0.27", optional = true, package = "metal" }
+ash = { version = "0.37" }
+metal-rs = { version = "0.27", package = "metal" }
 
 [workspace.package]
 version = "0.4.1"
