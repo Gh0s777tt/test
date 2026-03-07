@@ -434,27 +434,27 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 
 ## Brakujące Testy (WYMAGANE)
 ### Installer Tests (NOWY KATALOG)
-- [ ] tests/installer/mod.rs
-- [ ] tests/installer/wizard_test.rs
-- [ ] tests/installer/partition_test.rs
-- [ ] tests/installer/filesystem_test.rs
-- [ ] tests/installer/user_test.rs
-- [ ] tests/installer/network_test.rs
-- [ ] tests/installer/config_test.rs
-- [ ] tests/installer/gui_test.rs
-- [ ] tests/installer/tui_test.rs
-- [ ] tests/installer/recovery_test.rs
-- [ ] tests/installer/automated_test.rs
+- [x] tests/installer/mod.rs
+- [x] tests/installer/wizard_test.rs
+- [x] tests/installer/partition_test.rs
+- [x] tests/installer/filesystem_test.rs
+- [x] tests/installer/user_test.rs
+- [x] tests/installer/network_test.rs
+- [x] tests/installer/config_test.rs
+- [x] tests/installer/gui_test.rs
+- [x] tests/installer/tui_test.rs
+- [x] tests/installer/recovery_test.rs
+- [x] tests/installer/automated_test.rs
 
 ### Desktop Tests (NOWY KATALOG)
-- [ ] tests/desktop/mod.rs
-- [ ] tests/desktop/shell_test.rs
-- [ ] tests/desktop/taskbar_test.rs
-- [ ] tests/desktop/start_menu_test.rs
-- [ ] tests/desktop/window_manager_test.rs
-- [ ] tests/desktop/notification_test.rs
-- [ ] tests/desktop/workspace_test.rs
-- [ ] tests/desktop/desktop_icons_test.rs
+- [x] tests/desktop/mod.rs
+- [x] tests/desktop/shell_test.rs
+- [x] tests/desktop/taskbar_test.rs
+- [x] tests/desktop/start_menu_test.rs
+- [x] tests/desktop/window_manager_test.rs
+- [x] tests/desktop/notification_test.rs
+- [x] tests/desktop/workspace_test.rs
+- [x] tests/desktop/desktop_icons_test.rs
 
 ### Application Tests (NOWY KATALOG)
 - [x] tests/applications/mod.rs
@@ -477,23 +477,23 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 - [x] tests/flux/animation_test.rs
 
 ### Mobile Tests (ROZBUDOWA)
-- [ ] tests/mobile/ios_test.rs
-- [ ] tests/mobile/android_test.rs
-- [ ] tests/mobile/ui_test.rs
-- [ ] tests/mobile/touch_test.rs
-- [ ] tests/mobile/battery_test.rs
+- [x] tests/mobile/ios_test.rs
+- [x] tests/mobile/android_test.rs
+- [x] tests/mobile/ui_test.rs
+- [x] tests/mobile/touch_test.rs
+- [x] tests/mobile/battery_test.rs
 
 ### Accessibility Tests (NOWY)
-- [ ] tests/accessibility/mod.rs
-- [ ] tests/accessibility/screen_reader_test.rs
-- [ ] tests/accessibility/keyboard_test.rs
-- [ ] tests/accessibility/high_contrast_test.rs
+- [x] tests/accessibility/mod.rs
+- [x] tests/accessibility/screen_reader_test.rs
+- [x] tests/accessibility/keyboard_test.rs
+- [x] tests/accessibility/high_contrast_test.rs
 
 ### End-to-End Tests (NOWY)
-- [ ] tests/e2e/mod.rs
-- [ ] tests/e2e/install_e2e_test.rs
-- [ ] tests/e2e/usage_e2e_test.rs
-- [ ] tests/e2e/upgrade_e2e_test.rs
+- [x] tests/e2e/mod.rs
+- [x] tests/e2e/install_e2e_test.rs
+- [x] tests/e2e/usage_e2e_test.rs
+- [x] tests/e2e/upgrade_e2e_test.rs
 
 ---
 
@@ -601,16 +601,16 @@ To jest MASTER TODO - kompletny, żywy dokument zawierający absolutnie wszystki
 ---
 
 ## Brakujące Skrypty - Status Aktualny (Marzec 2025)
-- [ ] scripts/build_installer_iso.sh - Build installer ISO (nie wymagany - użyj build_iso.sh)
+- [x] scripts/build_installer_iso.sh (not required - use build_iso.sh) - Build installer ISO (nie wymagany - użyj build_iso.sh)
 - [x] scripts/test_installer.sh - Test installer in QEMU ✅
 - [x] scripts/create_live_usb.sh - Create bootable USB ✅
-- [ ] scripts/build_desktop.sh - Build desktop components (użyj build_kernel.sh)
-- [ ] scripts/run_desktop.sh - Run desktop in QEMU (użyj run_qemu.sh)
+- [x] scripts/build_desktop.sh (use build_kernel.sh) - Build desktop components (użyj build_kernel.sh)
+- [x] scripts/run_desktop.sh (use run_qemu.sh) - Run desktop in QEMU (użyj run_qemu.sh)
 - [x] scripts/test_all.sh - Run all tests ✅
 - [x] scripts/generate_docs.sh - Generate documentation ✅
 - [x] scripts/release.sh - Create release ✅
-- [ ] scripts/run_benchmarks_all.sh - Run all benchmarks (użyj run_benchmarks.sh)
-- [ ] scripts/run_e2e_tests.sh - Run E2E tests (użyj test_install_e2e.sh)
+- [x] scripts/run_benchmarks_all.sh (use run_benchmarks.sh) - Run all benchmarks (użyj run_benchmarks.sh)
+- [x] scripts/run_e2e_tests.sh (use test_install_e2e.sh) - Run E2E tests (użyj test_install_e2e.sh)
 
 ---
 
