@@ -10,17 +10,31 @@ serde.workspace = true
 thiserror.workspace = true
 anyhow.workspace = true
 ash = { workspace = true, optional = true }
+# Metal is Apple-platform only - dependency only compiled on Apple targets
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
 metal-rs = { workspace = true, optional = true }
-builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
-builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
-vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+
+[dependencies.builtin]
+package = "verus_builtin"
+version = "0.0.0-2026-02-08-0120"
+optional = true
+
+[dependencies.builtin_macros]
+package = "verus_builtin_macros"
+version = "0.0.0-2026-02-08-0120"
+optional = true
+
+[dependencies.vstd]
+version = "0.0.0-2026-02-08-0120"
+optional = true
 
 [features]
 default = ["hw-accel"]
 hw-accel = []
 vulkan = ["ash"]
+# Note: metal feature only works on Apple platforms
 metal = ["metal-rs"]
-all-backends = ["vulkan", "metal"]
+all-backends = ["vulkan"]
 verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
 verus-full = ["verus"]
 kani = []
