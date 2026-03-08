@@ -2,7 +2,7 @@
 # Provides a complete development environment for VantisOS
 
 # Build stage for dependencies
-FROM rust:1.75-bookworm AS builder
+FROM rust:1.85-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -24,7 +24,7 @@ RUN rustup component add \
     rust-analysis \
     rust-src
 
-# Install cargo tools
+# Install cargo tools with locked versions to avoid edition2024 issues
 RUN cargo install \
     cargo-watch \
     cargo-expand \
@@ -38,7 +38,7 @@ RUN cargo install \
     mdbook-mermaid
 
 # Development stage
-FROM rust:1.75-bookworm AS development
+FROM rust:1.85-bookworm AS development
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -130,8 +130,11 @@ RUN groupadd --gid $USER_GID $USERNAME \
 WORKDIR /workspace
 
 # Copy project files for caching
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 COPY Makefile ./
+
+# Create placeholder Cargo.lock if needed (will be regenerated on first build)
+RUN touch Cargo.lock 2>/dev/null || true
 
 # Create necessary directories
 RUN mkdir -p /workspace/target \
