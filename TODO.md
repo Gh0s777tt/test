@@ -6,11 +6,30 @@
 
 ## 📈 Status Projektu
 
-- **Aktualna wersja:** v1.4.1 "Repository Redesign" ✅ (RELEASED)
-- **Poprzednia wersja:** v1.4.1 "Repository Redesign" ✅ (RELEASED)
+- **Aktualna wersja:** v1.5.1 "Build System Improvements" ✅ (RELEASED)
+- **Poprzednia wersja:** v1.5.0 "Quantum Ready" ✅ (RELEASED)
 - **Branch:** 0.4.1 (main branch)
-- **Status:** v1.4.1 "Repository Redesign" - WERSJA OPUBLIKOWANA 5 marca 2025
-- **Następna wersja:** v1.5.0 "Quantum Ready" (planowana Q2 2025)
+- **Status:** v1.5.1 "Build System Improvements" - WERSJA OPUBLIKOWANA 8 marca 2025
+- **Następna wersja:** v1.6.0 (planowana)
+
+---
+
+## 🎉 v1.5.1 "Build System Improvements" - Podsumowanie
+
+**Data wydania:** 8 marca 2025
+**Branch:** 0.4.1
+
+### Zrealizowane funkcje:
+- ✅ **Workspace Configuration**: Fixed Cargo.toml configuration issues
+- ✅ **Cross-Platform Compilation**: Moved metal-rs to Apple-platform specific target cfg
+- ✅ **Code Quality**: Eliminated all clippy warnings (userspace + kernel)
+- ✅ **Kernel Improvements**: Fixed POSIX flags bug in sys_open()
+- ✅ **Documentation**: Updated CHANGELOG with all improvements
+
+### Statystyki:
+- **Clippy warnings:** 0 (reduced from 135+)
+- **Build status:** ✅ Clean build
+- **Cross-platform:** ✅ Linux + Apple
 
 ---
 
@@ -294,7 +313,8 @@
 - ✅ v1.3.0 "AI Enhanced" (4 marca 2025)
 - ✅ v1.3.1 "AI Data Pipeline" (4 marca 2025)
 - ✅ v1.4.1 "Repository Redesign" (5 marca 2025)
-- ✅ v1.4.1 "Repository Redesign" (5 marca 2025)
+- ✅ v1.5.0 "Quantum Ready" (7 marca 2025)
+- ✅ v1.5.1 "Build System Improvements" (8 marca 2025)
 
 ---
 
@@ -302,7 +322,7 @@
 
 | Metryka | Wartość | Status |
 |---------|---------|--------|
-| **Wersja aktualna** | v1.4.1 "Repository Redesign" | ✅ RELEASED |
+| **Wersja aktualna** | v1.5.1 "Build System Improvements" | ✅ RELEASED |
 | **Pliki Rust** | 733+ | ✅ |
 | **Pliki dokumentacji** | 200+ stron (82,000+ linii) | ✅ |
 | **Katalogi** | 496 | ✅ |
