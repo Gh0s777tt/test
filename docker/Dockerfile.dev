@@ -130,8 +130,11 @@ RUN groupadd --gid $USER_GID $USERNAME \
 WORKDIR /workspace
 
 # Copy project files for caching
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 COPY Makefile ./
+
+# Create placeholder Cargo.lock if needed (will be regenerated on first build)
+RUN touch Cargo.lock 2>/dev/null || true
 
 # Create necessary directories
 RUN mkdir -p /workspace/target \
