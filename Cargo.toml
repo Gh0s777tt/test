@@ -29,6 +29,7 @@ members = [
 ]
 exclude = [
     "iso_build/kernel",
+    "src/verified",
 ]
 
 [workspace.dependencies]
