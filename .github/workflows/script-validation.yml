@@ -2,15 +2,19 @@ name: Script Validation
 
 on:
   push:
+    branches: [master, main, 0.4.1]
     paths:
       - 'scripts/**/*.sh'
       - 'scripts/**/*.py'
       - '.pre-commit-config.yaml'
+      - '.github/workflows/script-validation.yml'
   pull_request:
     paths:
       - 'scripts/**/*.sh'
       - 'scripts/**/*.py'
       - '.pre-commit-config.yaml'
+      - '.github/workflows/script-validation.yml'
+  workflow_dispatch:
 
 jobs:
   validate-shell-scripts:
