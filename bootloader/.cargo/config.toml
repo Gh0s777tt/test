@@ -1,0 +1,10 @@
+[build]
+target = "x86_64-unknown-uefi"
+
+[target.x86_64-unknown-uefi]
+runner = "qemu-system-x86_64 -machine q35 -accel tcg -m 256M -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd -drive if=pflash,format=raw,file=build/OVMF_VARS.fd -drive format=raw,file=build/boot.img -nographic -serial mon:stdio"
+
+# Use nightly for build-std
+[unstable]
+build-std = ["core", "compiler_builtins", "alloc"]
+build-std-features = ["compiler-builtins-mem"]
