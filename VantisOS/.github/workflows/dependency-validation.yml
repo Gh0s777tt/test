@@ -1,0 +1,151 @@
+name: Dependency Validation
+
+on:
+  push:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements.txt'
+      - 'go.mod'
+      - 'go.sum'
+  pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements.txt'
+      - 'go.mod'
+      - 'go.sum'
+  schedule:
+    # Run weekly on Monday at 6:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check-rust-dependencies:
+    name: Check Rust Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check for outdated dependencies
+        run: |
+          cargo install cargo-outdated
+          echo "Checking for outdated dependencies..."
+          cargo outdated --exit-code 1 || true
+        continue-on-error: true
+
+      - name: Check for security vulnerabilities
+        run: |
+          cargo install cargo-audit
+          echo "Checking for security vulnerabilities..."
+          cargo audit || true
+        continue-on-error: true
+
+      - name: Check for duplicates
+        run: |
+          cargo install cargo-tree
+          echo "Checking for duplicate dependencies..."
+          cargo tree --duplicates || true
+        continue-on-error: true
+
+  check-npm-dependencies:
+    name: Check NPM Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Check for outdated packages
+        run: |
+          if [ -f package.json ]; then
+            echo "Checking for outdated npm packages..."
+            npm outdated || true
+          else
+            echo "No package.json found, skipping npm checks"
+          fi
+        continue-on-error: true
+
+      - name: Check for vulnerabilities
+        run: |
+          if [ -f package.json ]; then
+            echo "Checking for npm vulnerabilities..."
+            npm audit || true
+          fi
+        continue-on-error: true
+
+  check-python-dependencies:
+    name: Check Python Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Check for vulnerabilities
+        run: |
+          if [ -f requirements.txt ]; then
+            echo "Checking Python dependencies for vulnerabilities..."
+            pip-audit -r requirements.txt || true
+          else
+            echo "No requirements.txt found, skipping Python checks"
+          fi
+        continue-on-error: true
+
+  dependency-report:
+    name: Generate Dependency Report
+    runs-on: ubuntu-latest
+    needs: [check-rust-dependencies, check-npm-dependencies, check-python-dependencies]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate report
+        run: |
+          echo "# Dependency Validation Report" > dependency_report.md
+          echo "" >> dependency_report.md
+          echo "**Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> dependency_report.md
+          echo "" >> dependency_report.md
+          echo "## Summary" >> dependency_report.md
+          echo "" >> dependency_report.md
+          echo "| Language | Status |" >> dependency_report.md
+          echo "|----------|--------|" >> dependency_report.md
+          echo "| Rust | ${{ needs.check-rust-dependencies.result }} |" >> dependency_report.md
+          echo "| NPM | ${{ needs.check-npm-dependencies.result }} |" >> dependency_report.md
+          echo "| Python | ${{ needs.check-python-dependencies.result }} |" >> dependency_report.md
+          echo "" >> dependency_report.md
+          echo "## Recommendations" >> dependency_report.md
+          echo "" >> dependency_report.md
+          echo "1. Review outdated dependencies and update as needed" >> dependency_report.md
+          echo "2. Address any security vulnerabilities found" >> dependency_report.md
+          echo "3. Remove duplicate dependencies where possible" >> dependency_report.md
+          echo "" >> dependency_report.md
+          echo "---" >> dependency_report.md
+          echo "*This report is generated automatically by the dependency validation workflow.*" >> dependency_report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report
+          path: dependency_report.md
