@@ -28,6 +28,13 @@ i ten projekt przestrzega [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - Added `#![allow(unused_imports)]` to suppress warnings for conditional verus-full imports
 - Build now completes with zero warnings using `--all-features`
 
+#### Kernel Improvements
+- Fixed all clippy warnings in kernel code (reduced from 135+ to zero)
+- Fixed POSIX flags bug in `sys_open()`: O_RDONLY check was incorrectly using `& 0o0`
+- Added comprehensive clippy allow attributes for kernel development patterns
+- Added `#![allow(static_mut_refs)]` for bare-metal static mut usage
+- Added `#![allow(clippy::not_unsafe_ptr_arg_deref)]` for syscall raw pointer handling
+
 ---
 
 ## [1.5.0] - 2025-03-07
