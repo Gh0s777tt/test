@@ -7,6 +7,29 @@ i ten projekt przestrzega [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ---
 
+## [1.5.1] - 2025-03-08
+
+### Build System Improvements
+
+#### Workspace Configuration
+- Fixed workspace Cargo.toml configuration issues
+- Removed `optional = true` from workspace dependencies (not allowed in workspace context)
+- Added explicit optional dependencies to all userspace packages for verus feature
+- Added `resolver = "2"` for edition 2021 compatibility
+
+#### Cross-Platform Compilation
+- Moved `metal-rs` dependency to Apple-platform specific target cfg
+- Fixed "framework link kind is only supported on Apple targets" error on Linux
+- All-features build now works on Linux
+
+#### Code Quality
+- Renamed `main.rs` to `implementation.rs` in userspace modules to avoid binary target conflicts
+- Added `verus_shim.rs` modules for conditional Verus verification support
+- Added `#![allow(unused_imports)]` to suppress warnings for conditional verus-full imports
+- Build now completes with zero warnings using `--all-features`
+
+---
+
 ## [1.5.0] - 2025-03-07
 
 ### Quantum Ready - Phase 11 Complete
