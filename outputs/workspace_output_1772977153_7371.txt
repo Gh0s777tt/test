@@ -1,0 +1,27 @@
+name: Simple Test
+
+on:
+  push:
+    branches: [0.4.1]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Testing GitHub Actions"
+      - run: uname -a
+      - run: pwd---
+name: Test Simple
+
+on:
+  push:
+    branches:
+      - 0.4.1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hello World
+        run: echo "Hello World"

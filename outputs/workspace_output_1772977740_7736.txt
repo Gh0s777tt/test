@@ -1,0 +1,30 @@
++ log_pass 'Documentation found: CONTRIBUTING.md'
++ CHECKS_PASSED+=("$1")
++ [[ true == false ]]
++ for doc in "${key_docs[@]}"
++ [[ -f /workspace/docs/SCRIPTS_REFERENCE.md ]]
++ log_pass 'Documentation found: SCRIPTS_REFERENCE.md'
++ CHECKS_PASSED+=("$1")
++ [[ true == false ]]
++ for doc in "${key_docs[@]}"
++ [[ -f /workspace/docs/SCRIPTING_STANDARDS.md ]]
++ log_pass 'Documentation found: SCRIPTING_STANDARDS.md'
++ CHECKS_PASSED+=("$1")
++ [[ true == false ]]
++ for doc in "${key_docs[@]}"
++ [[ -f /workspace/docs/AUTOMATION_GUIDE.md ]]
++ log_pass 'Documentation found: AUTOMATION_GUIDE.md'
++ CHECKS_PASSED+=("$1")
++ [[ true == false ]]
++ check_scripts
++ local scripts_dir=/workspace/scripts
++ [[ -d /workspace/scripts ]]
++ log_pass 'Scripts directory exists'
++ CHECKS_PASSED+=("$1")
++ [[ true == false ]]
++ local script_count=0
++ local executable_count=0
++ IFS=
++ read -r -d '' script
+++ find /workspace/scripts -name '*.sh' -type f -print0
++ (( script_count++ ))

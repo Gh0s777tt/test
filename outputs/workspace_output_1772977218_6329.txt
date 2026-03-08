@@ -1,0 +1,31 @@
+-rw-r--r-- 1 root root 1984 Mar  8 12:38 src/verified/lib.rs
+//! VANTIS OS Verified Components Library
+//! 
+//! This library contains all formally verified components of VANTIS OS.
+// The verus-full feature compiles proof-oriented sources with rustc for CI sanity checks.
+// These paths intentionally include verification-only constructs that appear unused outside Verus.
+#![cfg_attr(
+    feature = "verus-full",
+    allow(unused_imports, unused_doc_comments, unused_variables, dead_code)
+)]
+
+// Verus shim for conditional compilation
+#[cfg(not(feature = "verus-full"))]
+#[macro_use]
+pub mod verus_shim;
+
+pub mod math;
+pub mod memory;
+pub mod allocator;
+pub mod process;
+pub mod ipc;
+pub mod ipc_inline;
+pub mod syscall;
+pub mod syscall_file_ops;
+pub mod syscall_dir_ops;
+pub mod syscall_advanced_ops;
+pub mod syscall_time_ops;
+pub mod scheduler;
+pub mod scheduler_optimized;
+pub mod neural_scheduler;
+pub mod neural_scheduler_integration;

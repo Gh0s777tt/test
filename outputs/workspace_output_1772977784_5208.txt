@@ -1,0 +1,41 @@
+check_code_quality() {
+    cd "$REPO_ROOT"
+    
+    # Check Rust formatting
+    if command -v cargo &>/dev/null; then
+        log_pass "Rust/Cargo detected"
+        
+        if command -v rustfmt &>/dev/null; then
+            log_pass "rustfmt available"
+        else
+            log_warn "rustfmt not available (rustup component add rustfmt)"
+        fi
+        
+        if command -v cargo-clippy &>/dev/null; then
+            log_pass "clippy available"
+        else
+            log_warn "clippy not available (rustup component add clippy)"
+        fi
+    else
+        log_warn "Rust/Cargo not detected"
+    fi
+    
+    # Check shell script linting
+    if command -v shellcheck &>/dev/null; then
+        log_pass "shellcheck available"
+    else
+        log_warn "shellcheck not installed (apt install shellcheck)"
+    fi
+}
+
+check_security() {
+    cd "$REPO_ROOT"
+    
+    # Check for security policy
+    if [[ -f "SECURITY.md" ]] || [[ -f "docs/security/SECURITY.md" ]]; then
+        log_pass "Security policy exists"
+    else
+        log_warn "Security policy missing"
+    fi
+    
+    # Check for CodeQL or similar

@@ -1,0 +1,102 @@
+# EditorConfig - VantisOS
+# https://editorconfig.org
+# A - Architektura Monorepo & Agenci AI
+
+root = true
+
+# Domyślne ustawienia dla wszystkich plików
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Pliki Rust
+[*.rs]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# Pliki TOML (Cargo)
+[*.toml]
+indent_style = space
+indent_size = 4
+
+# Pliki YAML
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Pliki JSON
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Pliki Markdown
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Pliki Shell
+[*.sh]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+
+# Pliki HTML
+[*.html]
+indent_style = space
+indent_size = 2
+
+# Pliki CSS
+[*.css]
+indent_style = space
+indent_size = 2
+
+# Pliki JavaScript/TypeScript
+[*.{js,ts,jsx,tsx}]
+indent_style = space
+indent_size = 2
+
+# Pliki Python
+[*.py]
+indent_style = space
+indent_size = 4
+
+# Makefile
+[Makefile]
+indent_style = tab
+
+# Pliki konfiguracyjne
+[.editorconfig]
+indent_style = space
+indent_size = 4
+
+# Pliki Docker
+[Dockerfile*]
+indent_style = space
+indent_size = 4
+
+# Pliki docker-compose
+[docker-compose*.yml]
+indent_style = space
+indent_size = 2
+
+# Pliki .gitignore
+[.gitignore]
+indent_style = space
+indent_size = 4
+
+# Pliki LICENSE
+[LICENSE*]
+indent_style = space
+indent_size = 4
+
+# Pliki CITATION
+[CITATION.cff]
+indent_style = space
+indent_size = 2

@@ -1,0 +1,8 @@
+-rw-r--r-- 1 root root 2844 Mar  5 11:09 scripts/changelog_generator.sh
+-rwxr-xr-x 1 root root 11512 Mar  6 06:20 scripts/health_check.sh
+-rw-r--r-- 1 root root 1460 Mar  5 11:09 scripts/docs_update_checker.sh
+-rwxr-xr-x 1 root root 8532 Mar  6 02:50 scripts/dev/setup_environment.sh
+-rw-r--r-- 1 root root 10973 Mar  5 23:00 scripts/lib/common.sh
+-rw-r--r-- 1 root root 1761 Mar  5 11:09 scripts/release_helper.sh
+-rw-r--r-- 1 root root 1859 Mar  5 11:10 scripts/version_sync.sh
+-rwxr-xr-x 1 root root 3186 Mar  6 02:48 scripts/generate_doc_from_script.sh

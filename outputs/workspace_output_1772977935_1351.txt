@@ -1,0 +1,41 @@
+    # Rust dependencies
+    if [[ -f "Cargo.lock" ]]; then
+        log_pass "Cargo.lock exists (Rust dependencies locked)"
+    fi
+    
+    # Check for outdated dependencies (if cargo-outdated is available)
+    if command -v cargo-outdated &>/dev/null; then
+        log_info "cargo-outdated available for checking outdated dependencies"
+    fi
+    
+    # Check for audit tools
+    if command -v cargo-audit &>/dev/null; then
+        log_pass "cargo-audit available for security auditing"
+    else
+        log_info "Install cargo-audit for dependency security auditing"
+    fi
+}
+
+print_summary() {
+    # Handle empty arrays with defaults
+    local passed_count=${#CHECKS_PASSED[@]}
+    local failed_count=${#CHECKS_FAILED[@]}
+    local warning_count=${#CHECKS_WARNING[@]}
+    
+    if [[ "$JSON_OUTPUT" == true ]]; then
+        local json_passed=""
+        local json_failed=""
+        local json_warnings=""
+        
+        [[ ${#CHECKS_PASSED[@]} -gt 0 ]] && json_passed="$(printf '%s\n' "${CHECKS_PASSED[@]}")"
+        [[ ${#CHECKS_FAILED[@]} -gt 0 ]] && json_failed="$(printf '%s\n' "${CHECKS_FAILED[@]}")"
+        [[ ${#CHECKS_WARNING[@]} -gt 0 ]] && json_warnings="$(printf '%s\n' "${CHECKS_WARNING[@]}")"
+        
+        jq -n \
+            --argjson passed "$passed_count" \
+            --argjson failed "$failed_count" \
+            --argjson warnings "$warning_count" \
+            --arg json_passed "$json_passed" \
+            --arg json_failed "$json_failed" \
+            --arg json_warnings "$json_warnings" \
+            '{

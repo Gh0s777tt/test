@@ -1,0 +1,41 @@
+    else
+        log_fail "Documentation directory missing"
+    fi
+}
+
+check_scripts() {
+    local scripts_dir="$REPO_ROOT/scripts"
+    
+    if [[ -d "$scripts_dir" ]]; then
+        log_pass "Scripts directory exists"
+        
+        # Check script permissions
+        local script_count=0
+        local executable_count=0
+        
+        while IFS= read -r -d '' script; do
+            ((script_count++))
+            if [[ -x "$script" ]]; then
+                ((executable_count++))
+            else
+                local script_name
+                script_name=$(basename "$script")
+                log_warn "Script not executable: $script_name"
+                
+                if [[ "$AUTO_FIX" == true ]]; then
+                    chmod +x "$script"
+                    log_info "Fixed: Made $script_name executable"
+                fi
+            fi
+        done < <(find "$scripts_dir" -name "*.sh" -type f -print0)
+        
+        log_info "Found $script_count scripts, $executable_count executable"
+    else
+        log_fail "Scripts directory missing"
+    fi
+}
+
+check_github_workflows() {
+    local workflows_dir="$REPO_ROOT/.github/workflows"
+    
+    if [[ -d "$workflows_dir" ]]; then

@@ -1,0 +1,40 @@
+# Usage: ./scripts/health_check.sh [--verbose] [--json] [--fix]
+# Requirements: bash, git, jq (optional for JSON output)
+# Author: VantisOS Team
+# Date: 2025-03-06
+# Version: 1.0.0
+# License: MIT
+
+set -euo pipefail
+
+# Script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Parse arguments
+VERBOSE=false
+JSON_OUTPUT=false
+AUTO_FIX=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --json|-j)
+            JSON_OUTPUT=true
+            shift
+            ;;
+        --fix|-f)
+            AUTO_FIX=true
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $(basename "$0") [options]"
+            echo ""
+            echo "Options:"
+            echo "  --verbose, -v    Show detailed output"
+            echo "  --json, -j       Output in JSON format"
+            echo "  --fix, -f        Attempt to fix issues automatically"
+            echo "  --help, -h       Show this help message"

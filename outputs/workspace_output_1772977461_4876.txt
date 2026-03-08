@@ -1,0 +1,42 @@
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.agent_hooks/
+	.devcontainer/
+	.editorconfig
+	.github/
+	.pre-commit-config.yaml
+	.prettierrc
+	.vscode/
+	CITATION.cff
+	FINAL_SUMMARY.md
+	IMPROVEMENTS_SUMMARY.md
+	IMPROVEMENT_ANALYSIS.md
+	Makefile
+	PHASE10_SUMMARY.md
+	PHASE11_SUMMARY.md
+	PHASE3_SUMMARY.md
+	PHASES_7_9_COMPLETION_SUMMARY.md
+	REPOSITORY_IMPROVEMENTS.md
+	REPOSITORY_REDESIGN_PLAN.md
+	VANTIS_V1.5.0_ROADMAP.md
+	VantisOS-1.5.0.iso
+	VantisOS/
+	WORK_SESSION_SUMMARY.md
+	apps/
+	docker/
+	docs/
+	iso_build/
+	outputs/
+	packages/
+	release_notes.md
+	scripts/
+	src/
+	summarized_conversations/
+	tests/
+	todo.md
+
+nothing added to commit but untracked files present (use "git add" to track)

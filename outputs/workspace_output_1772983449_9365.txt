@@ -1,0 +1,20 @@
+total 164
+drwxr-xr-x 2 root root  4096 Mar  8 12:38 .
+drwxr-xr-x 5 root root  4096 Mar  8 12:38 ..
+-rw-r--r-- 1 root root  7677 Mar  8 12:38 advanced-testing.yml
+-rw-r--r-- 1 root root   737 Mar  8 15:11 build.yml
+-rw-r--r-- 1 root root  5807 Mar  8 12:38 ci-cd-pipeline.yml
+-rw-r--r-- 1 root root   748 Mar  8 15:09 ci.yml
+-rw-r--r-- 1 root root  4778 Mar  8 15:12 dependency-validation.yml
+-rw-r--r-- 1 root root  2922 Mar  8 12:38 docs-lint.yml
+-rw-r--r-- 1 root root   682 Mar  8 12:38 docs.yml
+-rw-r--r-- 1 root root  1005 Mar  8 12:38 formal-verification.yml
+-rw-r--r-- 1 root root  4305 Mar  8 12:38 formal-verification.yml.backup
+-rw-r--r-- 1 root root  1480 Mar  8 12:38 health-check.yml
+-rw-r--r-- 1 root root  2994 Mar  8 12:38 iso-installability.yml
+-rw-r--r-- 1 root root  1277 Mar  8 12:38 iso-release-assets.yml
+-rw-r--r-- 1 root root  5532 Mar  8 12:38 live-trust-dashboard.yml
+-rw-r--r-- 1 root root  6924 Mar  8 12:38 memory-safety-stats.yml
+-rw-r--r-- 1 root root   599 Mar  8 12:38 mutation.yml
+-rw-r--r-- 1 root root 13064 Mar  8 12:38 phase7-ci.yml
+-rw-r--r-- 1 root root   500 Mar  8 12:38 provenance.yml

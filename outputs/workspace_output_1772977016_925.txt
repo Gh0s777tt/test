@@ -1,0 +1,3 @@
+7b69e80a feat: Add UEFI bootloader for VantisOS
+30084a44 feat: Add GUI subsystem, installer, and desktop apps for v1.5.0 (#80)
+b273b970 fix(workspace): add src/verified to exclude list for standalone builds

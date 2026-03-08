@@ -1,0 +1,32 @@
+lrwxrwxrwx 1 root root    25 Mar  8 12:38 VantisOS/API_REFERENCE.md -> docs/api/API_REFERENCE.md
+lrwxrwxrwx 1 root root    27 Mar  8 12:38 VantisOS/APPLICATIONS_GUIDE.md -> docs/guides/APPLICATIONS.md
+-rw-r--r-- 1 root root 33492 Mar  8 12:38 VantisOS/CHANGELOG.md
+-rw-r--r-- 1 root root  4873 Mar  8 12:38 VantisOS/CLEANUP_PROGRESS.md
+-rw-r--r-- 1 root root  8386 Mar  8 12:38 VantisOS/CODE_OF_CONDUCT.md
+lrwxrwxrwx 1 root root    33 Mar  8 12:38 VantisOS/CONTRIBUTING.md -> docs/contributing/CONTRIBUTING.md
+lrwxrwxrwx 1 root root    28 Mar  8 12:38 VantisOS/DESKTOP_GUIDE.md -> docs/guides/DESKTOP_GUIDE.md
+-rw-r--r-- 1 root root  4964 Mar  8 12:38 VantisOS/DEVELOPER_GUIDE.md
+lrwxrwxrwx 1 root root    27 Mar  8 12:38 VantisOS/INSTALLATION_GUIDE.md -> docs/guides/INSTALLATION.md
+-rw-r--r-- 1 root root  1747 Mar  8 12:38 VantisOS/LICENSE
+-rw-r--r-- 1 root root 36350 Mar  8 12:38 VantisOS/MASTER_TODO.md
+lrwxrwxrwx 1 root root    24 Mar  8 12:38 VantisOS/MIGRATION_GUIDE.md -> docs/guides/MIGRATION.md
+lrwxrwxrwx 1 root root    26 Mar  8 12:38 VantisOS/PERFORMANCE_GUIDE.md -> docs/guides/PERFORMANCE.md
+-rw-r--r-- 1 root root  5620 Mar  8 12:38 VantisOS/PHASE10_SUMMARY.md
+-rw-r--r-- 1 root root  6913 Mar  8 12:38 VantisOS/PHASE11_SUMMARY.md
+-rw-r--r-- 1 root root  5397 Mar  8 12:38 VantisOS/QUICK_START.md
+-rw-r--r-- 1 root root 15548 Mar  8 12:38 VantisOS/README.md
+-rw-r--r-- 1 root root  5662 Mar  8 12:38 VantisOS/REDESIGN_COMPLETE.md
+lrwxrwxrwx 1 root root    30 Mar  8 12:38 VantisOS/RELEASE_NOTES.md -> docs/releases/RELEASE_NOTES.md
+lrwxrwxrwx 1 root root    37 Mar  8 12:38 VantisOS/RELEASE_NOTES_V1.3.1.md -> docs/releases/RELEASE_NOTES_V1.3.1.md
+lrwxrwxrwx 1 root root    37 Mar  8 12:38 VantisOS/RELEASE_NOTES_v1.4.0.md -> docs/releases/RELEASE_NOTES_v1.4.0.md
+-rw-r--r-- 1 root root  9981 Mar  8 12:38 VantisOS/REPOSITORY_IMPROVEMENTS.md
+-rw-r--r-- 1 root root 12646 Mar  8 12:38 VantisOS/ROADMAP.md
+lrwxrwxrwx 1 root root    27 Mar  8 12:38 VantisOS/SCRIPTING_STANDARDS.md -> docs/SCRIPTING_STANDARDS.md
+lrwxrwxrwx 1 root root    25 Mar  8 12:38 VantisOS/SCRIPTS_REFERENCE.md -> docs/SCRIPTS_REFERENCE.md
+lrwxrwxrwx 1 root root    25 Mar  8 12:38 VantisOS/SECURITY.md -> docs/security/SECURITY.md
+lrwxrwxrwx 1 root root    22 Mar  8 12:38 VantisOS/TESTING_GUIDE.md -> docs/guides/TESTING.md
+-rw-r--r-- 1 root root 11324 Mar  8 12:38 VantisOS/TODO.md
+lrwxrwxrwx 1 root root    30 Mar  8 12:38 VantisOS/TROUBLESHOOTING_GUIDE.md -> docs/guides/TROUBLESHOOTING.md
+lrwxrwxrwx 1 root root    25 Mar  8 12:38 VantisOS/USER_GUIDE.md -> docs/guides/USER_GUIDE.md
+-rw-r--r-- 1 root root  2280 Mar  8 12:38 VantisOS/todo.md
+-rw-r--r-- 1 root root  8252 Mar  8 12:38 VantisOS/v1.3.1_SUMMARY.md

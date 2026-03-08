@@ -1,0 +1,5 @@
+total 16
+drwxr-xr-x  4 root root 4096 Mar  7 08:42 .
+drwxr-xr-x 18 user user 4096 Mar  8 13:44 ..
+drwxr-xr-x  3 root root 4096 Mar  7 08:42 ai
+drwxr-xr-x  4 root root 4096 Mar  6 21:49 verified

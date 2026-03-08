@@ -1,0 +1,30 @@
+    Checking cbc v0.1.2
+    Checking vantis-cortex-ai v0.4.1 (/workspace/VantisOS/userspace/ai/cortex_ai)
+    Checking vantis-profiles v0.4.1 (/workspace/VantisOS/userspace/profiles/profiles)
+    Checking vantis-spectrum-2-0 v0.4.1 (/workspace/VantisOS/userspace/accessibility/spectrum_2_0)
+    Checking ppv-lite86 v0.2.21
+    Checking vantis-vnt-apps v0.4.1 (/workspace/VantisOS/userspace/compatibility/vnt_apps)
+    Checking vantis-babel-protocol v0.4.1 (/workspace/VantisOS/userspace/multimedia/babel_protocol)
+    Checking vantis-android-subsystem v0.4.1 (/workspace/VantisOS/userspace/compatibility/android_subsystem)
+    Checking vantis-flux-engine v0.4.1 (/workspace/VantisOS/userspace/multimedia/flux_engine)
+    Checking vantis-permission-cards v0.4.1 (/workspace/VantisOS/userspace/profiles/permission_cards)
+    Checking vantis-automation v0.4.1 (/workspace/VantisOS/userspace/ai/automation)
+    Checking vantis-network v0.4.1 (/workspace/VantisOS/userspace/drivers/network)
+    Checking vantis-voice-assistant v0.4.1 (/workspace/VantisOS/userspace/accessibility/voice_assistant)
+    Checking vantis-compliance v0.4.1 (/workspace/VantisOS/userspace/security/compliance)
+    Checking vantis-audio-mixer v0.4.1 (/workspace/VantisOS/userspace/multimedia/audio_mixer)
+    Checking vantis-flux v0.4.1 (/workspace/VantisOS/userspace/ui/flux)
+    Checking vantis-shells v0.4.1 (/workspace/VantisOS/userspace/ui/shells)
+    Checking rand_chacha v0.3.1
+    Checking vantis-semantic-search v0.4.1 (/workspace/VantisOS/userspace/ai/semantic_search)
+    Checking vantis-bci-interface v0.4.1 (/workspace/VantisOS/userspace/accessibility/bci_interface)
+    Checking vantis-interfaces v0.4.1 (/workspace/VantisOS/userspace/profiles/interfaces)
+    Checking vantis-direct-metal v0.4.1 (/workspace/VantisOS/userspace/drivers/direct_metal)
+    Checking vantis-iommu v0.4.1 (/workspace/VantisOS/userspace/drivers/iommu)
+    Checking vantis-braille-display v0.4.1 (/workspace/VantisOS/userspace/accessibility/braille_display)
+    Checking vantis-sentinel v0.4.1 (/workspace/VantisOS/userspace/security/sentinel)
+    Checking rand v0.8.5
+    Checking vantis-haptic-language v0.4.1 (/workspace/VantisOS/userspace/accessibility/haptic_language)
+    Checking vantis-legacy-airlock v0.4.1 (/workspace/VantisOS/userspace/compatibility/legacy_airlock)
+    Checking vantis-vault v0.4.1 (/workspace/VantisOS/userspace/security/vault)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.94s

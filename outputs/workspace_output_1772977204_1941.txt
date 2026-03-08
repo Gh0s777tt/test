@@ -1,0 +1,49 @@
+name: 🛡️ OpenSSF Scorecard (Audit)
+
+on:
+  schedule:
+    - cron: '20 7 * * 1'
+  push:
+    branches: [ "0.4.1" ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  analysis:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      security-events: write
+      id-token: write
+    
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: "Run analysis"
+        uses: ossf/scorecard-action@v2.3.1
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+        continue-on-error: true
+
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: SARIF file
+          path: results.sarif
+          retention-days: 5
+        if-no-files-found: ignore
+        continue-on-error: true
+
+      - name: "Upload to code-scanning"
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+        continue-on-error: true

@@ -1,0 +1,19 @@
+61:declare -a CHECKS_PASSED
+62:declare -a CHECKS_FAILED
+63:declare -a CHECKS_WARNING
+67:    CHECKS_PASSED+=("$1")
+74:    CHECKS_FAILED+=("$1")
+81:    CHECKS_WARNING+=("$1")
+331:            --argjson passed "${#CHECKS_PASSED[@]}" \
+332:            --argjson failed "${#CHECKS_FAILED[@]}" \
+333:            --argjson warnings "${#CHECKS_WARNING[@]}" \
+334:            --arg json_passed "$(printf '%s\n' "${CHECKS_PASSED[@]}")" \
+335:            --arg json_failed "$(printf '%s\n' "${CHECKS_FAILED[@]}")" \
+336:            --arg json_warnings "$(printf '%s\n' "${CHECKS_WARNING[@]}")" \
+355:        echo -e "${GREEN}Passed:${NC}   ${#CHECKS_PASSED[@]}"
+356:        echo -e "${RED}Failed:${NC}   ${#CHECKS_FAILED[@]}"
+357:        echo -e "${YELLOW}Warnings:${NC} ${#CHECKS_WARNING[@]}"
+360:        if [[ ${#CHECKS_FAILED[@]} -eq 0 ]]; then
+366:            for check in "${CHECKS_FAILED[@]}"; do
+371:        if [[ ${#CHECKS_WARNING[@]} -gt 0 ]] && [[ "$VERBOSE" == true ]]; then
+374:            for check in "${CHECKS_WARNING[@]}"; do

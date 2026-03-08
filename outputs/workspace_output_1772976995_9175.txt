@@ -1,0 +1,10 @@
+7b69e80a feat: Add UEFI bootloader for VantisOS
+30084a44 feat: Add GUI subsystem, installer, and desktop apps for v1.5.0 (#80)
+b273b970 fix(workspace): add src/verified to exclude list for standalone builds
+e0bfc8ec docs: update TODO.md with v1.5.1 release summary
+543366c8 docs: update CHANGELOG with kernel clippy fixes and POSIX bug fix
+On branch 0.4.1
+Your branch is ahead of 'origin/0.4.1' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean

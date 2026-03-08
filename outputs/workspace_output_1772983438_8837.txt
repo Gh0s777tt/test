@@ -1,0 +1,50 @@
+commit f03e3e742c60fd74b0f70c63c56c9dd89def7c62
+Author: root <root@172.20.57.119>
+Date:   Sun Mar 8 15:19:22 2026 +0000
+
+    feat: Add complete VantisOS repository content
+    
+    - Add all source files, documentation, and configuration
+    - Add comprehensive CI/CD workflows
+    - Add security policies and compliance documentation
+    - Add development tools and scripts
+
+ VantisOS/.EditorConfig                             |   27 +
+ VantisOS/.all-contributorsrc                       |   12 +
+ VantisOS/.cspell.json                              |   69 +
+ VantisOS/.devcontainer/devcontainer.json           |  105 ++
+ VantisOS/.devcontainer/setup.sh                    |   74 +
+ VantisOS/.editorconfig                             |   62 +
+ VantisOS/.gitattributes                            |   21 +
+ VantisOS/.github/ISSUE_TEMPLATE/bug_report.md      |   43 +
+ VantisOS/.github/ISSUE_TEMPLATE/documentation.md   |   32 +
+ VantisOS/.github/ISSUE_TEMPLATE/feature_request.md |   34 +
+ VantisOS/.github/ISSUE_TEMPLATE/performance.md     |   44 +
+ VantisOS/.github/ISSUE_TEMPLATE/security.md        |   48 +
+ VantisOS/.github/PULL_REQUEST_TEMPLATE             |   17 +
+ VantisOS/.github/dependabot.yml                    |   17 +
+ VantisOS/.github/styles/README.md                  |   18 +
+ VantisOS/.github/workflows/advanced-testing.yml    |  266 +++
+ VantisOS/.github/workflows/ci-cd-pipeline.yml      |  236 +++
+ VantisOS/.github/workflows/docs-lint.yml           |  120 ++
+ VantisOS/.github/workflows/docs.yml                |   37 +
+ VantisOS/.github/workflows/formal-verification.yml |   47 +
+ .../workflows/formal-verification.yml.backup       |  146 ++
+ VantisOS/.github/workflows/health-check.yml        |   55 +
+ VantisOS/.github/workflows/iso-installability.yml  |  116 ++
+ VantisOS/.github/workflows/iso-release-assets.yml  |   53 +
+ .../.github/workflows/live-trust-dashboard.yml     |  173 ++
+ VantisOS/.github/workflows/memory-safety-stats.yml |  160 ++
+ VantisOS/.github/workflows/mutation.yml            |   28 +
+ VantisOS/.github/workflows/phase7-ci.yml           |  402 ++++
+ VantisOS/.github/workflows/provenance.yml          |   25 +
+ VantisOS/.github/workflows/release.yml             |   30 +
+ VantisOS/.github/workflows/scorecard.yml           |   49 +
+ VantisOS/.github/workflows/sigstore.yml            |   44 +
+ VantisOS/.github/workflows/simple-test.yml         |   14 +
+ VantisOS/.github/workflows/size-check.yml          |   39 +
+ VantisOS/.github/workflows/slsa.yml                |   38 +
+ VantisOS/.github/workflows/stale.yml               |   28 +
+ VantisOS/.github/workflows/test-simple.yml         |   13 +
+ VantisOS/.github/workflows/vantis-guard.yml        |  312 +++
+ VantisOS/.github/workflows/verification.yml        |   19 +
