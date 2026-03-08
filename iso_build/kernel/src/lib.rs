@@ -14,6 +14,7 @@
 #![no_main]
 #![feature(abi_x86_interrupt)]
 #![feature(alloc_error_handler)]
+#![feature(str_as_str)]
 #![allow(unused_imports)]
 #![allow(unused_doc_comments)]
 #![allow(ambiguous_glob_reexports)]
@@ -65,6 +66,15 @@ pub mod quantum;
 pub mod update;
 pub mod archive;
 pub mod shell;
+
+// GUI subsystem for desktop environment
+pub mod gui;
+
+// Installation wizard
+pub mod installer;
+
+// Desktop applications
+pub mod apps;
 
 #[global_allocator]
 static ALLOCATOR: linked_list_allocator::LockedHeap = linked_list_allocator::LockedHeap::empty();
