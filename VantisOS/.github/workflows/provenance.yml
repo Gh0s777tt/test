@@ -1,0 +1,25 @@
+name: Generate Provenance
+
+on:
+  workflow_run:
+    workflows: ["Secure Build"]
+    types:
+      - completed
+
+permissions:
+  id-token: write
+  contents: read
+  checks: write
+
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Provenance
+        run: |
+          echo "builder: github-actions" > provenance.json
+          echo "commit: $GITHUB_SHA" >> provenance.json
+
+      - name: Sign Provenance
+        run: |
+          echo "Signing provenance (Sigstore placeholder)"

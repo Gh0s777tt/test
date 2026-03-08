@@ -1,0 +1,39 @@
+[package]
+name = "vantis-flux"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+ash = { workspace = true, optional = true }
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+metal-rs = { workspace = true, optional = true }
+
+[dependencies.builtin]
+package = "verus_builtin"
+version = "0.0.0-2026-02-08-0120"
+optional = true
+
+[dependencies.builtin_macros]
+package = "verus_builtin_macros"
+version = "0.0.0-2026-02-08-0120"
+optional = true
+
+[dependencies.vstd]
+version = "0.0.0-2026-02-08-0120"
+optional = true
+
+[features]
+default = ["hw-accel"]
+hw-accel = []
+vulkan = ["ash"]
+metal = ["metal-rs"]
+all-backends = ["vulkan"]
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+verus-full = ["verus"]
+kani = []

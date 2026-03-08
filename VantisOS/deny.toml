@@ -1,0 +1,43 @@
+# 🛡️ VANTIS LEGAL FIREWALL configuration
+
+[advisories]
+ignore = []
+# Blokuj znane luki bezpieczeństwa (RustSec)
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "deny"
+
+[licenses]
+# Jeśli nieznana licencja - błąd
+unlicensed = "deny"
+# Wymagaj kopii licencji w folderze
+copy-left = "deny"
+allow-osi-fsf-free = "either"
+
+# ✅ DOZWOLONE LICENCJE (Permissive)
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "BSD-2-Clause",
+    "ISC",
+    "CC0-1.0",
+    "Unicode-DFS-2016",
+]
+
+# ❌ ZABRONIONE (Viral / Copyleft)
+deny = [
+    "GPL-1.0", "GPL-2.0", "GPL-3.0",
+    "AGPL-1.0", "AGPL-3.0",
+    "LGPL-2.0", "LGPL-2.1", "LGPL-3.0",
+    "MPL-2.0",
+]
+
+[bans]
+# Zbanuj powielanie tych samych bibliotek w różnych wersjach
+multiple-versions = "warn"
+wildcards = "allow"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

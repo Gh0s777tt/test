@@ -1,0 +1,160 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "cargo: build",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["build", "--workspace"],
+      "problemMatcher": ["$rustc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "cargo: build vantis-kernel",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["build", "--package=vantis-kernel"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "cargo: test",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["test", "--workspace"],
+      "problemMatcher": ["$rustc"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "cargo: test vantis-kernel",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["test", "--package=vantis-kernel"],
+      "problemMatcher": ["$rustc"],
+      "group": "test"
+    },
+    {
+      "label": "cargo: test vantis-kernel (no-run)",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["test", "--package=vantis-kernel", "--no-run"],
+      "problemMatcher": ["$rustc"],
+      "group": "test"
+    },
+    {
+      "label": "cargo: check",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["check", "--workspace"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "cargo: clippy",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["clippy", "--workspace", "--", "-D", "warnings"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "cargo: fmt",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["fmt", "--all"],
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "cargo: doc",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["doc", "--workspace", "--no-deps", "--open"],
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "cargo: clean",
+      "type": "cargo",
+      "command": "cargo",
+      "args": ["clean"],
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "qemu: run kernel",
+      "type": "shell",
+      "command": "qemu-system-x86_64",
+      "args": [
+        "-kernel",
+        "${workspaceFolder}/target/x86_64-vantis-kernel/debug/vantis-kernel",
+        "-m",
+        "512M",
+        "-serial",
+        "stdio",
+        "-display",
+        "none"
+      ],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "qemu: run kernel with display",
+      "type": "shell",
+      "command": "qemu-system-x86_64",
+      "args": [
+        "-kernel",
+        "${workspaceFolder}/target/x86_64-vantis-kernel/debug/vantis-kernel",
+        "-m",
+        "512M",
+        "-serial",
+        "stdio"
+      ],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "scripts: health check",
+      "type": "shell",
+      "command": "./scripts/health_check.sh",
+      "args": ["--verbose"],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "make: build",
+      "type": "shell",
+      "command": "make",
+      "args": ["build"],
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "make: test",
+      "type": "shell",
+      "command": "make",
+      "args": ["test"],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "make: all",
+      "type": "shell",
+      "command": "make",
+      "args": ["all"],
+      "problemMatcher": [],
+      "group": "test",
+      "dependsOn": [
+        "cargo: fmt",
+        "cargo: clippy",
+        "cargo: test"
+      ]
+    }
+  ]
+}

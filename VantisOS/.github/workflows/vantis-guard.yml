@@ -1,0 +1,312 @@
+name: Vantis Guard - AI Code Review
+
+on:
+  pull_request:
+    branches: [ master, 0.4.1 ]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  vantis-guard-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install openai anthropic
+          pip install tree-sitter tree-sitter-rust
+      
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            src/verified/**/*.rs
+            docs/**/*.md
+            docs/**/*.adoc
+      
+      - name: Analyze code with Vantis Guard
+        id: analysis
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          # Create analysis script
+          cat > analyze_pr.py << 'EOF'
+          import os
+          import sys
+          import json
+          from datetime import datetime
+          
+          # Get changed files
+          changed_files = os.getenv('CHANGED_FILES', '').split('\n')
+          rust_files = [f for f in changed_files if f.endswith('.rs')]
+          doc_files = [f for f in changed_files if f.endswith('.md') or f.endswith('.adoc')]
+          
+          print(f"Analyzing {len(rust_files)} Rust files and {len(doc_files)} documentation files...")
+          
+          # Analyze Rust files
+          issues = []
+          for file in rust_files:
+              if not os.path.exists(file):
+                  continue
+              
+              with open(file, 'r') as f:
+                  content = f.read()
+              
+              # Check for unsafe blocks
+              unsafe_count = content.count('unsafe {')
+              if unsafe_count > 0:
+                  issues.append({
+                      'file': file,
+                      'severity': 'high',
+                      'type': 'security',
+                      'message': f'Found {unsafe_count} unsafe block(s). Ensure proper safety checks.',
+                      'line': content.find('unsafe')
+                  })
+              
+              # Check for TODO comments
+              todo_count = content.count('TODO')
+              if todo_count > 0:
+                  issues.append({
+                      'file': file,
+                      'severity': 'low',
+                      'type': 'quality',
+                      'message': f'Found {todo_count} TODO comment(s). Consider addressing before merge.',
+                      'line': content.find('TODO')
+                  })
+              
+              # Check for unwrap() calls
+              unwrap_count = content.count('.unwrap()')
+              if unwrap_count > 0:
+                  issues.append({
+                      'file': file,
+                      'severity': 'medium',
+                      'type': 'quality',
+                      'message': f'Found {unwrap_count} unwrap() call(s). Consider using proper error handling.',
+                      'line': content.find('.unwrap()')
+                  })
+              
+              # Check for Verus verification
+              if 'verus!' not in content and 'ipc' in file.lower():
+                  issues.append({
+                      'file': file,
+                      'severity': 'medium',
+                      'type': 'verification',
+                      'message': 'IPC function should be verified with Verus.',
+                      'line': 0
+                  })
+          
+          # Analyze documentation
+          for file in doc_files:
+              if not os.path.exists(file):
+                  continue
+              
+              with open(file, 'r') as f:
+                  content = f.read()
+              
+              # Check for STE compliance
+              long_sentences = [s for s in content.split('.') if len(s.split()) > 25]
+              if len(long_sentences) > 0:
+                  issues.append({
+                      'file': file,
+                      'severity': 'low',
+                      'type': 'documentation',
+                      'message': f'Found {len(long_sentences)} sentence(s) exceeding 25 words. Consider breaking them down.',
+                      'line': 0
+                  })
+          
+          # Generate report
+          report = {
+              'timestamp': datetime.utcnow().isoformat(),
+              'files_analyzed': len(rust_files) + len(doc_files),
+              'issues_found': len(issues),
+              'issues_by_severity': {
+                  'critical': len([i for i in issues if i['severity'] == 'critical']),
+                  'high': len([i for i in issues if i['severity'] == 'high']),
+                  'medium': len([i for i in issues if i['severity'] == 'medium']),
+                  'low': len([i for i in issues if i['severity'] == 'low'])
+              },
+              'issues': issues
+          }
+          
+          # Save report
+          with open('vantis-guard-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+          
+          print(f"Analysis complete: {len(issues)} issues found")
+          print(json.dumps(report, indent=2))
+          EOF
+          
+          # Run analysis
+          export CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          python3 analyze_pr.py
+      
+      - name: Generate review comment
+        if: steps.analysis.outputs.any_changed == 'true'
+        run: |
+          cat > generate_comment.py << 'EOF'
+          import json
+          import os
+          
+          # Load report
+          with open('vantis-guard-report.json', 'r') as f:
+              report = json.load(f)
+          
+          # Generate comment
+          comment = f"""## 🤖 Vantis Guard Review
+          
+          **PR:** #{os.getenv('PR_NUMBER')}
+          **Reviewed:** {report['timestamp']}
+          **Files Analyzed:** {report['files_analyzed']}
+          
+          ### Summary
+          - **Issues Found:** {report['issues_found']}
+            - Critical: {report['issues_by_severity']['critical']}
+            - High: {report['issues_by_severity']['high']}
+            - Medium: {report['issues_by_severity']['medium']}
+            - Low: {report['issues_by_severity']['low']}
+          
+          """
+          
+          if report['issues_found'] > 0:
+              comment += "### Issues\n\n"
+              
+              for issue in report['issues']:
+                  emoji = {
+                      'critical': '🚨',
+                      'high': '🔴',
+                      'medium': '🟡',
+                      'low': '🟢'
+                  }.get(issue['severity'], '⚪')
+                  
+                  comment += f"""#### {emoji} {issue['type'].title()} - {issue['severity'].title()}
+          
+          **File:** `{issue['file']}`
+          **Message:** {issue['message']}
+          
+          """
+          
+          # Add assessment
+          if report['issues_by_severity']['critical'] > 0:
+              comment += "\n### Overall Assessment\n\n🚨 **Critical Issues Found**\n\nThis PR has critical issues that must be addressed before merge.\n"
+          elif report['issues_by_severity']['high'] > 0:
+              comment += "\n### Overall Assessment\n\n🔴 **Requires Changes**\n\nThis PR has high-severity issues that should be addressed before merge.\n"
+          elif report['issues_by_severity']['medium'] > 0:
+              comment += "\n### Overall Assessment\n\n🟡 **Review Recommended**\n\nThis PR has medium-severity issues. Consider addressing them.\n"
+          else:
+              comment += "\n### Overall Assessment\n\n🟢 **Looks Good**\n\nNo significant issues found. Ready for human review.\n"
+          
+          comment += "\n---\n\n*This is an automated review by Vantis Guard. Please review the suggestions and address any issues.*"
+          
+          # Save comment
+          with open('vantis-guard-comment.md', 'w') as f:
+              f.write(comment)
+          
+          print("Comment generated successfully")
+          EOF
+          
+          export PR_NUMBER="${{ github.event.number }}"
+          python3 generate_comment.py
+      
+      - name: Post review comment
+        if: steps.analysis.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('vantis-guard-comment.md', 'utf8');
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Vantis Guard Review')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+      
+      - name: Apply labels
+        if: steps.analysis.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('vantis-guard-report.json', 'utf8'));
+            
+            // Remove old Vantis Guard labels
+            const labels = ['vantis-guard-reviewed', 'vantis-guard-approved', 'vantis-guard-needs-changes', 'vantis-guard-critical'];
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: labels
+            }).catch(() => {});
+            
+            // Add new label
+            if (report['issues_by_severity']['critical'] > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['vantis-guard-reviewed', 'vantis-guard-critical']
+              });
+            } else if (report['issues_by_severity']['high'] > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['vantis-guard-reviewed', 'vantis-guard-needs-changes']
+              });
+            } else {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['vantis-guard-reviewed', 'vantis-guard-approved']
+              });
+            }
+      
+      - name: Upload analysis report
+        if: steps.analysis.outputs.any_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vantis-guard-report
+          path: |
+            vantis-guard-report.json
+            vantis-guard-comment.md
+          retention-days: 30

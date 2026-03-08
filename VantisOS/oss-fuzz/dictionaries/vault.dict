@@ -1,0 +1,79 @@
+# Vantis Vault Fuzzer Dictionary
+# Contains common encryption and security patterns
+
+# Encryption algorithms
+"AES256"
+"TWOFISH"
+"SERPENT"
+"TRIPLE_CASCADE"
+"CHACHA20"
+"POLY1305"
+
+# Key sizes
+"KEY_SIZE_128"
+"KEY_SIZE_192"
+"KEY_SIZE_256"
+"KEY_SIZE_512"
+
+# Encryption modes
+"MODE_ECB"
+"MODE_CBC"
+"MODE_CTR"
+"MODE_GCM"
+"MODE_XTS"
+
+# Key derivation
+"PBKDF2"
+"SCRYPT"
+"ARGON2"
+"HKDF"
+
+# Hash algorithms
+"SHA256"
+"SHA512"
+"BLAKE2B"
+"BLAKE2S"
+
+# TPM operations
+"TPM_CREATE_KEY"
+"TPM_LOAD_KEY"
+"TPM_SEAL"
+"TPM_UNSEAL"
+"TPM_SIGN"
+"TPM_VERIFY"
+
+# Secure boot
+"SECURE_BOOT"
+"BOOT_SIGNATURE"
+"BOOT_KEY"
+"BOOT_HASH"
+
+# Vault operations
+"VAULT_ENCRYPT"
+"VAULT_DECRYPT"
+"VAULT_SEAL"
+"VAULT_UNSEAL"
+"VAULT_SIGN"
+"VAULT_VERIFY"
+
+# Key management
+"KEY_GENERATE"
+"KEY_DERIVE"
+"KEY_IMPORT"
+"KEY_EXPORT"
+"KEY_ROTATE"
+"KEY_REVOKE"
+
+# Security levels
+"SECURITY_LEVEL_1"
+"SECURITY_LEVEL_2"
+"SECURITY_LEVEL_3"
+"SECURITY_LEVEL_4"
+
+# Error codes
+"ERR_KEY_NOT_FOUND"
+"ERR_INVALID_KEY"
+"ERR_ENCRYPTION_FAILED"
+"ERR_DECRYPTION_FAILED"
+"ERR_SIGNATURE_INVALID"
+"ERR_TPM_ERROR"

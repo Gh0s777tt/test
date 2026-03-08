@@ -1,0 +1,38 @@
+# Configuration
+ARCH?=x86_64
+# Use remote package repository by default; override with INSTALLER_FLAGS=--cookbook=cookbook
+# if you have a fully prepared local cookbook cache.
+INSTALLER_FLAGS?=
+KERNEL_TOOLCHAIN?=nightly-2025-10-03
+
+# Per host variables
+UNAME := $(shell uname)
+ifeq ($(UNAME),Darwin)
+	ECHO=/bin/echo
+	FUMOUNT=sudo umount
+	export LD=$(ARCH)-elf-ld
+	export NPROC=sysctl -n hw.ncpu
+	export STRIP=$(ARCH)-elf-strip
+	VB_AUDIO=coreaudio
+	VBM="/Applications/VirtualBox.app/Contents/MacOS/VBoxManage"
+else
+	ECHO=echo
+	FUMOUNT=fusermount -u
+	export LD=ld
+	export NPROC=nproc
+	export STRIP=strip
+	VB_AUDIO="pulse"
+	VBM=VBoxManage
+endif
+
+# Automatic variables
+ROOT=$(PWD)
+export RUST_TARGET_PATH=$(ROOT)/kernel/targets
+
+# Kernel variables
+KTARGET=$(ARCH)-unknown-none
+KBUILD=build/kernel
+
+# Userspace variables
+export TARGET=$(ARCH)-unknown-redox
+BUILD=build/userspace

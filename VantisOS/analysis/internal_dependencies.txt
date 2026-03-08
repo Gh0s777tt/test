@@ -1,0 +1,10 @@
+      4 sentinel
+      4 horizon_profiles
+      3 direct_metal
+      2 verified
+      2 vantis_aegis_registry
+      2 vantis_aegis_nt_api
+      2 flux_wayland
+      2 flux_engine
+      2 direct_metal_backend
+      1 vantis_aegis_syscall

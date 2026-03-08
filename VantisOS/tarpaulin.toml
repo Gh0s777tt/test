@@ -1,0 +1,53 @@
+# Tarpaulin Configuration for Code Coverage
+# https://github.com/xd009642/tarpaulin
+
+[config]
+# Output formats: Html, Lcov, Xml, Json, Stdout, Cobertura
+out = ["Html", "Lcov", "Xml"]
+
+# Target directory for output files
+output-dir = "target/tarpaulin"
+
+# Branch coverage
+branch-coverage = true
+
+# Line coverage
+line-coverage = true
+
+# Fail coverage falls below this percentage (0-100)
+fail-under = 70
+
+# Verbose output
+verbose = true
+
+# Run tests with release profile (slower but more accurate)
+run-types = ["Tests", "Doctests"]
+
+# Timeout for running tests (seconds)
+timeout = 300
+
+# Include files matching these paths
+include = ["src/**", "kernel/**", "userspace/**"]
+
+# Exclude files matching these paths
+exclude = ["tests/**", "examples/**", "benches/**", "target/**"]
+
+# Count unreachable code as uncovered
+exclude-unreachable = true
+
+# Show missing lines
+show-missing-lines = true
+
+# Output file name prefix
+output-name = "coverage"
+
+[ignored]
+# Ignore specific crates or modules
+# Use full crate paths or module paths
+
+[files]
+# Additional file paths to include or exclude
+
+[engine]
+# Use LLD linker for faster execution (Linux only)
+engine = "Llvm"

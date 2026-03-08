@@ -1,0 +1,23 @@
+[package]
+name = "vantis_bootloader"
+version = "0.1.0"
+edition = "2021"
+authors = ["VANTIS OS Team"]
+
+# Keep this package out of the main workspace
+[workspace]
+
+[dependencies]
+uefi = { version = "0.27", features = ["global_allocator", "logger", "alloc"] }
+uefi-services = { version = "0.24", features = ["logger"] }
+log = "0.4"
+
+# For ELF parsing (no_std compatible)
+xmas-elf = "0.8"
+
+[profile.release]
+opt-level = "z"
+lto = true
+
+[profile.dev]
+opt-level = 0

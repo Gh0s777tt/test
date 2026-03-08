@@ -1,0 +1,3 @@
+[boot]
+kernel = "kernel.elf"
+initrd = "initrd.img"

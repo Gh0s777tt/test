@@ -1,0 +1,63 @@
+/* Context-Aware Logo - Auto-switches colors based on GitHub theme */
+
+.vantis-logo {
+  width: 200px;
+  height: 200px;
+  transition: all 0.3s ease;
+}
+
+/* Dark Mode (GitHub default) */
+@media (prefers-color-scheme: dark) {
+  .vantis-logo circle[fill="#000000"] {
+    fill: #111111 !important;
+  }
+  .vantis-logo text[fill="#FFFFFF"] {
+    fill: #39FF14 !important;
+  }
+  .vantis-logo text[fill="#39FF14"] {
+    fill: #FFFFFF !important;
+  }
+  .vantis-logo path[fill="#39FF14"] {
+    fill: #00CC0A !important;
+  }
+  .vantis-logo circle[fill="#39FF14"] {
+    fill: #00CC0A !important;
+  }
+  .vantis-logo circle[stroke="#39FF14"] {
+    stroke: #00CC0A !important;
+  }
+}
+
+/* Light Mode */
+@media (prefers-color-scheme: light) {
+  .vantis-logo circle[fill="#000000"] {
+    fill: #FFFFFF !important;
+  }
+  .vantis-logo text[fill="#FFFFFF"] {
+    fill: #000000 !important;
+  }
+  .vantis-logo text[fill="#39FF14"] {
+    fill: #39FF14 !important;
+  }
+  .vantis-logo path[fill="#39FF14"] {
+    fill: #00CC0A !important;
+  }
+  .vantis-logo circle[fill="#39FF14"] {
+    fill: #00CC0A !important;
+  }
+  .vantis-logo circle[stroke="#39FF14"] {
+    stroke: #00CC0A !important;
+  }
+  .vantis-logo circle[stroke="#39FF14"] {
+    stroke: #000000 !important;
+  }
+}
+
+/* GitHub-specific theme detection */
+[data-color-mode="light"] .vantis-logo {
+  filter: invert(1);
+}
+
+[data-color-mode="dark"] .vantis-logo {
+  filter: none;
+}

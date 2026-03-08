@@ -1,0 +1,17 @@
+## 🚀 Pull Request Protocol
+
+### 🎯 Goal
+_Describe what this PR changes or adds._
+
+### ⚠️ Risk Assessment
+- [ ] Breaks backward compatibility?
+- [ ] Requires database migration?
+
+### ✅ Checklist
+- [ ] Code follows Vantis Style Guide.
+- [ ] Tests passed locally (`cargo test`).
+- [ ] Documentation updated.
+- [ ] Signed-off-by (DCO).
+
+---
+*By submitting this pull request, I confirm that my contribution is made under the terms of the MIT License.*

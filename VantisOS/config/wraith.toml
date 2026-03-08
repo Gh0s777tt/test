@@ -1,0 +1,5 @@
+[wraith]
+enabled = true
+wipe_on_panic = true
+wipe_on_shutdown = true
+allow_snapshot = false

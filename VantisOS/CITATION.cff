@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use Vantis OS in your research, please cite it as below."
+authors:
+  - family-names: "Kowalski" # Zmień na swoje
+    given-names: "Jan"       # Zmień na swoje
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "Vantis OS: A Formally Verified Rust Microkernel with Zero-Trust Architecture"
+version: 5.0.0
+date-released: 2026-01-25
+url: "https://github.com/vantisCorp/VantisOS"
+license: MIT
+keywords:
+  - operating-system
+  - rust
+  - microkernel
+  - formal-verification
+  - security

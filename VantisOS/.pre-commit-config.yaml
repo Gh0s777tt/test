@@ -1,0 +1,86 @@
+# Pre-commit hooks for VantisOS
+# Run `pre-commit install` to enable
+
+default_language_version:
+  python: python3
+  node: "20"
+
+repos:
+  # Shell script linting
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+      - id: shellcheck
+        args: [--severity=warning]
+        files: \.sh$
+        exclude: ^(node_modules/|vendor/|\.git/)
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-toml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.35.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+        files: \.md$
+        exclude: ^(node_modules/|CHANGELOG.md)
+
+  # Rust specific
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+      - id: fmt
+        args: [--, --check]
+      - id: cargo-check
+        args: [--all-targets]
+      - id: clippy
+        args: [--all-targets, --, -D, warnings]
+
+  # YAML formatting
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.10.0
+    hooks:
+      - id: pretty-format-yaml
+        args: [--autofix, --indent, '2']
+
+  # TOML formatting
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.10.0
+    hooks:
+      - id: pretty-format-toml
+        args: [--autofix]
+
+  # Check for TODO/FIXME comments
+  - repo: https://github.com/FelixSeptem/pre-commit-todo-comments
+    rev: v1.0.0
+    hooks:
+      - id: todo-comments
+        args: [--ignore-words=NOTE,XXX,HACK]
+
+# CI configuration
+ci:
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

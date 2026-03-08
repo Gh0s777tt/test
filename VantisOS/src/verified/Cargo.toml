@@ -1,0 +1,132 @@
+[package]
+name = "vantis-verified"
+version = "1.2.0"
+edition = "2021"
+authors = ["VANTIS OS Team"]
+description = "Formally verified components of VANTIS OS - Cloud Native Edition"
+license = "MIT"
+
+[lib]
+path = "lib.rs"
+
+[features]
+# Enable Verus compatibility crates for cargo builds
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+
+# Enable full Verus proof code paths (verus! blocks and proof-only cfgs)
+verus-full = ["verus"]
+
+# Enable Kani verification
+kani = []
+
+# Enable hardware acceleration
+hw-accel = []
+
+# GPU backend features
+vulkan = ["ash"]
+metal = ["metal-rs", "objc"]
+all-backends = ["vulkan", "metal"]
+
+# Opt-in feature for legacy/experimental IPC complete benchmark harness
+ipc-complete-bench = []
+
+# Default features
+default = ["hw-accel"]
+
+[dependencies]
+# Verus verification toolchain crates
+builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
+builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
+vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+
+# Cryptographic implementations from RustCrypto
+aes = { version = "0.8", default-features = false }
+twofish = { version = "0.7", default-features = false }
+serpent = { version = "0.5", default-features = false }
+cbc = { version = "0.1", default-features = false }
+
+# Block cipher traits
+cipher = { version = "0.4", default-features = false, features = ["block-padding"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+
+# Padding for block ciphers
+block-padding = { version = "0.3", default-features = false }
+
+# Random number generation for IV
+rand_core = { version = "0.6", default-features = false, features = ["getrandom"] }
+getrandom = { version = "0.2", default-features = false, features = ["std"] }
+rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
+
+# Hex encoding for test vectors
+hex = { version = "0.4", optional = true }
+
+# For testing
+sha2 = { version = "0.10", optional = true }
+
+# GPU backend dependencies (optional)
+ash = { version = "0.37", optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+metal-rs = { version = "0.27", optional = true, package = "metal" }
+objc = { version = "0.2", optional = true }
+
+[dev-dependencies]
+hex = "0.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "scheduler_benchmark"
+harness = false
+
+[[bench]]
+name = "filesystem_benchmark"
+harness = false
+
+[[bench]]
+name = "ipc_complete_benchmark"
+harness = false
+path = "../../benches/ipc_complete_benchmark.rs"
+required-features = ["ipc-complete-bench"]
+
+[[bench]]
+name = "performance_baseline"
+harness = false
+path = "../../benches/performance_baseline.rs"
+
+[profile.verify]
+# Optimized profile for verification
+inherits = "dev"
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'abort'
+incremental = false
+codegen-units = 1
+
+[profile.release]
+# Production profile with all safety checks
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = true
+lto = true
+panic = 'abort'
+codegen-units = 1
+strip = true
+
+# Kani configuration
+[package.metadata.kani]
+flags = ["--enable-unstable", "--cbmc-args", "--bounds-check", "--pointer-check"]
+
+# Lints configuration
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)', 'cfg(verus)'] }
+
+[[bench]]
+name = "syscall_performance_simple"
+harness = false
+path = "../../benches/syscall_performance_simple.rs"

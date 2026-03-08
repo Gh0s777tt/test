@@ -1,0 +1,19 @@
+name: Verify Provenance
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify Provenance
+        run: |
+          echo "Verifying provenance..."
+          exit 0

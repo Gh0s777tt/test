@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VANTIS OS - Chaos Engineering Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #39FF14;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #39FF14;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .chaos-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #39FF14;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .control-card:hover {
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .control-card h3 {
+            color: #39FF14;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-card button {
+            width: 100%;
+            padding: 12px;
+            background: #39FF14;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .control-card button:hover {
+            background: #00CC0A;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+        }
+
+        .control-card button:active {
+            transform: scale(0.98);
+        }
+
+        .control-card button.recover {
+            background: #00BFFF;
+        }
+
+        .control-card button.recover:hover {
+            background: #0099CC;
+        }
+
+        .status-display {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #39FF14;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-display h2 {
+            color: #39FF14;
+            margin-bottom: 15px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .status-item {
+            background: rgba(57, 255, 20, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #39FF14;
+        }
+
+        .status-item.healthy {
+            border-color: #00CC0A;
+            background: rgba(0, 204, 10, 0.1);
+        }
+
+        .status-item.degraded {
+            border-color: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .status-item.failed {
+            border-color: #FF0000;
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .status-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #888;
+        }
+
+        .status-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .log-display {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #39FF14;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-display h2 {
+            color: #39FF14;
+            margin-bottom: 15px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry.info {
+            color: #00BFFF;
+        }
+
+        .log-entry.warning {
+            color: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+
+        .log-entry.error {
+            color: #FF0000;
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .log-entry.success {
+            color: #00CC0A;
+        }
+
+        .log-timestamp {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.healthy {
+            background: #00CC0A;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.degraded {
+            background: #FFA500;
+            animation: pulse 1s infinite;
+        }
+
+        .status-indicator.failed {
+            background: #FF0000;
+            animation: pulse 0.5s infinite;
+        }
+
+        .recovery-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(57, 255, 20, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #39FF14;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎲 VANTIS OS - Chaos Engineering Widget</h1>
+            <p>Simulate driver failures and observe Self-Healing in action</p>
+        </div>
+
+        <div class="chaos-controls">
+            <div class="control-card">
+                <h3>💥 GPU Driver Crash</h3>
+                <p>Simulate GPU driver failure</p>
+                <button onclick="simulateFailure('gpu')">Crash GPU Driver</button>
+                <button class="recover" onclick="recoverDriver('gpu')">Recover GPU</button>
+            </div>
+
+            <div class="control-card">
+                <h3>🔌 Network Interface Failure</h3>
+                <p>Simulate network interface failure</p>
+                <button onclick="simulateFailure('network')">Crash Network</button>
+                <button class="recover" onclick="recoverDriver('network')">Recover Network</button>
+            </div>
+
+            <div class="control-card">
+                <h3>💾 Storage Driver Failure</h3>
+                <p>Simulate storage driver failure</p>
+                <button onclick="simulateFailure('storage')">Crash Storage</button>
+                <button class="recover" onclick="recoverDriver('storage')">Recover Storage</button>
+            </div>
+
+            <div class="control-card">
+                <h3>🎵 Audio Driver Failure</h3>
+                <p>Simulate audio driver failure</p>
+                <button onclick="simulateFailure('audio')">Crash Audio</button>
+                <button class="recover" onclick="recoverDriver('audio')">Recover Audio</button>
+            </div>
+        </div>
+
+        <div class="status-display">
+            <h2>📊 System Status</h2>
+            <div class="status-grid">
+                <div class="status-item healthy" id="gpu-status">
+                    <div class="status-label">GPU Driver</div>
+                    <div class="status-value"><span class="status-indicator healthy"></span>Healthy</div>
+                </div>
+                <div class="status-item healthy" id="network-status">
+                    <div class="status-label">Network</div>
+                    <div class="status-value"><span class="status-indicator healthy"></span>Healthy</div>
+                </div>
+                <div class="status-item healthy" id="storage-status">
+                    <div class="status-label">Storage</div>
+                    <div class="status-value"><span class="status-indicator healthy"></span>Healthy</div>
+                </div>
+                <div class="status-item healthy" id="audio-status">
+                    <div class="status-label">Audio</div>
+                    <div class="status-value"><span class="status-indicator healthy"></span>Healthy</div>
+                </div>
+            </div>
+
+            <div class="recovery-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="total-failures">0</div>
+                    <div class="stat-label">Total Failures</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-recoveries">0</div>
+                    <div class="stat-label">Total Recoveries</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="avg-recovery-time">0ms</div>
+                    <div class="stat-label">Avg Recovery Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="success-rate">100%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-display">
+            <h2>📋 Self-Healing Log</h2>
+            <div id="log-container">
+                <div class="log-entry info">
+                    <span class="log-timestamp">[INIT]</span>
+                    Chaos Widget initialized - Ready to simulate failures
+                </div>
+                <div class="log-entry success">
+                    <span class="log-timestamp">[SYSTEM]</span>
+                    Sentinel Driver Monitor: Active - Sub-second recovery enabled
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const drivers = {
+            gpu: { status: 'healthy', failCount: 0, recoverCount: 0, lastFailTime: 0 },
+            network: { status: 'healthy', failCount: 0, recoverCount: 0, lastFailTime: 0 },
+            storage: { status: 'healthy', failCount: 0, recoverCount: 0, lastFailTime: 0 },
+            audio: { status: 'healthy', failCount: 0, recoverCount: 0, lastFailTime: 0 }
+        };
+
+        let totalFailures = 0;
+        let totalRecoveries = 0;
+        let recoveryTimes = [];
+
+        function simulateFailure(driverType) {
+            const driver = drivers[driverType];
+            if (driver.status === 'failed') {
+                addLog('warning', `Driver '${driverType}' already failed. Recover first.`);
+                return;
+            }
+
+            driver.status = 'failed';
+            driver.failCount++;
+            driver.lastFailTime = Date.now();
+            totalFailures++;
+
+            updateStatusDisplay(driverType, 'failed');
+            addLog('error', `💥 FAILURE: ${driverType.toUpperCase()} driver crashed at ${new Date().toLocaleTimeString()}`);
+
+            // Simulate Sentinel detecting failure
+            setTimeout(() => {
+                addLog('info', `🔍 Sentinel: Detected ${driverType} driver failure - Initiating recovery...`);
+            }, 100);
+
+            // Auto-recover after random delay (simulating self-healing)
+            const recoveryDelay = Math.random() * 300 + 200; // 200-500ms
+            setTimeout(() => {
+                recoverDriver(driverType);
+            }, recoveryDelay);
+        }
+
+        function recoverDriver(driverType) {
+            const driver = drivers[driverType];
+            if (driver.status === 'healthy') {
+                addLog('info', `Driver '${driverType}' already healthy.`);
+                return;
+            }
+
+            const recoveryTime = Date.now() - driver.lastFailTime;
+            recoveryTimes.push(recoveryTime);
+
+            driver.status = 'healthy';
+            driver.recoverCount++;
+            totalRecoveries++;
+
+            updateStatusDisplay(driverType, 'healthy');
+            updateStats();
+
+            addLog('success', `✅ RECOVERY: ${driverType.toUpperCase()} driver recovered in ${recoveryTime.toFixed(0)}ms`);
+            addLog('success', `🔧 Sentinel: ${driverType} driver reloaded - All systems nominal`);
+        }
+
+        function updateStatusDisplay(driverType, status) {
+            const statusElement = document.getElementById(`${driverType}-status`);
+            statusElement.className = `status-item ${status}`;
+            
+            const indicator = statusElement.querySelector('.status-indicator');
+            indicator.className = `status-indicator ${status}`;
+            
+            const value = statusElement.querySelector('.status-value');
+            value.innerHTML = `<span class="status-indicator ${status}"></span>${status.charAt(0).toUpperCase() + status.slice(1)}`;
+        }
+
+        function updateStats() {
+            document.getElementById('total-failures').textContent = totalFailures;
+            document.getElementById('total-recoveries').textContent = totalRecoveries;
+
+            if (recoveryTimes.length > 0) {
+                const avgTime = recoveryTimes.reduce((a, b) => a + b, 0) / recoveryTimes.length;
+                document.getElementById('avg-recovery-time').textContent = `${avgTime.toFixed(0)}ms`;
+            }
+
+            const successRate = totalFailures > 0 ? ((totalRecoveries / totalFailures) * 100).toFixed(1) : 100;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+        }
+
+        function addLog(type, message) {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+
+            // Keep only last 50 log entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+
+        // Initialize
+        addLog('info', '🎲 Chaos Widget: System initialized and ready');
+        addLog('success', '✓ Sentinel Self-Healing: Active');
+        addLog('success', '✓ Driver Monitoring: Online');
+        addLog('info', '💡 Tip: Click "Crash" buttons to simulate failures and observe automatic recovery');
+    </script>
+</body>
+</html>

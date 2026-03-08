@@ -1,0 +1,27 @@
+# Vantis OS Coding Standards
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# 🌍 All files
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# 🦀 Rust specific
+[*.rs]
+indent_size = 4
+max_line_length = 100
+
+# 📝 YAML / JSON / Web
+[*.{yml,yaml,json,md}]
+indent_size = 2
+
+# 📜 Makefiles
+[Makefile]
+indent_style = tab

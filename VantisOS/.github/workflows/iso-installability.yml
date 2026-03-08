@@ -1,0 +1,116 @@
+name: ISO Installability
+
+on:
+  push:
+    branches:
+      - 0.4.1
+    paths:
+      - Makefile
+      - mk/**
+      - boot/**
+      - scripts/**
+      - .github/workflows/iso-installability.yml
+  pull_request:
+    paths:
+      - Makefile
+      - mk/**
+      - boot/**
+      - scripts/**
+      - .github/workflows/iso-installability.yml
+  workflow_dispatch:
+    inputs:
+      run_iso_build:
+        description: "Build ISO and run QEMU smoke test"
+        required: false
+        default: false
+        type: boolean
+      run_disk_install_test:
+        description: "Run installer-based disk provisioning and disk boot test"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  preflight:
+    name: Installability preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            genisoimage \
+            libfuse3-dev \
+            nasm \
+            qemu-system-x86 \
+            qemu-utils \
+            syslinux-utils \
+            xorriso
+
+      - name: Bootstrap legacy tree
+        run: ./scripts/bootstrap_legacy_tree.sh
+
+      - name: Run installability preflight
+        run: ./scripts/check_installability.sh
+
+  build-and-smoke:
+    name: Build ISO and run smoke test
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_iso_build }}
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            genisoimage \
+            libfuse3-dev \
+            nasm \
+            qemu-system-x86 \
+            qemu-utils \
+            syslinux-utils \
+            xorriso
+
+      - name: Install kernel Rust toolchain
+        run: rustup toolchain install nightly-2025-10-03 --component rust-src --profile minimal
+
+      - name: Bootstrap legacy tree
+        run: ./scripts/bootstrap_legacy_tree.sh
+
+      - name: Build installable ISO
+        run: ./scripts/build_installable_iso.sh --skip-preflight
+
+      - name: Run VM smoke test
+        run: ./scripts/test_install_e2e.sh --boot-timeout 90
+
+      - name: Run installer disk boot test
+        if: ${{ inputs.run_disk_install_test }}
+        run: |
+          ./scripts/test_install_e2e.sh \
+            --boot-timeout 60 \
+            --expect-disk-boot \
+            --disk-format raw \
+            --disk build/e2e-install.raw \
+            --provision-disk \
+            --install-config filesystem.toml
+
+      - name: Upload ISO and smoke logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso-build-artifacts
+          path: |
+            build/livedisk.iso
+            build/e2e/*.log

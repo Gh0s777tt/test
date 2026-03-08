@@ -1,0 +1,7 @@
+name: Vantis Cortex
+version: 0.1
+capabilities:
+  - semantic_search
+  - offline_llm
+  - automation
+  - privacy_mode

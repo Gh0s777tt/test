@@ -1,0 +1,254 @@
+# This is the default configuration file
+
+# General settings
+[general]
+# Do not prompt if settings are not defined
+prompt = false
+
+# Package settings
+[packages]
+#acid = {}
+#autoconf = {}
+#automake = {}
+bash = {}
+#binutils = {}
+#ca-certificates = {}
+#cargo = {}
+#cleye = {}
+#contain = {}
+coreutils = {}
+#curl = {}
+dash = {}
+#diffutils = {}
+drivers = {}
+duktape = {}
+extrautils = {}
+#fd = {}
+findutils = {}
+#game-2048 = {}
+games = {}
+#gawk = {}
+#gcc = {}
+#git = {}
+#gnu-binutils = {}
+#gnu-make = {}
+#installer = {}
+ion = {}
+keyboard-sfx = {}
+logd = {}
+lua = {}
+#nasm = {}
+#netdb = {}
+#netstack = {}
+#netsurf = {}
+#netutils = {}
+#newlib = {}
+nulld = {}
+#openssl = {}
+#orbdata = {}
+#orbital = {}
+#orbterm = {}
+#orbutils = {}
+#pastel = {}
+#patch = {}
+#pixelcannon = {}
+#pkgutils = {}
+#prboom = {}
+ptyd = {}
+#python = {}
+randd = {}
+#redoxfs = {}
+#rs-nes = {}
+#rust = {}
+#rust64 = {}
+#rustual-boy = {}
+#sed = {}
+shellstorm = {}
+#smith = {}
+#sodium = {}
+#termplay = {}
+userutils = {}
+uutils = {}
+#xz = {}
+zerod = {}
+
+[[files]]
+path = "/etc/pkg.d"
+data = ""
+directory = true
+
+[[files]]
+path = "/etc/pkg.d/50_redox"
+data = "https://static.redox-os.org/pkg"
+
+# User settings
+[users.root]
+# Password is set to "password"
+password = "$argon2i$m=4096,t=10,p=1$Tnc4UVV0N00$ML9LIOujd3nmAfkAwEcSTMPqakWUF0OUiLWrIy0nGLk"
+uid = 0
+gid = 0
+name = "root"
+home = "/root"
+shell = "/bin/shellstorm"
+
+[users.user]
+# Password is unset
+password = ""
+shell = "/bin/shellstorm"
+
+[[files]]
+path = "/etc/init.d/00_base"
+data = """
+nulld
+zerod
+randd
+logd
+ptyd
+pcid /etc/pcid/filesystem.toml
+"""
+
+[[files]]
+path = "/etc/init.d/10_console"
+data = """
+getty display:2/activate
+"""
+
+[[files]]
+path = "/etc/group"
+data = """
+root;0;root
+user;1000;user
+sudo;1;user
+"""
+
+[[files]]
+path = "/etc/hostname"
+data = """
+redox
+"""
+
+[[files]]
+path = "/etc/issue"
+data = """
+      ██▀███  ▓█████ ▓█████▄  ▒█████  ▒██   ██▒
+     ▓██ ▒ ██▒▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▒▒ █ █ ▒░
+     ▓██ ░▄█ ▒▒███   ░██   █▌▒██░  ██▒░░  █   ░
+     ▒██▀▀█▄  ▒▓█  ▄ ░▓█▄   ▌▒██   ██░ ░ █ █ ▒
+     ░██▓ ▒██▒░▒████▒░▒████▓ ░ ████▓▒░▒██▒ ▒██▒
+     ░ ▒▓ ░▒▓░░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ▒▒ ░ ░▓ ░
+ ▒██   ██▒▄▄▄█████▓ ██▀███  ▓█████  ███▄ ▄███▓▓█████
+ ▒▒ █ █ ▒░▓  ██▒ ▓▒▓██ ▒ ██▒▓█   ▀ ▓██▒▀█▀ ██▒▓█   ▀
+ ░░  █   ░▒ ▓██░ ▒░▓██ ░▄█ ▒▒███   ▓██    ▓██░▒███
+  ░ █ █ ▒ ░ ▓██▓ ░ ▒██▀▀█▄  ▒▓█  ▄ ▒██    ▒██ ▒▓█  ▄
+ ▒██▒ ▒██▒  ▒██▒ ░ ░██▓ ▒██▒░▒████▒▒██▒   ░██▒░▒████▒
+ ▒▒ ░ ░▓ ░  ▒ ░░   ░ ▒▓ ░▒▓░░░ ▒░ ░░ ▒░   ░  ░░░ ▒░ ░
+ ▓█████ ▓█████▄  ██▓▄▄▄█████▓ ██▓ ▒█████   ███▄    █
+ ▓█   ▀ ▒██▀ ██▌▓██▒▓  ██▒ ▓▒▓██▒▒██▒  ██▒ ██ ▀█   █
+ ▒███   ░██   █▌▒██▒▒ ▓██░ ▒░▒██▒▒██░  ██▒▓██  ▀█ ██▒
+ ▒▓█  ▄ ░▓█▄   ▌░██░░ ▓██▓ ░ ░██░▒██   ██░▓██▒  ▐▌██▒
+ ░▒████▒░▒████▓ ░██░  ▒██▒ ░ ░██░░ ████▓▒░▒██░   ▓██░
+ ░░ ▒░ ░ ▒▒▓  ▒ ░▓    ▒ ░░   ░▓  ░ ▒░▒░▒░ ░ ▒░   ▒ ▒
+  ░ ░  ░ ░ ▒  ▒  ▒ ░    ░     ▒ ░  ░ ▒ ▒░ ░ ░░   ░ ▒░
+    ░    ░ ░  ░  ▒ ░  ░       ▒ ░░ ░ ░ ▒     ░   ░ ░
+    ░  ░   ░     ░            ░      ░ ░           ░
+         ░
+"""
+
+[[files]]
+path = "/etc/motd"
+data = """
+
+REDOX
+    XTREME
+         EDITION
+
+"""
+
+[[files]]
+path = "/etc/shellstorm"
+data = """
+basename
+bash
+calc
+chmod
+chown
+clear
+comm
+cp
+cut
+dash
+date
+dem
+dircolors
+dirname
+dmesg
+du
+duk
+echo
+env
+expr
+false
+find
+free
+grep
+groupadd
+groupdel
+groupmod
+gunzip
+gzip
+id
+info
+install
+ion
+keymap
+kill
+link
+ln
+ls
+lua
+luac
+man
+mkdir
+mktemp
+mv
+paste
+printenv
+printf
+ps
+pwd
+readlink
+realpath
+relpath
+rem
+reset
+rm
+rmdir
+screenfetch
+seq
+sh
+shellstorm
+sleep
+stat
+sudo
+tar
+test
+time
+touch
+tr
+true
+truncate
+uname
+uptime
+useradd
+userdel
+usermod
+uutils
+watch
+which
+whoami
+"""
+
+[[files]]
+path = "/usr/bin"
+data = "/bin"
+symlink = true

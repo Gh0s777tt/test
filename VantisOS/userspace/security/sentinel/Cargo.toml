@@ -1,0 +1,22 @@
+[package]
+name = "vantis-sentinel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
+builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
+vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+
+[features]
+default = ["hw-accel"]
+hw-accel = []
+verus = ["dep:builtin", "dep:builtin_macros", "dep:vstd"]
+verus-full = ["verus"]
+kani = []
