@@ -4,6 +4,9 @@
 # Build stage for dependencies
 FROM rust:1.85-bookworm AS builder
 
+# Ensure we have the latest Rust 1.85+ toolchain for edition2024 support
+RUN rustup update stable && rustup default stable
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -39,6 +42,9 @@ RUN cargo install \
 
 # Development stage
 FROM rust:1.85-bookworm AS development
+
+# Ensure we have the latest Rust 1.85+ toolchain for edition2024 support
+RUN rustup update stable && rustup default stable
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
