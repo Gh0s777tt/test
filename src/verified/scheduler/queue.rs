@@ -149,7 +149,7 @@ impl TaskQueueManager {
     
     /// Dodaje zadanie do odpowiedniej kolejki
     pub fn enqueue(&mut self, task: Task) -> Result<(), super::SchedulerError> {
-        let queue = self.get_queue(task.priority.level)?;
+        let queue = self.get_queue_mut(task.priority.level)?;
         queue.enqueue(task)
     }
     
@@ -235,9 +235,11 @@ pub struct TaskQueueStats {
 }
 
 /// Globalny menedżer kolejek zadań
-static QUEUE_MANAGER: core::sync::RwLock<TaskQueueManager> = core::sync::RwLock::new(
-    TaskQueueManager::new(1000)
-);
+static QUEUE_MANAGER: std::sync::OnceLock<std::sync::RwLock<TaskQueueManager>> = std::sync::OnceLock::new();
+
+fn get_queue_manager() -> &'static std::sync::RwLock<TaskQueueManager> {
+    QUEUE_MANAGER.get_or_init(|| std::sync::RwLock::new(TaskQueueManager::new(1000)))
+}
 
 /// Inicjalizuje kolejki zadań
 pub fn init() -> Result<(), super::SchedulerError> {
@@ -247,28 +249,28 @@ pub fn init() -> Result<(), super::SchedulerError> {
 
 /// Dodaje zadanie do kolejki
 pub fn enqueue_task(task: Task) -> Result<(), super::SchedulerError> {
-    let mut manager = QUEUE_MANAGER.write()
+    let mut manager = get_queue_manager().write()
         .map_err(|_| super::SchedulerError::QueueFull)?;
     manager.enqueue(task)
 }
 
 /// Pobiera zadanie z kolejki
 pub fn dequeue_task(priority_level: super::priority::PriorityLevel) -> Result<Task, super::SchedulerError> {
-    let mut manager = QUEUE_MANAGER.write()
+    let mut manager = get_queue_manager().write()
         .map_err(|_| super::SchedulerError::QueueEmpty)?;
     manager.dequeue(priority_level)
 }
 
 /// Pobiera kolejne zadanie do wykonania
 pub fn next_task() -> Result<Task, super::SchedulerError> {
-    let mut manager = QUEUE_MANAGER.write()
+    let mut manager = get_queue_manager().write()
         .map_err(|_| super::SchedulerError::QueueEmpty)?;
     manager.next_task()
 }
 
 /// Zwraca statystyki kolejek
 pub fn queue_stats() -> TaskQueueStats {
-    let manager = QUEUE_MANAGER.read().unwrap();
+    let manager = get_queue_manager().read().unwrap();
     manager.stats()
 }
 

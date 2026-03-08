@@ -1,9 +1,9 @@
 // Advanced System Calls
 // mmap, munmap, brk, mprotect, ioctl, fcntl, poll, select, epoll_create, epoll_ctl, epoll_wait
 
-use crate::verified::syscall::mod::*;
-use alloc::vec::Vec;
-use alloc::collections::BTreeMap;
+use super::*;
+use std::vec::Vec;
+use std::collections::BTreeMap;
 use core::sync::atomic::{AtomicU64, Ordering};
 
 // ============================================================================

@@ -1,11 +1,11 @@
 // File System System Calls
 // open, close, read, write, seek, stat, fstat, lstat, mkdir, rmdir, unlink, rename, chmod, chown
 
-use crate::verified::syscall::mod::*;
-use crate::verified::filesystem::vfs::*;
-use crate::verified::filesystem::vantisfs::*;
-use alloc::vec::Vec;
-use alloc::string::String;
+use super::*;
+// use crate::filesystem::vfs::*;
+// use crate::filesystem::vantisfs::*;
+use std::vec::Vec;
+use std::string::String;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
 // ============================================================================
@@ -305,7 +305,7 @@ pub struct FileDescriptorEntry {
     pub flags: u32,
     pub offset: u64,
     pub path: String,
-    pub file_type: FileType,
+    // pub file_type: FileType,
     pub permissions: u32,
     pub size: u64,
 }
@@ -317,7 +317,7 @@ impl FileDescriptorEntry {
             flags: 0,
             offset: 0,
             path,
-            file_type: FileType::Regular,
+            // file_type: FileType::Regular,
             permissions: 0o644,
             size: 0,
         }

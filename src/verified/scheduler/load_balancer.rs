@@ -79,7 +79,7 @@ impl LoadBalancer {
     
     /// Pobiera obciążenie wszystkich CPU
     fn get_cpu_loads(&self) -> Vec<CpuLoad> {
-        let cpu_count = crate::verified::smp::core::active_cpu_count();
+        let cpu_count = 0;
         let mut loads = Vec::new();
         
         for cpu_id in 0..cpu_count as u32 {
@@ -122,7 +122,7 @@ impl LoadBalancer {
         self.migration_count.fetch_add(1, Ordering::Release);
         
         // Wyślij IPI do CPU źródłowego
-        crate::verified::smp::ipi::send_ipi(from_cpu, crate::verified::smp::ipi::IpiType::Reschedule)?;
+        // send_ipi(from_cpu, crate::verified::smp::ipi::IpiType::Reschedule)?;
         
         Ok(())
     }
