@@ -1,11 +1,11 @@
 // Process System Calls
 // fork, exec, exit, wait, getpid, getppid
 
-use crate::verified::syscall::mod::*;
-use crate::verified::minimal_kernel::process::*;
-use crate::verified::minimal_kernel::thread::*;
-use alloc::vec::Vec;
-use alloc::string::String;
+use super::*;
+// use crate::minimal_kernel::process::*;
+// use crate::minimal_kernel::thread::*;
+use std::vec::Vec;
+use std::string::String;
 use core::sync::atomic::{AtomicU64, Ordering};
 
 // ============================================================================
@@ -129,7 +129,8 @@ pub fn sys_getppid_impl(args: &[u64]) -> Result<u64, &'static str> {
 /// Extended process control block
 #[derive(Debug, Clone)]
 pub struct ProcessControlBlockExt {
-    pub base: ProcessControlBlock,
+    pub pid: u64,
+    // pub base: ProcessControlBlock,
     pub parent_pid: u64,
     pub children: Vec<u64>,
     pub exit_code: Option<i32>,
@@ -153,7 +154,8 @@ pub enum ProcessStateExt {
 impl ProcessControlBlockExt {
     pub fn new(pid: u64, parent_pid: u64) -> Self {
         Self {
-            base: ProcessControlBlock::new(pid),
+            pid,
+            // base: ProcessControlBlock::new(pid),
             parent_pid,
             children: Vec::new(),
             exit_code: None,
@@ -282,16 +284,20 @@ impl ProcessManager {
     /// Fork current process
     pub fn fork(&mut self) -> Result<u64, &'static str> {
         let current = self.get_current().ok_or("No current process")?;
-        let parent_pid = current.base.pid;
+        let parent_pid = current.pid;
         
         let child_pid = self.create_process(parent_pid)?;
         
         // Copy parent's state to child
+        let parent_data = self.get_process(parent_pid).map(|p| {
+            (p.file_descriptors.clone(), p.working_directory.clone(), p.environment.clone())
+        });
+        
         if let Some(child) = self.get_process_mut(child_pid) {
-            if let Some(parent) = self.get_process(parent_pid) {
-                child.file_descriptors = parent.file_descriptors.clone();
-                child.working_directory = parent.working_directory.clone();
-                child.environment = parent.environment.clone();
+            if let Some((fds, wd, env)) = parent_data {
+                child.file_descriptors = fds;
+                child.working_directory = wd;
+                child.environment = env;
             }
         }
 

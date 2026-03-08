@@ -101,7 +101,7 @@ pub fn init() -> Result<(), super::SchedulerError> {
 
 /// Zwraca domyślną przynależność CPU
 pub fn default_affinity() -> CpuAffinity {
-    let cpu_count = crate::verified::smp::core::active_cpu_count() as u32;
+    let cpu_count = 0 as u32;
     CpuAffinity::all(cpu_count)
 }
 

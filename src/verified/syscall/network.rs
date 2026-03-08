@@ -1,10 +1,10 @@
 // Network System Calls
 // socket, bind, listen, accept, connect, send, recv, sendto, recvfrom
 
-use crate::verified::syscall::mod::*;
-use crate::verified::network::*;
-use alloc::vec::Vec;
-use alloc::collections::BTreeMap;
+use super::*;
+// use crate::network::*;
+use std::vec::Vec;
+use std::collections::BTreeMap;
 use core::sync::atomic::{AtomicU64, Ordering};
 
 // ============================================================================
