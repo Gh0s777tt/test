@@ -1,6 +1,0 @@
-.github/workflows/build.yml is valid YAML
-.github/workflows/ci.yml is valid YAML
-.github/workflows/dependency-validation.yml is valid YAML
-.github/workflows/health-check.yml is valid YAML
-.github/workflows/script-validation.yml is valid YAML
-.github/workflows/test.yml is valid YAML

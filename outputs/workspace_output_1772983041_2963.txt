@@ -1,4 +1,0 @@
-build.yml
-ci.yml
-dependency-validation.yml
-script-validation.yml

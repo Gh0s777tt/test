@@ -1,1 +1,0 @@
-/tmp/ci_logs.zip: empty

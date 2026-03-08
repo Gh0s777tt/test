@@ -1,4 +1,0 @@
-VantisOS/.github/workflows/build.yml
-VantisOS/.github/workflows/ci.yml
-VantisOS/.github/workflows/dependency-validation.yml
-VantisOS/.github/workflows/script-validation.yml

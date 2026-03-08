@@ -1,3 +1,0 @@
-61:declare -a CHECKS_PASSED
-62:declare -a CHECKS_FAILED
-63:declare -a CHECKS_WARNING

@@ -1,1 +1,0 @@
--rwxr-xr-x 2 root root 29696 Mar  8 13:28 /workspace/VantisOS/bootloader/target/x86_64-unknown-uefi/release/vantis_bootloader.efi

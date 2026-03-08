@@ -1,2 +1,0 @@
-To https://github.com/vantisCorp/VantisOS.git
-   1480796..f03e3e7  HEAD -> 0.4.1

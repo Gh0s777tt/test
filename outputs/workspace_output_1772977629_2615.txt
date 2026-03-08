@@ -1,4 +1,0 @@
-lrwxrwxrwx 1 root root 19 Mar  8 13:47 .gitignore -> VantisOS/.gitignore
-lrwxrwxrwx 1 root root 19 Mar  8 13:47 Cargo.toml -> VantisOS/Cargo.toml
-lrwxrwxrwx 1 root root 16 Mar  8 13:47 LICENSE -> VantisOS/LICENSE
-lrwxrwxrwx 1 root root 18 Mar  8 13:47 README.md -> VantisOS/README.md

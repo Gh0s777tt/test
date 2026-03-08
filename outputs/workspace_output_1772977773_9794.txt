@@ -1,5 +1,0 @@
-check_github_workflows() {
-check_pre_commit() {
-check_code_quality() {
-check_security() {
-check_dependencies() {

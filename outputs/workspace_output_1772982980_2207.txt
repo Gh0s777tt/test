@@ -1,6 +1,0 @@
-on:
-  push:
-    branches:
-      - 0.4.1
-  pull_request:
-  workflow_dispatch:
