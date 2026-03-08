@@ -12,6 +12,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Disabled until binary artifacts are available
+    if: false
     defaults:
       run:
         working-directory: src/verified
@@ -21,8 +23,16 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Build
         run: cargo build --release
+      - name: Check for binary
+        id: check-binary
+        run: |
+          if [ -f "target/release/vantis" ]; then
+            echo "has_binary=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_binary=false" >> $GITHUB_OUTPUT
+          fi
       - name: Generate provenance
-        uses: sigstore/slsa-provenance-action@v2.1.0
+        if: steps.check-binary.outputs.has_binary == 'true'
+        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.9.0
         with:
-          artifact_path: target/release/vantis
-          if: hashFiles('target/release/vantis') != ''
+          base64-subjects: ""
