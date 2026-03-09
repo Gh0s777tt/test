@@ -1,7 +1,7 @@
 {
   "name": "VantisOS Development Environment",
   
-  "image": "rust:1.93-bookworm",
+  "image": "rust:1.85-bookworm",
   
   "runArgs": [
     "--cap-add=NET_ADMIN",
@@ -76,7 +76,7 @@
   
   "forwardPorts": [8080, 8081, 8082],
   
-  "postCreateCommand": "bash -c 'source ~/.bashrc && rustc --version && cargo --version && cargo fetch'",
+  "postCreateCommand": "bash -c 'source ~/.bashrc && cargo fetch'",
   
   "postStartCommand": "cargo watch --version || cargo install cargo-watch",
   

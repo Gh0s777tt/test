@@ -2,7 +2,7 @@
 # Provides a complete development environment for VantisOS
 
 # Build stage for dependencies
-FROM rust:1.82-bookworm AS builder
+FROM rust:1.85-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -38,7 +38,7 @@ RUN cargo install \
     mdbook-mermaid
 
 # Development stage
-FROM rust:1.82-bookworm AS development
+FROM rust:1.85-bookworm AS development
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
