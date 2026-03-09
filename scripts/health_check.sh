@@ -472,7 +472,7 @@ check_ci_integrity() {
     
     # Check for error masking in CI workflows
     local masked
-    masked=$(grep -rn '2>/dev/null.*||.*echo' .github/workflows/*.yml 2>/dev/null | grep -v '#' | head -5 || true)
+    masked=$(grep -rn '2>/dev/null.*||.*echo' .github/workflows/*.yml 2>/dev/null | { grep -v '#' || true; } | head -5)
     if [[ -n "$masked" ]]; then
         log_fail "Error masking detected in CI workflows (2>/dev/null || echo)"
         if [[ "$VERBOSE" == true ]]; then
@@ -484,7 +484,7 @@ check_ci_integrity() {
     
     # Check for continue-on-error in critical steps
     local coe
-    coe=$(grep -rn 'continue-on-error: true' .github/workflows/ci.yml .github/workflows/build.yml .github/workflows/test.yml 2>/dev/null || true)
+    coe=$(grep -rn 'continue-on-error: true' .github/workflows/ci.yml .github/workflows/build.yml .github/workflows/test.yml 2>/dev/null || echo "")
     if [[ -n "$coe" ]]; then
         log_warn "continue-on-error found in CI workflows (may hide failures)"
     else
@@ -493,7 +493,8 @@ check_ci_integrity() {
     
     # Check VantisOS/ directory doesn't exist in tracked files
     local vantis_tracked
-    vantis_tracked=$(git ls-files | grep "^VantisOS/" | wc -l || echo "0")
+    vantis_tracked=$(git ls-files | grep -c "^VantisOS/" 2>/dev/null || true)
+    vantis_tracked=${vantis_tracked:-0}
     if [[ "$vantis_tracked" -gt 0 ]]; then
         log_fail "VantisOS/ subdirectory still tracked ($vantis_tracked files)"
     else

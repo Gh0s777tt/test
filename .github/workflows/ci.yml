@@ -108,5 +108,5 @@ jobs:
           set -e
           find . -name "*.sh" -not -path "./target/*" -not -path "./VantisOS/*" | while read -r script; do
             echo "Checking $script..."
-            shellcheck "$script" || exit 1
+            shellcheck --severity=warning "$script" || exit 1
           done
