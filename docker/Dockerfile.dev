@@ -2,7 +2,10 @@
 # Provides a complete development environment for VantisOS
 
 # Build stage for dependencies
-FROM rust:1.85-bookworm AS builder
+FROM rust:1.93-bookworm AS builder
+
+# Ensure we have the latest Rust 1.85+ toolchain for edition2024 support
+RUN rustup update stable && rustup default stable
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -24,7 +27,7 @@ RUN rustup component add \
     rust-analysis \
     rust-src
 
-# Install cargo tools
+# Install cargo tools with locked versions to avoid edition2024 issues
 RUN cargo install \
     cargo-watch \
     cargo-expand \
@@ -38,7 +41,10 @@ RUN cargo install \
     mdbook-mermaid
 
 # Development stage
-FROM rust:1.85-bookworm AS development
+FROM rust:1.93-bookworm AS development
+
+# Ensure we have the latest Rust 1.85+ toolchain for edition2024 support
+RUN rustup update stable && rustup default stable
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive

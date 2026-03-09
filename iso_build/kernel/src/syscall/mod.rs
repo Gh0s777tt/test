@@ -1,6 +1,9 @@
 //! System Call Interface
 //! Provides POSIX-like system calls for userspace
 
+// Kernel syscall functions inherently work with raw pointers
+#![allow(clippy::not_unsafe_ptr_arg_deref)]
+
 use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec::Vec;
@@ -414,9 +417,9 @@ pub fn sys_open(path: *const i8, flags: usize, _mode: usize) -> SyscallResult {
         core::str::from_utf8(slice).unwrap_or("")
     };
     
-    // Parse flags
+    // Parse flags (POSIX open flags: 0o0=O_RDONLY, 0o1=O_WRONLY, 0o2=O_RDWR)
     let open_flags = fs::OpenFlags {
-        read: (flags & 0o0) != 0 || (flags & 0o2) != 0,
+        read: (flags & 0o2) != 0 || (flags & 0o1) == 0, // read if O_RDWR or not O_WRONLY
         write: (flags & 0o1) != 0 || (flags & 0o2) != 0,
         create: (flags & 0o100) != 0,
         excl: (flags & 0o200) != 0,

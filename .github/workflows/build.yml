@@ -1,69 +1,55 @@
-name: Build
+name: Secure Build
 
 on:
   push:
-    branches: [master, main, 0.4.1]
-    tags:
-      - 'v*'
+    branches:
+      - 0.4.1
+      - master
   pull_request:
-    branches: [master, main]
-  workflow_dispatch:
 
 permissions:
   contents: read
+  checks: write
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
   build-linux:
-    name: Build Linux
+    name: Build Linux (x86_64)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry & build
+        uses: actions/cache@v4
         with:
-          targets: x86_64-unknown-linux-gnu
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-build-
 
       - name: Build for Linux
-        run: |
-          if [ -f Cargo.toml ]; then
-            cargo build --release --target x86_64-unknown-linux-gnu 2>/dev/null || echo "Build completed"
-          else
-            echo "No Cargo.toml found"
-          fi
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-linux
-          path: |
-            target/x86_64-unknown-linux-gnu/release/
-            !target/x86_64-unknown-linux-gnu/release/.fingerprint
-            !target/x86_64-unknown-linux-gnu/release/build
-            !target/x86_64-unknown-linux-gnu/release/deps
-            !target/x86_64-unknown-linux-gnu/release/examples
-          retention-days: 7
-          if-no-files-found: ignore
+        run: cargo build --release --workspace
 
   check-workspace:
-    name: Check Workspace
+    name: Verify Workspace Integrity
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Check workspace members
-        run: |
-          if [ -f Cargo.toml ]; then
-            echo "Checking workspace..."
-            cargo check --workspace 2>/dev/null || echo "Check completed"
-          else
-            echo "No Cargo.toml found"
-          fi
+      - name: Verify all workspace members compile
+        run: cargo check --workspace --all-features
 
   build-summary:
     name: Build Summary
@@ -71,8 +57,10 @@ jobs:
     needs: [build-linux, check-workspace]
     if: always()
     steps:
-      - name: Summary
+      - name: Check build results
         run: |
-          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Build jobs completed." >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.build-linux.result }}" != "success" ] || [ "${{ needs.check-workspace.result }}" != "success" ]; then
+            echo "❌ Build failed"
+            exit 1
+          fi
+          echo "✅ All builds passed"

@@ -58,9 +58,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Health check results
-declare -a CHECKS_PASSED=()
-declare -a CHECKS_FAILED=()
-declare -a CHECKS_WARNING=()
+declare -a CHECKS_PASSED
+declare -a CHECKS_FAILED
+declare -a CHECKS_WARNING
 
 # Helper functions
 log_pass() {
@@ -173,9 +173,9 @@ check_scripts() {
         local executable_count=0
         
         while IFS= read -r -d '' script; do
-            script_count=$((script_count + 1))
+            ((script_count++))
             if [[ -x "$script" ]]; then
-                executable_count=$((executable_count + 1))
+                ((executable_count++))
             else
                 local script_name
                 script_name=$(basename "$script")
@@ -326,27 +326,14 @@ check_dependencies() {
 }
 
 print_summary() {
-    # Handle empty arrays with defaults
-    local passed_count=${#CHECKS_PASSED[@]}
-    local failed_count=${#CHECKS_FAILED[@]}
-    local warning_count=${#CHECKS_WARNING[@]}
-    
     if [[ "$JSON_OUTPUT" == true ]]; then
-        local json_passed=""
-        local json_failed=""
-        local json_warnings=""
-        
-        [[ ${#CHECKS_PASSED[@]} -gt 0 ]] && json_passed="$(printf '%s\n' "${CHECKS_PASSED[@]}")"
-        [[ ${#CHECKS_FAILED[@]} -gt 0 ]] && json_failed="$(printf '%s\n' "${CHECKS_FAILED[@]}")"
-        [[ ${#CHECKS_WARNING[@]} -gt 0 ]] && json_warnings="$(printf '%s\n' "${CHECKS_WARNING[@]}")"
-        
         jq -n \
-            --argjson passed "$passed_count" \
-            --argjson failed "$failed_count" \
-            --argjson warnings "$warning_count" \
-            --arg json_passed "$json_passed" \
-            --arg json_failed "$json_failed" \
-            --arg json_warnings "$json_warnings" \
+            --argjson passed "${#CHECKS_PASSED[@]}" \
+            --argjson failed "${#CHECKS_FAILED[@]}" \
+            --argjson warnings "${#CHECKS_WARNING[@]}" \
+            --arg json_passed "$(printf '%s\n' "${CHECKS_PASSED[@]}")" \
+            --arg json_failed "$(printf '%s\n' "${CHECKS_FAILED[@]}")" \
+            --arg json_warnings "$(printf '%s\n' "${CHECKS_WARNING[@]}")" \
             '{
                 summary: {
                     passed: $passed,
@@ -365,12 +352,12 @@ print_summary() {
         echo "========================================="
         echo "         REPOSITORY HEALTH SUMMARY"
         echo "========================================="
-        echo -e "${GREEN}Passed:${NC}   $passed_count"
-        echo -e "${RED}Failed:${NC}   $failed_count"
-        echo -e "${YELLOW}Warnings:${NC} $warning_count"
+        echo -e "${GREEN}Passed:${NC}   ${#CHECKS_PASSED[@]}"
+        echo -e "${RED}Failed:${NC}   ${#CHECKS_FAILED[@]}"
+        echo -e "${YELLOW}Warnings:${NC} ${#CHECKS_WARNING[@]}"
         echo "========================================="
         
-        if [[ $failed_count -eq 0 ]]; then
+        if [[ ${#CHECKS_FAILED[@]} -eq 0 ]]; then
             echo -e "${GREEN}Repository is healthy!${NC}"
         else
             echo -e "${RED}Repository has issues that need attention.${NC}"
@@ -381,13 +368,136 @@ print_summary() {
             done
         fi
         
-        if [[ $warning_count -gt 0 ]] && [[ "$VERBOSE" == true ]]; then
+        if [[ ${#CHECKS_WARNING[@]} -gt 0 ]] && [[ "$VERBOSE" == true ]]; then
             echo ""
             echo "Warnings:"
             for check in "${CHECKS_WARNING[@]}"; do
                 echo "  - $check"
             done
         fi
+    fi
+}
+
+check_workspace_members() {
+    cd "$REPO_ROOT"
+    
+    if [[ ! -f "Cargo.toml" ]]; then
+        log_fail "Cargo.toml not found at repository root"
+        return
+    fi
+    
+    # Extract workspace members from Cargo.toml
+    local members
+    members=$(grep -A 50 '^\[workspace\]' Cargo.toml | grep '"userspace/' | sed 's/.*"\(.*\)".*/\1/' || true)
+    
+    if [[ -z "$members" ]]; then
+        log_fail "No workspace members found in Cargo.toml"
+        return
+    fi
+    
+    local total=0
+    local found=0
+    local missing=0
+    
+    while IFS= read -r member; do
+        total=$((total + 1))
+        if [[ -d "$member" ]] && [[ -f "$member/Cargo.toml" ]]; then
+            found=$((found + 1))
+        else
+            missing=$((missing + 1))
+            log_fail "Workspace member missing: $member"
+        fi
+    done <<< "$members"
+    
+    if [[ $missing -eq 0 ]]; then
+        log_pass "All $total workspace members present with Cargo.toml"
+    else
+        log_fail "$missing of $total workspace members missing"
+    fi
+    
+    # Check Cargo.lock exists
+    if [[ -f "Cargo.lock" ]]; then
+        log_pass "Cargo.lock present (reproducible builds)"
+    else
+        log_fail "Cargo.lock missing (builds not reproducible)"
+    fi
+}
+
+check_version_consistency() {
+    cd "$REPO_ROOT"
+    
+    # Get version from Cargo.toml
+    local cargo_version
+    cargo_version=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/' || echo "unknown")
+    
+    if [[ "$cargo_version" == "unknown" ]]; then
+        log_fail "Cannot read version from Cargo.toml"
+        return
+    fi
+    
+    log_info "Cargo.toml version: $cargo_version"
+    
+    # Check CITATION.cff
+    if [[ -f "CITATION.cff" ]]; then
+        local cff_version
+        cff_version=$(grep '^version:' CITATION.cff | awk '{print $2}' || echo "unknown")
+        if [[ "$cff_version" == "$cargo_version" ]]; then
+            log_pass "CITATION.cff version matches ($cff_version)"
+        else
+            log_fail "CITATION.cff version mismatch: $cff_version (expected $cargo_version)"
+        fi
+    fi
+    
+    # Check README.md for version references
+    if [[ -f "README.md" ]]; then
+        if grep -q "v${cargo_version}" README.md; then
+            log_pass "README.md references current version v${cargo_version}"
+        else
+            log_warn "README.md may not reference current version v${cargo_version}"
+        fi
+    fi
+    
+    # Check for inflated version references
+    local inflated
+    inflated=$(grep -rlE "v1\.[0-9]+\.[0-9]|v[2-9]\." README.md CHANGELOG.md SECURITY.md CITATION.cff 2>/dev/null | head -5 || true)
+    if [[ -n "$inflated" ]]; then
+        log_warn "Possible inflated version references found in: $inflated"
+    else
+        log_pass "No inflated version references detected"
+    fi
+}
+
+check_ci_integrity() {
+    cd "$REPO_ROOT"
+    
+    # Check for error masking in CI workflows
+    local masked
+    masked=$(grep -rn '2>/dev/null.*||.*echo' .github/workflows/*.yml 2>/dev/null | grep -v '#' | head -5 || true)
+    if [[ -n "$masked" ]]; then
+        log_fail "Error masking detected in CI workflows (2>/dev/null || echo)"
+        if [[ "$VERBOSE" == true ]]; then
+            echo "$masked"
+        fi
+    else
+        log_pass "No error masking in CI workflows"
+    fi
+    
+    # Check for continue-on-error in critical steps
+    local coe
+    coe=$(grep -rn 'continue-on-error: true' .github/workflows/ci.yml .github/workflows/build.yml .github/workflows/test.yml 2>/dev/null || true)
+    if [[ -n "$coe" ]]; then
+        log_warn "continue-on-error found in CI workflows (may hide failures)"
+    else
+        log_pass "No continue-on-error in core CI workflows"
+    fi
+    
+    # Check VantisOS/ directory doesn't exist in tracked files
+    local vantis_tracked
+    vantis_tracked=$(git ls-files | grep "^VantisOS/" | wc -l || echo "0")
+    if [[ "$vantis_tracked" -gt 0 ]]; then
+        log_fail "VantisOS/ subdirectory still tracked ($vantis_tracked files)"
+    else
+        log_pass "No VantisOS/ duplicate directory in tracking"
     fi
 }
 
@@ -401,6 +511,9 @@ main() {
     
     check_git_status
     check_required_files
+    check_workspace_members
+    check_version_consistency
+    check_ci_integrity
     check_documentation
     check_scripts
     check_github_workflows

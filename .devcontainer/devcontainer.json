@@ -5,15 +5,12 @@
   
   "runArgs": [
     "--cap-add=NET_ADMIN",
-    "--cap-add=SYS_ADMIN",
-    "--device=/dev/kvm:/dev/kvm",
     "--privileged=false"
   ],
   
   "mounts": [
     "source=vantisos-cargo-cache,target=/usr/local/cargo,type=volume",
-    "source=vantisos-target-cache,target=/workspace/target,type=volume",
-    "source=vantisos-vscode-extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
+    "source=vantisos-target-cache,target=/workspace/target,type=volume"
   ],
   
   "customizations": {
@@ -63,6 +60,9 @@
       "installZsh": false,
       "configureZshAsDefaultShell": false,
       "installOhMyZsh": false,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000",
       "upgradePackages": true
     },
     "ghcr.io/devcontainers/features/git:1": {
@@ -76,7 +76,7 @@
   
   "forwardPorts": [8080, 8081, 8082],
   
-  "postCreateCommand": "bash -c 'source ~/.bashrc && cargo fetch'",
+  "postCreateCommand": "bash -c 'source ~/.bashrc && rustc --version && cargo --version && cargo fetch'",
   
   "postStartCommand": "cargo watch --version || cargo install cargo-watch",
   

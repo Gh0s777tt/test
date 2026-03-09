@@ -57,46 +57,6 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
-# Pliki JavaScript/TypeScript
-[*.{js,ts,jsx,tsx}]
-indent_style = space
-indent_size = 2
-
-# Pliki Python
-[*.py]
-indent_style = space
-indent_size = 4
-
 # Makefile
 [Makefile]
 indent_style = tab
-
-# Pliki konfiguracyjne
-[.editorconfig]
-indent_style = space
-indent_size = 4
-
-# Pliki Docker
-[Dockerfile*]
-indent_style = space
-indent_size = 4
-
-# Pliki docker-compose
-[docker-compose*.yml]
-indent_style = space
-indent_size = 2
-
-# Pliki .gitignore
-[.gitignore]
-indent_style = space
-indent_size = 4
-
-# Pliki LICENSE
-[LICENSE*]
-indent_style = space
-indent_size = 4
-
-# Pliki CITATION
-[CITATION.cff]
-indent_style = space
-indent_size = 2
