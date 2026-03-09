@@ -14,7 +14,7 @@ for i in {1..30}; do
     progress=$((i * 100 / 30))
     
     # Create frame content
-    cat > assets/frames/frame_$(printf "%03d" $i).txt << EOF
+    cat > "assets/frames/frame_$(printf "%03d" "$i").txt" << EOF
 [0;31m[1mVANTIS OS v5.0 - Secure Boot Sequence[0m
 
 [BOOT]  Initializing kernel...${progress}%

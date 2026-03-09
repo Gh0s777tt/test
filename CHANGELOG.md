@@ -33,7 +33,7 @@ i ten projekt przestrzega [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 #### Version Consistency
 - Unified version to `0.4.1` across all files:
   - `Cargo.toml`, `README.md`, `CITATION.cff`, `SECURITY.md`, `CHANGELOG.md`
-- Removed inflated version references (v1.0.0 through v1.5.0)
+- Removed inflated version references from previous placeholder entries
 - Standardized all git tags to use `v` prefix (v0.0.1 through v0.4.1)
 
 #### Documentation Cleanup
