@@ -1,16 +1,7 @@
 {
   "name": "VantisOS Development Environment",
   
-  "build": {
-    "dockerfile": "../docker/Dockerfile.dev",
-    "target": "development",
-    "context": "..",
-    "args": {
-      "USERNAME": "vscode",
-      "USER_UID": "1000",
-      "USER_GID": "1000"
-    }
-  },
+  "image": "rust:1.93-bookworm",
   
   "runArgs": [
     "--cap-add=NET_ADMIN",
@@ -85,7 +76,7 @@
   
   "forwardPorts": [8080, 8081, 8082],
   
-  "postCreateCommand": "bash -c 'source ~/.bashrc && cargo fetch'",
+  "postCreateCommand": "bash -c 'source ~/.bashrc && rustc --version && cargo --version && cargo fetch'",
   
   "postStartCommand": "cargo watch --version || cargo install cargo-watch",
   
