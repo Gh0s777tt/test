@@ -71,7 +71,7 @@ jobs:
           cargo audit --json > audit-report.json || true
           
       - name: Upload audit report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: security-audit-report
           path: audit-report.json
@@ -109,7 +109,7 @@ jobs:
         run: strip target/${{ matrix.target }}/release/vantis
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: vantis-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/vantis
@@ -180,7 +180,7 @@ jobs:
           cargo test --release --test performance_validation -- --nocapture 2>&1 | grep -E "(throughput|latency|overhead)" >> benchmark-report.md || true
       
       - name: Upload benchmark report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: benchmark-report
           path: benchmark-report.md
@@ -216,7 +216,7 @@ jobs:
           echo "- [x] Human oversight implemented" >> compliance-report.md
       
       - name: Upload compliance report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: compliance-report
           path: compliance-report.md

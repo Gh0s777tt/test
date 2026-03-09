@@ -37,7 +37,7 @@ jobs:
           artifact: target/release/vantis
       - name: Upload signature
         if: steps.check-binary.outputs.has_binary == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: signatures
           path: target/release/*.sig

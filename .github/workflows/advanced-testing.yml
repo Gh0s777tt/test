@@ -98,7 +98,7 @@ jobs:
           fail_ci_if_error: false
       
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report-${{ matrix.rust }}
           path: target/tarpaulin/index.html
@@ -148,7 +148,7 @@ jobs:
       
       - name: Upload fuzz artifacts
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: fuzz-artifacts
           path: fuzz/artifacts
