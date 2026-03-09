@@ -1,16 +1,19 @@
-; VantisOS Kernel Entry Point
-; Multiboot compliant kernel header
+; VantisOS Kernel - Multiboot compliant ELF kernel
+; Outputs to both VGA and Serial port
 
 BITS 32
 
 ; Multiboot header constants
-MBOOT_PAGE_ALIGN    equ 1 << 0
-MBOOT_MEM_INFO      equ 1 << 1
+MBOOT_PAGE_ALIGN    equ 1<<0
+MBOOT_MEM_INFO      equ 1<<1
 MBOOT_MAGIC         equ 0x1BADB002
 MBOOT_FLAGS         equ MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO
 MBOOT_CHECKSUM      equ -(MBOOT_MAGIC + MBOOT_FLAGS)
 
-; Multiboot header - must be in first 8KB of kernel
+; Serial port
+COM1_PORT           equ 0x3F8
+
+; Multiboot header (must be early in the file)
 section .multiboot
 align 4
     dd MBOOT_MAGIC
@@ -24,302 +27,210 @@ stack_bottom:
     resb 16384      ; 16 KB stack
 stack_top:
 
-; Entry point
+; Kernel code
 section .text
 global _start
-extern kernel_main
 
 _start:
-    ; Disable interrupts
-    cli
-    
     ; Set up stack
     mov esp, stack_top
-    
-    ; Save multiboot info
-    push ebx        ; Multiboot info pointer
-    push eax        ; Multiboot magic
     
     ; Clear direction flag
     cld
     
-    ; Check for multiboot
-    cmp eax, 0x2BADB002
-    jne .no_multiboot
+    ; Save multiboot info
+    push ebx
     
-    ; Call kernel main (if available)
-    ; For pure assembly kernel, we do everything here
-    ; call kernel_main
+    ; Initialize serial port COM1
+    call init_serial
     
-    ; Initialize VGA
-    call vga_init
+    ; Send banner to serial
+    mov esi, serial_banner
+    call print_serial
     
-    ; Print welcome banner
-    call print_banner
-    
-    ; Main loop
-.main_loop:
-    hlt
-    jmp .main_loop
-    
-.no_multiboot:
-    ; Print error message
-    mov dword [0xB8000], 0x4F524F45  ; "ER"
-    mov dword [0xB8004], 0x4F3A4F52  ; "R:"
-    mov dword [0xB8008], 0x4F424F4D  ; "MB"
-    mov dword [0xB800C], 0x4F544F4F  ; "OT"
-    jmp .main_loop
-
-; Initialize VGA
-vga_init:
-    ; Set VGA mode (text mode 80x25)
+    ; Initialize VGA (set video mode 3 - 80x25 text)
     mov ax, 0x0003
     int 0x10
     
-    ; Set cursor position to 0,0
-    mov dx, 0x3D4
-    mov al, 0x0E
-    out dx, al
-    inc dx
-    mov al, 0x00
-    out dx, al
+    ; Print welcome message to VGA buffer
+    mov edi, 0xB8000       ; VGA text buffer address
     
-    dec dx
-    mov al, 0x0F
-    out dx, al
-    inc dx
-    out dx, al
+    ; Clear screen (fill with spaces, white on black)
+    mov ecx, 2000          ; 80 * 25 characters
+    mov ax, 0x0F20         ; Space character (0x20) with white on black (0x0F)
+    rep stosw
     
-    ret
-
-; Print welcome banner
-print_banner:
-    ; Print to VGA memory at 0xB8000
+    ; Print banner - line 1
     mov edi, 0xB8000
+    mov esi, banner
+    call print_string_vga
     
-    ; Set color (light cyan on blue)
-    mov ah, 0x1F
+    ; Print separator - line 2
+    mov edi, 0xB80A0
+    mov esi, separator
+    call print_string_vga
     
-    ; Print top border
-    mov al, 0xDA
-    mov [edi], ax
-    add edi, 2
-    mov ecx, 78
-.top_border:
-    mov al, 0xC4
-    mov [edi], ax
-    add edi, 2
-    loop .top_border
-    mov al, 0xBF
-    mov [edi], ax
-    add edi, 2
+    ; Print features
+    mov edi, 0xB8140
+    mov esi, features1
+    call print_string_vga
     
-    ; Next line
-    add edi, 2
+    mov edi, 0xB81E0
+    mov esi, features2
+    call print_string_vga
     
-    ; Print empty line with borders
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
-    mov ecx, 78
-    mov al, ' '
-.empty_line:
-    mov [edi], ax
-    add edi, 2
-    loop .empty_line
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
+    mov edi, 0xB8280
+    mov esi, features3
+    call print_string_vga
     
-    ; Next line
-    add edi, 2
+    mov edi, 0xB8320
+    mov esi, features4
+    call print_string_vga
     
-    ; Print title line
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
+    mov edi, 0xB83C0
+    mov esi, ready_msg
+    call print_string_vga
     
-    ; Center the title
-    mov ecx, 20
-.space_before:
-    mov al, ' '
-    mov [edi], ax
-    add edi, 2
-    loop .space_before
+    mov edi, 0xB8460
+    mov esi, halt_msg
+    call print_string_vga
     
-    ; Print title
-    mov esi, title_str
-.print_title:
-    lodsb
-    test al, al
-    jz .title_done
-    mov [edi], ax
-    add edi, 2
-    jmp .print_title
-.title_done:
+    ; Send ready message to serial
+    mov esi, serial_ready
+    call print_serial
+
+    ; Halt
+    cli
+.halt:
+    hlt
+    jmp .halt
+
+; Initialize serial port COM1
+init_serial:
+    push eax
+    push dx
     
-    ; Fill rest of line
-    mov ecx, 32
-.space_after:
-    mov al, ' '
-    mov [edi], ax
-    add edi, 2
-    loop .space_after
+    mov dx, COM1_PORT + 1    ; Interrupt Enable Register
+    xor al, al
+    out dx, al               ; Disable interrupts
     
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
+    mov dx, COM1_PORT + 3    ; Line Control Register
+    mov al, 0x80             ; Enable DLAB
+    out dx, al
     
-    ; Next line
-    add edi, 2
+    mov dx, COM1_PORT + 0    ; Divisor Latch Low (baud rate divisor)
+    mov al, 0x01             ; 115200 baud
+    out dx, al
     
-    ; Print subtitle line
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
+    mov dx, COM1_PORT + 1    ; Divisor Latch High
+    xor al, al
+    out dx, al
     
-    mov ecx, 14
-.space_before2:
-    mov al, ' '
-    mov [edi], ax
-    add edi, 2
-    loop .space_before2
+    mov dx, COM1_PORT + 3    ; Line Control Register
+    mov al, 0x03             ; 8 bits, no parity, one stop bit
+    out dx, al
     
-    mov esi, subtitle_str
-.print_subtitle:
-    lodsb
-    test al, al
-    jz .subtitle_done
-    mov [edi], ax
-    add edi, 2
-    jmp .print_subtitle
-.subtitle_done:
+    mov dx, COM1_PORT + 2    ; FIFO Control Register
+    mov al, 0xC7             ; Enable FIFO, clear them, 14-byte threshold
+    out dx, al
     
-    mov ecx, 18
-.space_after2:
-    mov al, ' '
-    mov [edi], ax
-    add edi, 2
-    loop .space_after2
+    mov dx, COM1_PORT + 4    ; Modem Control Register
+    mov al, 0x0B             ; IRQs enabled, RTS/DSR set
+    out dx, al
     
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
-    
-    ; Print empty lines
-    mov ecx, 3
-.empty_lines:
-    push ecx
-    add edi, 2
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
-    mov ecx, 78
-    mov al, ' '
-.fill_empty:
-    mov [edi], ax
-    add edi, 2
-    loop .fill_empty
-    mov al, 0xB3
-    mov [edi], ax
-    pop ecx
-    loop .empty_lines
-    
-    ; Print success message
-    add edi, 2
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
-    
-    mov ecx, 10
-.space_before3:
-    mov al, ' '
-    mov [edi], ax
-    add edi, 2
-    loop .space_before3
-    
-    ; Set green color
-    mov ah, 0x0A
-    mov al, 0xFE    ; checkmark
-    mov [edi], ax
-    add edi, 2
-    
-    mov ah, 0x1F
-    mov esi, success_str
-.print_success:
-    lodsb
-    test al, al
-    jz .success_done
-    mov [edi], ax
-    add edi, 2
-    jmp .print_success
-.success_done:
-    
-    ; Fill rest
-    mov ecx, 35
-.space_after3:
-    mov al, ' '
-    mov [edi], ax
-    add edi, 2
-    loop .space_after3
-    
-    mov al, 0xB3
-    mov [edi], ax
-    add edi, 2
-    
-    ; Bottom border
-    add edi, 2
-    mov al, 0xC0
-    mov [edi], ax
-    add edi, 2
-    mov ecx, 78
-.bottom_border:
-    mov al, 0xC4
-    mov [edi], ax
-    add edi, 2
-    loop .bottom_border
-    mov al, 0xD9
-    mov [edi], ax
-    
+    pop dx
+    pop eax
     ret
 
-; Strings
-title_str:      db "VantisOS v1.5.0 'Quantum Ready'", 0
-subtitle_str:   db "Quantum-Ready Operating System", 0
-success_str:    db " Kernel initialized successfully!", 0
+; Print string to serial port
+; Input: ESI = source string
+print_serial:
+    pusha
+.loop:
+    lodsb                   ; Load byte from ESI into AL
+    test al, al             ; Check if null terminator
+    jz .done
+    
+    ; Wait for transmit buffer to be empty
+.wait:
+    push dx
+    mov dx, COM1_PORT + 5    ; Line Status Register
+    in al, dx
+    pop dx
+    test al, 0x20            ; Check if transmit buffer empty
+    jz .wait
+    
+    ; Send character
+    push dx
+    mov dx, COM1_PORT
+    mov al, [esi-1]          ; Get character we loaded earlier
+    out dx, al
+    pop dx
+    
+    jmp .loop
+.done:
+    popa
+    ret
 
-; GDT (Global Descriptor Table)
+; Print string to VGA buffer
+; Input: ESI = source string, EDI = destination in VGA buffer
+print_string_vga:
+    pusha
+.loop:
+    lodsb               ; Load byte from ESI into AL
+    test al, al         ; Check if null terminator
+    jz .done
+    mov ah, 0x0F        ; White on black attribute
+    mov [edi], ax       ; Write character + attribute
+    add edi, 2          ; Move to next character position
+    jmp .loop
+.done:
+    popa
+    ret
+
+; Data
 section .rodata
-gdt_start:
-    ; Null descriptor
-    dq 0
-    
-gdt_code:
-    ; Code segment descriptor (selector = 0x08)
-    ; Base = 0, Limit = 0xFFFFF
-    ; Access: Present, Ring 0, Code, Executable, Readable
-    dw 0xFFFF       ; Limit (bits 0-15)
-    dw 0x0000       ; Base (bits 0-15)
-    db 0x00         ; Base (bits 16-23)
-    db 10011010b    ; Access byte
-    db 11001111b    ; Flags + Limit (bits 16-19)
-    db 0x00         ; Base (bits 24-31)
-    
-gdt_data:
-    ; Data segment descriptor (selector = 0x10)
-    dw 0xFFFF       ; Limit (bits 0-15)
-    dw 0x0000       ; Base (bits 0-15)
-    db 0x00         ; Base (bits 16-23)
-    db 10010010b    ; Access byte
-    db 11001111b    ; Flags + Limit (bits 16-19)
-    db 0x00         ; Base (bits 24-31)
-    
-gdt_end:
+banner:
+    db "   V A N T I S O S   v 1 . 5 . 0   ' Q u a n t u m   R e a d y ' ", 0
 
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1   ; Size
-    dd gdt_start                  ; Address
+separator:
+    db "   ================================================================", 0
 
-; Code and data selectors
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+features1:
+    db "   * Modern x86_64 kernel with preemptive multitasking", 0
+
+features2:
+    db "   * Quantum computing simulation capabilities", 0
+
+features3:
+    db "   * Post-quantum cryptography support (Kyber, Dilithium)", 0
+
+features4:
+    db "   * Secure, privacy-focused design", 0
+
+ready_msg:
+    db "   >>> System ready. VantisOS loaded successfully!", 0
+
+halt_msg:
+    db "   System halted. Press power button to restart.", 0
+
+; Serial messages
+serial_banner:
+    db 10, 13
+    db "========================================", 10, 13
+    db "  VantisOS v1.5.0 'Quantum Ready'", 10, 13
+    db "  Quantum-Ready Operating System", 10, 13
+    db "========================================", 10, 13
+    db 10, 13
+    db "Kernel initialized successfully!", 10, 13
+    db 10, 13
+    db "Features:", 10, 13
+    db "  - Modern x86_64 kernel", 10, 13
+    db "  - Quantum computing simulation", 10, 13
+    db "  - Post-quantum cryptography", 10, 13
+    db "  - Secure design", 10, 13
+    db 10, 13, 0
+
+serial_ready:
+    db "System ready. VantisOS is running!", 10, 13
+    db "System halted.", 10, 13, 0

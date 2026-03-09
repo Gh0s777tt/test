@@ -17,6 +17,8 @@ src/verified/target/
 *.bin
 *.hex
 *.elf
+*.o
+*.backup
 
 # 🛡️ SECURITY & SECRETS (NEVER COMMIT THESE)
 *.pem
@@ -54,6 +56,8 @@ benchmark_results/
 *~
 PUSH_PENDING.md
 *_TEMP.md
+pr_body.txt
+pr_body.md
 
 # 📚 DOCUMENTATION BUILD
 docs/_build/
@@ -63,9 +67,14 @@ docs/.doctrees/
 *.log
 logs/
 
-# 🔒 CARGO LOCK (Optional: Keep for binary apps, ignore for libs)
-# Cargo.lock
-
 # 🐳 DOCKER
 docker/*.log
 .history/
+
+# 🤖 AI SESSION & WORKSPACE ARTIFACTS
+.agent_hooks/
+summarized_conversations/
+outputs/
+
+# 🔒 CARGO LOCK (Keep for workspace - needed for reproducible builds)
+# Cargo.lock

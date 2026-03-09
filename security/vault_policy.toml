@@ -1,0 +1,7 @@
+[policy]
+name = "vantis_vault_policy"
+version = "0.1"
+
+[policy.rules]
+# Example rule: only kernel can access master key
+master_key_access = "kernel_only"

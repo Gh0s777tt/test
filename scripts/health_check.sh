@@ -58,9 +58,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Health check results
-declare -a CHECKS_PASSED=()
-declare -a CHECKS_FAILED=()
-declare -a CHECKS_WARNING=()
+declare -a CHECKS_PASSED
+declare -a CHECKS_FAILED
+declare -a CHECKS_WARNING
 
 # Helper functions
 log_pass() {
@@ -173,9 +173,9 @@ check_scripts() {
         local executable_count=0
         
         while IFS= read -r -d '' script; do
-            script_count=$((script_count + 1))
+            ((script_count++))
             if [[ -x "$script" ]]; then
-                executable_count=$((executable_count + 1))
+                ((executable_count++))
             else
                 local script_name
                 script_name=$(basename "$script")
@@ -326,27 +326,14 @@ check_dependencies() {
 }
 
 print_summary() {
-    # Handle empty arrays with defaults
-    local passed_count=${#CHECKS_PASSED[@]}
-    local failed_count=${#CHECKS_FAILED[@]}
-    local warning_count=${#CHECKS_WARNING[@]}
-    
     if [[ "$JSON_OUTPUT" == true ]]; then
-        local json_passed=""
-        local json_failed=""
-        local json_warnings=""
-        
-        [[ ${#CHECKS_PASSED[@]} -gt 0 ]] && json_passed="$(printf '%s\n' "${CHECKS_PASSED[@]}")"
-        [[ ${#CHECKS_FAILED[@]} -gt 0 ]] && json_failed="$(printf '%s\n' "${CHECKS_FAILED[@]}")"
-        [[ ${#CHECKS_WARNING[@]} -gt 0 ]] && json_warnings="$(printf '%s\n' "${CHECKS_WARNING[@]}")"
-        
         jq -n \
-            --argjson passed "$passed_count" \
-            --argjson failed "$failed_count" \
-            --argjson warnings "$warning_count" \
-            --arg json_passed "$json_passed" \
-            --arg json_failed "$json_failed" \
-            --arg json_warnings "$json_warnings" \
+            --argjson passed "${#CHECKS_PASSED[@]}" \
+            --argjson failed "${#CHECKS_FAILED[@]}" \
+            --argjson warnings "${#CHECKS_WARNING[@]}" \
+            --arg json_passed "$(printf '%s\n' "${CHECKS_PASSED[@]}")" \
+            --arg json_failed "$(printf '%s\n' "${CHECKS_FAILED[@]}")" \
+            --arg json_warnings "$(printf '%s\n' "${CHECKS_WARNING[@]}")" \
             '{
                 summary: {
                     passed: $passed,
@@ -365,12 +352,12 @@ print_summary() {
         echo "========================================="
         echo "         REPOSITORY HEALTH SUMMARY"
         echo "========================================="
-        echo -e "${GREEN}Passed:${NC}   $passed_count"
-        echo -e "${RED}Failed:${NC}   $failed_count"
-        echo -e "${YELLOW}Warnings:${NC} $warning_count"
+        echo -e "${GREEN}Passed:${NC}   ${#CHECKS_PASSED[@]}"
+        echo -e "${RED}Failed:${NC}   ${#CHECKS_FAILED[@]}"
+        echo -e "${YELLOW}Warnings:${NC} ${#CHECKS_WARNING[@]}"
         echo "========================================="
         
-        if [[ $failed_count -eq 0 ]]; then
+        if [[ ${#CHECKS_FAILED[@]} -eq 0 ]]; then
             echo -e "${GREEN}Repository is healthy!${NC}"
         else
             echo -e "${RED}Repository has issues that need attention.${NC}"
@@ -381,7 +368,7 @@ print_summary() {
             done
         fi
         
-        if [[ $warning_count -gt 0 ]] && [[ "$VERBOSE" == true ]]; then
+        if [[ ${#CHECKS_WARNING[@]} -gt 0 ]] && [[ "$VERBOSE" == true ]]; then
             echo ""
             echo "Warnings:"
             for check in "${CHECKS_WARNING[@]}"; do

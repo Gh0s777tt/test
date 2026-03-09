@@ -1,119 +1,112 @@
-name: CI
+name: Vantis CI
 
 on:
   push:
-    branches: [master, main, 0.4.1]
+    branches:
+      - 0.4.1
+      - master
   pull_request:
-    branches: [master, main]
   workflow_dispatch:
 
 permissions:
   contents: read
+  checks: write
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
 
 jobs:
   check:
-    name: Check
+    name: Check & Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
 
-      - name: Cache cargo registry
+      - name: Cache cargo registry & build
         uses: actions/cache@v4
         with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
       - name: Check Rust formatting
-        run: |
-          if [ -f Cargo.toml ]; then
-            cargo fmt --check 2>/dev/null || echo "No Rust files to format"
-          else
-            echo "No Cargo.toml found, skipping Rust format check"
-          fi
+        run: cargo fmt --check
 
       - name: Run clippy
-        run: |
-          if [ -f Cargo.toml ]; then
-            cargo clippy --all-targets --all-features -- -D warnings 2>/dev/null || echo "Clippy check completed with warnings"
-          else
-            echo "No Cargo.toml found, skipping clippy"
-          fi
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   test:
     name: Test
     runs-on: ubuntu-latest
+    needs: check
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache cargo registry & build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
       - name: Run tests
-        run: |
-          if [ -f Cargo.toml ]; then
-            cargo test --workspace 2>/dev/null || echo "No tests found or tests passed"
-          else
-            echo "No Cargo.toml found, skipping tests"
-          fi
+        run: cargo test --workspace --all-features
 
   build:
     name: Build
     runs-on: ubuntu-latest
+    needs: test
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build workspace
-        run: |
-          if [ -f Cargo.toml ]; then
-            cargo build --release --workspace 2>/dev/null || echo "Build completed"
-          else
-            echo "No Cargo.toml found, skipping build"
-          fi
+      - name: Cache cargo registry & build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
-  lint:
-    name: Lint
+      - name: Build workspace
+        run: cargo build --release --workspace
+
+  lint-scripts:
+    name: Lint Shell Scripts
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install shellcheck
+      - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
 
-      - name: Run shellcheck
+      - name: Run ShellCheck
         run: |
-          find . -name "*.sh" -not -path "./.git/*" | while read -r script; do
-            shellcheck -x -s bash "$script" || true
+          set -e
+          find . -name "*.sh" -not -path "./target/*" -not -path "./VantisOS/*" | while read -r script; do
+            echo "Checking $script..."
+            shellcheck "$script" || exit 1
           done
-
-  docs:
-    name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check documentation
-        run: |
-          if [ -f Cargo.toml ]; then
-            cargo doc --no-deps 2>/dev/null || echo "Documentation generated"
-          else
-            echo "No Cargo.toml found, skipping doc generation"
-          fi
-
-      - name: Verify README exists
-        run: |
-          if [ -f README.md ]; then
-            echo "README.md exists"
-          else
-            echo "Warning: README.md not found"
-          fi

@@ -21,7 +21,7 @@
     <img src="https://img.shields.io/github/v/release/vantisCorp/VantisOS?style=for-the-badge&logo=rust&logoColor=white&label=VERSION&color=DC143C" />
   </a>
   <a href="https://discord.gg/dSxQXXVBhx">
-    <img src="https://img.shields.io/discord/123456789?style=for-the-badge&logo=discord&logoColor=white&label=CITADEL&color=5865F2" />
+    <img src="https://img.shields.io/badge/CITADEL-JOIN-5865F2?style=for-the-badge&logo=discord&logoColor=white" />
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/LICENSE-MIT-0A0A0A?style=for-the-badge&logo=law&logoColor=DC143C" />
@@ -56,7 +56,7 @@
 
 | **Metric** | **Value** | **Status** |
 |------------|-----------|------------|
-| **Version** | v1.5.0 "Quantum Ready" | ✅ Production Ready |
+| **Version** | v0.4.1 | 🔧 Active Development |
 | **Total Lines of Code** | 250,000+ | ✅ Complete |
 | **Rust Files** | 800+ files | ✅ Organized |
 | **Test Coverage** | 95% (5,000+ tests) | ✅ Verified |
@@ -69,7 +69,7 @@
 
 ---
 
-## 🚀 LATEST RELEASE: v1.5.0 "Quantum Ready" (March 7, 2025)
+## 🚀 LATEST RELEASE: v0.4.1 (March 9, 2025)
 
 <div align="center">
 
@@ -78,7 +78,7 @@
 **[📖 Full Documentation](docs/)**
 
 **Netflix-Style Features**:
-- 🎬 **Cinema-Grade Performance**: 40% faster than v1.3.0
+- 🎬 **Performance Improvements**: Optimized kernel subsystems
 - 🎨 **Netflix Dark Theme**: Deep black (#0A0A0A) + Crimson (#DC143C)
 - 🎯 **Zero Latency**: Sub-microsecond response times
 - 🌐 **Global CDN**: Distributed deployment worldwide
@@ -197,16 +197,16 @@ features:
 
 <div align="center">
 
-| **Benchmark** | **v1.5.0** | **v1.4.0** | **Improvement** |
-|---------------|------------|------------|----------------|
-| Boot Time | 5.8s | 6.2s | ⬇️ 6% |
-| Memory Usage (Idle) | 260MB | 280MB | ⬇️ 7% |
-| Context Switch | 0.5μs | 0.6μs | ⬇️ 17% |
-| System Call | 60ns | 65ns | ⬇️ 8% |
-| Throughput | 14.2 GB/s | 12.5 GB/s | ⬆️ 14% |
-| Latency | 0.25ms | 0.3ms | ⬇️ 17% |
+| **Benchmark** | **v0.4.1** | **Target** | **Status** |
+|---------------|------------|------------|------------|
+| Boot Time | TBD | < 8s | 🔧 In Progress |
+| Memory Usage (Idle) | TBD | < 300MB | 🔧 In Progress |
+| Context Switch | TBD | < 1μs | 🔧 In Progress |
+| System Call | TBD | < 100ns | 🔧 In Progress |
+| Throughput | TBD | > 10 GB/s | 🔧 In Progress |
+| Latency | TBD | < 0.5ms | 🔧 In Progress |
 
-**Performance Leader**: 🏆 #1 in independent benchmarks
+**Status**: 🔧 Benchmarks will be published after first stable release
 
 </div>
 
@@ -339,39 +339,27 @@ We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for det
 
 ### Developer Community
 - 📹 [YouTube Tutorials](https://youtube.com/@vantisos)
-- 🎙️ [Podcast](https://podcast.vantis.os)
+- 🎙️ [Discussions](https://github.com/vantisCorp/VantisOS/discussions)
 - 📊 [Discord Server](https://discord.gg/vantisos)
-- 📝 [Forum](https://forum.vantis.os)
+- 📝 [Issues](https://github.com/vantisCorp/VantisOS/issues)
 
 ---
 
 ## 📜 VERSION HISTORY
 
-### v1.5.0 "Quantum Ready" (March 7, 2025)
-- ⚛️ Quantum Computing Module (6 modules, 700+ tests)
-- 🔐 Post-Quantum Cryptography (Kyber, Dilithium, SPHINCS+, McEliece)
-- 🧠 AI Research Framework (Distributed Training, Federated Learning)
-- 📚 Comprehensive Documentation (3,500+ lines)
-- 🚀 95%+ Test Coverage
-
-### v1.4.0 "Netflix Edition" (March 5, 2025)
-- 🎬 Netflix-style design system
-- 🖤 Deep black (#0A0A0A) + Crimson (#DC143C) theme
-- ⚡ 40% performance improvement
-- 📊 Real-time analytics dashboard
-- 🌐 Global CDN deployment
+### v0.4.1 (March 9, 2025) — Current
+- 🏗️ Repository restructure and cleanup
+- 🔧 CI/CD pipeline fixes (removed error masking)
+- 📦 Workspace consolidation (25 crates)
+- 🔐 Post-Quantum Cryptography foundations (Kyber, Dilithium, SPHINCS+)
+- 🧠 AI module foundations (Cortex AI, Semantic Search, Automation)
+- 📚 Documentation improvements
 
 ### Previous Versions
-- **v1.3.0**: Enhanced cloud capabilities
-- **v1.2.0**: Cloud Native features
-- **v1.1.0**: Distributed computing
-- **v1.0.0**: Production Ready
-- **v0.9.0**: Enterprise features
-- **v0.8.0**: Server support
-- **v0.7.0**: IoT support
-- **v0.6.0**: Mobile support
-- **v0.5.0**: Real kernel
-- **v0.4.1**: Foundation
+- **v0.3.x**: Security and compliance modules
+- **v0.2.0**: Microkernel architecture
+- **v0.1.x**: Initial development, driver framework
+- **v0.0.x**: Project bootstrap and prototyping
 
 See [CHANGELOG.md](CHANGELOG.md) for complete history.
 
@@ -397,10 +385,10 @@ See [CHANGELOG.md](CHANGELOG.md) for complete history.
 
 <div align="center">
 
-  [![Discord](https://img.shields.io/discord/123456789?style=for-the-badge&logo=discord&logoColor=white&label=Discord&color=5865F2)](https://discord.gg/vantisos)
+  [![Discord](https://img.shields.io/badge/Discord-JOIN-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/vantisos)
   [![Twitter](https://img.shields.io/twitter/follow/vantisos?style=for-the-badge&logo=x&logoColor=white&label=Follow&color=000000)](https://x.com/vantisos)
   [![GitHub](https://img.shields.io/github/stars/vantisCorp/VantisOS?style=for-the-badge&logo=github&logoColor=white&label=Stars&color=DC143C)](https://github.com/vantisCorp/VantisOS)
-  [![YouTube](https://img.shields.io/youtube/channel/views/UC123456789?style=for-the-badge&logo=youtube&logoColor=white&label=Subscribers&color=FF0000)](https://youtube.com/@vantisos)
+  [![YouTube](https://img.shields.io/badge/YouTube-SUBSCRIBE-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/@vantisos)
   [![LinkedIn](https://img.shields.io/badge/LinkedIn-Follow-0A0A0A?style=for-the-badge&logo=linkedin&logoColor=white&label=Connect)](https://linkedin.com/company/vantisos)
 
 </div>
@@ -413,12 +401,10 @@ See [CHANGELOG.md](CHANGELOG.md) for complete history.
 
 | **Channel** | **Link** |
 |-------------|----------|
-| 🌐 Website | https://vantis.os |
-| 📧 Email | support@vantis.os |
-| 📱 Phone | +1 (555) 123-4567 |
 | 💬 Discord | https://discord.gg/vantisos |
 | 📋 Issues | https://github.com/vantisCorp/VantisOS/issues |
-| 📖 Docs | https://docs.vantis.os |
+| 💡 Discussions | https://github.com/vantisCorp/VantisOS/discussions |
+| 📧 Security | security@vantisos.org |
 
 </div>
 

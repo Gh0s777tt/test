@@ -1,138 +1,76 @@
-# Makefile - VantisOS
-# Szybkie komendy dla deweloperów
-# M - Mikro-Feedback & Makefile
+# Configuration and variables
+include mk/config.mk
 
-.PHONY: help build test clean install docs setup dev
+all: build/harddrive.bin
 
-# Domyślny cel
-.DEFAULT_GOAL := help
+live: build/livedisk.bin
 
-# Kolory terminala
-GREEN  := \033[0;32m
-YELLOW := \033[0;33m
-RED    := \033[0;31m
-BLUE   := \033[0;34m
-WHITE  := \033[0;37m
-NC     := \033[0m # No Color
+iso: build/livedisk.iso
 
-# Pomoc
-help: ## Show this help message
-	@echo ''
-	@echo '$(YELLOW)VantisOS - Quick Reference$(NC)'
-	@echo ''
-	@echo '$(GREEN)Quick Start:$(NC)'
-	@echo '  make setup          - Initial setup'
-	@echo '  make build          - Build the project'
-	@echo '  make test           - Run tests'
-	@echo '  make dev            - Start development'
-	@echo ''
-	@echo '$(GREEN)Development:$(NC)'
-	@echo '  make clean          - Clean build artifacts'
-	@echo '  make fmt            - Format code'
-	@echo '  make lint           - Run linters'
-	@echo '  make check          - Run all checks'
-	@echo ''
-	@echo '$(GREEN)Documentation:$(NC)'
-	@echo '  make docs           - Build documentation'
-	@echo '  make docs-serve     - Serve docs locally'
-	@echo ''
-	@echo '$(GREEN)Release:$(NC)'
-	@echo '  make release        - Create release'
-	@echo '  make changelog      - Generate changelog'
-	@echo ''
-	@echo '$(GREEN)Utilities:$(NC)'
-	@echo '  make install        - Install dependencies'
-	@echo '  make update         - Update dependencies'
-	@echo '  make version        - Show version'
-	@echo ''
+clean:
+	cd cookbook && ./clean.sh
+	cargo clean --manifest-path cookbook/pkgutils/Cargo.toml
+	cargo clean --manifest-path installer/Cargo.toml
+	cargo clean --manifest-path kernel/Cargo.toml
+	cargo clean --manifest-path kernel/syscall/Cargo.toml
+	cargo clean --manifest-path redoxfs/Cargo.toml
+	-$(FUMOUNT) build/filesystem/ || true
+	rm -rf build
 
-# Instalacja i setup
-setup: ## Initial setup
-	@echo '$(BLUE)🚀 Setting up VantisOS...$(NC)'
-	cargo install cargo-watch
-	cargo install cargo-edit
-	cargo install cargo-expand
-	@echo '$(GREEN)✅ Setup complete!$(NC)'
+distclean:
+	make clean
+	cd cookbook && ./unfetch.sh
 
-install: ## Install dependencies
-	@echo '$(BLUE)📦 Installing dependencies...$(NC)'
-	cargo fetch
-	@echo '$(GREEN)✅ Dependencies installed!$(NC)'
+pull:
+	git pull --recurse-submodules
+	git submodule sync --recursive
+	git submodule update --recursive --init
 
-update: ## Update dependencies
-	@echo '$(BLUE)🔄 Updating dependencies...$(NC)'
-	cargo update
-	@echo '$(GREEN)✅ Dependencies updated!$(NC)'
+update:
+	cd cookbook && ./update.sh \
+		"$$(cargo run --manifest-path ../installer/Cargo.toml -- --list-packages -c ../initfs.toml)" \
+		"$$(cargo run --manifest-path ../installer/Cargo.toml -- --list-packages -c ../filesystem.toml)"
+	cargo update --manifest-path cookbook/pkgutils/Cargo.toml
+	cargo update --manifest-path installer/Cargo.toml
+	cargo update --manifest-path kernel/Cargo.toml
+	cargo update --manifest-path redoxfs/Cargo.toml
 
-# Budowanie
-build: ## Build the project
-	@echo '$(BLUE)🔨 Building VantisOS...$(NC)'
-	bash build_advanced_kernel.sh
-	@echo '$(GREEN)✅ Build complete!$(NC)'
+fetch:
+	cd cookbook && ./fetch.sh \
+		"$$(cargo run --manifest-path ../installer/Cargo.toml -- --list-packages -c ../initfs.toml)" \
+		"$$(cargo run --manifest-path ../installer/Cargo.toml -- --list-packages -c ../filesystem.toml)"
 
-clean: ## Clean build artifacts
-	@echo '$(BLUE)🧹 Cleaning...$(NC)'
-	cargo clean
-	rm -rf target/
-	@echo '$(GREEN)✅ Clean complete!$(NC)'
+# Emulation recipes
+include mk/qemu.mk
+include mk/bochs.mk
+include mk/virtualbox.mk
 
-# Testowanie
-test: ## Run tests
-	@echo '$(BLUE)🧪 Running tests...$(NC)'
-	cargo test --workspace
-	@echo '$(GREEN)✅ Tests passed!$(NC)'
+# Kernel recipes
+include mk/kernel.mk
 
-check: ## Run all checks
-	@echo '$(BLUE)✅ Running all checks...$(NC)'
-	cargo check --workspace
-	cargo clippy --workspace
-	@echo '$(GREEN)✅ All checks passed!$(NC)'
+# Filesystem recipes
+include mk/initfs.mk
+include mk/filesystem.mk
 
-# Formatowanie i linting
-fmt: ## Format code
-	@echo '$(BLUE)🎨 Formatting code...$(NC)'
-	cargo fmt --all
-	@echo '$(GREEN)✅ Code formatted!$(NC)'
+# Disk images
+include mk/disk.mk
 
-lint: ## Run linters
-	@echo '$(BLUE)🔍 Running linters...$(NC)'
-	cargo clippy --workspace -- -D warnings
-	@echo '$(GREEN)✅ Linting complete!$(NC)'
+# Travis target
+travis: FORCE
+	make INSTALLER_FLAGS= build/harddrive.bin.gz build/livedisk.iso
+	rm -rf build/travis
+	mkdir build/travis
+	mv build/harddrive.bin.gz build/travis/redox_$(TRAVIS_TAG).bin.gz
+	mv build/livedisk.iso build/travis/redox_$(TRAVIS_TAG).iso
+	cd build/travis && sha256sum -b redox_$(TRAVIS_TAG).bin.gz redox_$(TRAVIS_TAG).iso > SHA256SUM
 
-# Dokumentacja
-docs: ## Build documentation
-	@echo '$(BLUE)📚 Building documentation...$(NC)'
-	cargo doc --workspace --no-deps --open
-	@echo '$(GREEN)✅ Documentation built!$(NC)'
+# An empty target
+FORCE:
 
-docs-serve: ## Serve docs locally
-	@echo '$(BLUE)🌐 Serving documentation...$(NC)'
-	cargo doc --workspace --no-deps --open
-	@echo '$(GREEN)✅ Documentation served!$(NC)'
+# A method of creating a listing for any binary
+%.list: %
+	objdump -C -M intel -D $< > $@
 
-# Development
-dev: ## Start development
-	@echo '$(BLUE)🚀 Starting development...$(NC)'
-	cargo watch -x 'run'
-	@echo '$(GREEN)✅ Development started!$(NC)'
-
-# Release
-release: ## Create release
-	@echo '$(BLUE)📦 Creating release...$(NC)'
-	bash scripts/release_helper.sh
-	@echo '$(GREEN)✅ Release created!$(NC)'
-
-changelog: ## Generate changelog
-	@echo '$(BLUE)📝 Generating changelog...$(NC)'
-	bash scripts/changelog_generator.sh
-	@echo '$(GREEN)✅ Changelog generated!$(NC)'
-
-# Utilities
-version: ## Show version
-	@echo '$(BLUE)VantisOS Version:$(NC) v1.4.0 "AI Advanced Features"'
-	@echo '$(BLUE)Release Date:$(NC) March 5, 2026'
-	@echo '$(BLUE)Status:$(NC) ✅ Production Ready'
-
-# Full check
-all: fmt lint check test ## Run all checks and tests
-	@echo '$(GREEN)✅ All checks and tests passed!$(NC)'
+# Wireshark
+wireshark: FORCE
+	wireshark build/network.pcap

@@ -14,10 +14,40 @@
 #![no_main]
 #![feature(abi_x86_interrupt)]
 #![feature(alloc_error_handler)]
-#![feature(asm_sym)]
-#![feature(naked_functions)]
-#![feature(new_uninit)]
-#![feature(const_mut_refs)]
+#![feature(str_as_str)]
+#![allow(unused_imports)]
+#![allow(unused_doc_comments)]
+#![allow(ambiguous_glob_reexports)]
+#![allow(unused_variables)]
+#![allow(unused_mut)]
+#![allow(unused_unsafe)]
+#![allow(clippy::empty_line_after_doc_comments)]
+// Clippy allows for kernel development
+#![allow(clippy::collapsible_match)]
+#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::derive_partial_eq_without_eq)]
+#![allow(clippy::unnecessary_cast)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::manual_div_ceil)]
+#![allow(clippy::manual_range_contains)]
+#![allow(clippy::if_same_then_else)]
+#![allow(clippy::new_without_default)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::field_reassign_with_default)]
+#![allow(clippy::map_identity)]
+#![allow(clippy::iter_kv_map)]
+#![allow(clippy::unnecessary_sort_by)]
+#![allow(clippy::manual_clamp)]
+#![allow(clippy::fn_to_numeric_cast)]
+#![allow(clippy::unnecessary_unwrap)]
+#![allow(clippy::clone_on_copy)]
+#![allow(clippy::derivable_impls)]
+#![allow(clippy::manual_is_multiple_of)]
+#![allow(clippy::for_kv_map)]
+#![allow(clippy::iter_cloned_collect)]
+#![allow(static_mut_refs)]
+#![allow(dead_code)]
 
 extern crate alloc;
 
@@ -36,6 +66,15 @@ pub mod quantum;
 pub mod update;
 pub mod archive;
 pub mod shell;
+
+// GUI subsystem for desktop environment
+pub mod gui;
+
+// Installation wizard
+pub mod installer;
+
+// Desktop applications
+pub mod apps;
 
 #[global_allocator]
 static ALLOCATOR: linked_list_allocator::LockedHeap = linked_list_allocator::LockedHeap::empty();

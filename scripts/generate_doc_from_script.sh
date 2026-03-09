@@ -1,141 +1,131 @@
 #!/bin/bash
 # Script: generate_doc_from_script.sh
-# Purpose: Auto-generate markdown documentation from script headers
-# Usage: ./scripts/generate_doc_from_script.sh <script_file> [--output-dir docs/]
-# Requirements: bash, grep, sed, basename
+# Purpose: Generate documentation from script headers automatically
+# Usage: ./scripts/generate_doc_from_script.sh [script_file]
+# Requirements: bash, grep, sed
 # Author: VantisOS Team
-# Date: 2025-03-06
+# Date: 2025-03-05
 # Version: 1.0.0
-# License: MIT
+# License: SPDX-License-Identifier: MIT
 
-set -euo pipefail
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source common library
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/lib/common.sh"
-
-# Default output directory
-OUTPUT_DIR="docs"
-
-# Parse arguments
-SCRIPT_FILE=""
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --output-dir|-o)
-            OUTPUT_DIR="$2"
-            shift 2
-            ;;
-        --help|-h)
-            echo "Usage: $(basename "$0") <script_file> [--output-dir docs/]"
-            echo ""
-            echo "Arguments:"
-            echo "  script_file        Path to the script to document"
-            echo "  --output-dir, -o   Output directory for generated docs (default: docs/)"
-            echo "  --help, -h         Show this help message"
-            exit 0
-            ;;
-        *)
-            SCRIPT_FILE="$1"
-            shift
-            ;;
-    esac
-done
-
-# Validate script file
-if [[ -z "$SCRIPT_FILE" ]]; then
-    log_error "No script file specified"
-    echo "Usage: $(basename "$0") <script_file> [--output-dir docs/]"
+source "${SCRIPT_DIR}/lib/common.sh" || {
+    echo "Error: Failed to load common library" >&2
     exit 1
-fi
-
-if [[ ! -f "$SCRIPT_FILE" ]]; then
-    log_error "Script file not found: $SCRIPT_FILE"
-    exit 1
-fi
-
-log_info "Generating documentation for: $SCRIPT_FILE"
-
-# Extract script metadata
-extract_header_value() {
-    local script="$1"
-    local field="$2"
-    grep "^# ${field}:" "$script" 2>/dev/null | head -1 | sed "s/^# ${field}: //" || echo "N/A"
 }
 
-# Get script information
-SCRIPT_NAME=$(basename "$SCRIPT_FILE")
-PURPOSE=$(extract_header_value "$SCRIPT_FILE" "Purpose")
-USAGE=$(extract_header_value "$SCRIPT_FILE" "Usage")
-REQUIREMENTS=$(extract_header_value "$SCRIPT_FILE" "Requirements")
-AUTHOR=$(extract_header_value "$SCRIPT_FILE" "Author")
-DATE=$(extract_header_value "$SCRIPT_FILE" "Date")
-VERSION=$(extract_header_value "$SCRIPT_FILE" "Version")
-LICENSE=$(extract_header_value "$SCRIPT_FILE" "License")
+# Enable strict error handling
+set -euo pipefail
 
-# Generate markdown output
-DOC_NAME="${SCRIPT_NAME%.sh}.md"
-OUTPUT_PATH="${OUTPUT_DIR}/${DOC_NAME}"
+# Configuration
+OUTPUT_DIR="${OUTPUT_DIR:-docs/generated}"
+SCRIPTS_DIR="${SCRIPTS_DIR:-scripts}"
 
-log_info "Creating documentation: $OUTPUT_PATH"
+# Parse script header and generate documentation
+generate_doc_for_script() {
+    local script_file="$1"
+    local script_name
+    script_name=$(basename "$script_file" .sh)
+    
+    print_header "Processing: $script_name"
+    
+    # Extract header information
+    local purpose usage requirements author date version license
+    
+    purpose=$(grep '^# Purpose:' "$script_file" | cut -d' ' -f3-)
+    usage=$(grep '^# Usage:' "$script_file" | cut -d' ' -f3-)
+    requirements=$(grep '^# Requirements:' "$script_file" | cut -d' ' -f3-)
+    author=$(grep '^# Author:' "$script_file" | cut -d' ' -f3-)
+    date=$(grep '^# Date:' "$script_file" | cut -d' ' -f3-)
+    version=$(grep '^# Version:' "$script_file" | cut -d' ' -f3-)
+    license=$(grep '^# License:' "$script_file" | cut -d' ' -f3-)
+    
+    # Extract examples from comments
+    local examples
+    examples=$(grep -A 10 'Examples:' "$script_file" | grep '^#' | sed 's/^# //' | sed '/^$/d' || echo "No examples found")
+    
+    # Extract options
+    local options
+    options=$(grep -A 20 'Options:' "$script_file" | grep '^# \-' | sed 's/^# //' | sed '/^$/d' || echo "No options")
+    
+    # Generate markdown
+    local output_file="${OUTPUT_DIR}/${script_name}.md"
+    
+    cat > "$output_file" << EOF
+# ${script_name}.sh
 
-cat > "$OUTPUT_PATH" << EOF
-# ${SCRIPT_NAME}
+## Purpose
 
-## Overview
-
-**Purpose:** ${PURPOSE}
-
-| Attribute | Value |
-|-----------|-------|
-| Author | ${AUTHOR} |
-| Date | ${DATE} |
-| Version | ${VERSION} |
-| License | ${LICENSE} |
+${purpose}
 
 ## Usage
 
 \`\`\`bash
-${USAGE}
+${usage}
 \`\`\`
 
 ## Requirements
 
-${REQUIREMENTS}
+${requirements}
+
+## Options
+
+${options}
 
 ## Examples
 
-### Basic Usage
-
 \`\`\`bash
-# Run the script
-./${SCRIPT_NAME}
+${examples}
 \`\`\`
 
-### With Options
+## Metadata
 
-\`\`\`bash
-# Run with custom options
-./${SCRIPT_NAME} --option value
-\`\`\`
+- **Author:** ${author:-Unknown}
+- **Date:** ${date:-Unknown}
+- **Version:** ${version:-Unknown}
+- **License:** ${license:-Unknown}
+- **Location:** \`scripts/${script_name}.sh\`
 
-## Exit Codes
+## Implementation Details
 
-| Code | Description |
-|------|-------------|
-| 0 | Success |
-| 1 | General error |
-| 2 | Invalid arguments |
-| 3 | Missing dependencies |
+This script follows the VantisOS scripting standards. For more information, see [SCRIPTING_STANDARDS.md](../SCRIPTING_STANDARDS.md).
 
-## See Also
-
-- [Scripts Reference](SCRIPTS_REFERENCE.md)
-- [Scripting Standards](SCRIPTING_STANDARDS.md)
-
----
-
-*This documentation was auto-generated from ${SCRIPT_NAME}*
 EOF
 
-log_info "Documentation created successfully: $OUTPUT_PATH"
-echo "$OUTPUT_PATH"
+    print_success "Generated: $output_file"
+}
+
+# Main function
+main() {
+    local script_file="$1"
+    
+    print_header "Automated Documentation Generator"
+    
+    # Ensure output directory exists
+    ensure_dir "$OUTPUT_DIR"
+    
+    if [ -z "$script_file" ]; then
+        log_info "No script specified, processing all scripts in $SCRIPTS_DIR"
+        
+        # Process all scripts
+        find "$SCRIPTS_DIR" -type f -name "*.sh" -not -path "*/lib/*" | while read -r script; do
+            generate_doc_for_script "$script"
+        done
+    else
+        # Process single script
+        if [ ! -f "$script_file" ]; then
+            log_error "Script not found: $script_file"
+            exit 1
+        fi
+        generate_doc_for_script "$script_file"
+    fi
+    
+    print_success "Documentation generation completed"
+    log_info "Output directory: $OUTPUT_DIR"
+}
+
+# Run main function
+main "$@"

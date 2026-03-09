@@ -1,34 +1,17 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-title: "VantisOS"
-subtitle: "AI Advanced Features - Formally Verified Operating System"
-version: "1.4.0"
-date-released: 2026-03-05
-url: "https://github.com/vantisCorp/VantisOS"
-doi: 
+message: "If you use Vantis OS in your research, please cite it as below."
 authors:
-  - family-names: "VantisOS"
-    given-names: "Team"
-    orcid: 
-abstract: |
-  VantisOS is a formally verified operating system built with Rust and Verus.
-  It features comprehensive AI capabilities, advanced security features,
-  cloud-native support, and enterprise-grade compliance certifications
-  (GDPR, HIPAA, SOC2, EU AI Act).
-keywords:
-  - "operating-system"
-  - "rust"
-  - "formal-verification"
-  - "verus"
-  - "ai"
-  - "microkernel"
-  - "security"
+  - family-names: "Kowalski"
+    given-names: "Jan"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "Vantis OS: A Formally Verified Rust Microkernel with Zero-Trust Architecture"
+version: 0.4.1
+date-released: 2025-03-09
+url: "https://github.com/vantisCorp/VantisOS"
 license: MIT
-license-url: "https://github.com/vantisCorp/VantisOS/blob/main/LICENSE"
-repository-code: "https://github.com/vantisCorp/VantisOS"
-repository-artifact: "https://github.com/vantisCorp/VantisOS/releases"
-type: software
-identifiers:
-  - type: doi
-    value: 
-    description: "DOI for this software"
+keywords:
+  - operating-system
+  - rust
+  - microkernel
+  - formal-verification
+  - security
