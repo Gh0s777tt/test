@@ -110,7 +110,7 @@ jobs:
         kani ipc.rs --enable-unstable
     
     - name: Upload verification results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       with:
         name: verification-results
         path: |
@@ -167,7 +167,7 @@ jobs:
         cargo test --release -- --nocapture --test-threads=1 benchmark
     
     - name: Upload benchmark results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       with:
         name: benchmark-results
         path: |
