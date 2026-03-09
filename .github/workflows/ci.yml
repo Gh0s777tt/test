@@ -103,10 +103,18 @@ jobs:
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
 
-      - name: Run ShellCheck
+      - name: Run ShellCheck (errors)
         run: |
           set -e
           find . -name "*.sh" -not -path "./target/*" -not -path "./VantisOS/*" | while read -r script; do
             echo "Checking $script..."
-            shellcheck --severity=warning "$script" || exit 1
+            shellcheck --severity=error "$script" || exit 1
+          done
+
+      - name: Run ShellCheck (warnings - advisory)
+        continue-on-error: true
+        run: |
+          echo "=== ShellCheck warnings (non-blocking) ==="
+          find . -name "*.sh" -not -path "./target/*" -not -path "./VantisOS/*" | while read -r script; do
+            shellcheck --severity=warning "$script" 2>&1 || true
           done

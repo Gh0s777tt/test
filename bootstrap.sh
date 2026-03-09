@@ -42,12 +42,12 @@ install_macports_pkg()
 
 install_brew_pkg()
 {
-    install_macos_pkg "brew" $@
+    install_macos_pkg "brew" "$@"
 }
 
 install_brew_cask_pkg()
 {
-    install_macos_pkg "brew cask" $@
+    install_macos_pkg "brew cask" "$@"
 }
 
 ###############################################################################
@@ -62,9 +62,9 @@ osx()
     echo "Detected OSX!"
 
     if [ ! -z "$(which brew)" ]; then
-        osx_homebrew $@
+        osx_homebrew "$@"
     elif [ ! -z "$(which port)" ]; then
-        osx_macports $@
+        osx_macports "$@"
     else
         echo "Please install either Homebrew or MacPorts, if you wish to use this script"
         echo "Re-run this script once you installed one of those package managers"
@@ -399,7 +399,8 @@ rustInstall() {
 			# You have to add the rustup variables to the $PATH
 			echo "export PATH=\"\$HOME/.cargo/bin:\$PATH\"" >> ~/.bashrc
 			# source the variables so that we can execute rustup commands in the current shell
-			source ~/.cargo/env
+			# shellcheck source=/dev/null
+                        source ~/.cargo/env
 			rustup default nightly
 		else
 			echo "Rustup will not be installed!"
