@@ -19,7 +19,7 @@ rand_core.workspace = true
 
 builtin = { package = "verus_builtin", version = "0.0.0-2026-02-08-0120", optional = true }
 builtin_macros = { package = "verus_builtin_macros", version = "0.0.0-2026-02-08-0120", optional = true }
-vstd = { version = "0.0.0-2026-02-08-0120", optional = true }
+vstd = { version = "0.0.0-2026-03-08-0103", optional = true }
 
 [features]
 default = ["hw-accel"]
