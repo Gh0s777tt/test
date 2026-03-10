@@ -56,7 +56,7 @@ rand_core = { version = "0.6", default-features = false, features = ["getrandom"
 getrandom = { version = "0.2", default-features = false, features = ["std"] }
 
 # GPU
-ash = { version = "0.37" }
+ash = { version = "0.38" }
 metal-rs = { version = "0.27", package = "metal" }
 
 [workspace.package]
