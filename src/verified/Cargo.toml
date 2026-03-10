@@ -55,9 +55,9 @@ serde = { version = "1.0", features = ["derive"] }
 block-padding = { version = "0.3", default-features = false }
 
 # Random number generation for IV
-rand_core = { version = "0.6", default-features = false, features = ["getrandom"] }
-getrandom = { version = "0.2", default-features = false, features = ["std"] }
-rand = { version = "0.8", default-features = false, features = ["std", "std_rng"] }
+rand_core = { version = "0.10", default-features = false }
+getrandom = { version = "0.4", default-features = false, features = ["std"] }
+rand = { version = "0.10", default-features = false, features = ["std", "std_rng"] }
 
 # Hex encoding for test vectors
 hex = { version = "0.4", optional = true }
