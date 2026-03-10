@@ -8,6 +8,7 @@ Description:
 An attacker gains control over the build environment.
 
 Mitigation:
+
 - Ephemeral runners
 - No persistent credentials
 - Minimal permissions
@@ -20,6 +21,7 @@ Description:
 Unauthorized changes introduced into source code.
 
 Mitigation:
+
 - Branch protection
 - Mandatory reviews
 - Signed commits
@@ -32,6 +34,7 @@ Description:
 Malicious dependency version is introduced.
 
 Mitigation:
+
 - Hash-pinned dependencies
 - SBOM verification
 - No dynamic downloads during build
@@ -44,5 +47,6 @@ Description:
 Fake build provenance is generated.
 
 Mitigation:
+
 - Sigstore signing
 - Identity-bound provenance
