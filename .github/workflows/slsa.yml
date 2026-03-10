@@ -17,6 +17,9 @@ jobs:
     defaults:
       run:
         working-directory: src/verified
+    outputs:
+      has_binary: ${{ steps.check-binary.outputs.has_binary }}
+      base64-subjects: ${{ steps.hash.outputs.base64-subjects }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Rust
@@ -31,8 +34,20 @@ jobs:
           else
             echo "has_binary=false" >> $GITHUB_OUTPUT
           fi
-      - name: Generate provenance
+      - name: Generate subject hash
+        id: hash
         if: steps.check-binary.outputs.has_binary == 'true'
-        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
-        with:
-          base64-subjects: ""
+        run: |
+          HASH=$(sha256sum target/release/vantis | base64 -w0)
+          echo "base64-subjects=$HASH" >> $GITHUB_OUTPUT
+
+  provenance:
+    needs: [build]
+    if: needs.build.outputs.has_binary == 'true'
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
+    with:
+      base64-subjects: ${{ needs.build.outputs.base64-subjects }}

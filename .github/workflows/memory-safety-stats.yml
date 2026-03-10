@@ -12,7 +12,8 @@ on:
       - '.github/workflows/memory-safety-stats.yml'
 
 permissions:
-  contents: read
+  contents: write
+  issues: write
 
 jobs:
   update-stats:
@@ -152,7 +153,7 @@ jobs:
             });
       
       - name: Upload Reports
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: memory-safety-report
           path: |
