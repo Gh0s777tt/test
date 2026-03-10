@@ -5,6 +5,7 @@
 ## 1. Target Level
 
 This project targets:
+
 - SLSA Level: 4
 - Build isolation: Mandatory
 - Provenance: Non-falsifiable

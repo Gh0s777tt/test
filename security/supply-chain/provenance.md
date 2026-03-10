@@ -12,6 +12,7 @@ The following data must be included in provenance:
 - Artifact digest (SHA-256)
 
 Provenance must be:
+
 - Automatically generated
 - Cryptographically signed
 - Immutable after generation

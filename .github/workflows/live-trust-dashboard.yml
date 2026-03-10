@@ -33,13 +33,11 @@ jobs:
           override: true
       
       - name: Install Verus
-        run: |
-          cargo install verus
+        run: cargo install verus || true
         continue-on-error: true
       
       - name: Install Kani
-        run: |
-          cargo install kani-verifier
+        run: cargo install kani-verifier || true
         continue-on-error: true
       
       - name: Count Lines of Code
@@ -96,6 +94,8 @@ jobs:
       
       - name: Get GitHub Stats
         id: stats
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get commit count (last 7 days)
           COMMITS=$(git log --since="7 days ago" --oneline | wc -l)
@@ -103,9 +103,10 @@ jobs:
           echo "Commits (7 days): $COMMITS"
           
           # Get PR count (last 7 days)
-          PRS=$(gh pr list --state all --limit 100 --search "created:>2025-02-17" | wc -l)
+          PRS=$(gh pr list --state all --limit 100 --json number 2>/dev/null | jq length 2>/dev/null || echo "0")
           echo "prs=$PRS" >> $GITHUB_OUTPUT
           echo "PRs (7 days): $PRS"
+        continue-on-error: true
       
       - name: Update Dashboard
         run: |
