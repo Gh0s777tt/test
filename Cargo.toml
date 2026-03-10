@@ -35,7 +35,7 @@ exclude = [
 [workspace.dependencies]
 # Shared dependencies
 serde = { version = "1.0", features = ["derive"] }
-thiserror = "1.0"
+thiserror = "2.0"
 anyhow = "1.0"
 
 # Verification dependencies
