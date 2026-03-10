@@ -18,7 +18,7 @@
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit, Block,
 };
-use rand::RngCore;
+use rand_core::Rng as RngCore;
 use twofish::Twofish;
 
 type TwofishCbcEnc = cbc::Encryptor<Twofish>;
@@ -46,7 +46,7 @@ pub enum TwofishError {
 /// A 16-byte IV suitable for Twofish-256-CBC
 pub fn generate_iv() -> Result<[u8; 16], TwofishError> {
     let mut iv = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut iv);
+    rand::rng().fill_bytes(&mut iv);
     Ok(iv)
 }
 

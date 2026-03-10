@@ -18,7 +18,7 @@
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit, Block, generic_array::GenericArray,
 };
-use rand::RngCore;
+use rand_core::Rng as RngCore;
 use serpent::Serpent;
 
 type SerpentCbcEnc = cbc::Encryptor<Serpent>;
@@ -59,7 +59,7 @@ pub enum SerpentError {
 /// A 16-byte IV suitable for Serpent-256-CBC
 pub fn generate_iv() -> Result<[u8; 16], SerpentError> {
     let mut iv = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut iv);
+    rand::rng().fill_bytes(&mut iv);
     Ok(iv)
 }
 

@@ -20,7 +20,7 @@ use aes::Aes256;
 use cipher::{
     BlockEncryptMut, BlockDecryptMut, KeyIvInit,
 };
-use rand::RngCore;
+use rand_core::Rng as RngCore;
 
 type Aes256CbcEnc = cbc::Encryptor<Aes256>;
 type Aes256CbcDec = cbc::Decryptor<Aes256>;
@@ -47,7 +47,7 @@ pub enum AesError {
 /// A 16-byte IV suitable for AES-256-CBC
 pub fn generate_iv() -> Result<[u8; 16], AesError> {
     let mut iv = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut iv);
+    rand::rng().fill_bytes(&mut iv);
     Ok(iv)
 }
 

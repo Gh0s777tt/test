@@ -101,9 +101,9 @@ fn test_cascade_encryption() -> Result<(), ()> {
 /// Tests that consecutive random values are different
 /// (FIPS 140-3 requirement)
 fn test_rng_continuous() -> Result<(), ()> {
-    use rand::RngCore;
+    use rand_core::Rng as RngCore;
     
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     
     // Generate two consecutive random values
     let mut value1 = [0u8; 16];
@@ -187,8 +187,8 @@ mod tests {
 
     #[test]
     fn test_rng_produces_different_values() {
-        use rand::RngCore;
-        let mut rng = rand::thread_rng();
+        use rand_core::Rng as RngCore;
+        let mut rng = rand::rng();
         
         // Generate 10 random values
         let mut values = Vec::new();

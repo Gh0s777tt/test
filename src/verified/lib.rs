@@ -1,6 +1,10 @@
 //! VANTIS OS Verified Components Library
 //! 
-//! This library contains all formally verified components of VANTIS OS.
+//! v1.6.0 - Enhanced Features Edition
+//!
+//! This library contains all formally verified components of VANTIS OS,
+//! including core kernel subsystems, cryptographic modules, GPU/display
+//! pipelines, networking, security, AI/ML capabilities, and enterprise features.
 // The verus-full feature compiles proof-oriented sources with rustc for CI sanity checks.
 // These paths intentionally include verification-only constructs that appear unused outside Verus.
 #![cfg_attr(
@@ -72,3 +76,11 @@ pub mod vantis_aegis_syscall;
 // Path lookup caching
 pub mod path_cache;
 pub mod syscall_path_integration;
+
+// ============================================================================
+// v1.6.0 Enhanced Features
+// ============================================================================
+pub mod ai_enhanced;
+pub mod networking_enhanced;
+pub mod security_enhanced;
+pub mod developer_tools;
