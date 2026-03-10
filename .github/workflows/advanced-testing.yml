@@ -10,6 +10,10 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -99,7 +103,7 @@ jobs:
           fail_ci_if_error: false
       
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report-${{ matrix.rust }}
           path: target/tarpaulin/index.html
@@ -152,7 +156,7 @@ jobs:
       
       - name: Upload fuzz artifacts
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: fuzz-artifacts
           path: fuzz/artifacts
@@ -263,7 +267,8 @@ jobs:
       
       - name: Comment PR with summary
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             const fs = require('fs');
