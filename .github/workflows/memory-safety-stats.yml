@@ -60,6 +60,10 @@ jobs:
       
       - name: Update Live Trust Dashboard
         run: |
+          if [ ! -f "LIVE_TRUST_DASHBOARD.md" ]; then
+            echo "LIVE_TRUST_DASHBOARD.md not found, skipping dashboard update"
+            exit 0
+          fi
           # Update days without memory error
           sed -i "s/\*\*Days Without Memory Error\*\*: \`[0-9,]\+\` days/\*\*Days Without Memory Error\*\*: \`${{ steps.days.outputs.days }}\` days/" LIVE_TRUST_DASHBOARD.md
           
@@ -129,9 +133,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add LIVE_TRUST_DASHBOARD.md README.md MILESTONE_REPORT.md
+          git add LIVE_TRUST_DASHBOARD.md README.md MILESTONE_REPORT.md 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: update memory safety statistics (${{ steps.days.outputs.days }} days)"
-          git push
+          git push || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
