@@ -25,7 +25,7 @@ version = "0.0.0-2026-02-08-0120"
 optional = true
 
 [dependencies.vstd]
-version = "0.0.0-2026-02-08-0120"
+version = "0.0.0-2026-03-08-0103"
 optional = true
 
 [features]
