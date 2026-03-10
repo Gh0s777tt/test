@@ -3,9 +3,7 @@
   
   "image": "rust:1.85-bookworm",
   
-  "runArgs": [
-    "--cap-add=NET_ADMIN"
-  ],
+  "runArgs": [],
   
   "customizations": {
     "vscode": {
@@ -76,5 +74,5 @@
   
   "remoteUser": "vscode",
   
-  "overrideCommand": false
+  "overrideCommand": true
 }
