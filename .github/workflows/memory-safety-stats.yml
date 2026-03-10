@@ -135,8 +135,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Check milestone
+        id: milestone
+        run: |
+          DAYS=${{ steps.days.outputs.days }}
+          if [ "$(( DAYS % 100 ))" -eq 0 ] && [ "$DAYS" -gt 0 ]; then
+            echo "is_milestone=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_milestone=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create Milestone Issue (every 100 days)
-        if: ${{ steps.days.outputs.days % 100 == 0 }}
+        if: steps.milestone.outputs.is_milestone == 'true'
         uses: actions/github-script@v7
         with:
           script: |
