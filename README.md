@@ -69,7 +69,17 @@
 
 ---
 
-## 🚀 LATEST RELEASE: v0.4.1 (March 9, 2025)
+## 🚀 LATEST RELEASE: v1.6.0 "Enhanced Features" (March 10, 2025)
+
+### 🆕 What's New in v1.6.0
+- 🤖 **AI/ML Engine** — Inference, Federated Learning, Model Optimization, Anomaly Detection, Resource Prediction
+- 🌐 **SDN Networking** — Software-Defined Networking Controller, Traffic Shaping, Zero-Trust Network Model
+- 🔒 **Enhanced Security** — Runtime Integrity Monitoring, Hardware-Backed Secure Enclave
+- 🛠️ **Developer Tools** — System Profiler, Kernel Debugger, Integrated Build System
+- 📊 **164 new tests** across all new modules
+- 📖 [Full v1.6.0 Guide](docs/V1_6_0_ENHANCED_FEATURES_GUIDE.md)
+
+### Previous: v0.4.1 (March 9, 2025)
 
 <div align="center">
 
@@ -295,8 +305,10 @@ sudo dd if=VantisOS-x86_64.iso of=/dev/sdX bs=4M status=progress && sync
 - **🧠 Formally Verified Kernel**: 2,500+ mathematical proofs
 - **⚡ Real-time Scheduler**: Microsecond-level precision
 - **💾 Advanced Memory Manager**: Zero-copy, NUMA-aware
-- **🌐 High-Performance Network Stack**: DPDK integration
-- **🔒 Security-First Design**: Zero Trust architecture
+- **🌐 High-Performance Network Stack**: DPDK integration, SDN Controller
+- **🔒 Security-First Design**: Zero Trust architecture, Secure Enclave
+- **🤖 AI/ML Engine**: Inference, Federated Learning, Anomaly Detection
+- **🛠️ Developer Tools**: Profiler, Debugger, Build System
 
 ---
 

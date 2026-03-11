@@ -1,6 +1,6 @@
 [package]
 name = "vantis-verified"
-version = "1.2.0"
+version = "1.6.0"
 edition = "2021"
 authors = ["VANTIS OS Team"]
 description = "Formally verified components of VANTIS OS - Cloud Native Edition"
@@ -57,7 +57,7 @@ block-padding = { version = "0.3", default-features = false }
 # Random number generation for IV
 rand_core = { version = "0.10", default-features = false }
 getrandom = { version = "0.4", default-features = false, features = ["std"] }
-rand = { version = "0.10", default-features = false, features = ["std", "std_rng"] }
+rand = { version = "0.10", default-features = false, features = ["std", "std_rng", "thread_rng"] }
 
 # Hex encoding for test vectors
 hex = { version = "0.4", optional = true }
