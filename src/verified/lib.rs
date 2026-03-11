@@ -84,3 +84,9 @@ pub mod ai_enhanced;
 pub mod networking_enhanced;
 pub mod security_enhanced;
 pub mod developer_tools;
+
+// v1.6.0 Integration Tests
+#[cfg(test)]
+mod tests_v1_6_0_integration;
+#[cfg(test)]
+mod benches_v1_6_0;
