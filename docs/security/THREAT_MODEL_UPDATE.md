@@ -1,5 +1,12 @@
 # Aktualizacja Threat Model - VantisOS
 
+> **Uwaga (uczciwość):** VantisOS to eksperymentalny, wczesny projekt hobbystyczny
+> (v0.4.1). Nie jest certyfikowany ani audytowany i nie jest gotowy do produkcji.
+> Ten dokument opisuje *zamierzony* model zagrożeń i środki zaradcze — wiele z nich
+> jest planowanych lub w fazie prototypu, a nie wdrożonych. Wszelkie odniesienia do
+> zgodności (ISO 27001, NIST, SOC 2) są aspiracyjne; projekt nie posiada żadnych
+> certyfikatów ani potwierdzonej zgodności.
+
 ## Wprowadzenie
 
 Model zagrożeń (Threat Model) to kompleksowa analiza potencjalnych zagrożeń dla systemu VantisOS. Aktualizacja modelu zagrożeń uwzględnia nowe funkcje prywatności i bezpieczeństwa oraz najnowsze zagrożenia cybernetyczne.
@@ -365,24 +372,28 @@ Używamy modelu DREAD do oceny ryzyka:
 - Security conferences
 - Research papers
 
-## Zgodność z Regulacjami
+## Zgodność z Regulacjami (aspiracyjnie — brak certyfikatów)
 
-### ISO/IEC 27001:2022
-- ✅ Zarządzanie ryzykiem (A.5.7)
-- ✅ Ocena ryzyka (A.5.8)
-- ✅ Traktowanie ryzyka (A.5.9)
+> Projekt **nie** posiada żadnych certyfikatów ani potwierdzonej zgodności.
+> Poniższe ramy wymieniono jedynie jako punkty odniesienia projektowe (cele),
+> a nie osiągnięty status.
 
-### NIST Cybersecurity Framework
-- ✅ Identify (IDENTIFY)
-- ✅ Protect (PROTECT)
-- ✅ Detect (DETECT)
-- ✅ Respond (RESPOND)
-- ✅ Recover (RECOVER)
+### ISO/IEC 27001:2022 (cel)
+- ◻️ Zarządzanie ryzykiem (A.5.7)
+- ◻️ Ocena ryzyka (A.5.8)
+- ◻️ Traktowanie ryzyka (A.5.9)
 
-### SOC 2 Type II
-- ✅ Security (CC6.1)
-- ✅ Availability (CC7.1)
-- ✅ Processing Integrity (CC8.1)
+### NIST Cybersecurity Framework (punkt odniesienia)
+- ◻️ Identify (IDENTIFY)
+- ◻️ Protect (PROTECT)
+- ◻️ Detect (DETECT)
+- ◻️ Respond (RESPOND)
+- ◻️ Recover (RECOVER)
+
+### SOC 2 Type II (cel — nieosiągnięty)
+- ◻️ Security (CC6.1)
+- ◻️ Availability (CC7.1)
+- ◻️ Processing Integrity (CC8.1)
 
 ## Statystyki
 
@@ -394,20 +405,20 @@ Używamy modelu DREAD do oceny ryzyka:
 - 1 niskie zagrożenie
 
 ### Metryki Środków Zaradczych
-- 100% środków zaradczych zidentyfikowanych
-- 80% środków zaradczych zaimplementowanych
-- 20% środków zaradczych w trakcie implementacji
+- Większość środków zaradczych jest zidentyfikowana na poziomie projektu
+- Wdrożenie jest częściowe / w fazie prototypu (brak zmierzonego pokrycia)
+- Wiele środków pozostaje planowanych — nie wdrożonych
 
 ## Podsumowanie
 
 Aktualizacja modelu zagrożeń dla VantisOS zapewnia kompleksową analizę potencjalnych zagrożeń i środków zaradczych. Model uwzględnia najnowsze zagrożenia cybernetyczne, w tym AI-powered attacks, supply chain attacks i quantum computing threats.
 
 **Kluczowe cechy:**
-- ✅ Kompleksowa analiza zagrożeń (STRIDE)
+- ✅ Analiza zagrożeń (STRIDE)
 - ✅ Ocena ryzyka (DREAD)
-- ✅ Środki zaradcze dla wszystkich zagrożeń
-- ✅ Ciągła aktualizacja modelu
-- ✅ Zgodność z regulacjami (ISO 27001, NIST, SOC 2)
+- ✅ Zidentyfikowane środki zaradcze (w większości projektowe/planowane)
+- ✅ Zamiar ciągłej aktualizacji modelu
+- ◻️ Zgodność z regulacjami (ISO 27001, NIST, SOC 2) — cel, brak certyfikatów
 
 **Priorytety:**
 - Krytyczne: 3 zagrożenia (DoS, Data disclosure, Supply chain)

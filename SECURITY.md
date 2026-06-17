@@ -173,13 +173,13 @@ Definition: Vulnerability with:
 
 ### VantisOS Security Architecture
 
-VantisOS is built with security as a first-class principle:
+VantisOS is designed with security as a first-class principle. Note: VantisOS is an experimental, early-stage project. The items below describe the intended security architecture and design goals; many are partially implemented or not yet implemented (see the Security Milestones and Known Security Limitations sections below).
 
-#### 1. Formal Verification
+#### 1. Formal Verification (partial / aspirational)
 
-- **Kernel Components**: All critical kernel components are formally verified
+- **Kernel Components**: Formal verification of critical kernel components is a goal; only a small number of Verus proof stubs exist today
 - **Proof Tools**: Verus and Kani for Rust code verification
-- **Properties Proven**: Memory safety, type safety, absence of data races
+- **Properties Targeted**: Memory safety, type safety, absence of data races (not yet proven across the codebase)
 - **Verification Status**: See [VERIFICATION_STATUS.md](docs/reports/VERIFICATION_STATUS.md)
 
 #### 2. Microkernel Design

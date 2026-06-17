@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Voice Assistant is a comprehensive natural language interface for VantisOS that enables users to control the system using voice commands. It provides hands-free operation, accessibility for users with motor impairments, and a more intuitive computing experience.
+The Voice Assistant is a planned/prototype natural language interface for VantisOS intended to let users control the system using voice commands. It is designed to provide hands-free operation, accessibility for users with motor impairments, and a more intuitive computing experience. This document describes the intended design; the feature is experimental and the performance, accuracy, and compliance figures below are design targets, not measured results.
 
 ## Features
 
@@ -51,11 +51,11 @@ pub enum NLPModel {
 }
 ```
 
-**Performance**:
-- Intent recognition: < 200ms ✅
-- Entity extraction: < 150ms ✅
-- Context understanding: < 100ms ✅
-- Accuracy: 95%+ ✅
+**Performance (design targets — unmeasured)**:
+- Intent recognition: < 200ms (target)
+- Entity extraction: < 150ms (target)
+- Context understanding: < 100ms (target)
+- Accuracy: 95%+ (target)
 
 ### 2. Voice Commands
 
@@ -152,10 +152,10 @@ pub enum CommandAction {
 }
 ```
 
-**Performance**:
-- Command recognition: < 300ms ✅
-- Command execution: < 500ms ✅
-- Accuracy: 92%+ ✅
+**Performance (design targets — unmeasured)**:
+- Command recognition: < 300ms (target)
+- Command execution: < 500ms (target)
+- Accuracy: 92%+ (target)
 
 ### 3. System Control via Voice
 
@@ -213,10 +213,10 @@ pub struct ActionExecutor {
 }
 ```
 
-**Performance**:
-- Command processing: < 200ms ✅
-- Action execution: < 300ms ✅
-- Feedback generation: < 100ms ✅
+**Performance (design targets — unmeasured)**:
+- Command processing: < 200ms (target)
+- Action execution: < 300ms (target)
+- Feedback generation: < 100ms (target)
 
 ### 4. Voice Feedback
 
@@ -287,33 +287,33 @@ pub enum VoiceAge {
 }
 ```
 
-**Performance**:
-- Feedback generation: < 50ms ✅
-- Text-to-speech: < 200ms ✅
-- Audio playback: < 100ms ✅
+**Performance (design targets — unmeasured)**:
+- Feedback generation: < 50ms (target)
+- Text-to-speech: < 200ms (target)
+- Audio playback: < 100ms (target)
 
 ### 5. Multi-language Support
 
 **Description**: Support for multiple languages and dialects.
 
-**Supported Languages**: 15 languages with 30+ dialects
+**Planned Language Support**: 15 languages with 30+ dialects (planned scope — not yet implemented)
 
 | Language | Dialects | Status |
 |----------|----------|--------|
-| English | US, UK, AU, CA, IN | ✅ Full |
-| Spanish | ES, MX | ✅ Full |
-| French | FR, CA | ✅ Full |
-| German | DE | ✅ Full |
-| Italian | IT | ✅ Full |
-| Portuguese | BR, PT | ✅ Full |
-| Dutch | NL | ✅ Full |
-| Russian | RU | ✅ Full |
-| Chinese | Simplified, Traditional | ✅ Full |
-| Japanese | JP | ✅ Full |
-| Korean | KR | ✅ Full |
-| Arabic | SA, AE, EG | ✅ Full |
-| Hindi | IN | ✅ Full |
-| Polish | PL | ✅ Full |
+| English | US, UK, AU, CA, IN | Planned |
+| Spanish | ES, MX | Planned |
+| French | FR, CA | Planned |
+| German | DE | Planned |
+| Italian | IT | Planned |
+| Portuguese | BR, PT | Planned |
+| Dutch | NL | Planned |
+| Russian | RU | Planned |
+| Chinese | Simplified, Traditional | Planned |
+| Japanese | JP | Planned |
+| Korean | KR | Planned |
+| Arabic | SA, AE, EG | Planned |
+| Hindi | IN | Planned |
+| Polish | PL | Planned |
 
 **Features**:
 - ✅ Automatic language detection
@@ -341,10 +341,10 @@ pub struct LanguageModel {
 }
 ```
 
-**Performance**:
-- Language detection: < 100ms ✅
-- Language switching: < 50ms ✅
-- Command translation: < 150ms ✅
+**Performance (design targets — unmeasured)**:
+- Language detection: < 100ms (target)
+- Language switching: < 50ms (target)
+- Command translation: < 150ms (target)
 
 ### 6. Offline Mode
 
@@ -395,11 +395,11 @@ pub struct LocalNLP {
 }
 ```
 
-**Performance**:
-- Speech recognition: < 300ms ✅
-- NLP processing: < 200ms ✅
-- Text-to-speech: < 200ms ✅
-- Overall latency: < 700ms ✅
+**Performance (design targets — unmeasured)**:
+- Speech recognition: < 300ms (target)
+- NLP processing: < 200ms (target)
+- Text-to-speech: < 200ms (target)
+- Overall latency: < 700ms (target)
 
 ### 7. Privacy Mode
 
@@ -452,11 +452,11 @@ pub enum PrivacyLevel {
 }
 ```
 
-**Compliance**:
-- ✅ GDPR compliant
-- ✅ CCPA compliant
-- ✅ HIPAA compliant (when enabled)
-- ✅ SOC 2 compliant
+**Compliance (design goals — NOT certified or audited)**:
+- GDPR alignment (goal — not audited)
+- CCPA alignment (goal — not audited)
+- HIPAA alignment (goal — not certified)
+- SOC 2 alignment (goal — not audited)
 
 ## Architecture
 
@@ -536,84 +536,70 @@ pub trait VoiceAssistantAPI {
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Speech recognition latency | < 500ms | < 300ms | ✅ |
-| NLP processing latency | < 300ms | < 200ms | ✅ |
-| Command execution latency | < 500ms | < 300ms | ✅ |
-| Feedback generation latency | < 200ms | < 100ms | ✅ |
-| Overall response time | < 1s | < 700ms | ✅ |
-| Speech recognition accuracy | > 90% | > 95% | ✅ |
-| Intent recognition accuracy | > 90% | > 92% | ✅ |
-| Command execution accuracy | > 95% | > 97% | ✅ |
+Targets only — the Voice Assistant is a prototype and these have not been measured.
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Speech recognition latency | < 500ms | Unmeasured |
+| NLP processing latency | < 300ms | Unmeasured |
+| Command execution latency | < 500ms | Unmeasured |
+| Feedback generation latency | < 200ms | Unmeasured |
+| Overall response time | < 1s | Unmeasured |
+| Speech recognition accuracy | > 90% | Unmeasured |
+| Intent recognition accuracy | > 90% | Unmeasured |
+| Command execution accuracy | > 95% | Unmeasured |
 
 ## Testing
 
 ### Automated Testing
 
-**Test Coverage**:
-- ✅ Speech recognition tests
-- ✅ NLP processing tests
-- ✅ Command execution tests
-- ✅ Feedback generation tests
-- ✅ Multi-language tests
-- ✅ Offline mode tests
-- ✅ Privacy mode tests
+**Planned Test Coverage**:
+- Speech recognition tests
+- NLP processing tests
+- Command execution tests
+- Feedback generation tests
+- Multi-language tests
+- Offline mode tests
+- Privacy mode tests
 
-**Test Results**:
-- Unit tests: 100% pass rate ✅
-- Integration tests: 100% pass rate ✅
-- Performance tests: All targets met ✅
+**Test Results**: Test suite not yet implemented; no results to report.
 
 ### Manual Testing
 
-**Test Scenarios**:
-- ✅ Voice command recognition
-- ✅ Command execution
-- ✅ Multi-language support
-- ✅ Offline functionality
-- ✅ Privacy mode
-- ✅ System integration
-- ✅ Third-party integration
+**Planned Test Scenarios**:
+- Voice command recognition
+- Command execution
+- Multi-language support
+- Offline functionality
+- Privacy mode
+- System integration
+- Third-party integration
 
-**Test Results**:
-- All scenarios passed ✅
-- No critical issues ✅
-- User satisfaction: 4.7/5 ✅
+**Test Results**: Manual testing not yet conducted.
 
 ### User Testing
 
-**Participants**:
-- 15 users with motor impairments
-- 10 users with visual impairments
-- 8 users with cognitive impairments
-- 20 general users
-
-**Results**:
-- Task completion rate: 94% ✅
-- User satisfaction: 4.8/5 ✅
-- Preferred input method: 78% ✅
-- Daily usage: 65% ✅
+User testing with participants has not been conducted. No task-completion rates or satisfaction scores exist yet.
 
 ## Security
 
-### Security Features
+### Security Features (planned)
 
-- ✅ Voice authentication (optional)
-- ✅ Command authorization
-- ✅ Sensitive command confirmation
-- ✅ Encrypted voice data
-- ✅ Secure local storage
-- ✅ Privacy controls
-- ✅ Audit logging
+- Voice authentication (optional)
+- Command authorization
+- Sensitive command confirmation
+- Encrypted voice data
+- Secure local storage
+- Privacy controls
+- Audit logging
 
-### Security Compliance
+### Security Compliance (design goals — NOT certified or audited)
 
-- ✅ SOC 2 Type II compliant
-- ✅ ISO 27001 compliant
-- ✅ GDPR compliant
-- ✅ CCPA compliant
-- ✅ HIPAA compliant (when enabled)
+- SOC 2 Type II alignment (goal — not audited)
+- ISO 27001 alignment (goal — not certified)
+- GDPR alignment (goal — not audited)
+- CCPA alignment (goal — not audited)
+- HIPAA alignment (goal — not certified)
 
 ## Best Practices
 
@@ -663,10 +649,10 @@ pub trait VoiceAssistantAPI {
 
 ## Conclusion
 
-The Voice Assistant provides comprehensive voice control for VantisOS, enabling hands-free operation and accessibility for users with diverse abilities. With support for 15 languages, offline mode, and enhanced privacy, the Voice Assistant sets a new standard for operating system voice control.
+The Voice Assistant is a planned/prototype design for voice control in VantisOS, intended to enable hands-free operation and accessibility for users with diverse abilities. Planned support includes 15 languages, offline mode, and enhanced privacy. The feature is experimental and not yet implemented or validated.
 
 ---
 
 **Document Version**: 1.0  
 **Last Updated**: February 26, 2025  
-**Status**: ✅ Production Ready
+**Status**: Experimental / prototype design (not implemented)

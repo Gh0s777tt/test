@@ -2,7 +2,7 @@
 
 ## Overview
 
-The BCI (Brain-Computer Interface) provides direct brain-to-computer communication, enabling users to control VantisOS through thought patterns. This revolutionary accessibility feature is designed for users with severe motor impairments, offering a new paradigm of human-computer interaction.
+The BCI (Brain-Computer Interface) is a planned/prototype accessibility feature intended to provide direct brain-to-computer communication, enabling users to control VantisOS through thought patterns. It is designed for users with severe motor impairments. This document describes the intended design; the feature is experimental and the performance, accuracy, and compliance figures below are design targets, not measured results.
 
 ## Features
 
@@ -52,11 +52,11 @@ pub enum FilterType {
 }
 ```
 
-**Performance**:
-- Signal acquisition: < 1ms latency ✅
-- Signal processing: < 5ms latency ✅
-- Artifact removal: < 10ms latency ✅
-- Signal quality: > 95% ✅
+**Performance (design targets — unmeasured)**:
+- Signal acquisition: < 1ms latency (target)
+- Signal processing: < 5ms latency (target)
+- Artifact removal: < 10ms latency (target)
+- Signal quality: > 95% (target)
 
 ### 2. Thought Pattern Recognition
 
@@ -121,11 +121,11 @@ pub enum PatternType {
 }
 ```
 
-**Performance**:
-- Pattern recognition: < 100ms ✅
-- Accuracy: 85-95% ✅
-- Training time: 10-30 minutes ✅
-- Adaptation: Continuous ✅
+**Performance (design targets — unmeasured)**:
+- Pattern recognition: < 100ms (target)
+- Accuracy: 85-95% (target)
+- Training time: 10-30 minutes (target)
+- Adaptation: Continuous (planned)
 
 ### 3. Mental Command Execution
 
@@ -184,10 +184,10 @@ pub enum CommandType {
 }
 ```
 
-**Performance**:
-- Command execution: < 50ms ✅
-- Queue processing: < 10ms ✅
-- Confirmation: < 100ms ✅
+**Performance (design targets — unmeasured)**:
+- Command execution: < 50ms (target)
+- Queue processing: < 10ms (target)
+- Confirmation: < 100ms (target)
 
 ### 4. Calibration System
 
@@ -239,10 +239,10 @@ pub struct PerformanceMetrics {
 }
 ```
 
-**Performance**:
-- Initial calibration: 20-40 minutes ✅
-- Quick recalibration: 2-5 minutes ✅
-- Accuracy improvement: 10-20% ✅
+**Performance (design targets — unmeasured)**:
+- Initial calibration: 20-40 minutes (target)
+- Quick recalibration: 2-5 minutes (target)
+- Accuracy improvement: 10-20% (target)
 
 ### 5. Real-time Feedback
 
@@ -286,10 +286,10 @@ pub enum FeedbackLevel {
 }
 ```
 
-**Performance**:
-- Visual feedback: < 50ms ✅
-- Auditory feedback: < 100ms ✅
-- Haptic feedback: < 20ms ✅
+**Performance (design targets — unmeasured)**:
+- Visual feedback: < 50ms (target)
+- Auditory feedback: < 100ms (target)
+- Haptic feedback: < 20ms (target)
 
 ### 6. Safety Limits
 
@@ -318,15 +318,15 @@ pub enum FeedbackLevel {
 - Fallback mechanisms
 - System monitoring
 
-**Safety Limits**:
+**Safety Limits (planned design values)**:
 
 | Limit Type | Value | Status |
 |------------|-------|--------|
-| Maximum session time | 2 hours | ✅ Enforced |
-| Minimum break time | 10 minutes | ✅ Enforced |
-| Maximum command rate | 1 per second | ✅ Enforced |
-| Confidence threshold | 70% | ✅ Configurable |
-| Emergency stop | Always available | ✅ Implemented |
+| Maximum session time | 2 hours | Planned |
+| Minimum break time | 10 minutes | Planned |
+| Maximum command rate | 1 per second | Planned |
+| Confidence threshold | 70% | Planned (configurable) |
+| Emergency stop | Always available | Planned |
 
 **Implementation**:
 ```rust
@@ -356,11 +356,11 @@ pub enum TriggerMethod {
 }
 ```
 
-**Compliance**:
-- ✅ HIPAA compliant
-- ✅ GDPR compliant
-- ✅ ISO 27001 compliant
-- ✅ Ethical guidelines followed
+**Compliance (design goals — NOT certified or audited)**:
+- HIPAA alignment (goal — not certified)
+- GDPR alignment (goal — not audited)
+- ISO 27001 alignment (goal — not certified)
+- Ethical guidelines intended to be followed
 
 ## Architecture
 
@@ -453,63 +453,49 @@ pub trait BCIInterfaceAPI {
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Signal acquisition latency | < 5ms | < 1ms | ✅ |
-| Signal processing latency | < 20ms | < 5ms | ✅ |
-| Pattern recognition latency | < 200ms | < 100ms | ✅ |
-| Command execution latency | < 100ms | < 50ms | ✅ |
-| Overall response time | < 500ms | < 200ms | ✅ |
-| Pattern recognition accuracy | > 80% | 85-95% | ✅ |
-| False positive rate | < 5% | < 3% | ✅ |
-| False negative rate | < 10% | < 5% | ✅ |
+Targets only — the BCI interface is a prototype and these have not been measured.
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Signal acquisition latency | < 5ms | Unmeasured |
+| Signal processing latency | < 20ms | Unmeasured |
+| Pattern recognition latency | < 200ms | Unmeasured |
+| Command execution latency | < 100ms | Unmeasured |
+| Overall response time | < 500ms | Unmeasured |
+| Pattern recognition accuracy | > 80% | Unmeasured |
+| False positive rate | < 5% | Unmeasured |
+| False negative rate | < 10% | Unmeasured |
 
 ## Testing
 
 ### Automated Testing
 
-**Test Coverage**:
-- ✅ EEG signal processing tests
-- ✅ Pattern recognition tests
-- ✅ Command execution tests
-- ✅ Safety system tests
-- ✅ Calibration tests
-- ✅ Feedback system tests
+**Planned Test Coverage**:
+- EEG signal processing tests
+- Pattern recognition tests
+- Command execution tests
+- Safety system tests
+- Calibration tests
+- Feedback system tests
 
-**Test Results**:
-- Unit tests: 100% pass rate ✅
-- Integration tests: 100% pass rate ✅
-- Performance tests: All targets met ✅
+**Test Results**: Test suite not yet implemented; no results to report.
 
 ### Manual Testing
 
-**Test Scenarios**:
-- ✅ EEG headset connection
-- ✅ Signal quality
-- ✅ Pattern recognition
-- ✅ Command execution
-- ✅ Calibration
-- ✅ Safety systems
-- ✅ Feedback
+**Planned Test Scenarios**:
+- EEG headset connection
+- Signal quality
+- Pattern recognition
+- Command execution
+- Calibration
+- Safety systems
+- Feedback
 
-**Test Results**:
-- All scenarios passed ✅
-- No critical issues ✅
-- User satisfaction: 4.6/5 ✅
+**Test Results**: Manual testing not yet conducted.
 
 ### User Testing
 
-**Participants**:
-- 10 users with severe motor impairments
-- 5 users with ALS
-- 3 users with spinal cord injury
-- 2 users with cerebral palsy
-
-**Results**:
-- Task completion rate: 88% ✅
-- User satisfaction: 4.6/5 ✅
-- Daily usage: 70% ✅
-- Independence improvement: 85% ✅
+User testing with participants has not been conducted. This section is a placeholder for a future study design (e.g. testing with users who have severe motor impairments, ALS, spinal cord injury, or cerebral palsy). No results, satisfaction scores, or completion rates exist yet.
 
 ## Ethics and Privacy
 
@@ -533,11 +519,12 @@ pub trait BCIInterfaceAPI {
 
 ### Regulatory Compliance
 
-- ✅ HIPAA compliant
-- ✅ GDPR compliant
-- ✅ ISO 27001 compliant
-- ✅ Medical device regulations (where applicable)
-- ✅ Ethical guidelines followed
+This is an experimental hobby project. It holds NO regulatory certifications. The following are design aspirations only:
+- HIPAA alignment (goal — not certified)
+- GDPR alignment (goal — not audited)
+- ISO 27001 alignment (goal — not certified)
+- Medical device regulations (not assessed; not a certified medical device)
+- Ethical guidelines intended to be followed
 
 ## Best Practices
 
@@ -587,11 +574,11 @@ pub trait BCIInterfaceAPI {
 
 ## Conclusion
 
-The BCI Interface provides revolutionary brain-to-computer communication for VantisOS, enabling users with severe motor impairments to control the system through thought patterns. With comprehensive safety measures, excellent performance, and ethical design, the BCI Interface represents the future of accessibility technology.
+The BCI Interface is a planned/prototype design for brain-to-computer communication in VantisOS, intended to let users with severe motor impairments control the system through thought patterns. The safety, performance, and ethics sections above describe design intent; the feature is experimental and not yet implemented or validated.
 
 ---
 
 **Document Version**: 1.0  
 **Last Updated**: February 26, 2025  
-**Status**: ✅ Production Ready  
-**Safety Level**: ✅ Medical Device Compliant
+**Status**: Experimental / prototype design (not implemented)  
+**Safety Level**: Not a certified medical device

@@ -258,8 +258,8 @@ vantis-ctl connections list
 ```markdown
 💼 Core Profile Features:
 ├── 🏛️ Minimalistyczne Jądro
-├── ✅ EAL 7+ Certified
-├── 🔐 Formal Verification
+├── 🎯 Wzmocnienie bezpieczeństwa (cel — brak certyfikacji)
+├── 🔐 Częściowa weryfikacja formalna (w toku)
 ├── 🚀 Atomowe Aktualizacje
 ├── 📊 Resource Monitoring
 ├── 🔒 Security-First Design
@@ -366,11 +366,11 @@ vantis-ctl update check
 - Aktualizacja Verus do v0.5.0
 - Nowe poprawki bezpieczeństwa kernela
 
-### 📊 Statystyki
-- Linii kodu zmienionych: 1,234,567
-- Plików dodanych: 456
-- Plików usuniętych: 123
-- Testów dodanych: 789
+### 📊 Statystyki (przykładowe wartości — tylko ilustracja interfejsu)
+- Linii kodu zmienionych: (przykład)
+- Plików dodanych: (przykład)
+- Plików usuniętych: (przykład)
+- Testów dodanych: (przykład)
 ```
 
 #### Krok 3: Wybierz Profil Aktualizacji
@@ -740,11 +740,11 @@ vantis-ctl recovery boot
 🔗 Protokół: TLS 1.3
 🛡️ HMAC: SHA-384
 
-### Weryfikacja
-✅ Podpis cyfrowy: Ed25519
-✅ Checksum: SHA-512
-✅ Certificate: Let's Encrypt
-✅ Chain of Trust: SLSA Level 4
+### Weryfikacja (cele projektowe)
+🎯 Podpis cyfrowy: Ed25519
+🎯 Checksum: SHA-512
+🎯 Certificate: Let's Encrypt
+🎯 Chain of Trust (planowane — SLSA nieosiągnięte)
 
 ### Atomowość
 🔄 A/B Partition System

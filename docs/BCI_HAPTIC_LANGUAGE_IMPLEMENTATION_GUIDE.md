@@ -4,10 +4,12 @@
 
 This guide provides a comprehensive implementation plan for Brain-Computer Interface (BCI) and Haptic Language support in VantisOS, enabling direct neural communication and tactile feedback systems for next-generation human-computer interaction.
 
-**Implementation Timeline**: 3 days  
+**Implementation Timeline (estimate)**: 3 days  
 **Complexity**: Very High  
 **Dependencies**: Vantis Core, Neural Scheduler, Flux Engine  
-**Security Level**: Critical (EAL 7+)
+**Security Sensitivity**: Critical (no formal certification — VantisOS is not EAL-certified)
+
+> Note: This is a design/implementation guide for an experimental, forward-looking feature. Timelines, accuracy figures, and "success metrics" below are goals, not measured or shipped results.
 
 ---
 
@@ -1332,12 +1334,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for BCI and Haptic Language support in VantisOS. The 3-day timeline covers all critical components including BCI interface, haptic engine, neural translation, and integration.
 
-**Key Success Metrics:**
-- ✅ 64+ EEG channels support
-- ✅ >95% command recognition accuracy
-- ✅ <10ms BCI latency
-- ✅ <5ms haptic feedback latency
-- ✅ 100+ haptic actuators support
+**Key Success Metrics (targets — not yet achieved):**
+- 🎯 64+ EEG channels support
+- 🎯 >95% command recognition accuracy (target)
+- 🎯 <10ms BCI latency
+- 🎯 <5ms haptic feedback latency
+- 🎯 100+ haptic actuators support
 
 **Next Steps:**
 1. Begin implementation following the 3-day plan

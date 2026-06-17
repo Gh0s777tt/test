@@ -3,8 +3,11 @@
 ## 📋 Overview
 
 **Goal**: Implement actual cryptographic algorithms for Vantis Vault  
-**Approach**: Use RustCrypto libraries with formal verification  
-**Target**: FIPS 140-3 Level 4 and EAL 7+ certification
+**Approach**: Use RustCrypto libraries, with formal verification as a stretch goal  
+**Target**: FIPS 140-3 Level 4 and EAL 7+ are aspirational long-term goals only — the project is NOT certified and none of these are in progress
+
+> **Note:** VantisOS is an experimental (v0.4.1) hobby project. This is a forward-looking
+> plan, not a description of shipped, audited, or certified functionality.
 
 ---
 
@@ -375,6 +378,9 @@ fn test_cascade_performance() {
 
 ## 📊 Expected Performance
 
+> These figures are rough, unmeasured estimates for planning purposes only.
+> No benchmarks have been run; actual performance is unknown.
+
 ### Software Implementation
 
 ```
@@ -528,26 +534,26 @@ fn verify_padding() {
 
 ---
 
-## 🌟 Success Criteria
+## 🌟 Success Criteria (targets — not yet met)
 
 ### Functional Requirements
-- ✅ All three algorithms implemented
-- ✅ Cascade encryption working
-- ✅ IV generation secure
-- ✅ Padding correct
-- ✅ All tests passing
+- [ ] All three algorithms implemented
+- [ ] Cascade encryption working
+- [ ] IV generation secure
+- [ ] Padding correct
+- [ ] All tests passing
 
-### Performance Requirements
-- ✅ Cascade encryption: >50 MB/s
-- ✅ With AES-NI: >70 MB/s
-- ✅ Acceptable for most use cases
+### Performance Requirements (targets, unmeasured)
+- [ ] Cascade encryption: >50 MB/s
+- [ ] With AES-NI: >70 MB/s
+- [ ] Acceptable for most use cases
 
 ### Security Requirements
-- ✅ Formal verification complete
-- ✅ NIST test vectors pass
-- ✅ No timing side channels
-- ✅ Secure key zeroization
-- ✅ Ready for FIPS 140-3 certification
+- [ ] Meaningful formal verification of crypto paths
+- [ ] NIST test vectors pass
+- [ ] No timing side channels
+- [ ] Secure key zeroization
+- [ ] Foundation toward (aspirational) FIPS 140-3 work
 
 ---
 

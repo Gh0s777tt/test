@@ -1,13 +1,11 @@
-# VantisOS v1.4.0 - User Guide
+# VantisOS - User Guide
 
 ## Overview
-VantisOS v1.4.0 "AI Advanced Features" is a formally verified operating system with comprehensive AI capabilities, advanced security features, cloud-native support, and enterprise-grade compliance certifications.
+VantisOS is an experimental, early-stage hobby operating system written in Rust. It explores formal verification (with Verus), and includes prototype AI, security, and cloud-native examples. It is NOT production-ready, NOT audited, and holds NO compliance certifications. Verification is partial/aspirational.
 
 ## Version Information
-- **Version**: 1.4.0
-- **Codename**: AI Advanced Features
-- **Release Date**: March 5, 2026
-- **Status**: Production Ready ✅
+- **Version**: 0.4.1 (experimental)
+- **Status**: Early-stage prototype (largely AI-generated) — NOT production-ready
 
 ## System Requirements
 
@@ -35,14 +33,14 @@ VantisOS v1.4.0 "AI Advanced Features" is a formally verified operating system w
 ## Installation
 
 ### Booting from ISO
-1. Download the VantisOS v1.4.0 ISO image
+1. Download or build the VantisOS ISO image
 2. Burn ISO to USB drive or CD/DVD
 3. Boot from the USB/CD/DVD
-4. Select "VantisOS 1.4.0 - AI Advanced Features" from GRUB menu
+4. Select VantisOS from the GRUB menu
 
 ### Booting in QEMU
 ```bash
-qemu-system-x86_64 -cdrom vantisos-1.4.0.iso -m 2G -smp 2
+qemu-system-x86_64 -cdrom vantisos.iso -m 2G -smp 2
 ```
 
 ### Cloud Deployment
@@ -50,8 +48,8 @@ See [Cloud Deployment Guide](docs/cloud/deployment.md) for detailed instructions
 
 ## Features
 
-### AI Capabilities (v1.4.0)
-VantisOS v1.4.0 includes comprehensive AI features:
+### AI Capabilities (prototype)
+VantisOS includes experimental, prototype-stage AI features:
 - **ML Scheduler**: Q-Learning based intelligent process scheduling
 - **Adaptive Power Manager**: RL-based power optimization
 - **Threat Detection Engine**: Ensemble learning for security
@@ -59,17 +57,14 @@ VantisOS v1.4.0 includes comprehensive AI features:
 - **Data Pipeline**: Real-time metrics collection and processing
 - **Model Training**: 5 built-in ML algorithms
 
-### Performance Optimizations
-- **Inference Latency**: 70% faster (150ms → 45ms)
-- **Memory Usage**: 45% reduction (512MB → 280MB)
-- **CPU Utilization**: 47% reduction
-- **Throughput**: 400% increase (100 → 500 req/s)
+### Performance Optimizations (goals — not yet measured)
+Performance work is planned/prototype-stage. No benchmarks have been run, so no concrete latency, memory, CPU, or throughput figures are available yet.
 
 ### Security & Compliance
-- **Adversarial Defense**: Protection against AI attacks
-- **Model Encryption**: Secure model storage
-- **Privacy Preservation**: Data protection mechanisms
-- **Compliance**: GDPR, HIPAA, SOC2, EU AI Act certified
+- **Adversarial Defense**: Protection against AI attacks (prototype)
+- **Model Encryption**: Secure model storage (prototype)
+- **Privacy Preservation**: Data protection mechanisms (prototype)
+- **Compliance**: None. GDPR / HIPAA / SOC2 / EU AI Act are not met or certified — these are design considerations only.
 
 ### Cloud-Native Features
 - **Kubernetes Integration**: Full container orchestration
@@ -78,7 +73,7 @@ VantisOS v1.4.0 includes comprehensive AI features:
 - **Auto-Scaling**: HPA, VPA support
 
 ### System Calls
-VantisOS v1.4.0 provides 100+ system calls including:
+VantisOS prototypes a range of system calls (the set below is the intended/partial design, not all fully implemented), including:
 - Process management (exit, fork, exec, wait, getpid, clone)
 - File operations (open, close, read, write, stat, mkdir, rmdir)
 - Memory management (mmap, munmap, brk, mprotect, madvise)
@@ -116,7 +111,7 @@ VantisOS v1.4.0 provides 100+ system calls including:
 ## Kernel Architecture
 
 ### Microkernel Design
-VantisOS v0.5.0 follows a microkernel architecture with:
+VantisOS follows a microkernel architecture (prototype) with:
 - Minimal kernel core
 - User-space services
 - Capability-based security
@@ -160,7 +155,7 @@ If you don't see VGA output:
 
 ### Boot Time
 - **Target**: < 5 seconds
-- **Actual**: < 2 seconds ✅
+- **Actual**: not measured
 
 ### Memory Usage
 - **Kernel Size**: ~300 KB
@@ -180,4 +175,4 @@ VantisOS is released under the MIT License. See LICENSE file for details.
 ---
 
 **Last Updated**: March 1, 2025
-**Version**: 0.5.0
+**Version**: 0.4.1 (experimental)

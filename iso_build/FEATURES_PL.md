@@ -362,4 +362,4 @@ Obecny ISO zawiera:
 
 ---
 
-*Wygenerowano dla VantisOS v1.5.0 "Quantum Ready"*
+*Wygenerowano dla VantisOS v0.4.1 (eksperymentalny, wczesny projekt hobbystyczny). To lista funkcji planowanych do dodania — opisuje cele, a nie zaimplementowany stan.*

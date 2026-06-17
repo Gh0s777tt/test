@@ -4,10 +4,12 @@
 
 This guide provides a comprehensive implementation plan for automotive support in VantisOS, enabling VantisOS to run in vehicles with safety-critical features, real-time performance, and automotive industry compliance.
 
-**Implementation Timeline**: 7 days  
+**Implementation Timeline (estimate)**: 7 days  
 **Complexity**: Very High  
 **Dependencies**: Vantis Core, Neural Scheduler, Self-Healing  
-**Security Level**: Critical (EAL 7+, ISO 26262 ASIL D)
+**Safety/Security Sensitivity**: Critical (no formal certification — VantisOS is not EAL-certified and holds no ISO 26262 / ASIL D certification)
+
+> Note: This is a design/implementation guide for an experimental feature. ISO 26262 ASIL D is referenced as a design target only; VantisOS has not been assessed or certified to any automotive safety standard. Timelines and metrics below are goals, not measured results.
 
 ---
 
@@ -188,14 +190,16 @@ impl AutomotiveSystem {
 
 ---
 
-## ISO 26262 ASIL D Compliance
+## ISO 26262 ASIL D (Design Target — Not Certified)
 
-### Safety Requirements
-- ✅ ASIL D (Automotive Safety Integrity Level D)
-- ✅ Fault-tolerant time interval monitoring
-- ✅ Redundant safety mechanisms
-- ✅ Diagnostic coverage >99%
-- ✅ Safe state transition
+> VantisOS has not been assessed or certified to ISO 26262. The items below are design goals for an experimental system, not achieved or independently verified compliance.
+
+### Safety Requirements (goals)
+- 🎯 ASIL D (Automotive Safety Integrity Level D)
+- 🎯 Fault-tolerant time interval monitoring
+- 🎯 Redundant safety mechanisms
+- 🎯 High diagnostic coverage
+- 🎯 Safe state transition
 
 ---
 
@@ -232,11 +236,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for automotive support in VantisOS. The 7-day timeline covers all critical components including automotive kernel, safety monitor, CAN bus interface, and ADAS.
 
-**Key Success Metrics:**
-- ✅ ISO 26262 ASIL D compliance
-- ✅ <1ms real-time latency
-- ✅ <10ms safety response
-- ✅ Complete automotive feature set
+**Key Success Metrics (targets — not yet achieved):**
+- 🎯 ISO 26262 ASIL D as a design target (not certified)
+- 🎯 <1ms real-time latency
+- 🎯 <10ms safety response
+- 🎯 Broader automotive feature set
 
 ---
 

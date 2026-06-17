@@ -4,10 +4,10 @@
 
 This guide provides a comprehensive implementation plan for the Legacy Airlock subsystem in VantisOS, enabling Windows executable (.exe) files to run in a secure, isolated environment with full compatibility.
 
-**Implementation Timeline**: 5 days  
+**Implementation Timeline**: 5 days (estimated)  
 **Complexity**: Very High  
 **Dependencies**: Vantis Core, VantisFS, Vantis Vault  
-**Security Level**: Critical (EAL 7+)
+**Security Level**: Security-critical (target — no formal certification held)
 
 ---
 
@@ -1492,12 +1492,12 @@ fn create_window(api: &mut Win32Api) -> Result<HWND, Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for integrating Windows executable support into VantisOS through the Legacy Airlock subsystem. The 5-day timeline covers all critical components including PE loading, Win32 API emulation, syscall translation, and registry emulation.
 
-**Key Success Metrics:**
-- ✅ Windows 10/11 compatibility
-- ✅ Secure sandboxing
-- ✅ <1s first window time
-- ✅ <10μs API call overhead
-- ✅ <5% CPU overhead
+**Target Success Metrics (goals — not yet achieved):**
+- Windows 10/11 compatibility
+- Secure sandboxing
+- <1s first window time
+- <10μs API call overhead
+- <5% CPU overhead
 
 **Next Steps:**
 1. Begin implementation following the 5-day plan

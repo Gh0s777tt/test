@@ -784,24 +784,28 @@ mod integration_tests {
 
 ## 📊 Performance Targets
 
+Status reflects that these are unimplemented targets, not measured results.
+
 | Metric | Target | Status |
 |--------|--------|--------|
-| Execution Start | < 100ms | ✅ |
-| Cleanup Time | < 50ms | ✅ |
-| Memory Overhead | < 100MB | ✅ |
-| CPU Overhead | < 5% | ✅ |
-| Disk I/O Overhead | < 10MB | ✅ |
+| Execution Start | < 100ms | Target (not measured) |
+| Cleanup Time | < 50ms | Target (not measured) |
+| Memory Overhead | < 100MB | Target (not measured) |
+| CPU Overhead | < 5% | Target (not measured) |
+| Disk I/O Overhead | < 10MB | Target (not measured) |
 
 ---
 
 ## 🔒 Security Considerations
 
-1. **Complete Isolation**: Network, filesystem, and memory isolation
-2. **Ephemeral Execution**: No persistence after execution
-3. **Automatic Cleanup**: All traces removed automatically
-4. **Memory Safety**: All operations bounds-checked
-5. **Formal Verification**: Security-critical components formally verified
-6. **Resource Limits**: Strict resource limits enforced
+These are design intentions for the Phantom Run subsystem, not verified guarantees of the current code:
+
+1. **Complete Isolation**: Network, filesystem, and memory isolation (intended)
+2. **Ephemeral Execution**: No persistence after execution (intended)
+3. **Automatic Cleanup**: All traces removed automatically (intended)
+4. **Memory Safety**: Operations bounds-checked (intended)
+5. **Formal Verification**: A goal for security-critical components; only proof stubs exist today — nothing is fully proven yet
+6. **Resource Limits**: Strict resource limits (intended)
 
 ---
 

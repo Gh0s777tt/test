@@ -1,11 +1,13 @@
 # 🔐 RustCrypto Integration Plan
-## Production-Grade Cryptography for VANTIS OS
+## Stronger Cryptography for VANTIS OS (experimental)
+
+> **Status**: This is a forward-looking plan for an experimental hobby OS, not a record of completed work. Nothing here is certified, and FIPS 140-3 is a long-term aspiration only.
 
 ---
 
 ## 🎯 Objective
 
-Replace demo/placeholder cryptographic implementations with production-grade RustCrypto libraries to achieve FIPS 140-3 compliance and production readiness.
+Replace demo/placeholder cryptographic implementations with well-reviewed RustCrypto libraries. Long-term goals include FIPS 140-3-style self-tests and greater robustness — but FIPS certification is aspirational, not a deliverable of this plan.
 
 ---
 
@@ -42,7 +44,7 @@ rand = { version = "0.8", features = ["std", "std_rng"] }
 5. Update tests with real test vectors
 6. Verify with Verus + Kani
 
-**Expected Result**: Production-ready AES-256-CBC with hardware acceleration
+**Expected Result**: Real RustCrypto-backed AES-256-CBC with hardware acceleration (prototype)
 
 ---
 
@@ -56,7 +58,7 @@ rand = { version = "0.8", features = ["std", "std_rng"] }
 4. Update tests with real test vectors
 5. Verify with Verus + Kani
 
-**Expected Result**: Production-ready Twofish-256-CBC
+**Expected Result**: Real RustCrypto-backed Twofish-256-CBC (prototype)
 
 ---
 
@@ -70,7 +72,7 @@ rand = { version = "0.8", features = ["std", "std_rng"] }
 4. Update tests with real test vectors
 5. Verify with Verus + Kani
 
-**Expected Result**: Production-ready Serpent-256-CBC
+**Expected Result**: Real RustCrypto-backed Serpent-256-CBC (prototype)
 
 ---
 
@@ -84,7 +86,7 @@ rand = { version = "0.8", features = ["std", "std_rng"] }
 4. Benchmark performance with hardware acceleration
 5. Verify with Verus + Kani
 
-**Expected Result**: Production-ready cascade encryption
+**Expected Result**: Real RustCrypto-backed cascade encryption (prototype)
 
 ---
 
@@ -98,7 +100,7 @@ rand = { version = "0.8", features = ["std", "std_rng"] }
 4. Document FIPS 140-3 compliance
 5. Create certification checklist
 
-**Expected Result**: FIPS 140-3 ready cryptographic module
+**Expected Result**: Cryptographic module with FIPS 140-3-style self-tests (a step toward, not equivalent to, FIPS certification)
 
 ---
 
@@ -260,34 +262,34 @@ fn verify_aes_roundtrip() {
 
 ---
 
-## ✅ Success Criteria
+## ✅ Success Criteria (targets to meet — not yet satisfied)
 
 ### Functional Requirements
-- ✅ All algorithms encrypt/decrypt correctly
-- ✅ Roundtrip tests pass for all algorithms
-- ✅ IV generation is cryptographically secure
-- ✅ Padding is correct (PKCS#7)
-- ✅ Cascade encryption works end-to-end
+- [ ] All algorithms encrypt/decrypt correctly
+- [ ] Roundtrip tests pass for all algorithms
+- [ ] IV generation is cryptographically secure
+- [ ] Padding is correct (PKCS#7)
+- [ ] Cascade encryption works end-to-end
 
 ### Security Requirements
-- ✅ No key material leakage
-- ✅ Secure IV generation (unique per encryption)
-- ✅ Proper padding to prevent oracle attacks
-- ✅ Constant-time operations where possible
-- ✅ Secure memory zeroization
+- [ ] No key material leakage
+- [ ] Secure IV generation (unique per encryption)
+- [ ] Proper padding to prevent oracle attacks
+- [ ] Constant-time operations where possible
+- [ ] Secure memory zeroization
 
-### Performance Requirements
-- ✅ AES with AES-NI: >500 MB/s
-- ✅ Cascade encryption: >50 MB/s
-- ✅ Encryption overhead: <20μs per KB
-- ✅ Memory usage: <1KB per operation
+### Performance Requirements (targets, unmeasured)
+- [ ] AES with AES-NI: >500 MB/s
+- [ ] Cascade encryption: >50 MB/s
+- [ ] Encryption overhead: <20μs per KB
+- [ ] Memory usage: <1KB per operation
 
-### Verification Requirements
-- ✅ All functions formally verified with Verus
-- ✅ All edge cases tested with Kani
-- ✅ 100% test coverage maintained
-- ✅ Zero unsafe code (except zeroization)
-- ✅ FIPS 140-3 self-tests pass
+### Verification Requirements (goals — not yet met)
+- [ ] Formally verify functions with Verus (aspirational)
+- [ ] Cover edge cases with Kani
+- [ ] Measure and improve test coverage
+- [ ] Avoid unsafe code (except zeroization)
+- [ ] FIPS 140-3-style self-tests pass
 
 ---
 
@@ -326,19 +328,19 @@ Production Ready:    No
 Hardware Accel:      No
 ```
 
-### After Integration
+### After Integration (intended)
 ```
-Vantis Vault:        Production-ready with RustCrypto
-FIPS 140-3:         Ready for certification
-Production Ready:    Yes
-Hardware Accel:      Yes (AES-NI)
+Vantis Vault:        Real RustCrypto algorithms (prototype, unaudited)
+FIPS 140-3:          Self-tests added (NOT certified; certification not pursued)
+Production Ready:    No — still experimental; needs audit & review
+Hardware Accel:      AES-NI where available
 ```
 
 ### Functions Added
-- ~5-8 new verified functions
-- ~400-600 lines of production code
+- ~5-8 new functions (verification aspirational)
+- ~400-600 lines of code
 - ~20-30 new tests
-- ~5,000 words of documentation
+- documentation
 
 ---
 
@@ -361,7 +363,7 @@ Starting with Phase 1: AES-256-CBC Integration
 
 ---
 
-**Status**: Ready to implement  
+**Status**: Plan — ready to start implementing  
 **Estimated Time**: 3-4 hours  
-**Expected Functions**: 5-8 verified functions  
-**Expected Impact**: FIPS 140-3 ready, production-grade security
+**Expected Functions**: 5-8 functions (verification aspirational)  
+**Expected Impact**: Real (RustCrypto) algorithms replacing placeholders; a step toward stronger security. NOT certified, NOT production-ready, NOT audited.

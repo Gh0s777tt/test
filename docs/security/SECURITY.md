@@ -2,21 +2,14 @@
 
 ## Supported Versions
 
-VantisOS follows semantic versioning. Security updates are provided for:
+VantisOS is an experimental, early-stage hobby project. There is no stable or
+production release. Development happens on the current experimental branch only.
 
-| Version | Supported | Security Updates | Status |
-|---------|-----------|------------------|--------|
-| 1.4.x | ✅ Yes | Until 1.5.0 release | Latest |
-| 1.3.x | ✅ Yes | Until 1.4.0 release | Maintained |
-| 1.2.x | ⚠️ Limited | Critical only | Maintenance |
-| 1.1.x | ❌ No | End of Life | EOL |
-| 1.0.x | ❌ No | End of Life | EOL |
-| 0.9.x | ❌ No | End of Life | EOL |
+| Version | Supported | Notes |
+|---------|-----------|-------|
+| 0.4.x | ✅ Active development | Experimental, not production-ready |
 
-**Stable Version**: v1.4.0 (current production version)
-**Development Branch**: 0.4.1
-**Latest Release**: v1.4.0 "AI Advanced Features" (March 5, 2026)
-**Next Release**: v1.5.0 "Quantum Ready" (Q2 2026)
+**Current Version**: v0.4.1 (experimental — not production, not certified)
 
 ---
 
@@ -179,11 +172,12 @@ Definition: Vulnerability with:
 
 VantisOS is built with security as a first-class principle:
 
-#### 1. Formal Verification
+#### 1. Formal Verification (partial / aspirational)
 
-- **Kernel Components**: All critical kernel components are formally verified
-- **Proof Tools**: Verus and Kani for Rust code verification
-- **Properties Proven**: Memory safety, type safety, absence of data races
+- **Kernel Components**: Formal verification is an aspirational goal; only a small
+  number of Verus proof stubs currently exist — most components are NOT verified
+- **Proof Tools**: Verus and Kani for Rust code verification (early experiments)
+- **Properties Targeted**: Memory safety, type safety, absence of data races
 - **Verification Status**: See [VERIFICATION_STATUS.md](docs/reports/VERIFICATION_STATUS.md)
 
 #### 2. Microkernel Design
@@ -221,12 +215,12 @@ VantisOS is built with security as a first-class principle:
 - **Tor Integration**: Anonymized networking (Wraith Mode)
 - **End-to-End Encryption**: All IPC is encrypted
 
-#### 7. Continuous Security Testing
+#### 7. Continuous Security Testing (planned / partial)
 
-- **OSS-Fuzz**: 24/7 fuzzing of security-critical components
-- **Static Analysis**: Automated security analysis in CI/CD
-- **Vantis Guard**: AI-powered code review for security issues
-- **Live Trust Dashboard**: Real-time security metrics
+- **Fuzzing**: OSS-Fuzz integration is a goal — not yet running continuously
+- **Static Analysis**: Automated security analysis in CI/CD (partial)
+- **Vantis Guard**: AI-powered code review concept — not yet implemented
+- **Live Trust Dashboard**: Planned — not yet implemented
 
 ---
 
@@ -335,14 +329,15 @@ All audit results will be published:
 
 ## Security Milestones
 
-### Completed ✅
+> Note: VantisOS is experimental. The items below describe design intent and
+> early prototype work, not finished, audited, or production-hardened features.
 
-- [x] Formal verification framework (Verus/Kani)
-- [x] Microkernel architecture
-- [x] Memory-safe Rust codebase
-- [x] Capability-based IPC system
-- [x] OSS-Fuzz integration
-- [x] Secure boot design
+### Prototyped / In Progress 🔧
+
+- [x] Early formal verification scaffolding (Verus/Kani) — a few proof stubs only
+- [x] Microkernel architecture (design + prototype)
+- [x] Memory-safe Rust codebase (language-level)
+- [x] Capability-based IPC system (prototype)
 - [x] Security policy documentation
 
 ### In Progress 🔄

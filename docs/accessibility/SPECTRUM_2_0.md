@@ -2,17 +2,19 @@
 
 ## Overview
 
-Spectrum 2.0 is VantisOS's comprehensive accessibility framework that ensures full compliance with WCAG 2.1 (Web Content Accessibility Guidelines) at both AA and AAA levels. This framework provides inclusive computing experiences for users with diverse abilities.
+Spectrum 2.0 is VantisOS's accessibility framework, designed with the goal of WCAG 2.1 (Web Content Accessibility Guidelines) conformance at the AA and AAA levels. This framework aims to provide inclusive computing experiences for users with diverse abilities. Conformance is a design target — it has not been independently audited or certified, and the criterion-by-criterion status below reflects design intent rather than verified results.
 
-## WCAG 2.1 Compliance
+## WCAG 2.1 Conformance (target — not audited)
 
-### Compliance Levels
+### Conformance Goals
+
+The criteria below are the WCAG 2.1 success criteria the framework aims to satisfy. No independent conformance audit has been performed.
 
 | Level | Criteria | Status |
 |-------|----------|--------|
-| WCAG AA | 50 criteria | ✅ 100% Compliant |
-| WCAG AAA | 30 criteria | ✅ 100% Compliant |
-| **Total** | **80 criteria** | **✅ 100% Compliant** |
+| WCAG AA | 50 criteria | Target (not audited) |
+| WCAG AAA | 30 criteria | Target (not audited) |
+| **Total** | **80 criteria** | **Target (not audited)** |
 
 ### WCAG Principles
 
@@ -132,10 +134,10 @@ pub enum ContrastLevel {
 }
 ```
 
-**Performance**:
-- Mode switch time: < 100ms ✅
-- Color adjustment: < 50ms ✅
-- No performance impact ✅
+**Performance (design targets — unmeasured)**:
+- Mode switch time: < 100ms (target)
+- Color adjustment: < 50ms (target)
+- Minimal performance impact (goal)
 
 ### 2. Screen Reader Integration
 
@@ -174,10 +176,10 @@ pub enum ScreenReaderType {
 }
 ```
 
-**Performance**:
-- Announcement latency: < 50ms ✅
-- ARIA updates: < 20ms ✅
-- Focus management: < 10ms ✅
+**Performance (design targets — unmeasured)**:
+- Announcement latency: < 50ms (target)
+- ARIA updates: < 20ms (target)
+- Focus management: < 10ms (target)
 
 ### 3. Keyboard Navigation
 
@@ -221,10 +223,10 @@ pub struct FocusableElement {
 }
 ```
 
-**Performance**:
-- Focus movement: < 5ms ✅
-- Shortcut execution: < 10ms ✅
-- Skip link activation: < 20ms ✅
+**Performance (design targets — unmeasured)**:
+- Focus movement: < 5ms (target)
+- Shortcut execution: < 10ms (target)
+- Skip link activation: < 20ms (target)
 
 ### 4. Focus Indicators
 
@@ -262,10 +264,10 @@ pub enum FocusStyle {
 }
 ```
 
-**Performance**:
-- Focus indicator rendering: < 5ms ✅
-- Focus trap activation: < 10ms ✅
-- Focus restoration: < 15ms ✅
+**Performance (design targets — unmeasured)**:
+- Focus indicator rendering: < 5ms (target)
+- Focus trap activation: < 10ms (target)
+- Focus restoration: < 15ms (target)
 
 ### 5. Text Scaling
 
@@ -305,10 +307,10 @@ pub enum ScaleLevel {
 }
 ```
 
-**Performance**:
-- Scale change: < 100ms ✅
-- Layout reflow: < 200ms ✅
-- No content loss ✅
+**Performance (design targets — unmeasured)**:
+- Scale change: < 100ms (target)
+- Layout reflow: < 200ms (target)
+- No content loss (goal)
 
 ### 6. Color Blindness Support
 
@@ -349,10 +351,10 @@ pub enum ColorDeficiencyType {
 }
 ```
 
-**Performance**:
-- Color transformation: < 50ms ✅
-- Pattern overlay: < 30ms ✅
-- Real-time adjustment ✅
+**Performance (design targets — unmeasured)**:
+- Color transformation: < 50ms (target)
+- Pattern overlay: < 30ms (target)
+- Real-time adjustment (goal)
 
 ### 7. Reduced Motion Mode
 
@@ -386,10 +388,10 @@ pub enum MotionLevel {
 }
 ```
 
-**Performance**:
-- Mode switch: < 50ms ✅
-- Animation disabling: < 20ms ✅
-- No performance impact ✅
+**Performance (design targets — unmeasured)**:
+- Mode switch: < 50ms (target)
+- Animation disabling: < 20ms (target)
+- Minimal performance impact (goal)
 
 ### 8. Audio Descriptions
 
@@ -412,10 +414,10 @@ pub struct AudioDescription {
 }
 ```
 
-**Performance**:
-- Description loading: < 500ms ✅
-- Synchronization: < 50ms ✅
-- Volume adjustment: < 10ms ✅
+**Performance (design targets — unmeasured)**:
+- Description loading: < 500ms (target)
+- Synchronization: < 50ms (target)
+- Volume adjustment: < 10ms (target)
 
 ## Accessibility Testing
 
@@ -427,92 +429,79 @@ pub struct AudioDescription {
 - Lighthouse (Google)
 - Pa11y
 
-**Test Coverage**:
-- ✅ 100% of WCAG 2.1 AA criteria
-- ✅ 100% of WCAG 2.1 AAA criteria
-- ✅ 100% of UI components tested
-- ✅ 100% of keyboard navigation tested
+**Planned Test Coverage**:
+- WCAG 2.1 AA criteria
+- WCAG 2.1 AAA criteria
+- UI components
+- Keyboard navigation
 
-**Results**:
-- WCAG AA: 100% pass rate ✅
-- WCAG AAA: 100% pass rate ✅
-- Zero critical issues ✅
-- Zero serious issues ✅
+**Results**: Automated accessibility testing is planned but not yet established; no pass-rate results are available.
 
 ### Manual Testing
 
-**Test Scenarios**:
-- ✅ Keyboard-only navigation
-- ✅ Screen reader testing (NVDA, JAWS, VoiceOver)
-- ✅ High contrast mode testing
-- ✅ Text scaling testing (200%, 300%, 400%)
-- ✅ Color blindness simulation testing
-- ✅ Reduced motion testing
-- ✅ Focus management testing
+**Planned Test Scenarios**:
+- Keyboard-only navigation
+- Screen reader testing (NVDA, JAWS, VoiceOver)
+- High contrast mode testing
+- Text scaling testing (200%, 300%, 400%)
+- Color blindness simulation testing
+- Reduced motion testing
+- Focus management testing
 
-**Test Results**:
-- All scenarios passed ✅
-- No usability issues found ✅
-- All features accessible ✅
+**Test Results**: Manual accessibility testing not yet conducted.
 
 ### User Testing
 
-**Participants**:
-- 10 users with visual impairments
-- 8 users with motor impairments
-- 6 users with cognitive impairments
-- 5 users with hearing impairments
-
-**Results**:
-- 95% task completion rate ✅
-- 4.8/5 user satisfaction ✅
-- Zero critical issues ✅
-- All recommendations implemented ✅
+User testing with participants (e.g. people with visual, motor, cognitive, or hearing impairments) has not been conducted. No task-completion rates or satisfaction scores exist yet.
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Mode switch time | < 200ms | < 100ms | ✅ |
-| Focus movement | < 10ms | < 5ms | ✅ |
-| Text scaling | < 300ms | < 200ms | ✅ |
-| Color transformation | < 100ms | < 50ms | ✅ |
-| Screen reader announcement | < 100ms | < 50ms | ✅ |
-| Keyboard shortcut execution | < 20ms | < 10ms | ✅ |
+Targets only — these have not been measured.
 
-## Compliance Certifications
+| Metric | Target | Status |
+|--------|--------|--------|
+| Mode switch time | < 200ms | Unmeasured |
+| Focus movement | < 10ms | Unmeasured |
+| Text scaling | < 300ms | Unmeasured |
+| Color transformation | < 100ms | Unmeasured |
+| Screen reader announcement | < 100ms | Unmeasured |
+| Keyboard shortcut execution | < 20ms | Unmeasured |
 
-### WCAG 2.1 Compliance
+## Standards Alignment (targets — NOT certified or audited)
 
-| Level | Criteria | Compliance |
+The framework aims to align with the following standards. None of these have been independently audited or certified.
+
+### WCAG 2.1
+
+| Level | Criteria | Status |
 |-------|----------|------------|
-| AA | 50/50 | 100% ✅ |
-| AAA | 30/30 | 100% ✅ |
-| **Total** | **80/80** | **100% ✅** |
+| AA | 50 | Target (not audited) |
+| AAA | 30 | Target (not audited) |
+| **Total** | **80** | **Target (not audited)** |
 
-### Section 508 Compliance
-
-| Requirement | Status |
-|-------------|--------|
-| 508.1194.21 Keyboard Access | ✅ Compliant |
-| 508.1194.22 Timing | ✅ Compliant |
-| 508.1194.23 Display | ✅ Compliant |
-| 508.1194.24 Audio | ✅ Compliant |
-| 508.1194.25 Documentation | ✅ Compliant |
-| 508.1194.26 Software | ✅ Compliant |
-
-### EN 301 549 Compliance
+### Section 508
 
 | Requirement | Status |
 |-------------|--------|
-| 5.2.1.1 Non-text Content | ✅ Compliant |
-| 5.2.1.2 Audio-only and Video-only | ✅ Compliant |
-| 5.2.1.3 Captions | ✅ Compliant |
-| 5.2.1.4 Audio Description | ✅ Compliant |
-| 5.2.4.1 Keyboard | ✅ Compliant |
-| 5.2.4.2 No Keyboard Trap | ✅ Compliant |
-| 5.2.4.3 Focus Order | ✅ Compliant |
-| 5.2.4.4 Focus Visible | ✅ Compliant |
+| 508.1194.21 Keyboard Access | Target (not audited) |
+| 508.1194.22 Timing | Target (not audited) |
+| 508.1194.23 Display | Target (not audited) |
+| 508.1194.24 Audio | Target (not audited) |
+| 508.1194.25 Documentation | Target (not audited) |
+| 508.1194.26 Software | Target (not audited) |
+
+### EN 301 549
+
+| Requirement | Status |
+|-------------|--------|
+| 5.2.1.1 Non-text Content | Target (not audited) |
+| 5.2.1.2 Audio-only and Video-only | Target (not audited) |
+| 5.2.1.3 Captions | Target (not audited) |
+| 5.2.1.4 Audio Description | Target (not audited) |
+| 5.2.4.1 Keyboard | Target (not audited) |
+| 5.2.4.2 No Keyboard Trap | Target (not audited) |
+| 5.2.4.3 Focus Order | Target (not audited) |
+| 5.2.4.4 Focus Visible | Target (not audited) |
 
 ## Best Practices
 
@@ -574,11 +563,11 @@ pub struct AudioDescription {
 
 ## Conclusion
 
-Spectrum 2.0 provides comprehensive WCAG 2.1 AA/AAA compliance for VantisOS, ensuring an inclusive and accessible computing experience for all users. With 100% compliance across all 80 criteria, robust feature set, and excellent performance, Spectrum 2.0 sets a new standard for operating system accessibility.
+Spectrum 2.0 is VantisOS's accessibility framework, designed with the goal of WCAG 2.1 AA/AAA conformance to support an inclusive and accessible computing experience. Conformance across the 80 criteria is a design target, not an audited or certified result, and the framework is experimental.
 
 ---
 
 **Document Version**: 1.0  
 **Last Updated**: February 26, 2025  
-**Compliance Level**: WCAG 2.1 AA/AAA (100%)  
-**Status**: ✅ Production Ready
+**Conformance Goal**: WCAG 2.1 AA/AAA (target — not audited)  
+**Status**: Experimental / in development

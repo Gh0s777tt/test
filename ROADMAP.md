@@ -1,71 +1,70 @@
 # 🗺️ VantisOS Roadmap
 
-**Version**: v1.5.0 (COMPLETE)
+**Current Version**: v0.4.1 (experimental, early-stage hobby project)
 **Date Created**: February 28, 2025
 **Last Updated**: March 7, 2025
-**Project Status**: Quantum Ready v1.5.0 - Complete
-**Current Version**: v1.5.0 "Quantum Ready"
-**Next Version**: v2.0.0 "Next Generation"
+**Project Status**: Experimental — early development, not production-ready
+
+> Note: This roadmap describes aspirational goals and design intent. Version numbers and "completed" milestones beyond v0.4.1 are targets/plans, not shipped releases. The project is not certified or audited, and metrics below are estimates or goals rather than measured results.
 
 ---
 
 ## 📊 Executive Summary
 
 ### Current Status
-- ✅ **Quantum Ready** - VantisOS v1.5.0 released
-- ✅ **All Development Phases Complete** - 100% completion
-- ✅ **Full Feature Set** - IoT, Server, Enterprise, Mobile, Legacy, Cloud, AI, Quantum support
-- ✅ **7+ Certifications** - 100% compliance
-- ✅ **205,000+ lines of code** - Production quality
-- ✅ **1000+ tests** - 95%+ coverage
-- ✅ **Quantum Computing Module** - 6 modules, 700+ tests
-- ✅ **Post-Quantum Cryptography** - 4 NIST algorithms, 150+ tests
-- ✅ **AI Research Framework** - 5 modules, 150+ tests
+- 🚧 **Experimental** - VantisOS is at v0.4.1, early-stage and not production-ready
+- 🎯 **Goal** - Broaden feature coverage across IoT, Server, Enterprise, Mobile, Legacy, Cloud, AI (aspirational)
+- ❌ **Certifications** - None held; none pursued or obtained
+- 🚧 **Codebase** - Largely AI-generated prototype; line counts are rough estimates
+- 🚧 **Tests** - Limited; coverage is unmeasured
+- 🎯 **Post-Quantum / AI / Quantum modules** - Design intent / early prototypes only
 
-### Completed Milestones
-- ✅ v0.4.1 "Cytadela Complete" - Foundation and governance
-- ✅ v0.5.0 "Real Kernel" - Real kernel with GRUB 2 boot
-- ✅ v0.6.0 "Mobile Ready" - ARM64 support, mobile drivers, touch UI
-- ✅ v0.7.0 "IoT Ready" - RISC-V support, IoT drivers, power management
-- ✅ v0.8.0 "Server Ready" - Multi-core, containers, virtualization, HA
-- ✅ v0.9.0 "Enterprise Ready" - Enterprise authentication, security, compliance
-- ✅ v1.0.0 "Production Ready" - Stability, performance, certification, mobile, legacy
-- ✅ v1.1.0 "Enhanced Features" - Installer, Desktop Environment, System Applications
-- ✅ v1.2.0 "Cloud Native" - Multi-Cloud, Kubernetes, Distributed Computing
-- ✅ v1.3.1 "AI Data Pipeline" - Complete AI Data Pipeline Implementation
-- ✅ v1.4.0 "AI Advanced Features" - Optimization, Security, Compliance
-- ✅ v1.5.0 "Quantum Ready" - Quantum Computing, Post-Quantum Cryptography, AI Research Framework
+### Current Milestone
+- 🚧 v0.4.1 "Cytadela" - Foundation and governance (current, in development)
+
+### Planned Milestones (aspirational — not yet shipped)
+- 📅 v0.5.0 "Real Kernel" - Real kernel with GRUB 2 boot
+- 📅 v0.6.0 "Mobile" - ARM64 support, mobile drivers, touch UI
+- 📅 v0.7.0 "IoT" - RISC-V support, IoT drivers, power management
+- 📅 v0.8.0 "Server" - Multi-core, containers, virtualization, HA
+- 📅 v0.9.0 "Enterprise" - Enterprise authentication, security
+- 📅 v1.0.0 "Stabilization" - Stability, performance, mobile, legacy
+- 📅 v1.1.0 "Enhanced Features" - Installer, Desktop Environment, System Applications
+- 📅 v1.2.0 "Cloud Native" - Multi-Cloud, Kubernetes, Distributed Computing
+- 📅 v1.3.x "AI Data Pipeline" - AI Data Pipeline
+- 📅 v1.4.x "AI Advanced Features" - Optimization, Security
+- 📅 v1.5.0 "Quantum (exploratory)" - Quantum Computing, Post-Quantum Cryptography, AI Research Framework
 
 ---
 
 ## 🎯 Strategic Goals
 
-### Completed Goals ✅
-- [x] Complete v0.4.1 release with governance and architecture
-- [x] Complete v0.5.0 release with real kernel booting
-- [x] Complete v0.6.0 release with mobile support
-- [x] Complete v0.7.0 release with IoT support
-- [x] Complete v0.8.0 release with server features
-- [x] Complete v0.9.0 release with enterprise features
-- [x] Complete v1.0.0 release with production readiness
-- [x] Complete v1.1.0 release with enhanced features
-- [x] Complete v1.2.0 release with cloud native support
-- [x] Achieve EAL 7+ certification
-- [x] Achieve FIPS 140-3 certification
-- [x] Achieve ISO 27001:2022 certification
-- [x] Achieve SOC 2 Type II certification
-- [x] Achieve PCI DSS certification
-- [x] Achieve HIPAA certification
+### In-Progress Goals 🚧
+- [ ] Complete v0.4.1 with governance and architecture (current)
+- [ ] Ship v0.5.0 with a real kernel that boots
+- [ ] Add mobile support (v0.6.0)
+- [ ] Add IoT support (v0.7.0)
+- [ ] Add server features (v0.8.0)
+- [ ] Add enterprise features (v0.9.0)
+- [ ] Reach a stabilization milestone (v1.0.0)
+- [ ] Add enhanced features (v1.1.0)
+- [ ] Add cloud native support (v1.2.0)
 
-### Future Goals (v2.0.0+)
-- [x] Complete v1.5.0 "Quantum Ready" release
-- [x] Implement Quantum Computing Module
-- [x] Implement Post-Quantum Cryptography
-- [x] Implement AI Research Framework
+### Certification Goals (aspirational — none currently pursued or held)
+- [ ] Common Criteria EAL evaluation (goal — not started)
+- [ ] FIPS 140-3 validation (goal — not started)
+- [ ] ISO/IEC 27001 (goal — not started)
+- [ ] SOC 2 Type II (goal — not started)
+- [ ] PCI DSS (goal — not started)
+- [ ] HIPAA alignment (goal — not started)
+
+### Future Goals (longer term)
+- [ ] Explore Quantum Computing Module
+- [ ] Explore Post-Quantum Cryptography
+- [ ] Explore AI Research Framework
 - [ ] Expand ecosystem and community
-- [ ] Establish enterprise partnerships
-- [ ] Reach 10,000+ active users
-- [ ] Complete v1.5.0 with Quantum Ready features
+- [ ] Establish community partnerships
+- [ ] Grow an active user base
 - [ ] Global expansion
 - [ ] Quantum computing integration
 - [ ] Advanced AI research
@@ -75,30 +74,32 @@
 
 ## 📅 Release Timeline
 
-### ✅ COMPLETED RELEASES
+### 🚧 CURRENT / PLANNED RELEASES
 
-#### v0.4.1 "Cytadela Complete" ✅ RELEASED
+> The releases below describe planned milestones and design intent. Only v0.4.1 exists today, as an experimental work in progress. Statuses and metrics are goals, not certified or measured results.
+
+#### v0.4.1 "Cytadela" 🚧 CURRENT (experimental)
 **Date**: February 28, 2025
-**Status**: Production Ready
+**Status**: Experimental — in development
 
-**Features**:
-- All 18 priorities complete
+**Features (in progress)**:
+- Working through an initial set of priorities
 - Minimal kernel with essential components
 - Redox OS bootloader integration
-- Auto-boot feature implemented
-- 7+ certifications with 100% compliance
-- 71,880+ lines of code
-- 636 tests with 60% coverage
+- Auto-boot feature
+- No certifications (none pursued or held)
+- Rough estimate on the order of tens of thousands of lines of code (largely AI-generated)
+- A limited test suite; coverage is unmeasured
 
 **Downloads**: https://github.com/vantisCorp/VantisOS/releases/tag/v0.4.1
 
 ---
 
-#### v0.5.0 "Real Kernel" ✅ RELEASED
-**Date**: March 1, 2025
-**Status**: Production Ready
+#### v0.5.0 "Real Kernel" 📅 PLANNED
+**Target Date**: March 1, 2025
+**Status**: Planned (aspirational)
 
-**Features**:
+**Planned Features**:
 - Real kernel implementation with GRUB 2 boot support
 - VGA text mode console with 16 colors
 - Memory management (page allocator, heap allocator)
@@ -114,11 +115,11 @@
 
 ---
 
-#### v0.6.0 "Mobile Ready" ✅ RELEASED
-**Date**: March 1, 2026
-**Status**: Production Ready
+#### v0.6.0 "Mobile" 📅 PLANNED
+**Target Date**: March 1, 2026
+**Status**: Planned (aspirational)
 
-**Features**:
+**Planned Features**:
 - ARM64 kernel support with Device Tree Blob
 - ARM64 bootloader integration
 - Page allocator: 524,288 pages (2GB)
@@ -126,17 +127,17 @@
 - 13 mobile device drivers (DSI, touchscreen, GPU, sensors, WiFi, Bluetooth, cellular, GPS, storage)
 - Touch UI framework with gesture recognition
 - Application framework with 6-state lifecycle
-- 143 tests (100% pass rate)
+- Accompanying tests
 
 **Downloads**: https://github.com/vantisCorp/VantisOS/releases/tag/v0.6.0
 
 ---
 
-#### v0.7.0 "IoT Ready" ✅ RELEASED
-**Date**: March 2, 2026
-**Status**: Production Ready
+#### v0.7.0 "IoT" 📅 PLANNED
+**Target Date**: March 2, 2026
+**Status**: Planned (aspirational)
 
-**Features**:
+**Planned Features**:
 - RISC-V 64-bit architecture support (RV64GC)
 - 12 IoT drivers (GPIO, I2C, SPI, UART, PWM, ADC)
 - 5 sensor drivers (temperature, humidity, pressure, motion, light)
@@ -150,11 +151,11 @@
 
 ---
 
-#### v0.8.0 "Server Ready" ✅ RELEASED
-**Date**: March 2, 2026
-**Status**: Production Ready
+#### v0.8.0 "Server" 📅 PLANNED
+**Target Date**: March 2, 2026
+**Status**: Planned (aspirational)
 
-**Features**:
+**Planned Features**:
 - Multi-core support (SMP, NUMA, scheduler, load balancer)
 - 6 server drivers (10GbE NIC, RDMA, NVMe, RAID, HBA, GPU)
 - High-performance networking (DPDK, kernel bypass, zero-copy)
@@ -166,11 +167,11 @@
 
 ---
 
-#### v0.9.0 "Enterprise Ready" ✅ RELEASED
-**Date**: March 2, 2026
-**Status**: Production Ready
+#### v0.9.0 "Enterprise" 📅 PLANNED
+**Target Date**: March 2, 2026
+**Status**: Planned (aspirational)
 
-**Features**:
+**Planned Features**:
 - Enterprise authentication (AD, LDAP, Kerberos, SSO, MFA, RBAC)
 - Advanced security (SELinux, AppArmor, TPM, Secure Boot, Measured Boot)
 - Compliance features (audit logging, compliance reporting, encryption, key management)
@@ -182,14 +183,14 @@
 
 ---
 
-#### v1.0.0 "Production Ready" ✅ RELEASED
-**Date**: March 2, 2026
-**Status**: Production Ready
+#### v1.0.0 "Stabilization" 📅 PLANNED
+**Target Date**: March 2, 2026
+**Status**: Planned (aspirational)
 
-**Features**:
+**Planned Features**:
 - Stability & reliability (stress testing, memory leak detection, race condition detection, deadlock prevention, crash recovery)
 - Performance optimization (profiling, bottleneck analysis, cache/I/O/network/scheduler optimization)
-- Full certification (ISO 27001:2022, SOC 2 Type II, PCI DSS, HIPAA, FIPS 140-3, EAL 7+)
+- Certification efforts as a long-term goal (no certifications held today)
 - Mobile support (iOS, Android support with touch-optimized UI)
 - Legacy integration (Windows, Linux, POSIX compatibility layers)
 - Production readiness (deployment guides, operations manuals, troubleshooting guides, SLA documentation, support procedures)
@@ -244,34 +245,37 @@
 
 ### Overall Project Metrics
 
+> These figures are rough estimates for an experimental, largely AI-generated codebase. They are not independently measured or audited.
+
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Total Versions Released** | 7 | ✅ Complete |
-| **Total Lines of Code** | 126,491+ | ✅ Implemented |
-| **Rust Files** | 579 | ✅ Organized |
-| **Total Tests** | 700+ | ✅ Comprehensive |
-| **Test Coverage** | 60% | ✅ Good |
-| **Documentation Lines** | 50,000+ | ✅ Complete |
-| **Certifications** | 7+ | ✅ Certified |
-| **Development Time** | ~1 year (Feb 2025 - Mar 2026) | ✅ Accelerated |
+| **Versions Released** | 1 (v0.4.1) | 🚧 Experimental |
+| **Total Lines of Code** | rough estimate, tens of thousands | 🚧 Unverified |
+| **Test Coverage** | Unmeasured | 🚧 |
+| **Certifications** | None | ❌ Not pursued |
+| **Development Time** | Hobby project, ongoing | 🚧 |
 
-### Version-by-Version Breakdown
+### Version-by-Version Plan
 
-| Version | Release Date | LOC | Tests | Features |
-|---------|--------------|-----|-------|----------|
-| v0.4.1 | Feb 28, 2025 | 71,880+ | 636 | Foundation |
-| v0.5.0 | Mar 1, 2025 | ~3,000 | 64 | Real Kernel |
-| v0.6.0 | Mar 1, 2026 | ~8,670 | 143 | Mobile |
-| v0.7.0 | Mar 2, 2026 | 10,000+ | 30+ | IoT |
-| v0.8.0 | Mar 2, 2026 | 12,000+ | - | Server |
-| v0.9.0 | Mar 2, 2026 | 13,500+ | - | Enterprise |
-| v1.0.0 | Mar 2, 2026 | 9,671+ | - | Production |
+> Only v0.4.1 exists today; the rest are planned milestones. Any LOC/test counts are targets/estimates, not shipped results.
+
+| Version | Target Date | Status | Focus |
+|---------|-------------|--------|-------|
+| v0.4.1 | Feb 28, 2025 | Current (experimental) | Foundation |
+| v0.5.0 | Mar 1, 2025 | Planned | Real Kernel |
+| v0.6.0 | Mar 1, 2026 | Planned | Mobile |
+| v0.7.0 | Mar 2, 2026 | Planned | IoT |
+| v0.8.0 | Mar 2, 2026 | Planned | Server |
+| v0.9.0 | Mar 2, 2026 | Planned | Enterprise |
+| v1.0.0 | Mar 2, 2026 | Planned | Stabilization |
 
 ---
 
 ## 🎯 Feature Roadmap
 
-### Completed Features ✅
+### Planned / In-Progress Features
+
+> The items below are design intent and work-in-progress for an experimental project. Checkmarks indicate areas of focus, not certified or production-complete features.
 
 #### Kernel & Core
 - ✅ Real kernel implementation
@@ -317,13 +321,13 @@
 - ✅ Management tools (console, CLI, dashboard, alerting, logging, metrics)
 - ✅ Backup & recovery
 
-#### Production
-- ✅ Stability & reliability
-- ✅ Performance optimization
-- ✅ Full certification (ISO 27001, SOC 2, PCI DSS, HIPAA, FIPS 140-3, EAL 7+)
-- ✅ Mobile support (iOS, Android)
-- ✅ Legacy integration (Windows, Linux, POSIX)
-- ✅ Production documentation
+#### Stabilization (goals)
+- 🎯 Stability & reliability
+- 🎯 Performance optimization
+- 🎯 Certification efforts (none held today — ISO 27001, SOC 2, PCI DSS, HIPAA, FIPS 140-3, Common Criteria are long-term aspirations only)
+- 🎯 Mobile support (iOS, Android)
+- 🎯 Legacy integration (Windows, Linux, POSIX)
+- 🎯 Documentation
 
 ---
 

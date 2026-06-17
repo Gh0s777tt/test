@@ -1,16 +1,16 @@
 # VantisOS - Next Priority Analysis
 **Date**: January 10, 2025  
-**Current Status**: 200 verified functions, 91% overall progress
+**Current Status**: Early-stage prototype. Function counts below are rough tallies of drafted code; "verified" is aspirational (only ~19 Verus proof stubs exist project-wide). Overall progress is hard to quantify and any percentage would be misleading.
 
-## Current Achievements Summary
-- ✅ Neural Scheduler (42 functions) - 2-2.6x faster than Linux CFS
-- ✅ VantisFS (60 functions) - 1.2-1.3x faster than ext4
-- ✅ Vantis Vault (6 functions) - FIPS 140-3 ready
-- ✅ Direct Metal Phase 1 (20 functions) - World's first verified GPU API
-- ✅ IPC Module (31 functions)
-- ✅ Various core modules (41 functions)
+## Current Work Summary (prototype modules — benchmarks below are unmeasured)
+- Neural Scheduler (~42 functions drafted) - performance vs Linux CFS unmeasured
+- VantisFS (~60 functions drafted) - performance vs ext4 unmeasured
+- Vantis Vault (~6 functions drafted) - FIPS 140-3 alignment is a goal, not certified
+- Direct Metal Phase 1 (~20 functions drafted) - experimental GPU API prototype
+- IPC Module (~31 functions drafted)
+- Various core modules (~41 functions drafted)
 
-**Total**: 200 verified functions
+**Total**: ~200 functions drafted (formal verification planned, not complete)
 
 ## Option Analysis
 

@@ -2,12 +2,12 @@
 
 ## Executive Summary
 
-This guide provides a comprehensive implementation plan for the Medical AI subsystem in VantisOS, enabling AI-powered medical diagnostics, patient monitoring, and healthcare applications with HIPAA compliance and medical-grade accuracy.
+This guide provides a comprehensive implementation plan for the Medical AI subsystem in VantisOS, exploring a design for AI-assisted medical diagnostics, patient monitoring, and healthcare applications. The HIPAA, FDA, and accuracy items below are **design goals for a hypothetical future system, not properties of the current code**. This is an experimental hobby project and must NOT be used for real medical decisions.
 
-**Implementation Timeline**: 3 days  
+**Implementation Timeline**: 3 days (estimated)  
 **Complexity**: Very High  
 **Dependencies**: Vantis Core, Vantis Cortex, Vantis Vault  
-**Security Level**: Critical (EAL 7+, HIPAA, FDA 510(k))
+**Security/Compliance Goals**: Security-critical design; HIPAA/FDA 510(k) alignment is an aspirational target only — the project holds no certifications and no regulatory clearance.
 
 ---
 
@@ -72,19 +72,21 @@ This guide provides a comprehensive implementation plan for the Medical AI subsy
 3. **Imaging Analysis**: Medical image analysis (X-ray, MRI, CT)
 4. **Vantis Cortex**: LLM for medical reasoning
 5. **Vantis Vault**: Secure PHI storage
-6. **HIPAA Compliance**: Full HIPAA compliance framework
+6. **HIPAA Alignment**: HIPAA-oriented safeguards framework (design goal — not a compliance guarantee)
 
 ---
 
 ## Technical Requirements
 
-### Medical Standards Compliance
+### Medical Standards (target alignment — none currently met or certified)
 
-- **HIPAA**: Full compliance with HIPAA Privacy and Security Rules
-- **FDA 510(k)**: Medical device software certification
-- **ISO 13485**: Medical device quality management
-- **IEC 62304**: Medical device software lifecycle
-- **DICOM**: Medical imaging standard support
+The following standards would need to be satisfied before any real-world medical use. The current project meets NONE of them and is not certified or cleared by any body:
+
+- **HIPAA**: Privacy and Security Rules (design goal)
+- **FDA 510(k)**: Medical device software clearance (would be required; not obtained)
+- **ISO 13485**: Medical device quality management (not implemented)
+- **IEC 62304**: Medical device software lifecycle (not implemented)
+- **DICOM**: Medical imaging standard support (planned)
 
 ### AI Model Requirements
 
@@ -1647,19 +1649,19 @@ fn setup_monitoring() -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for the Medical AI subsystem in VantisOS. The 3-day timeline covers all critical components including diagnostic engine, monitoring system, imaging analysis, and HIPAA compliance.
 
-**Key Success Metrics:**
-- ✅ >95% diagnostic accuracy
-- ✅ <2% false positive rate
-- ✅ <1% false negative rate
-- ✅ <500ms inference time
-- ✅ Full HIPAA compliance
+**Target Success Metrics (design goals — not measured or achieved):**
+- >95% diagnostic accuracy (target)
+- <2% false positive rate (target)
+- <1% false negative rate (target)
+- <500ms inference time (target)
+- HIPAA alignment (aspirational — not compliant or certified)
 
 **Next Steps:**
 1. Begin implementation following the 3-day plan
 2. Set up testing environment with medical datasets
 3. Integrate with VantisOS build system
-4. Conduct HIPAA compliance audit
-5. Submit for FDA 510(k) certification
+4. (Far-future, only if ever pursued seriously) engage qualified auditors for a HIPAA review
+5. (Far-future, only if ever pursued seriously) prepare for FDA 510(k) clearance — a major regulatory undertaking well beyond a hobby prototype
 
 ---
 

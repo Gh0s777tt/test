@@ -2,7 +2,7 @@
 
 ## Status
 
-**Accepted**
+**Accepted (design only) — not yet implemented.** This ADR records a design decision; the Live Trust Dashboard is an aspirational feature and does not exist yet (see Implementation Status below).
 
 ## Context
 
@@ -28,7 +28,7 @@ VantisOS will implement a **Live Trust Dashboard** for real-time security metric
 3. **Fuzzing metrics**: OSS-Fuzz results in real-time
 4. **Security incidents**: Live count of security events
 5. **System health**: CPU, memory, network health
-6. **Compliance status**: EAL7+, FIPS 140-3, ISO 27001 progress
+6. **Compliance status**: progress toward aspirational certification goals (none currently held — e.g. Common Criteria, FIPS 140-3, ISO 27001 are long-term targets only)
 
 **Metrics Displayed**:
 - **Uptime**: System uptime with error-free days

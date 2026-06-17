@@ -1,8 +1,14 @@
 # RFC-0004: Industry Compliance Certifications Roadmap
 
+> **HONEST NOTE (2026):** None of the certifications discussed in this document
+> exist, have been achieved, or are currently in progress. VantisOS is an
+> experimental, early-stage (v0.4.1) hobby project. This RFC is retained only as
+> a historical record of aspirational intent. Every timeline, cost, and milestone
+> below is hypothetical and was never funded or pursued.
+
 ## Status
 
-Accepted
+Rejected / Aspirational — not pursued
 
 ## Author
 

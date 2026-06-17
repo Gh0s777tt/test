@@ -23,13 +23,13 @@ Based on: [arc42.org](https://arc42.org)
 - [FR-5] Provide modern graphics stack (Vulkan)
 - [FR-6] Implement secure storage (Vault)
 
-**Non-Functional Requirements**:
-- [NFR-1] Formal verification of critical components (EAL7+)
-- [NFR-2] Memory safety (no buffer overflows, use-after-free)
-- [NFR-3] Maximum security (Zero-Trust model)
-- [NFR-4] Performance: ≥ 80% of native for WASM
-- [NFR-5] Reliability: 99.999% uptime
-- [NFR-6] Regulatory compliance: ISO 27001, FIPS 140-3
+**Non-Functional Requirements** (aspirational targets for an experimental project — none achieved or certified):
+- [NFR-1] Formal verification of critical components (long-term goal; high-assurance levels such as Common Criteria EAL 7 are aspirational only)
+- [NFR-2] Memory safety (no buffer overflows, use-after-free) — goal
+- [NFR-3] Strong security (Zero-Trust model) — goal
+- [NFR-4] Performance: ≥ 80% of native for WASM — target, unmeasured
+- [NFR-5] Reliability: high uptime — target, unmeasured
+- [NFR-6] Alignment with standards such as ISO 27001 and FIPS 140-3 — aspirational; not certified
 
 **Quality Goals**:
 1. **Security**: Highest possible security through formal verification
@@ -54,10 +54,12 @@ Based on: [arc42.org](https://arc42.org)
 |-------------|------|----------|
 | End Users | Run applications on VantisOS | Security, reliability |
 | Developers | Build applications for VantisOS | API quality, documentation |
-| Government | Use VantisOS for critical systems | Certifications (EAL7+, ISO 27001) |
-| Aviation | Use VantisOS in aircraft | Safety certification (DO-178C) |
-| Automotive | Use VantisOS in vehicles | Safety certification (ISO 26262) |
+| Government (hypothetical) | Use VantisOS for critical systems | Certifications (aspirational: e.g. EAL 7, ISO 27001 — none held) |
+| Aviation (hypothetical) | Use VantisOS in aircraft | Safety certification (aspirational: DO-178C — not held) |
+| Automotive (hypothetical) | Use VantisOS in vehicles | Safety certification (aspirational: ISO 26262 — not held) |
 | Security Researchers | Audit VantisOS for vulnerabilities | Transparency, formal proofs |
+
+> Note: The stakeholder groups above are illustrative target audiences for the design. VantisOS is an experimental hobby project and holds none of the certifications listed.
 
 ---
 
@@ -76,7 +78,7 @@ Based on: [arc42.org](https://arc42.org)
 1. **Open Source**: Must be open source
 2. **Community-driven**: Community governance
 3. **Documentation**: Docs-as-Code approach
-4. **Certifications**: Must achieve EAL7+, ISO 27001, FIPS 140-3
+4. **Certifications**: Aspirational alignment with standards such as ISO 27001 and FIPS 140-3, and high formal-assurance levels (e.g. Common Criteria EAL 7) — none currently held or in progress
 
 ### 2.3 Political Constraints
 
@@ -142,11 +144,11 @@ graph LR
 
 ### 5.2 Runtime Architecture
 
-**Kernel Components**:
-- Scheduler: AI-powered, verified
-- Memory Manager: Buddy allocator, verified
-- IPC: Capability-based, E2EE, verified
-- Interrupt Handler: Verified
+**Kernel Components** (verification is a goal — these are not yet formally verified):
+- Scheduler: AI-powered (verification planned)
+- Memory Manager: Buddy allocator (verification planned)
+- IPC: Capability-based, E2EE (verification planned)
+- Interrupt Handler (verification planned)
 
 **User-Space Components**:
 - WebAssembly Runtime: AOT compilation

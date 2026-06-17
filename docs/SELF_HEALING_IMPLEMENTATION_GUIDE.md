@@ -4,10 +4,10 @@
 
 This guide provides a comprehensive implementation plan for the Self-Healing system in VantisOS, enabling automatic detection, diagnosis, and recovery from system failures, errors, and anomalies without human intervention.
 
-**Implementation Timeline**: 7 days  
+**Implementation Timeline**: 7 days (estimated)  
 **Complexity**: Very High  
 **Dependencies**: Vantis Core, Spectrum 2.0, Sentinel Drivers  
-**Security Level**: Critical (EAL 7+)
+**Security Level**: Security-critical (target — no formal certification held)
 
 ---
 
@@ -1512,12 +1512,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for the Self-Healing system in VantisOS. The 7-day timeline covers all critical components including failure detection, diagnosis engine, recovery executor, and integration.
 
-**Key Success Metrics:**
-- ✅ <100ms failure detection
-- ✅ >95% root cause accuracy
-- ✅ <5s recovery time
-- ✅ >98% recovery success rate
-- ✅ Zero data loss
+**Target Success Metrics (design goals — not measured or achieved):**
+- <100ms failure detection
+- >95% root cause accuracy
+- <5s recovery time
+- >98% recovery success rate
+- Zero data loss
 
 **Next Steps:**
 1. Begin implementation following the 7-day plan

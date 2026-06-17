@@ -1,24 +1,26 @@
-# 🎊 Final IPC Integration - Complete Verification Achievement
+# 🚧 IPC Integration - Prototype Status
 
 ## Executive Summary
 
-**VantisOS has achieved a historic milestone**: The world's first **fully verified Inter-Process Communication (IPC) system** with all 5 critical properties formally proven and integrated into a production-ready implementation.
+VantisOS includes a prototype Inter-Process Communication (IPC) system whose design targets 5 security properties. This is experimental, early-stage work — the properties are **design intent backed by a handful of proof stubs**, not fully proven, and the implementation is **not** production-ready.
 
-### Achievement Highlights
+### Status Highlights
 
-- ✅ **5/5 Properties Verified** - All critical IPC properties formally proven
-- ✅ **19 Verus Proofs** - Mathematical correctness guaranteed
-- ✅ **19 Kani Checks** - Bounded model checking verified
-- ✅ **80+ Tests** - Comprehensive test coverage (50 unit + 30+ integration)
-- ✅ **Production Ready** - Complete API with error handling
-- ✅ **High Performance** - 50K msg/sec throughput, 16μs latency
+- 🎯 **5 Properties Targeted** - design goals, not fully formally proven
+- 🚧 **~19 Verus proof stubs** - partial; correctness NOT guaranteed
+- 🚧 **A few Kani harnesses** - bounded checks started
+- 🧪 **Some tests** - cover implemented paths (coverage unmeasured)
+- ⚠️ **Not production-ready** - prototype API
+- ❓ **Performance unmeasured** - no benchmarks run (throughput/latency figures below are estimates only)
 
 ---
 
-## 📊 Complete Verification Status
+## 📊 Targeted Properties (verification partial/aspirational)
 
-### Property 1: Message Integrity ✅
-**Status**: VERIFIED  
+> The five properties below are **design goals**. A handful of Verus/Kani stubs exist, but none of these properties is fully formally proven, and the metrics (detection rates, forgery probabilities, etc.) are theoretical targets, not measured results.
+
+### Property 1: Message Integrity
+**Status**: TARGETED (design goal — not fully proven)  
 **Proof Method**: CRC32 checksums with formal verification  
 **Detection Rate**: >99.99% corruption detection  
 **Overhead**: <5μs per message
@@ -28,8 +30,8 @@
 - Checksum verification is mathematically sound
 - Integrity preserved across send/receive
 
-### Property 2: Resource Bounds ✅
-**Status**: VERIFIED  
+### Property 2: Resource Bounds
+**Status**: TARGETED (design goal — not fully proven)  
 **Proof Method**: Bounded resources with formal limits  
 **Limits**: 4KB messages, 64 queue size, 256MB total  
 **Protection**: DoS attack resistant
@@ -39,8 +41,8 @@
 - Memory usage is bounded and tracked
 - Queue overflow is prevented
 
-### Property 3: Information Leakage Prevention ✅
-**Status**: VERIFIED  
+### Property 3: Information Leakage Prevention
+**Status**: TARGETED (design goal — not fully proven)  
 **Proof Method**: Capability-based access control  
 **Security**: Process isolation enforced  
 **Token**: 64-bit unforgeable capability tokens
@@ -50,8 +52,8 @@
 - Capability tokens cannot be forged
 - Process isolation is maintained
 
-### Property 4: Deadlock Freedom ✅
-**Status**: VERIFIED  
+### Property 4: Deadlock Freedom
+**Status**: TARGETED (design goal — not fully proven)  
 **Proof Method**: Wait graph cycle detection  
 **Detection**: Real-time cycle detection  
 **Timeout**: 1 second maximum wait
@@ -61,8 +63,8 @@
 - All processes make progress
 - Timeouts prevent indefinite blocking
 
-### Property 5: Capability Correctness ✅
-**Status**: VERIFIED  
+### Property 5: Capability Correctness
+**Status**: TARGETED (design goal — not fully proven)  
 **Proof Method**: Unforgeable tokens with secure propagation  
 **Forgery Probability**: 2^-64 (negligible)  
 **Revocation**: Immediate and effective
@@ -236,6 +238,8 @@ println!("Queue length: {}", queue_len);
 
 ## 📈 Performance Characteristics
 
+> ⚠️ **All numbers in this section are unverified estimates.** No IPC benchmarks have been run. The throughput, latency, scalability, and overhead tables below are illustrative targets, not measurements.
+
 ### Throughput
 
 | Message Size | Throughput | Notes |
@@ -336,41 +340,42 @@ cargo kani --harness check_message_creation
 
 ## 🔒 Security Guarantees
 
-### Formal Verification
+### Formal Verification (partial / in progress)
 
-All security properties are **mathematically proven** using:
+Verification is a goal, not a completed result. The properties are **not** fully proven. Current state:
 
 1. **Verus** - SMT-based formal verification
-   - 19 theorems proven
-   - Properties verified at compile time
-   - No runtime overhead
+   - ~19 proof stubs (not full theorems)
+   - intended to verify properties at compile time
+   - no runtime overhead
 
 2. **Kani** - Bounded model checking
-   - 19 properties verified
-   - Exhaustive state space exploration
-   - Catches edge cases
+   - a few harnesses started
+   - aims to explore state space and catch edge cases
 
 ### Security Properties
 
-| Property | Guarantee | Verification Method |
-|----------|-----------|-------------------|
-| Message Integrity | >99.99% detection | Verus + Kani + Tests |
-| Resource Bounds | DoS resistant | Verus + Kani + Tests |
-| Access Control | Capability-based | Verus + Kani + Tests |
-| Deadlock Freedom | Progress guaranteed | Verus + Kani + Tests |
-| Capability Security | Unforgeable tokens | Verus + Kani + Tests |
+> "Verification Method" lists the *intended* approach. These are not yet fully verified; "guarantee" should be read as "design goal".
 
-### Attack Resistance
+| Property | Goal | Intended Verification |
+|----------|-----------|-------------------|
+| Message Integrity | corruption detection (CRC32) | Verus + Kani + Tests (partial) |
+| Resource Bounds | DoS resistant | Verus + Kani + Tests (partial) |
+| Access Control | Capability-based | Verus + Kani + Tests (partial) |
+| Deadlock Freedom | progress | Verus + Kani + Tests (partial) |
+| Capability Security | unforgeable tokens | Verus + Kani + Tests (partial) |
+
+### Attack Resistance (intended mechanisms — not verified)
 
 | Attack Type | Protection | Status |
 |------------|-----------|--------|
-| Message Corruption | CRC32 checksums | ✅ Verified |
-| DoS (Memory) | Bounded resources | ✅ Verified |
-| DoS (CPU) | Timeouts | ✅ Verified |
-| Unauthorized Access | Capabilities | ✅ Verified |
-| Deadlock | Cycle detection | ✅ Verified |
-| Token Forgery | 64-bit secret | ✅ Verified |
-| Replay Attacks | Timestamps | ✅ Implemented |
+| Message Corruption | CRC32 checksums | 🚧 Prototype |
+| DoS (Memory) | Bounded resources | 🚧 Prototype |
+| DoS (CPU) | Timeouts | 🚧 Prototype |
+| Unauthorized Access | Capabilities | 🚧 Prototype |
+| Deadlock | Cycle detection | 🚧 Prototype |
+| Token Forgery | 64-bit secret | 🚧 Prototype |
+| Replay Attacks | Timestamps | 🚧 Prototype |
 
 ---
 
@@ -527,38 +532,30 @@ let received = ipc.receive(receiver)?;
 2. Klein et al. "Comprehensive Formal Verification of an OS Microkernel" (2014)
 3. Liedtke, J. "On μ-Kernel Construction" (1995)
 
-### Standards
+### Standards (references / inspiration — not claims of compliance)
 
 - POSIX.1-2017 (Message Queues)
 - ISO/IEC 9945 (POSIX)
-- Common Criteria EAL 7+
+- Common Criteria (EAL 7+ as a distant aspiration; no certification held)
 
 ---
 
-## 🎊 Achievement Summary
+## 🎯 Goals Summary
 
-### World-First Accomplishments
+### What this prototype is aiming for (not yet achieved)
 
-VantisOS IPC system is the **world's first** to achieve:
+1. Formal verification of all 5 IPC properties (currently ~19 stubs)
+2. A usable verified IPC implementation (not production-ready today)
+3. Low verification overhead
+4. Good throughput (unbenchmarked)
+5. Capability-based security with formal proofs (in progress)
+6. Deadlock prevention (prototype mechanism)
+7. A solid test suite (some tests; coverage unmeasured)
+8. Real-world performance with formal correctness
 
-1. ✅ Complete formal verification of all 5 IPC properties
-2. ✅ Production-ready verified IPC implementation
-3. ✅ Sub-microsecond verification overhead
-4. ✅ 50K+ msg/sec throughput with full verification
-5. ✅ Capability-based security with formal proofs
-6. ✅ Deadlock prevention with mathematical guarantees
-7. ✅ 80+ comprehensive tests with 100% critical path coverage
-8. ✅ Real-world performance with formal correctness
+### Reality
 
-### Impact
-
-This achievement represents a **fundamental breakthrough** in operating system security and reliability:
-
-- **First OS** with fully verified IPC
-- **Highest assurance** IPC system ever created
-- **Production ready** with excellent performance
-- **Open source** for community benefit
-- **Extensible** architecture for future enhancements
+This is an experimental, largely AI-generated hobby project. The IPC system is an early prototype, not a verified, production-ready, or "world-first" artifact. The architecture is intended to be extensible for future work.
 
 ---
 
@@ -602,12 +599,10 @@ VantisOS IPC system is licensed under MIT License. See [LICENSE](../../LICENSE) 
 
 ---
 
-**🎊 Congratulations on completing the world's first fully verified IPC system! 🎊**
-
-*This document represents a historic achievement in operating system development.*
+*This document describes an early prototype IPC system in an experimental hobby OS. Verification and performance claims herein are goals, not finished results.*
 
 ---
 
 *Last Updated: February 9, 2025*  
-*Version: 1.0.0*  
-*Status: Production Ready ✅*
+*Project Version: 0.4.1 (experimental)*  
+*Status: 🚧 Prototype — not production-ready*

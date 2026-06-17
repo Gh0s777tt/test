@@ -3,8 +3,7 @@
 This directory contains the complete build system for creating a bootable VantisOS ISO image.
 
 ## Version
-- **Version**: 1.5.0
-- **Codename**: Quantum Ready
+- **Version**: 0.4.1 (experimental, early-stage hobby project — not production-ready)
 
 ## Quick Start
 
@@ -18,13 +17,13 @@ chmod +x build.sh
 ### Run in QEMU
 
 ```bash
-qemu-system-x86_64 -cdrom VantisOS-1.5.0.iso -m 512M
+qemu-system-x86_64 -cdrom VantisOS-0.4.1.iso -m 512M
 ```
 
 ### Write to USB
 
 ```bash
-sudo dd if=VantisOS-1.5.0.iso of=/dev/sdX bs=4M status=progress && sync
+sudo dd if=VantisOS-0.4.1.iso of=/dev/sdX bs=4M status=progress && sync
 ```
 
 ## Directory Structure

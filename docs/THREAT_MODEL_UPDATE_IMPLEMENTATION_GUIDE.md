@@ -4,10 +4,10 @@
 
 This guide provides a comprehensive implementation plan for updating the threat model of VantisOS, ensuring comprehensive security analysis, vulnerability identification, and threat mitigation strategies.
 
-**Implementation Timeline**: 2 days  
+**Implementation Timeline**: 2 days (estimate)  
 **Complexity**: High  
 **Dependencies**: Spectrum 2.0, Vantis Vault  
-**Security Level**: Critical (EAL 7+)
+**Security Level**: Critical (target — EAL 7+ is an aspirational goal, not a held certification)
 
 ---
 
@@ -136,12 +136,12 @@ impl VulnerabilityScanner {
 
 ## Security Standards
 
-### Compliance Requirements
-- ✅ STRIDE threat modeling
-- ✅ OWASP Top 10 coverage
-- ✅ CVE database integration
-- ✅ Risk assessment framework
-- ✅ Mitigation planning
+### Design Targets (planned — not yet implemented)
+- STRIDE threat modeling
+- OWASP Top 10 coverage
+- CVE database integration
+- Risk assessment framework
+- Mitigation planning
 
 ---
 
@@ -173,17 +173,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 ## Conclusion
 
-This implementation guide provides a comprehensive plan for updating the threat model of VantisOS. The 2-day timeline covers all critical components including threat model analyzer, vulnerability scanner, and risk assessment.
+This implementation guide provides a plan for updating the threat model of VantisOS. The 2-day timeline is an estimate covering the proposed components: threat model analyzer, vulnerability scanner, and risk assessment.
 
-**Key Success Metrics:**
-- ✅ Comprehensive threat analysis
-- ✅ <10s vulnerability scanning
-- ✅ STRIDE threat modeling
-- ✅ Complete security coverage
+**Target Success Metrics (goals — not yet achieved):**
+- Comprehensive threat analysis
+- <10s vulnerability scanning (target)
+- STRIDE threat modeling
+- Broad security coverage
 
 ---
 
 **Document Version**: 1.0  
 **Last Updated**: February 24, 2025  
-**Author**: SuperNinja AI Agent  
-**Status**: Implementation Guide
+**Status**: Implementation Guide (planned design — experimental hobby project)

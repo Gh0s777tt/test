@@ -1,18 +1,18 @@
 # 🚀 VANTIS OS - Next Steps Action Plan
 
-## 📊 Current State
-- **Progress**: 89% complete
-- **Verified Functions**: 179/200 (89.5%)
-- **Phases Complete**: 1.2 (Neural Scheduler), 1.3 (VantisFS), 2.1 (Vantis Vault)
-- **Ready for Certification**: EAL 7+, FIPS 140-3
+## 📊 Current State (experimental hobby project, v0.4.1)
+- **Status**: Early-stage prototype, largely AI-generated. NOT production-ready.
+- **Verified Functions**: a handful of Verus proof stubs exist (~19); most verification is aspirational
+- **Phases In Progress**: Neural Scheduler, VantisFS, Vantis Vault (all prototype-stage)
+- **Certification**: None. EAL 7+ / FIPS 140-3 are long-term aspirations, not current status.
 
 ---
 
 ## 🎯 Recommended Next Steps (Priority Order)
 
 ### Option 1: Quick Wins - Benchmarking (2-3 hours)
-**Why**: Validate our extraordinary claims with hard data
-**Impact**: Marketing, credibility, technical validation
+**Why**: Establish baseline performance data (currently unmeasured)
+**Impact**: Technical validation, honest numbers to replace estimates
 
 **Tasks**:
 1. Create comprehensive benchmark suite
@@ -94,9 +94,9 @@
 **Start with Option 1 (Benchmarking)** for these reasons:
 
 1. **Quick Win**: 2-3 hours to complete
-2. **High Value**: Validates all our work with hard data
-3. **Marketing**: Provides concrete numbers for documentation
-4. **Confidence**: Confirms our implementations are competitive
+2. **Honest Data**: Replaces unmeasured estimates with real numbers
+3. **Documentation**: Provides concrete numbers to cite instead of guesses
+4. **Reality Check**: Shows how the prototype actually performs
 5. **Foundation**: Establishes baseline for future optimizations
 
 After benchmarking, we can tackle **Option 2 (Vantis Aegis)** or **Option 3 (Direct Metal)** depending on your preference for gaming support.
@@ -126,9 +126,7 @@ Remaining work to reach 100%:
 - Phase 6: Ecosystem - 40-50 functions
 - Phase 7: Deployment - 20-30 functions
 
-**Total Remaining**: ~230-290 functions
-**Current**: 179 functions
-**Target for 100%**: ~410-470 total functions
+**Note**: Function counts above are rough planning estimates for scope, not a measured tally of completed/verified work. Actual implemented-and-verified code is far smaller (prototype stage).
 
 ---
 

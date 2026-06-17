@@ -27,14 +27,14 @@ OSS-Fuzz is a free service that:
 - **Bug Reports**: Automatic bug reporting to GitHub
 
 ### Quality
-- **High Coverage**: Achieves >87% code coverage
+- **Coverage**: Higher code coverage is a goal (current coverage is unmeasured)
 - **Corpus Management**: Automatic corpus pruning and minimization
 - **Regression Testing**: Prevents reintroduction of fixed bugs
 - **Performance**: Fast feedback on code changes
 
 ### Compliance
-- **Formal Verification**: Complements formal verification efforts
-- **Security Certifications**: Supports Common Criteria EAL7+ certification
+- **Formal Verification**: Complements the project's (partial, in-progress) formal verification efforts
+- **Security Certifications**: Continuous fuzzing is generally useful evidence toward future certification work; VantisOS holds no Common Criteria / EAL certification
 - **Audit Trail**: Complete history of fuzzing results
 - **Transparency**: Publicly visible fuzzing status
 
@@ -420,13 +420,15 @@ cargo fuzz coverage ipc_fuzzer
 
 ### Coverage Goals
 
+Targets are aspirational. The "Current" column is not yet measured — fuzzing integration is being set up, so no baseline coverage figures exist.
+
 | Component | Target | Current |
 |-----------|--------|---------|
-| IPC System | 95% | 92.1% |
-| Scheduler | 90% | 87.3% |
-| Memory Manager | 95% | 89.7% |
-| VantisFS | 90% | 85.4% |
-| Vantis Vault | 95% | 91.2% |
+| IPC System | 95% | not measured |
+| Scheduler | 90% | not measured |
+| Memory Manager | 95% | not measured |
+| VantisFS | 90% | not measured |
+| Vantis Vault | 95% | not measured |
 
 ---
 

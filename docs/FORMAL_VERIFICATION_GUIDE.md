@@ -17,12 +17,14 @@
 
 ## Introduction
 
-Formal verification is the process of mathematically proving that code behaves correctly according to its specification. For VANTIS OS, formal verification is essential for:
+Formal verification is the process of mathematically proving that code behaves correctly according to its specification. For VANTIS OS, formal verification is a long-term goal that aims to provide:
 
-- **EAL 7+ Certification**: Requires mathematical proof of correctness
-- **Security Guarantees**: Prove absence of vulnerabilities
+- **Security Guarantees**: Prove absence of certain classes of vulnerabilities
 - **Memory Safety**: Verify no buffer overflows or use-after-free
 - **Correctness**: Ensure algorithms work as intended
+- **Certification readiness (aspirational)**: Support a possible future high-assurance evaluation (e.g. Common Criteria). VantisOS is not certified to any such level today.
+
+> Status: Formal verification in VantisOS is currently partial and aspirational. Only a small number of Verus proof stubs exist; the bulk of the codebase is not yet formally verified.
 
 ---
 
@@ -38,13 +40,15 @@ Formal verification is the process of mathematically proving that code behaves c
 | Cost | Lower | Higher |
 | Confidence | Medium | Very High |
 
-### VANTIS OS Requirements
+### VANTIS OS Goals
 
-For EAL 7+ certification, we need:
-- **Formal specification** of all security-critical components
+To work toward a possible future high-assurance evaluation (aspirational — not currently pursued or held), the long-term goals are:
+- **Formal specification** of security-critical components
 - **Mathematical proofs** that implementation matches specification
 - **Verified absence** of common vulnerabilities
 - **Documented proof methodology**
+
+These remain goals; today only a handful of components have proof stubs.
 
 ---
 

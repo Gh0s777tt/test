@@ -50,11 +50,11 @@ The Nexus Server is the centralized management, monitoring, and compliance platf
 
 ### Key Design Principles
 
-1. **Zero-Trust Architecture**: All communications encrypted end-to-end
-2. **Scalability**: Support 10,000+ concurrent VantisOS instances
-3. **High Availability**: 99.99% uptime with automatic failover
-4. **Compliance-First**: Built-in SOC 2, ISO 27001, PCI DSS reporting
-5. **Privacy-Preserving**: Data minimization and anonymization
+1. **Zero-Trust Architecture**: All communications encrypted end-to-end (design goal)
+2. **Scalability**: Target support for 10,000+ concurrent VantisOS instances (unmeasured)
+3. **High Availability**: Automatic failover with high-uptime as a design target
+4. **Compliance Tooling**: Planned reporting helpers modeled on SOC 2 / ISO 27001 / PCI DSS control structures. These generate self-assessment reports only — VantisOS itself holds none of these certifications.
+5. **Privacy-Preserving**: Data minimization and anonymization (design goal)
 
 ---
 
@@ -1215,7 +1215,7 @@ vantis-cli update install --node-id <node-id> --version 0.5.0
 
 ## Conclusion
 
-The Nexus Server is a critical component of the VantisOS ecosystem, providing centralized management, compliance reporting, and secure update distribution. This implementation guide provides a comprehensive roadmap for building a production-ready Nexus Server that meets enterprise and government requirements.
+The Nexus Server is a planned component of the VantisOS ecosystem, intended to provide centralized management, compliance reporting, and secure update distribution. This implementation guide provides a roadmap for building an experimental Nexus Server. It is a design proposal — the component is not built, not production-ready, and makes no certified compliance guarantees.
 
 **Next Steps**:
 1. Set up development environment

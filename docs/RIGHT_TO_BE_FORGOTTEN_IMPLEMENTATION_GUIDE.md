@@ -4,10 +4,10 @@
 
 This guide provides a comprehensive implementation plan for the "Right to be Forgotten" (GDPR Article 17) feature in VantisOS, enabling users to request complete deletion of their personal data from the system.
 
-**Implementation Timeline**: 2 days  
+**Implementation Timeline**: 2 days (estimated)  
 **Complexity**: High  
 **Dependencies**: Vantis Vault, Spectrum 2.0  
-**Security Level**: Critical (EAL 7+, GDPR Compliance)
+**Security Level**: Security-critical design; aims to support GDPR Article 17 workflows (goal — not audited or certified for compliance)
 
 ---
 
@@ -123,13 +123,13 @@ impl VerificationSystem {
 
 ## GDPR Compliance
 
-### Article 17 Requirements
-- ✅ Right to erasure ("right to be forgotten")
-- ✅ Automated deletion process
-- ✅ Complete audit trail
-- ✅ Verification of deletion
-- ✅ Backup deletion
-- ✅ User notification
+### Article 17 Requirements (design checklist — these are the capabilities the design aims to provide, not verified/certified compliance)
+- [ ] Right to erasure ("right to be forgotten")
+- [ ] Automated deletion process
+- [ ] Complete audit trail
+- [ ] Verification of deletion
+- [ ] Backup deletion
+- [ ] User notification
 
 ---
 
@@ -167,11 +167,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for GDPR Article 17 compliance in VantisOS. The 2-day timeline covers all critical components including data deletion engine, verification system, and audit logging.
 
-**Key Success Metrics:**
-- ✅ Complete data deletion
-- ✅ <10s processing time
-- ✅ Full GDPR compliance
-- ✅ Complete audit trail
+**Target Success Metrics (goals — not yet implemented or verified):**
+- Complete data deletion
+- <10s processing time
+- GDPR Article 17 alignment (aspirational — not a compliance guarantee)
+- Complete audit trail
 
 ---
 

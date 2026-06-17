@@ -113,13 +113,12 @@ Welcome to the VantisOS documentation hub. This page provides a comprehensive ov
 
 ---
 
-## 📊 Project Statistics
+## 📊 Project Status
 
-- **Version:** v1.4.1
-- **Documentation Files:** 400+
-- **Code Lines:** 250,000+
-- **Test Coverage:** 95%
-- **Security Level:** EAL 7+
+- **Version:** v0.4.1 (experimental, early-stage hobby project)
+- **Maturity:** Not certified, not audited, not production-ready
+- **Formal Verification:** Partial / aspirational (a small number of Verus proof stubs)
+- **Performance:** Unmeasured
 
 ---
 
@@ -145,5 +144,4 @@ Looking for something specific? Use these categories:
 
 ---
 
-**Last Updated:** March 5, 2025
-**Documentation Version:** v1.4.1
+**Documentation Version:** v0.4.1 (experimental)

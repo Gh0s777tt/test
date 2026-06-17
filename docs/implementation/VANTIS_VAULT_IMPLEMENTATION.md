@@ -3,9 +3,12 @@
 ## 📋 Overview
 
 **Module**: `src/verified/vault.rs`  
-**Date**: January 10, 2025  
-**Status**: 🟡 Framework Complete, Crypto Algorithms Pending  
-**Purpose**: Cascade encryption with formal verification for EAL 7+ and FIPS 140-3
+**Status**: 🟡 Experimental prototype — framework scaffolding only, crypto algorithms are placeholders  
+**Purpose**: Experimental cascade-encryption design exploring formal verification. EAL 7+ and FIPS 140-3 are aspirational long-term goals only — the project is NOT certified and holds no such validation.
+
+> **Reality check:** VantisOS is an early-stage (v0.4.1) hobby project. This module
+> is a prototype: the cryptographic algorithms below are placeholders, the "proofs"
+> are a handful of stubs, and nothing here is audited, certified, or production-ready.
 
 ---
 
@@ -18,10 +21,10 @@
 - **Side-Channel Resistance**: Constant-time operations
 - **Formal Verification**: Mathematical proofs of correctness
 
-### Certification Targets
-- **FIPS 140-3 Level 4**: Highest cryptographic module security
-- **EAL 7+**: Formally verified design and implementation
-- **Common Criteria**: Protection Profile compliance
+### Certification Targets (aspirational — none achieved or in progress)
+- **FIPS 140-3 Level 4**: Long-term goal only — not pursued, not validated
+- **EAL 7+**: Long-term goal only — not certified
+- **Common Criteria**: Long-term goal only — no Protection Profile compliance claimed
 
 ---
 
@@ -145,12 +148,12 @@ fn verify_panic_zeroization() {
 - ✅ Panic mode implementation
 - ✅ Error handling
 
-#### 3. Formal Verification
-- ✅ 3 Verus specifications
-- ✅ 4 Kani verification harnesses
-- ✅ 11 comprehensive unit tests
-- ✅ Key zeroization proofs
-- ✅ Roundtrip correctness proofs
+#### 3. Formal Verification (early stubs only)
+- 🟡 A few Verus specification stubs
+- 🟡 A few Kani harness stubs
+- 🟡 Unit tests for the framework scaffolding
+- 🟡 Key zeroization checks (prototype)
+- 🟡 Roundtrip checks over placeholder ciphers (not meaningful crypto verification)
 
 ### 🟡 Pending Components
 
@@ -250,10 +253,9 @@ fn verify_encrypt_decrypt_roundtrip() {
 11. **test_vault_debug_output** - Key redaction
 
 ### Test Coverage
-- **Lines Covered**: 100%
-- **Branches Covered**: 100%
-- **Edge Cases**: All tested
-- **Security Properties**: All verified
+- Tests cover the framework scaffolding (key handling, panic path, API surface)
+- Coverage is unmeasured; the placeholder ciphers do not exercise real crypto paths
+- Security properties are aspirational, not yet meaningfully verified
 
 ---
 
@@ -297,17 +299,16 @@ fn verify_encrypt_decrypt_roundtrip() {
 
 | System | Encryption | Verification | FIPS 140-3 |
 |--------|-----------|--------------|------------|
-| **VANTIS OS** | **Cascade (3 layers)** | **Verus+Kani** | **Target** |
+| **VANTIS OS** | Cascade design (3 layers, placeholder impl) | Verus+Kani (stubs) | Not certified (aspirational) |
 | Linux | Single algorithm | None | Module available |
 | seL4 | Not included | N/A | N/A |
 | Windows | BitLocker (AES) | None | Certified |
 | macOS | FileVault (AES) | None | Certified |
 
-**Advantages**:
-- Only OS with cascade encryption
-- Only OS with formally verified crypto
-- Highest security margin
-- Algorithm diversity
+**Design intent** (not yet realized):
+- Cascade encryption layering
+- Exploratory formal verification of crypto
+- Algorithm diversity as a defense-in-depth goal
 
 ---
 
@@ -315,12 +316,12 @@ fn verify_encrypt_decrypt_roundtrip() {
 
 ### Threat Model
 
-#### Protected Against
-- ✅ Algorithm-specific attacks (cascade provides redundancy)
-- ✅ Key extraction (secure zeroization)
-- ✅ Memory dumps (keys cleared on panic)
-- ✅ Side-channel attacks (constant-time operations planned)
-- ✅ Implementation bugs (formal verification)
+#### Intended Protections (design goals — not all realized)
+- 🟡 Algorithm-specific attacks (cascade redundancy — once real ciphers land)
+- 🟡 Key extraction (zeroization prototype in place)
+- 🟡 Memory dumps (keys cleared on panic — prototype)
+- 🟡 Side-channel attacks (constant-time operations planned)
+- 🟡 Implementation bugs (formal verification aspirational)
 
 #### Future Protections
 - 🟡 Quantum attacks (post-quantum layer planned)
@@ -389,7 +390,7 @@ Trade-off: Maximum security vs performance
 1. **Cascade vs Single Algorithm**
    - Chose cascade for maximum security
    - Trade-off: Performance for security
-   - Justification: EAL 7+ requires highest assurance
+   - Justification: aiming for a high assurance bar (aspirational; not certified)
 
 2. **256-bit Keys**
    - Chose 256-bit for all algorithms
@@ -422,12 +423,12 @@ Trade-off: Maximum security vs performance
 
 ## ✅ Current Status
 
-### Framework Complete
-- ✅ Key management infrastructure
-- ✅ Vault interface and API
-- ✅ Panic protocol implementation
-- ✅ Formal verification framework
-- ✅ Comprehensive testing
+### Framework Scaffolding (prototype)
+- 🟡 Key management infrastructure (prototype)
+- 🟡 Vault interface and API (prototype)
+- 🟡 Panic protocol implementation (prototype)
+- 🟡 Formal verification scaffolding (stubs only)
+- 🟡 Tests for the scaffolding
 - ✅ Documentation
 
 ### Next Milestone
@@ -440,20 +441,18 @@ Trade-off: Maximum security vs performance
 
 ## 🌟 Bottom Line
 
-**Vantis Vault provides a formally verified cryptographic framework with:**
-- ✅ Cascade encryption architecture (3 layers)
-- ✅ Secure key management with zeroization
-- ✅ Panic protocol for emergency key destruction
-- ✅ Complete formal verification
-- ✅ 100% test coverage
-- ✅ Foundation for FIPS 140-3 and EAL 7+ certification
+**Vantis Vault is an experimental prototype of a cascade-encryption framework with:**
+- 🟡 Cascade encryption architecture (3 layers — design + placeholder impl)
+- 🟡 Key management with zeroization (prototype)
+- 🟡 Panic protocol for emergency key destruction (prototype)
+- 🟡 Early formal-verification scaffolding (stubs)
+- 🟡 Tests for the scaffolding (coverage unmeasured)
+- 🟡 FIPS 140-3 / EAL 7+ are aspirational goals only — nothing is certified
 
-**This is the first formally verified cascade encryption implementation in an operating system, providing unprecedented security assurance.**
+**This is an exploratory hobby-project prototype, not a finished, audited, or
+production-ready cryptographic module.**
 
 ---
 
-**Implementation Date**: January 10, 2025  
-**Status**: 🟡 Framework Complete (Crypto Algorithms Pending)  
-**Lines of Code**: ~600 lines  
-**Verification Coverage**: 100% (framework)  
-**Next Phase**: AES-256 implementation with formal verification
+**Status**: 🟡 Prototype (crypto algorithms are placeholders)  
+**Next Phase**: Replace placeholder ciphers with real AES-256 and add meaningful verification

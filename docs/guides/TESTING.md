@@ -50,12 +50,14 @@ VantisOS employs a multi-layered testing approach:
 
 ### Test Statistics
 
+> **Note**: VantisOS is an early-stage experimental project. There is no large, measured test suite yet, and the counts/pass-rates below are illustrative of the intended structure — not actual results. Formal verification currently consists of ~19 Verus proof stubs.
+
 | Category | Count | Pass Rate |
 |----------|-------|-----------|
-| Unit Tests | 5,000+ | 99.9% |
-| Integration Tests | 1,200+ | 99.5% |
-| System Tests | 300+ | 98.5% |
-| Formal Verifications | 2,500+ | 100% |
+| Unit Tests | prototype (few) | not measured |
+| Integration Tests | not yet | — |
+| System Tests | not yet | — |
+| Formal Verifications | ~19 proof stubs | aspirational |
 
 ---
 
@@ -651,14 +653,16 @@ open tarpaulin-report.html
 
 ### Coverage Targets
 
+> "Current" coverage is not yet measured — the values below are **target goals only**.
+
 | Component | Target | Current |
 |-----------|--------|---------|
-| Kernel Core | 95% | 94.5% |
-| Memory Manager | 98% | 97.2% |
-| Scheduler | 95% | 96.1% |
-| IPC | 90% | 88.5% |
-| Drivers | 85% | 82.3% |
-| Userspace | 80% | 78.9% |
+| Kernel Core | 95% | not measured |
+| Memory Manager | 98% | not measured |
+| Scheduler | 95% | not measured |
+| IPC | 90% | not measured |
+| Drivers | 85% | not measured |
+| Userspace | 80% | not measured |
 
 ### Improving Coverage
 
@@ -750,4 +754,4 @@ cargo test -- --test-threads=1
 
 ---
 
-*Last updated: March 2025 | VantisOS v1.4.0*
+*Last updated: March 2025 | VantisOS v0.4.1 (experimental)*

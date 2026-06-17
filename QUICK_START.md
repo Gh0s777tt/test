@@ -1,6 +1,6 @@
 # 🚀 VantisOS Quick Start Guide
 
-Welcome to VantisOS - A formally verified, mathematically proven operating system built with Rust and Verus.
+Welcome to VantisOS - an experimental, early-stage operating system built with Rust, with formal verification of selected components as an aspirational goal (partial/in-progress).
 
 ---
 
@@ -48,7 +48,7 @@ cd VantisOS
 
 ## 🐳 Cloud Native Quick Start
 
-VantisOS v1.4.0 includes comprehensive AI features, advanced security, and cloud-native capabilities:
+VantisOS includes experimental, work-in-progress AI features, security, and cloud-native capabilities:
 
 ### 1. Set up Cloud Provider Credentials
 
@@ -227,14 +227,13 @@ sudo apt-get install qemu-system-x86
 
 ---
 
-## 📈 Metrics
+## 📈 Project Status
 
-- **Version**: v1.4.0 "AI Advanced Features"
-- **Lines of Code**: ~141,000+
-- **Test Coverage**: 65% (800+ tests)
-- **Supported Architectures**: x86_64, ARM64, RISC-V
-- **Cloud Providers**: AWS, Azure, GCP
-- **Certifications**: ISO 27001:2022, SOC 2 Type II, PCI DSS, HIPAA, FIPS 140-3, EAL 7+
+- **Version**: v0.4.1 (experimental, early-stage hobby project)
+- **Status**: Not production-ready; not audited; not certified
+- **Supported Architectures (targets)**: x86_64, ARM64, RISC-V
+- **Cloud Providers (planned/experimental)**: AWS, Azure, GCP
+- **Certifications**: None. Formal verification is partial/aspirational (a small number of Verus proof stubs exist); test coverage and performance are unmeasured.
 
 ---
 

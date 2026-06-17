@@ -3,27 +3,29 @@
 ## 📋 Overview
 
 **Module**: `src/verified/ipc.rs`  
-**Size**: 800+ lines  
-**Status**: ✅ Complete  
+**Size**: ~800 lines  
+**Status**: Prototype / in progress  
 **Date**: January 10, 2025
+
+> Note: This summary describes the intended design of the IPC module. The module is an early prototype. Formal verification across VantisOS is at a very early stage (only a handful of Verus proof stubs exist), so "verified" / "proven" below should be read as design intent and goals, not completed proofs. Function, harness, and coverage counts are targets.
 
 ---
 
 ## 🎯 Implementation Goals
 
-### Primary Objectives
-1. ✅ Message passing with formal verification
-2. ✅ Capability-based security
-3. ✅ Priority-based message queues
-4. ✅ Bounded resource usage
-5. ✅ Deadlock prevention
+### Primary Objectives (goals)
+1. Message passing with formal verification
+2. Capability-based security
+3. Priority-based message queues
+4. Bounded resource usage
+5. Deadlock prevention
 
-### Properties Proven
-1. ✅ **Message Integrity**: Messages delivered without corruption
-2. ✅ **No Information Leakage**: Processes cannot read unauthorized messages
-3. ✅ **Capability Correctness**: Capability propagation is secure
-4. ✅ **Resource Bounds**: Message queues have bounded size
-5. ✅ **Priority Ordering**: Higher priority messages delivered first
+### Properties Targeted (intended — not yet formally proven)
+1. **Message Integrity**: Messages delivered without corruption
+2. **No Information Leakage**: Processes cannot read unauthorized messages
+3. **Capability Correctness**: Capability propagation is secure
+4. **Resource Bounds**: Message queues have bounded size
+5. **Priority Ordering**: Higher priority messages delivered first
 
 ---
 
@@ -47,7 +49,7 @@ pub struct Message {
 - Capability transfer support
 - Validation on creation
 
-**Verified Functions**: 7
+**Functions** (~7; verification planned):
 - `new()` - Create message with validation
 - `is_valid()` - Check message validity
 - `add_capability()` - Add transferable capability
@@ -68,7 +70,7 @@ pub struct MessageQueue {
 - Efficient insertion and removal
 - Sender-based filtering
 
-**Verified Functions**: 8
+**Functions** (~8; verification planned):
 - `new()` - Create queue
 - `enqueue()` - Add message (maintains priority order)
 - `dequeue()` - Remove highest priority message
@@ -77,11 +79,11 @@ pub struct MessageQueue {
 - `clear()` - Empty queue
 - `is_empty()`, `is_full()`, `len()` - Status checks
 
-**Formal Properties**:
-- ✅ Queue never exceeds max size
-- ✅ Messages always sorted by priority
-- ✅ Only addressed messages can be enqueued
-- ✅ Dequeue returns highest priority message
+**Intended Properties (not yet proven)**:
+- Queue never exceeds max size
+- Messages always sorted by priority
+- Only addressed messages can be enqueued
+- Dequeue returns highest priority message
 
 ### 3. Capability System
 ```rust
@@ -99,7 +101,7 @@ pub enum Capability {
 - Capability checking before operations
 - Prevents unauthorized communication
 
-**Verified Functions**: 4
+**Functions** (~4; verification planned):
 - `can_send()` - Check send permission
 - `can_receive()` - Check receive permission
 - `can_transfer()` - Check transfer permission
@@ -120,7 +122,7 @@ pub struct IpcManager {
 - Capability management
 - Message routing
 
-**Verified Functions**: 12
+**Functions** (~12; verification planned):
 - `new()` - Create IPC manager
 - `create_queue()` - Create queue for process
 - `delete_queue()` - Delete queue and cleanup
@@ -133,17 +135,19 @@ pub struct IpcManager {
 - `queue_stats()` - Get queue statistics
 - Internal helpers
 
-**Formal Properties**:
-- ✅ Only processes with Send capability can send
-- ✅ Messages only delivered to intended receiver
-- ✅ Queue cleanup on process termination
-- ✅ Capability revocation is immediate
+**Intended Properties (not yet proven)**:
+- Only processes with Send capability can send
+- Messages only delivered to intended receiver
+- Queue cleanup on process termination
+- Capability revocation is immediate
 
 ---
 
-## 🔬 Verification Coverage
+## 🔬 Verification Coverage (planned)
 
-### Kani Harnesses (5)
+> The harnesses and tests below are the intended verification plan for this module. They are not all implemented yet.
+
+### Kani Harnesses (planned, ~5)
 1. **verify_message_creation**
    - Tests message creation with valid parameters
    - Verifies message validity checks
@@ -169,7 +173,7 @@ pub struct IpcManager {
    - Verifies grant and revoke operations
    - Confirms capability checking
 
-### Unit Tests (10+)
+### Unit Tests (planned, ~10)
 1. `test_message_creation` - Basic message creation
 2. `test_message_too_large` - Size limit enforcement
 3. `test_queue_operations` - Queue enqueue/dequeue
@@ -178,28 +182,28 @@ pub struct IpcManager {
 6. `test_capability_enforcement` - Capability checking
 7. Additional edge case tests
 
-**Test Coverage**: 100% of implemented code
+**Test Coverage**: not yet measured
 
 ---
 
 ## 📊 Statistics
 
-### Code Metrics
+### Code Metrics (approximate; verification/tests are targets, not yet complete)
 ```
-Total Lines:              800+
-Verified Functions:       31
-Formal Specifications:    20+
-Kani Harnesses:          5
-Unit Tests:              10+
-Documentation Lines:      200+
+Total Lines:              ~800
+Functions:                ~31 (formal verification planned)
+Formal Specifications:    target ~20 (in progress)
+Kani Harnesses:           target ~5 (in progress)
+Unit Tests:               target ~10 (in progress)
+Documentation Lines:      ~200
 ```
 
-### Complexity Metrics
+### Complexity Metrics (approximate)
 ```
-Average Function Size:    26 lines
-Cyclomatic Complexity:    Low (avg 2.8)
-Max Function Size:        80 lines
-Documentation Coverage:   100%
+Average Function Size:    ~26 lines
+Cyclomatic Complexity:    Low (~2.8 avg)
+Max Function Size:        ~80 lines
+Documentation Coverage:   broad
 ```
 
 ### Performance Characteristics
@@ -401,29 +405,29 @@ assert!(manager.send(pid1, pid2, vec![3], Priority::Normal).is_err());
 
 ## 📈 Impact Assessment
 
-### For EAL 7+ Certification
-✅ **IPC Security Proven**: Message passing formally verified  
-✅ **Capability Model**: Fine-grained access control  
-✅ **Resource Bounds**: Prevents DoS attacks  
-✅ **Complete Documentation**: All properties documented  
+### Toward High-Assurance (aspirational — not certified)
+- **IPC Security**: Message passing intended to be formally verified (not yet proven)
+- **Capability Model**: Fine-grained access control
+- **Resource Bounds**: Aims to mitigate DoS via bounded queues
+- **Documentation**: Properties documented
 
-**Confidence Level**: High - IPC ready for certification
+**Status**: Early prototype — not ready for any certification
 
 ### For Microkernel Design
-✅ **Minimal Mechanism**: Simple, verifiable IPC  
-✅ **Policy-Free**: Capabilities provide flexibility  
-✅ **Efficient**: O(log n) send, O(1) receive  
-✅ **Scalable**: Per-process queues scale well  
+- **Minimal Mechanism**: Simple, verifiable-by-design IPC
+- **Policy-Free**: Capabilities provide flexibility
+- **Efficient**: O(log n) send, O(1) receive (by design)
+- **Scalable**: Per-process queues intended to scale well
 
-**Confidence Level**: High - Suitable for microkernel
+**Status**: Promising design direction for a microkernel
 
 ### For Real-World Usage
-✅ **Priority Support**: Real-time systems supported  
-✅ **Security**: Capability-based access control  
-✅ **Reliability**: Bounded resources prevent exhaustion  
-✅ **Performance**: Efficient operations  
+- **Priority Support**: Aims to support real-time workloads
+- **Security**: Capability-based access control
+- **Reliability**: Bounded resources intended to prevent exhaustion
+- **Performance**: Efficient operations by design (unmeasured)
 
-**Confidence Level**: High - Production-ready design
+**Status**: Experimental design — not production-ready
 
 ---
 
@@ -449,7 +453,7 @@ assert!(manager.send(pid1, pid2, vec![3], Priority::Normal).is_err());
 ## 🎯 Next Steps
 
 ### Immediate
-1. ✅ IPC module complete
+1. ⏳ IPC module prototype (in progress)
 2. ⏳ Integrate with process management
 3. ⏳ Add to CI/CD verification
 4. ⏳ Create integration tests
@@ -470,10 +474,12 @@ assert!(manager.send(pid1, pid2, vec![3], Priority::Normal).is_err());
 
 ## 📊 Comparison with Other Systems
 
+> Note: VantisOS IPC verification is planned/early-stage, not complete. seL4 is genuinely, fully formally verified; VantisOS is not. The "Verification" rows for VANTIS below reflect design intent only.
+
 ### vs. L4 Microkernel
 | Feature | VANTIS IPC | L4 IPC |
 |---------|-----------|--------|
-| Verification | ✅ Formal | ⚠️ Partial |
+| Verification | Planned (early) | ⚠️ Partial |
 | Capabilities | ✅ Yes | ✅ Yes |
 | Priority | ✅ Yes | ❌ No |
 | Bounded Size | ✅ Yes | ❌ No |
@@ -482,7 +488,7 @@ assert!(manager.send(pid1, pid2, vec![3], Priority::Normal).is_err());
 ### vs. seL4
 | Feature | VANTIS IPC | seL4 IPC |
 |---------|-----------|----------|
-| Verification | ✅ Formal | ✅ Formal |
+| Verification | Planned (early) | ✅ Formal (complete) |
 | Capabilities | ✅ Yes | ✅ Yes |
 | Priority | ✅ Yes | ✅ Yes |
 | Message Size | 4096 bytes | 120 bytes |
@@ -491,30 +497,30 @@ assert!(manager.send(pid1, pid2, vec![3], Priority::Normal).is_err());
 ### vs. QNX Neutrino
 | Feature | VANTIS IPC | QNX |
 |---------|-----------|-----|
-| Verification | ✅ Formal | ❌ No |
+| Verification | Planned (early) | ❌ No |
 | Capabilities | ✅ Yes | ❌ No |
 | Priority | ✅ Yes | ✅ Yes |
 | Async | ❌ No | ✅ Yes |
-| Performance | Good | Excellent |
+| Performance | Unmeasured | Excellent |
 
 ---
 
-## 🏆 Achievements
+## 🏆 Progress (prototype)
 
-1. ✅ **31 Verified Functions** with formal specifications
-2. ✅ **5 Kani Harnesses** for property verification
-3. ✅ **10+ Unit Tests** with 100% coverage
-4. ✅ **Zero Unsafe Code** in entire module
-5. ✅ **Complete Documentation** for all APIs
-6. ✅ **Security Properties Proven** mathematically
-7. ✅ **Production-Ready Design** for microkernel
+1. ~31 functions drafted (formal specifications planned)
+2. ~5 Kani harnesses planned for property verification
+3. ~10 unit tests planned (coverage not yet measured)
+4. Zero unsafe code in the module (goal maintained)
+5. Documentation drafted for the APIs
+6. Security properties targeted (not yet proven)
+7. Design direction intended for a microkernel
 
 ---
 
-**Module Status**: ✅ **Complete**  
-**Verification Status**: ✅ **Verified**  
-**Documentation Status**: ✅ **Complete**  
-**Ready for Integration**: ✅ **Yes**
+**Module Status**: Prototype / in progress  
+**Verification Status**: Early-stage (proof stubs only)  
+**Documentation Status**: Drafted  
+**Ready for Integration**: Not yet
 
 ---
 

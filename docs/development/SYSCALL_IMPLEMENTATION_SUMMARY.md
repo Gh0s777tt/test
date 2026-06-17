@@ -3,27 +3,27 @@
 ## 📋 Overview
 
 **Module**: `src/verified/syscall.rs`  
-**Size**: 600+ lines  
-**Status**: ✅ Complete  
+**Size**: ~600 lines  
+**Status**: 🚧 Prototype (interface scaffolding; many handlers are stubs)  
 **Date**: January 10, 2025
 
 ---
 
 ## 🎯 Implementation Goals
 
-### Primary Objectives
-1. ✅ Parameter validation with formal verification
-2. ✅ Capability enforcement for all operations
-3. ✅ Comprehensive error handling
-4. ✅ No privilege escalation
-5. ✅ Resource limit enforcement
+### Primary Objectives (goals for this module)
+1. Parameter validation with formal verification
+2. Capability enforcement for all operations
+3. Comprehensive error handling
+4. No privilege escalation
+5. Resource limit enforcement
 
-### Properties Proven
-1. ✅ **Parameter Validation**: All parameters validated before use
-2. ✅ **No Privilege Escalation**: User processes cannot gain kernel privileges
-3. ✅ **Error Propagation**: All errors properly handled and returned
-4. ✅ **Resource Limits**: All operations respect resource limits
-5. ✅ **Type Safety**: Strong typing prevents invalid operations
+### Properties Targeted (design goals — verification partial/aspirational)
+1. **Parameter Validation**: All parameters validated before use
+2. **No Privilege Escalation**: User processes cannot gain kernel privileges
+3. **Error Propagation**: All errors properly handled and returned
+4. **Resource Limits**: All operations respect resource limits
+5. **Type Safety**: Strong typing prevents invalid operations
 
 ---
 
@@ -172,28 +172,27 @@ pub struct SyscallContext {
 11. `test_send_syscall_validation` - Send validation
 12. Additional edge case tests
 
-**Test Coverage**: 100% of implemented code
+**Test Coverage**: Unit tests cover the implemented validation/dispatch paths; coverage is not measured and is far from comprehensive (many handlers are stubs).
 
 ---
 
 ## 📊 Statistics
 
-### Code Metrics
+### Code Metrics (approximate)
 ```
-Total Lines:              600+
-Verified Functions:       25
-Formal Specifications:    15+
-Kani Harnesses:          5
-Unit Tests:              15+
-Documentation Lines:      150+
+Total Lines:              ~600
+Functions:                ~25 (interface + stubs; "verified" is aspirational)
+Formal Spec Stubs:        ~15
+Kani Harnesses:           5
+Unit Tests:               ~15
+Documentation Lines:      ~150
 ```
 
 ### Complexity Metrics
 ```
-Average Function Size:    24 lines
-Cyclomatic Complexity:    Low (avg 2.5)
-Max Function Size:        60 lines
-Documentation Coverage:   100%
+Average Function Size:    ~24 lines
+Cyclomatic Complexity:    Low (avg ~2.5)
+Max Function Size:        ~60 lines
 ```
 
 ### System Call Coverage
@@ -262,7 +261,9 @@ Total:                   20 syscalls
 
 ---
 
-## 🔐 Security Properties
+## 🔐 Security Properties (intended — see verification note)
+
+> These are the security properties the design aims to provide. Verification is partial: a few Kani harnesses and unit tests exist, but most properties are not yet formally proven.
 
 ### 1. Parameter Validation
 **Property**: All parameters validated before use  
@@ -385,13 +386,13 @@ assert!(result.is_ok());
 
 ## 📈 Impact Assessment
 
-### For EAL 7+ Certification
-✅ **Parameter Validation Proven**: All inputs validated  
-✅ **No Privilege Escalation**: Security boundaries enforced  
-✅ **Error Handling Complete**: All errors handled  
-✅ **Type Safety**: Strong typing prevents bugs  
+### Toward Future Certification (aspirational — no certification held)
+- **Parameter Validation**: inputs validated in implemented paths  
+- **No Privilege Escalation**: security boundaries are a design goal  
+- **Error Handling**: errors handled in implemented paths  
+- **Type Safety**: strong typing helps prevent bugs  
 
-**Confidence Level**: High - Syscall interface ready for certification
+**Reality**: This is prototype scaffolding. EAL 7+ certification is a long-term aspiration, not a current state.
 
 ### For Microkernel Design
 ✅ **Clean Interface**: Well-defined syscall boundary  
@@ -402,12 +403,12 @@ assert!(result.is_ok());
 **Confidence Level**: High - Suitable for microkernel
 
 ### For Real-World Usage
-✅ **Comprehensive**: 20+ syscalls cover common operations  
-✅ **Safe**: All parameters validated  
-✅ **Reliable**: Comprehensive error handling  
-✅ **Maintainable**: Clear, well-documented code  
+- **Scope**: ~20 syscalls sketched, covering common operation categories  
+- **Validation**: parameters validated in implemented paths  
+- **Error handling**: present in implemented paths  
+- **Maintainable**: clear, documented code  
 
-**Confidence Level**: High - Production-ready interface
+**Reality**: Prototype interface — NOT production-ready. Most handlers are stubs.
 
 ---
 
@@ -458,22 +459,22 @@ assert!(result.is_ok());
 
 ---
 
-## 🏆 Achievements
+## 🏆 Progress So Far
 
-1. ✅ **25 Verified Functions** with formal specifications
-2. ✅ **5 Kani Harnesses** for property verification
-3. ✅ **15+ Unit Tests** with 100% coverage
-4. ✅ **Zero Unsafe Code** in entire module
-5. ✅ **Complete Documentation** for all APIs
-6. ✅ **Security Properties Proven** mathematically
-7. ✅ **Production-Ready Interface** for microkernel
+1. ~25 functions sketched with spec stubs (verification aspirational)
+2. 5 Kani harnesses started for property checking
+3. ~15 unit tests covering implemented paths
+4. No `unsafe` code in this module
+5. APIs documented
+6. Security properties stated as design goals (not yet proven)
+7. Prototype interface for an experimental microkernel
 
 ---
 
-**Module Status**: ✅ **Complete**  
-**Verification Status**: ✅ **Verified**  
-**Documentation Status**: ✅ **Complete**  
-**Ready for Integration**: ✅ **Yes**
+**Module Status**: 🚧 **Prototype**  
+**Verification Status**: ⏳ **Partial / aspirational**  
+**Documentation Status**: Drafted  
+**Ready for Integration**: Not yet — interface scaffolding only
 
 ---
 

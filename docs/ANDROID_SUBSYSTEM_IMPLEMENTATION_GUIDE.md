@@ -4,10 +4,12 @@
 
 This guide provides a comprehensive implementation plan for the Android Subsystem in VantisOS, enabling Android applications to run natively with full hardware acceleration and security isolation.
 
-**Implementation Timeline**: 5 days  
+**Implementation Timeline (estimate)**: 5 days  
 **Complexity**: High  
 **Dependencies**: Vantis Core, Horizon UI, VantisFS  
-**Security Level**: Critical (EAL 7+)
+**Security Sensitivity**: Critical (no formal certification — VantisOS is not EAL-certified)
+
+> Note: This is a design/implementation guide for an experimental feature. Timelines, performance targets, and "success metrics" below are goals, not measured or shipped results.
 
 ---
 
@@ -815,12 +817,12 @@ fn handle_intent(intent: Intent) -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for integrating Android subsystem support into VantisOS. The 5-day timeline covers all critical components including runtime, IPC, HAL, and framework services.
 
-**Key Success Metrics:**
-- ✅ Android 14 (API 34) support
-- ✅ Full hardware acceleration
-- ✅ Secure sandboxing
-- ✅ <1s app launch time
-- ✅ 60 FPS rendering
+**Key Success Metrics (targets — not yet achieved):**
+- 🎯 Android 14 (API 34) support
+- 🎯 Full hardware acceleration
+- 🎯 Secure sandboxing
+- 🎯 <1s app launch time
+- 🎯 60 FPS rendering
 
 **Next Steps:**
 1. Begin implementation following the 5-day plan

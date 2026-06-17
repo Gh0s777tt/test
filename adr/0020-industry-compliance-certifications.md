@@ -2,7 +2,9 @@
 
 ## Status
 
-**Accepted**
+**Rejected / Aspirational — these certifications were never pursued or obtained.**
+
+> Honest note: VantisOS holds none of the certifications described below (EAL7+, FIPS 140-3, ISO 27001, DO-178C, ISO 26262, etc.). No certification process was ever started. This document is retained as a historical record of an early aspiration, not a statement of fact.
 
 ## Context
 
@@ -125,10 +127,10 @@ VantisOS will pursue **Industry Compliance Certifications**:
 ## Implementation Status
 
 - [x] Proposed
-- [x] Accepted
-- [ ] EAL7+ certification started
-- [ ] FIPS 140-3 certification planned
-- [ ] ISO 27001 certification planned
+- [x] Originally accepted, later rejected (see Status above)
+- [ ] EAL7+ certification — never started
+- [ ] FIPS 140-3 certification — never started
+- [ ] ISO 27001 certification — never started
 
 ---
 

@@ -2,7 +2,9 @@
 
 ## Overview
 
-This guide describes the implementation of Input-Output Memory Management Unit (IOMMU) support in VantisOS. IOMMU provides critical security by preventing Direct Memory Access (DMA) attacks and enabling device isolation.
+This guide describes the planned implementation of Input-Output Memory Management Unit (IOMMU) support in VantisOS. IOMMU provides critical security by preventing Direct Memory Access (DMA) attacks and enabling device isolation.
+
+> Note: This is a design/implementation guide for an experimental feature. The timelines below are estimates, and the standards referenced under "Compliance" are general industry context — VantisOS itself is not certified to any of them.
 
 ---
 
@@ -28,10 +30,10 @@ IOMMU is a hardware component that:
 - Improves I/O performance
 - Supports large memory configurations
 
-**Compliance:**
-- Required for Common Criteria EAL7+
-- Required for PCI DSS compliance
-- Required for automotive safety (ISO 26262)
+**Relevance to industry standards (general context — VantisOS is not certified to any of these):**
+- Commonly expected for high-assurance evaluations such as Common Criteria (higher EAL levels)
+- Relevant to PCI DSS environments
+- Relevant to automotive safety (ISO 26262)
 
 ---
 

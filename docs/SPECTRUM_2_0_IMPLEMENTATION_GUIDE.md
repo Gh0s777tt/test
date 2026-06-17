@@ -4,10 +4,10 @@
 
 This guide provides a comprehensive implementation plan for Spectrum 2.0, an advanced security auditing and compliance framework for VantisOS. Spectrum 2.0 provides real-time security monitoring, automated compliance checking, and comprehensive audit trails.
 
-**Implementation Timeline**: 5 days  
+**Implementation Timeline**: 5 days (estimated)  
 **Complexity**: High  
 **Dependencies**: Vantis Core, Vantis Vault, Live Trust Dashboard  
-**Security Level**: Critical (EAL 7+)
+**Security Level**: Security-critical (target — no formal certification held)
 
 ---
 
@@ -79,9 +79,11 @@ This guide provides a comprehensive implementation plan for Spectrum 2.0, an adv
 
 ### Compliance Standards
 
+Spectrum 2.0 is designed to *model and self-check against* the control structures of the frameworks below. Implementing these checks does not make VantisOS certified or compliant — the project holds none of these certifications, and real compliance requires independent audit.
+
 - **SOC 2 Type II**: Security, Availability, Processing Integrity, Confidentiality, Privacy
 - **ISO/IEC 27001**: Information security management
-- **PCI DSS v4.0**: Payment card industry compliance
+- **PCI DSS v4.0**: Payment card industry controls
 - **HIPAA**: Healthcare information privacy
 - **GDPR**: Data protection and privacy
 - **NIST SP 800-53**: Security and privacy controls
@@ -1794,12 +1796,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 This implementation guide provides a comprehensive plan for Spectrum 2.0, an advanced security auditing and compliance framework for VantisOS. The 5-day timeline covers all critical components including audit engine, compliance checker, security monitor, and reporting system.
 
-**Key Success Metrics:**
-- ✅ Real-time event processing (<100ms)
-- ✅ Multiple compliance frameworks (SOC 2, ISO 27001, PCI DSS, HIPAA)
-- ✅ AI-powered threat detection
-- ✅ Behavioral anomaly detection
-- ✅ Comprehensive reporting
+**Target Success Metrics (design goals — not measured or achieved):**
+- Real-time event processing (<100ms)
+- Self-check support for multiple compliance frameworks (SOC 2, ISO 27001, PCI DSS, HIPAA) — modeling only, not certification
+- AI-assisted threat detection
+- Behavioral anomaly detection
+- Reporting
 
 **Next Steps:**
 1. Begin implementation following the 5-day plan

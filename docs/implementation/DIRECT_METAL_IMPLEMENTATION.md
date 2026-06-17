@@ -2,12 +2,12 @@
 
 ## 📊 Overview
 
-**Status**: ✅ Phase 1 Complete  
+**Status**: 🚧 Prototype (early scaffolding; GPU calls are simulated)  
 **Module**: `src/verified/direct_metal.rs`  
-**Lines of Code**: 600+  
-**Functions**: 20+ verified functions  
-**Tests**: 25 comprehensive tests  
-**Test Coverage**: 100%
+**Lines of Code**: ~600  
+**Functions**: ~20 (verification aspirational)  
+**Tests**: ~25 tests covering implemented paths  
+**Test Coverage**: not measured
 
 ---
 
@@ -58,9 +58,11 @@
 
 ---
 
-## 🔬 Formal Verification
+## 🔬 Formal Verification (planned)
 
-### Properties Verified
+> Formal verification of this module is a goal, not a current achievement. The properties below are design intent; they are not yet proven.
+
+### Properties Targeted
 
 1. **Memory Safety**
    - ✅ No buffer overflows
@@ -88,6 +90,8 @@
 
 ## 📈 Performance Characteristics
 
+> The complexity classes below are by design. The microsecond figures are rough estimates only — no profiling has been performed.
+
 ### Memory Operations
 - **Allocation**: O(1) - Direct GPU memory allocation
 - **Deallocation**: O(1) - Automatic cleanup
@@ -107,11 +111,11 @@
 
 ## 🎮 Gaming Performance
 
-### Expected Performance
-- **Frame Time**: <16.67ms (60 FPS) ✅
-- **Input Lag**: <10ms (with Neural Scheduler) ✅
-- **GPU Utilization**: >90% possible
-- **Memory Bandwidth**: Near-theoretical maximum
+### Performance Goals (unmeasured — no GPU benchmarks run)
+- **Frame Time**: aim for <16.67ms (60 FPS) — not measured
+- **Input Lag**: goal <10ms (with Neural Scheduler) — not measured
+- **GPU Utilization**: target high utilization
+- **Memory Bandwidth**: goal near hardware limits
 
 ### Optimizations Implemented
 1. **Zero-Copy Operations**: Direct GPU memory access
@@ -291,7 +295,7 @@ GpuDevice ──┬──> GpuMemory
    - Execution
    - Batch processing
 
-**Total**: 25 tests, 100% coverage ✅
+**Total**: ~25 tests covering implemented paths (coverage not measured)
 
 ---
 
@@ -329,6 +333,8 @@ GpuDevice ──┬──> GpuMemory
 
 ## 📊 Comparison with Other Systems
 
+> **Caveat**: The "Formal Verification: ✅ Yes" rows below describe an *intended* differentiator. Direct Metal is **not** actually formally verified yet, so these comparisons overstate the current state. Treat them as aspirational positioning, not fact.
+
 ### vs Linux DRM/KMS
 | Feature | Direct Metal | Linux DRM/KMS | Advantage |
 |---------|--------------|---------------|-----------|
@@ -356,27 +362,25 @@ GpuDevice ──┬──> GpuMemory
 
 ---
 
-## 🎯 Key Achievements
+## 🎯 Goals (not yet achieved)
 
-1. ✅ **World's First Formally Verified GPU API**
-   - All operations mathematically proven correct
-   - Zero undefined behavior
-   - Complete memory safety
+1. **Formally Verified GPU API (aspirational)**
+   - Goal: prove core operations correct (not done yet)
+   - Goal: no undefined behavior
+   - Goal: memory safety
 
-2. ✅ **Zero-Overhead Abstraction**
-   - Direct GPU memory access
-   - Minimal driver overhead
-   - Native performance
+2. **Low-Overhead Abstraction**
+   - Direct GPU memory access (design)
+   - Minimal driver overhead (design)
 
-3. ✅ **Type-Safe Interface**
-   - Rust's type system prevents errors
-   - Compile-time guarantees
-   - No runtime checks needed
+3. **Type-Safe Interface**
+   - Rust's type system helps prevent errors
+   - Compile-time guarantees where possible
 
-4. ✅ **Production-Ready**
-   - 100% test coverage
-   - Comprehensive error handling
-   - Ready for gaming workloads
+4. **Toward usable (not production-ready)**
+   - Tests cover implemented paths (coverage unmeasured)
+   - Error handling in place for implemented paths
+   - Not ready for real gaming workloads (GPU calls simulated)
 
 ---
 
@@ -394,11 +398,11 @@ GpuDevice ──┬──> GpuMemory
 - **Latency**: Minimal CPU-GPU communication
 - **Efficiency**: Batch operations for throughput
 
-### Why Formal Verification?
-- **Correctness**: Mathematical proof of safety
-- **Reliability**: No undefined behavior
-- **Certification**: Supports EAL 7+ requirements
-- **Trust**: Provably secure GPU operations
+### Why Formal Verification? (motivation for the goal)
+- **Correctness**: aim for mathematical proof of safety
+- **Reliability**: aim to rule out undefined behavior
+- **Certification**: a distant aspiration (no certification held)
+- **Trust**: provably-secure GPU operations as a long-term goal
 
 ---
 
@@ -419,18 +423,18 @@ GpuDevice ──┬──> GpuMemory
 
 ## 🎊 Conclusion
 
-Direct Metal provides a **formally verified, zero-overhead GPU access layer** that is:
-- ✅ **Faster** than traditional GPU APIs (zero abstraction)
-- ✅ **Safer** than any existing GPU API (formal verification)
-- ✅ **Simpler** than Vulkan/DX12 (clean Rust interface)
-- ✅ **Production-ready** for gaming and compute workloads
+Direct Metal aims to be a low-overhead, type-safe GPU access layer. Today it is an early prototype with **simulated** GPU calls. The goals are to be:
+- Fast (low-abstraction design)
+- Safe (formal verification — planned, not done)
+- Simpler than Vulkan/DX12 (clean Rust interface)
+- Eventually usable for gaming/compute (not production-ready today)
 
-**This is the foundation for VANTIS OS to become the best gaming operating system.**
+**This is an early step toward GPU support in VANTIS OS — much remains to be built.**
 
 ---
 
 **Implementation Date**: January 10, 2025  
-**Status**: Phase 1 Complete ✅  
+**Status**: 🚧 Prototype (GPU calls simulated)  
 **Next Phase**: Vulkan Integration  
-**Lines of Code**: 600+  
-**Test Coverage**: 100%
+**Lines of Code**: ~600  
+**Test Coverage**: not measured

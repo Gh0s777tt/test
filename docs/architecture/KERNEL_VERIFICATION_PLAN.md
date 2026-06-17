@@ -2,7 +2,7 @@
 
 ## 📋 Executive Summary
 
-This document outlines the comprehensive plan for formally verifying the VANTIS OS microkernel to achieve EAL 7+ certification requirements. We will use a combination of Verus (deductive verification) and Kani (bounded model checking) to mathematically prove the correctness of critical kernel functions.
+This document outlines an aspirational plan for formally verifying the VANTIS OS microkernel. A long-term, stretch goal is to align with the kinds of assurance associated with high Common Criteria EAL levels (e.g. EAL 7) — VantisOS holds no such certification and pursuing one is not currently funded or scheduled. The plan proposes using a combination of Verus (deductive verification) and Kani (bounded model checking) to prove the correctness of critical kernel functions. Verification today is at a very early stage (only a handful of proof stubs exist).
 
 ---
 
@@ -26,18 +26,20 @@ This document outlines the comprehensive plan for formally verifying the VANTIS 
 
 ## 🏗️ Current State Analysis
 
-### Existing Verified Code
-✅ **Math Module** (`src/verified/math.rs`)
-- 6 verified functions (add, sub, mul, div, min, max)
-- 12 Verus specifications
-- 7 Kani harnesses
-- 20+ unit tests
+> Note: The project currently contains only a small number of early Verus proof stubs (~19). The items below describe intended/prototype modules; the function, specification, and harness counts are goals for those modules, not a verified inventory.
 
-✅ **Memory Module** (`src/verified/memory.rs`)
-- VerifiedAllocator with formal proofs
-- VerifiedBuffer with bounds checking
-- 8 Kani harnesses
-- Memory safety guarantees
+### Prototype Verified Code (early/partial)
+**Math Module** (`src/verified/math.rs`)
+- Prototype arithmetic functions (add, sub, mul, div, min, max)
+- Verus specifications (in progress)
+- Kani harnesses (in progress)
+- Unit tests (in progress)
+
+**Memory Module** (`src/verified/memory.rs`)
+- VerifiedAllocator (prototype)
+- VerifiedBuffer with bounds checking (prototype)
+- Kani harnesses (in progress)
+- Memory safety guarantees (goal — not yet proven)
 
 ### Existing Specifications
 📄 **Formal Specs** (`formal/specs/`)
@@ -390,30 +392,30 @@ fn verify_allocate_page() {
 
 ## 🎯 Success Criteria
 
-### Minimum Viable Verification (MVP)
-- ✅ Memory allocator verified
-- ✅ Process creation/destruction verified
-- ✅ IPC verified
-- ✅ System call interface verified
-- ✅ 50+ verified functions
-- ✅ 200+ specifications
-- ✅ 300+ harnesses
+### Minimum Viable Verification (MVP) — goals, not yet met
+- [ ] Memory allocator verified
+- [ ] Process creation/destruction verified
+- [ ] IPC verified
+- [ ] System call interface verified
+- [ ] 50+ verified functions (target)
+- [ ] 200+ specifications (target)
+- [ ] 300+ harnesses (target)
 
-### Full Verification (FV)
-- ✅ All critical kernel code verified
-- ✅ Scheduler verified
-- ✅ Interrupt handling verified
-- ✅ File system interface verified
-- ✅ 200+ verified functions
-- ✅ 800+ specifications
-- ✅ 1000+ harnesses
+### Full Verification (FV) — goals, not yet met
+- [ ] All critical kernel code verified
+- [ ] Scheduler verified
+- [ ] Interrupt handling verified
+- [ ] File system interface verified
+- [ ] 200+ verified functions (target)
+- [ ] 800+ specifications (target)
+- [ ] 1000+ harnesses (target)
 
-### EAL 7+ Ready
-- ✅ All safety properties proven
-- ✅ Complete documentation
-- ✅ Certification package prepared
-- ✅ Independent audit passed
-- ✅ Continuous verification in CI/CD
+### High-Assurance Aspiration (e.g. EAL 7) — not pursued/achieved
+- [ ] All safety properties proven
+- [ ] Complete documentation
+- [ ] Certification package prepared
+- [ ] Independent audit passed
+- [ ] Continuous verification in CI/CD
 
 ---
 
@@ -431,37 +433,37 @@ fn verify_allocate_page() {
 - Week 13-14: Signal handling & networking
 - Week 15-16: Testing & bug fixing
 
-### Month 5-6: Certification Prep
+### Month 5-6: Assurance Prep (aspirational)
 - Week 17-18: Documentation completion
-- Week 19-20: Independent audit
-- Week 21-22: Certification submission
-- Week 23-24: Final review & approval
+- Week 19-20: Independent review
+- Week 21-22: Assurance package assembly
+- Week 23-24: Final review
 
 ---
 
-## 🏆 Expected Outcomes
+## 🏆 Aspirational Outcomes (goals — not achieved)
 
-### Technical Outcomes
-- **World's First**: Formally verified microkernel with EAL 7+ certification
-- **Security**: Mathematically proven absence of critical bugs
-- **Reliability**: Guaranteed correctness of kernel operations
-- **Performance**: Minimal overhead from verification
+### Technical Goals
+- **Verified microkernel**: A formally verified microkernel (aspiration; no certification implied)
+- **Security**: Proven absence of certain classes of bugs (goal)
+- **Reliability**: Strong correctness guarantees for kernel operations (goal)
+- **Performance**: Minimal overhead from verification (goal)
 
-### Business Outcomes
-- **Differentiation**: Unique selling point in OS market
-- **Trust**: Highest level of assurance for critical systems
-- **Compliance**: Meets strictest security requirements
-- **Adoption**: Attractive to government, defense, finance sectors
+### Project Goals
+- **Differentiation**: A distinctive design point for a hobby OS
+- **Trust**: Higher assurance through formal methods
+- **Learning**: Explore strict security requirements
+- **Interest**: Of potential interest to researchers and hobbyists
 
-### Community Outcomes
+### Community Goals
 - **Open Source**: All verification code publicly available
 - **Education**: Learning resource for formal methods
-- **Collaboration**: Attract formal verification experts
-- **Innovation**: Push state-of-the-art in OS verification
+- **Collaboration**: Attract formal verification enthusiasts
+- **Innovation**: Experiment with OS verification techniques
 
 ---
 
 **Document Version**: 1.0  
 **Last Updated**: January 10, 2025  
-**Status**: Ready for Implementation  
-**Next Review**: After Phase 1 completion
+**Status**: Aspirational plan (early-stage hobby project)  
+**Next Review**: After Phase 1 progress
