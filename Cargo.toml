@@ -27,6 +27,12 @@ members = [
     "userspace/ui/flux",
     "userspace/ui/shells",
 ]
+# These paths are intentionally NOT members of the root workspace:
+#  - iso_build/kernel: a standalone `no_std` bare-metal kernel. It declares its
+#    own [workspace], builds with panic="abort" for a bare x86_64 target, and
+#    therefore cannot share this workspace (which targets std userspace crates).
+#    Build it separately: `cd iso_build/kernel && cargo build`.
+#  - src/verified: Verus formal-verification experiments with their own toolchain.
 exclude = [
     "iso_build/kernel",
     "src/verified",

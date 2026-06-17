@@ -2,10 +2,10 @@
 
 [package]
 name = "vantis-kernel"
-version = "1.5.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["VantisOS Team"]
-description = "VantisOS Quantum-Ready Operating System Kernel"
+description = "VantisOS experimental operating system kernel"
 
 [lib]
 crate-type = ["staticlib"]

@@ -1,6 +1,6 @@
-//! VantisOS Kernel v1.5.0 "Quantum Ready"
-//! 
-//! A modern, quantum-ready operating system kernel
+//! VantisOS Kernel (experimental — v0.4.1)
+//!
+//! A modern, experimental operating system kernel
 //! 
 //! ## Features
 //! - x86_64 architecture support
