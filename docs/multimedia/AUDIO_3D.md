@@ -259,6 +259,6 @@ let output = mixer.process_with_metal(&device, &input_buffer)?;
 
 ---
 
-**Implementation Status**: ✅ Complete  
+**Implementation Status**: 🚧 Prototype (experimental)  
 **Documentation Version**: 1.0  
 **Last Updated**: February 26, 2025
