@@ -1,9 +1,0 @@
-HLR,LLR,Source File,Verification Method
-HLR-001,LLR-001,kernel/memory.rs,Formal Proof + Test
-HLR-002,LLR-002,kernel/mmu.rs,Static Analysis
-HLR-003,LLR-005,kernel/scheduler.rs,Timing Analysis
-HLR-004,LLR-004,kernel/ipc.rs,Unit Test
-HLR-005,LLR-003,kernel/syscall.rs,Negative Testing
-HLR-006,LLR-006,kernel/init.rs,Code Review
-HLR-007,LLR-007,kernel/panic.rs,Fault Injection
-HLR-008,LLR-008,ALL,Static Analysis
