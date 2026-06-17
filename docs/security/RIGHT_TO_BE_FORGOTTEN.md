@@ -2,7 +2,7 @@
 
 ## Wprowadzenie
 
-Prawo do zapomnienia (Right to be Forgotten) to fundamentalne prawo użytkownika do żądania usunięcia swoich danych osobowych z systemu VantisOS. Implementacja ta jest zgodna z RODO (GDPR) Article 17 i zapewnia użytkownikom pełną kontrolę nad ich danymi.
+Prawo do zapomnienia (Right to be Forgotten) to fundamentalne prawo użytkownika do żądania usunięcia swoich danych osobowych z systemu VantisOS. Ten dokument opisuje **projektowane** podejście, którego celem jest zgodność z RODO (GDPR) Article 17. VantisOS jest eksperymentalnym projektem we wczesnej fazie (v0.4.1); ta funkcja jest w fazie projektowej/prototypu i **nie została zweryfikowana ani poddana audytowi pod kątem zgodności prawnej**.
 
 ## Cel
 
@@ -10,7 +10,7 @@ Zapewnienie użytkownikom VantisOS możliwości:
 - Żądania usunięcia wszystkich danych osobowych
 - Automatycznego usuwania danych po określonym czasie
 - Pełnej kontroli nad cyklem życia danych
-- Zgodności z RODO (GDPR) i innymi regulacjami prywatności
+- Dążenia do zgodności z RODO (GDPR) i innymi regulacjami prywatności (cel projektowy, nie certyfikowany)
 
 ## Architektura Systemu
 
@@ -72,7 +72,7 @@ Użytkownik może złożyć żądanie usunięcia danych poprzez:
 5. System usuwa dane
 6. System wysyła potwierdzenie usunięcia
 
-**Czas realizacji:** < 24h
+**Czas realizacji (cel projektowy, niezmierzony):** < 24h
 
 ### 2. Automatyczne usuwanie danych
 
@@ -125,16 +125,18 @@ System prowadzi pełny audyt operacji usuwania:
 - Raportowanie statystyk usuwania
 - Raportowanie zgodności z RODO
 
-## Zgodność z RODO (GDPR)
+## Zgodność z RODO (GDPR) — cel projektowy
+
+> **Uwaga:** Poniższe punkty opisują **zamierzony** zakres projektu. VantisOS nie jest certyfikowany ani poddany audytowi pod kątem zgodności z RODO. Lista oznacza cele projektowe, a nie zweryfikowaną implementację.
 
 ### Article 17 - Right to Erasure
 
-VantisOS w pełni implementuje Article 17 RODO:
-- ✅ Użytkownik może żądać usunięcia danych
-- ✅ System usuwa dane bez zbędnej zwłoki
-- ✅ System informuje użytkownika o usunięciu
-- ✅ System usuwa dane z wszystkich lokalizacji
-- ✅ System obsługuje wyjątki od usuwania
+Projektowany zakres względem Article 17 RODO:
+- (planowane) Użytkownik może żądać usunięcia danych
+- (planowane) System usuwa dane bez zbędnej zwłoki
+- (planowane) System informuje użytkownika o usunięciu
+- (planowane) System usuwa dane z wszystkich lokalizacji
+- (planowane) System obsługuje wyjątki od usuwania
 
 ### Kryteria usunięcia
 
@@ -221,12 +223,14 @@ impl PrivacyManager {
 }
 ```
 
-## Bezpieczeństwo
+## Bezpieczeństwo (projektowane)
+
+> Poniższe mechanizmy opisują zamierzony projekt. Nie są one zaimplementowane ani zaudytowane w obecnej wersji (v0.4.1).
 
 ### Szyfrowanie
-- Wszystkie dane są szyfrowane AES-256
-- Klucze szyfrowania są zarządzane przez HSM
-- Dane są usuwane bezpiecznie (nadpisywanie 3x)
+- Planowane szyfrowanie danych (np. AES-256)
+- Planowane zarządzanie kluczami (np. przez HSM)
+- Planowane bezpieczne usuwanie danych (nadpisywanie 3x)
 
 ### Autoryzacja
 - Weryfikacja tożsamości użytkownika przed usunięciem
@@ -238,20 +242,24 @@ impl PrivacyManager {
 - Niezmienialne logi operacji
 - Raportowanie zgodności z RODO
 
-## Wydajność
+## Wydajność (cele projektowe, niezmierzone)
 
-### Metryki
-- Czas przetwarzania żądania usunięcia: < 1s
-- Czas usuwania danych: < 5min (dla 1GB danych)
-- Czas usuwania z kopii zapasowych: < 30min
-- Czas potwierdzenia usunięcia: < 1s
+> Poniższe wartości to cele projektowe. Nie zostały zmierzone w obecnej wersji.
 
-### Skalowalność
-- Obsługa 10,000+ żądań usunięcia dziennie
-- Obsługa 1TB+ danych do usunięcia
-- Obsługa 1M+ rekordów użytkowników
+### Metryki (cele, niezmierzone)
+- Czas przetwarzania żądania usunięcia: cel < 1s
+- Czas usuwania danych: cel < 5min (dla 1GB danych)
+- Czas usuwania z kopii zapasowych: cel < 30min
+- Czas potwierdzenia usunięcia: cel < 1s
 
-## Testowanie
+### Skalowalność (cele projektowe)
+- Cel: obsługa 10,000+ żądań usunięcia dziennie
+- Cel: obsługa 1TB+ danych do usunięcia
+- Cel: obsługa 1M+ rekordów użytkowników
+
+## Testowanie (planowane)
+
+> Poniżej opisano planowany zakres testów. Nie odzwierciedla on obecnego pokrycia testami.
 
 ### Testy jednostkowe
 - Testy obsługi żądań usunięcia
@@ -294,52 +302,56 @@ A: Tak, z wyjątkiem danych wymaganych przez prawo.
 **Q: Czy mogę zobaczyć jakie dane zostały usunięte?**  
 A: Tak, możesz zobaczyć raport usunięcia.
 
-## Zgodność z Regulacjami
+## Zgodność z Regulacjami — cele projektowe
 
-### RODO (GDPR) - Article 17
-- ✅ Prawo do usunięcia danych
-- ✅ Bez zbędnej zwłoki
-- ✅ Powiadomienie użytkownika
-- ✅ Usunięcie z wszystkich lokalizacji
-- ✅ Obsługa wyjątków
+> **Uwaga:** VantisOS nie jest certyfikowany ani zaudytowany pod kątem żadnej z poniższych regulacji. Lista przedstawia zamierzony zakres projektu, a nie potwierdzoną zgodność.
 
-### CCPA (California Consumer Privacy Act)
-- ✅ Prawo do usunięcia danych
-- ✅ Odpowiedź w ciągu 45 dni
-- ✅ Weryfikacja tożsamości
+### RODO (GDPR) - Article 17 (cel projektowy)
+- (planowane) Prawo do usunięcia danych
+- (planowane) Bez zbędnej zwłoki
+- (planowane) Powiadomienie użytkownika
+- (planowane) Usunięcie z wszystkich lokalizacji
+- (planowane) Obsługa wyjątków
 
-### LGPD (Lei Geral de Proteção de Dados)
-- ✅ Prawo do usunięcia danych
-- ✅ Bez zbędnej zwłoki
-- ✅ Powiadomienie użytkownika
+### CCPA (California Consumer Privacy Act) (cel projektowy)
+- (planowane) Prawo do usunięcia danych
+- (planowane) Odpowiedź w ciągu 45 dni
+- (planowane) Weryfikacja tożsamości
+
+### LGPD (Lei Geral de Proteção de Dados) (cel projektowy)
+- (planowane) Prawo do usunięcia danych
+- (planowane) Bez zbędnej zwłoki
+- (planowane) Powiadomienie użytkownika
 
 ## Statystyki
 
-### Metryki sukcesu
-- 100% zgodności z RODO
-- 100% usunięcie danych
-- < 24h czas realizacji
-- 0 błędów w usuwaniu
+> Brak danych produkcyjnych. VantisOS jest projektem eksperymentalnym (v0.4.1); poniższe wartości to **cele projektowe**, a nie zmierzone wyniki.
 
-### Metryki wydajności
-- Średni czas usunięcia: 2.5h
-- Średnia ilość usuniętych danych: 500MB
-- Średnia ilość usuniętych rekordów: 1,000
+### Cele jakościowe (niezmierzone)
+- Cel: zgodność z RODO
+- Cel: pełne usunięcie danych
+- Cel: czas realizacji < 24h
+- Cel: brak błędów w usuwaniu
+
+### Cele wydajnościowe (niezmierzone)
+- Cel średniego czasu usunięcia: ~2.5h
+- Typowa ilość usuwanych danych: zależna od scenariusza
+- Typowa liczba usuwanych rekordów: zależna od scenariusza
 
 ## Podsumowanie
 
-Prawo do zapomnienia w VantisOS zapewnia użytkownikom pełną kontrolę nad ich danymi osobowymi. Implementacja jest zgodna z RODO (GDPR) Article 17 i zapewnia bezpieczne, szybkie i przejrzyste usuwanie danych.
+Prawo do zapomnienia w VantisOS ma w założeniu zapewnić użytkownikom pełną kontrolę nad ich danymi osobowymi. Dokument opisuje **projekt** dążący do zgodności z RODO (GDPR) Article 17. Funkcja jest w fazie projektowej/prototypu i nie została zweryfikowana ani zaudytowana.
 
-**Kluczowe cechy:**
-- ✅ Pełna zgodność z RODO (GDPR)
-- ✅ Bezpieczne usuwanie danych
-- ✅ Automatyczne usuwanie wygasłych danych
-- ✅ Pełny audyt operacji
-- ✅ Szybka realizacja (< 24h)
-- ✅ Przejrzystość dla użytkownika
+**Założenia projektowe:**
+- Dążenie do zgodności z RODO (GDPR) (niecertyfikowane)
+- Bezpieczne usuwanie danych (planowane)
+- Automatyczne usuwanie wygasłych danych (planowane)
+- Pełny audyt operacji (planowany)
+- Szybka realizacja, cel < 24h (niezmierzony)
+- Przejrzystość dla użytkownika
 
-**Wydajność:**
-- Czas przetwarzania żądania: < 1s
-- Czas usuwania danych: < 5min (1GB)
-- Czas usuwania z kopii zapasowych: < 30min
-- Obsługa 10,000+ żądań dziennie
+**Wydajność (cele projektowe, niezmierzone):**
+- Czas przetwarzania żądania: cel < 1s
+- Czas usuwania danych: cel < 5min (1GB)
+- Czas usuwania z kopii zapasowych: cel < 30min
+- Cel: obsługa 10,000+ żądań dziennie

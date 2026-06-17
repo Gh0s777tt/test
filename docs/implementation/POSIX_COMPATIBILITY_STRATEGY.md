@@ -1,9 +1,11 @@
 # POSIX Compatibility Strategy for VantisOS
 ## Bridging Minimal Microkernel with POSIX Applications
 
-**Version**: 1.0  
+**Version**: experimental (v0.4.1)  
 **Date**: February 9, 2025  
-**Status**: Design Document  
+**Status**: Design Document (aspirational — not yet implemented)  
+
+> **Note:** This is a forward-looking design document for an experimental, early-stage OS. Syscall counts, coverage percentages, overhead figures, and performance targets below are **design goals, not measured results**. The POSIX compatibility layer is **planned**, not implemented.
 
 ---
 
@@ -47,8 +49,8 @@
 1. **Userspace Implementation**: POSIX layer runs in userspace
 2. **Zero Kernel Changes**: No new kernel syscalls needed
 3. **Transparent**: Applications don't know they're on VantisOS
-4. **Performance**: Minimal overhead (<10%)
-5. **Compatibility**: Support 95%+ of POSIX applications
+4. **Performance**: Minimal overhead (design goal; unmeasured)
+5. **Compatibility**: Aim to support a broad range of POSIX applications (target, not yet achieved)
 
 ---
 
@@ -72,9 +74,11 @@
 - VantisOS has: Limited support
 - POSIX expects: epoll, select, poll, inotify, eventfd, signalfd, etc.
 
-### 2.2 Compatibility Matrix
+### 2.2 Compatibility Matrix (target coverage — not yet implemented)
 
-| POSIX Category | Syscalls | VantisOS Native | Userspace Impl | Total Coverage |
+> The "Target Coverage" column states the **goal** for each category once the planned userspace layer is built. These are not current measurements; the compatibility layer does not yet exist.
+
+| POSIX Category | Syscalls | VantisOS Native | Userspace Impl (planned) | Target Coverage |
 |----------------|----------|-----------------|----------------|----------------|
 | Core I/O | 20 | 9 | 11 | 100% |
 | File Metadata | 15 | 5 | 10 | 100% |
@@ -85,7 +89,7 @@
 | Advanced I/O | 30 | 0 | 30 | 90% |
 | Signals | 20 | 2 | 18 | 100% |
 | Time | 15 | 8 | 7 | 100% |
-| **TOTAL** | **200** | **35** | **165** | **98%** |
+| **TOTAL** | **200** | **35** | **165** | **~98%** |
 
 ---
 
@@ -265,21 +269,23 @@ int epoll_wait(int epfd, struct epoll_event *events,
 
 ## 5. Performance Considerations
 
-### 5.1 Overhead Analysis
+### 5.1 Overhead Analysis (estimates — not measured)
 
-**Direct VantisOS Syscalls**:
-- Latency: 600ns-2.5μs
-- Overhead: Minimal
+> All latency and overhead figures in this section are **design estimates for an unimplemented layer**, not benchmark results.
 
-**POSIX Compatibility Layer**:
-- Additional overhead: 100-500ns
-- Total latency: 700ns-3μs
-- Overhead: ~10-20%
+**Direct VantisOS Syscalls** (estimate):
+- Latency: ~600ns-2.5μs (target, unmeasured)
+- Overhead: expected minimal
 
-**Userspace Services** (networking, event loop):
-- Additional IPC: 16μs per message
-- Total latency: ~20-30μs
-- Overhead: Depends on operation
+**POSIX Compatibility Layer** (estimate):
+- Additional overhead: ~100-500ns (target)
+- Total latency: ~700ns-3μs (target)
+- Overhead: aim for low single/double-digit percent
+
+**Userspace Services** (networking, event loop) (estimate):
+- Additional IPC: ~16μs per message (target)
+- Total latency: ~20-30μs (target)
+- Overhead: depends on operation
 
 ### 5.2 Optimization Strategies
 
@@ -436,31 +442,31 @@ time LD_PRELOAD=/lib/libvantis_posix.so ./myapp # POSIX
 - Languages: python, node.js, java
 - Tools: git, gcc, make
 
-### 7.2 Success Criteria
+### 7.2 Success Criteria (targets to achieve — not yet met)
 
-- ✅ 95%+ POSIX test suite passes
-- ✅ Top 100 applications work
-- ✅ <20% performance overhead
-- ✅ No security regressions
-- ✅ Complete documentation
+- [ ] 95%+ POSIX test suite passes (target)
+- [ ] Top 100 applications work (target)
+- [ ] <20% performance overhead (target)
+- [ ] No security regressions (target)
+- [ ] Complete documentation (target)
 
 ---
 
 ## 8. Conclusion
 
-VantisOS's POSIX compatibility strategy provides:
+VantisOS's POSIX compatibility strategy aims to provide:
 
-✅ **Transparent Compatibility**: Run POSIX apps unmodified  
-✅ **Minimal Overhead**: <20% performance impact  
-✅ **Userspace Implementation**: No kernel changes needed  
-✅ **Gradual Migration**: Support for legacy and modern apps  
-✅ **Security Maintained**: Full verification preserved
+- **Transparent Compatibility**: run POSIX apps unmodified (goal)
+- **Minimal Overhead**: low performance impact (goal, unmeasured)
+- **Userspace Implementation**: no kernel changes needed (design principle)
+- **Gradual Migration**: support for legacy and modern apps (goal)
+- **Security Preserved**: keep the microkernel's intended verification properties (goal; current verification is partial/stubs)
 
-This approach allows VantisOS to maintain its minimal, verified microkernel while supporting the vast ecosystem of POSIX applications.
+This approach is intended to let VantisOS maintain its minimal microkernel while supporting the POSIX application ecosystem. It is a design, not a delivered capability.
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: experimental (v0.4.1)  
 **Last Updated**: February 9, 2025  
-**Status**: Design Document  
-**Implementation**: Planned for Week 7-14
+**Status**: Design Document (aspirational)  
+**Implementation**: Planned (not started)

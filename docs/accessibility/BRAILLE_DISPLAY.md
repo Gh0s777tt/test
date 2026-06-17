@@ -10,15 +10,15 @@ Braille Display Support provides comprehensive integration with refreshable brai
 
 **Description**: High-quality braille cell rendering for accurate tactile representation.
 
-**Features**:
-- ✅ 8-dot braille cell support
-- ✅ 6-dot braille cell support
-- ✅ Computer braille (8-dot)
-- ✅ Literary braille (6-dot)
-- ✅ Unicode braille patterns
-- ✅ Customizable dot height
-- ✅ Customizable dot spacing
-- ✅ Smooth cell updates
+**Features** (planned):
+- 8-dot braille cell support
+- 6-dot braille cell support
+- Computer braille (8-dot)
+- Literary braille (6-dot)
+- Unicode braille patterns
+- Customizable dot height
+- Customizable dot spacing
+- Smooth cell updates
 
 **Braille Cell Types**:
 
@@ -69,38 +69,38 @@ impl BrailleCell {
 }
 ```
 
-**Performance**:
-- Cell rendering: < 1ms ✅
-- Cell update: < 1ms ✅
-- Unicode conversion: < 0.1ms ✅
+**Performance** (targets, not measured):
+- Cell rendering: < 1ms (target)
+- Cell update: < 1ms (target)
+- Unicode conversion: < 0.1ms (target)
 
 ### 2. Refreshable Braille Display Support
 
 **Description**: Support for various refreshable braille displays.
 
-**Supported Displays**:
+**Target Displays** (driver support planned, not all verified on hardware):
 
 | Manufacturer | Model | Cells | Status |
 |--------------|-------|-------|--------|
-| Freedom Scientific | Focus 14 | 14 | ✅ Supported |
-| Freedom Scientific | Focus 40 | 40 | ✅ Supported |
-| Freedom Scientific | Focus 80 | 80 | ✅ Supported |
-| HumanWare | BrailleNote Touch | 32 | ✅ Supported |
-| HumanWare | Braille Edge | 40 | ✅ Supported |
-| HIMS | Braille Sense Polaris | 32 | ✅ Supported |
-| HIMS | Braille Edge 40 | 40 | ✅ Supported |
-| Baum | VarioUltra | 20/40 | ✅ Supported |
-| APH | Orbit Reader 20 | 20 | ✅ Supported |
-| APH | Orbit Reader 40 | 40 | ✅ Supported |
+| Freedom Scientific | Focus 14 | 14 | Planned |
+| Freedom Scientific | Focus 40 | 40 | Planned |
+| Freedom Scientific | Focus 80 | 80 | Planned |
+| HumanWare | BrailleNote Touch | 32 | Planned |
+| HumanWare | Braille Edge | 40 | Planned |
+| HIMS | Braille Sense Polaris | 32 | Planned |
+| HIMS | Braille Edge 40 | 40 | Planned |
+| Baum | VarioUltra | 20/40 | Planned |
+| APH | Orbit Reader 20 | 20 | Planned |
+| APH | Orbit Reader 40 | 40 | Planned |
 
-**Features**:
-- ✅ Automatic display detection
-- ✅ USB connection
-- ✅ Bluetooth connection
-- ✅ Serial connection
-- ✅ Multiple display support
-- ✅ Hot-plug support
-- ✅ Display status monitoring
+**Features** (planned):
+- Automatic display detection
+- USB connection
+- Bluetooth connection
+- Serial connection
+- Multiple display support
+- Hot-plug support
+- Display status monitoring
 
 **Implementation**:
 ```rust
@@ -122,11 +122,11 @@ pub enum ConnectionType {
 }
 ```
 
-**Performance**:
-- Display detection: < 1s ✅
-- Connection establishment: < 2s ✅
-- Cell update: < 10ms ✅
-- Full display refresh: < 100ms ✅
+**Performance** (targets, not measured):
+- Display detection: < 1s (target)
+- Connection establishment: < 2s (target)
+- Cell update: < 10ms (target)
+- Full display refresh: < 100ms (target)
 
 ### 3. Braille Input
 
@@ -170,11 +170,11 @@ pub enum BrailleInputMode {
 }
 ```
 
-**Performance**:
-- Key detection: < 1ms ✅
-- Cell formation: < 1ms ✅
-- Text conversion: < 5ms ✅
-- Input latency: < 10ms ✅
+**Performance** (targets, not measured):
+- Key detection: < 1ms (target)
+- Cell formation: < 1ms (target)
+- Text conversion: < 5ms (target)
+- Input latency: < 10ms (target)
 
 ### 4. Braille Translation
 
@@ -203,25 +203,25 @@ pub enum BrailleInputMode {
 - Technical content
 - No contractions
 
-**Translation Tables**:
-- ✅ English (US, UK)
-- ✅ Spanish
-- ✅ French
-- ✅ German
-- ✅ Italian
-- ✅ Portuguese
-- ✅ Dutch
-- ✅ Polish
-- ✅ Russian
-- ✅ Arabic
+**Translation Tables** (planned coverage):
+- English (US, UK)
+- Spanish
+- French
+- German
+- Italian
+- Portuguese
+- Dutch
+- Polish
+- Russian
+- Arabic
 
-**Features**:
-- ✅ Bidirectional translation
-- ✅ Context-aware translation
-- ✅ Grade 1 and Grade 2 support
-- ✅ Computer braille support
-- ✅ Custom translation tables
-- ✅ Translation caching
+**Features** (planned):
+- Bidirectional translation
+- Context-aware translation
+- Grade 1 and Grade 2 support
+- Computer braille support
+- Custom translation tables
+- Translation caching
 
 **Implementation**:
 ```rust
@@ -245,10 +245,10 @@ pub struct TranslationTable {
 }
 ```
 
-**Performance**:
-- Text-to-braille: < 10ms per 100 characters ✅
-- Braille-to-text: < 10ms per 100 characters ✅
-- Translation caching: < 1ms ✅
+**Performance** (targets, not measured):
+- Text-to-braille: < 10ms per 100 characters (target)
+- Braille-to-text: < 10ms per 100 characters (target)
+- Translation caching: < 1ms (target)
 
 ### 5. Navigation Controls
 
@@ -315,10 +315,10 @@ impl BrailleNavigation {
 }
 ```
 
-**Performance**:
-- Cursor movement: < 1ms ✅
-- Display panning: < 5ms ✅
-- Selection update: < 1ms ✅
+**Performance** (targets, not measured):
+- Cursor movement: < 1ms (target)
+- Display panning: < 5ms (target)
+- Selection update: < 1ms (target)
 
 ### 6. Multiple Display Sizes
 
@@ -328,11 +328,11 @@ impl BrailleNavigation {
 
 | Cell Count | Use Case | Status |
 |------------|----------|--------|
-| 14 cells | Portable, quick reading | ✅ Supported |
-| 20 cells | Portable, general use | ✅ Supported |
-| 32 cells | Standard, balanced | ✅ Supported |
-| 40 cells | Standard, popular | ✅ Supported |
-| 80 cells | Desktop, extensive | ✅ Supported |
+| 14 cells | Portable, quick reading | Planned |
+| 20 cells | Portable, general use | Planned |
+| 32 cells | Standard, balanced | Planned |
+| 40 cells | Standard, popular | Planned |
+| 80 cells | Desktop, extensive | Planned |
 
 **Display Modes**:
 
@@ -347,12 +347,12 @@ impl BrailleNavigation {
 - Different content on each display
 - Synchronized navigation
 
-**Features**:
-- ✅ Automatic size detection
-- ✅ Dynamic content adaptation
-- ✅ Optimized for each size
-- ✅ Customizable layout
-- ✅ Status indicators
+**Features** (planned):
+- Automatic size detection
+- Dynamic content adaptation
+- Optimized for each size
+- Customizable layout
+- Status indicators
 
 **Implementation**:
 ```rust
@@ -369,10 +369,10 @@ pub enum DisplayMode {
 }
 ```
 
-**Performance**:
-- Size detection: < 1s ✅
-- Content adaptation: < 50ms ✅
-- Display switching: < 100ms ✅
+**Performance** (targets, not measured):
+- Size detection: < 1s (target)
+- Content adaptation: < 50ms (target)
+- Display switching: < 100ms (target)
 
 ## Architecture
 
@@ -417,19 +417,19 @@ pub enum DisplayMode {
 
 ### System Integration
 
-**VantisOS Integration**:
-- ✅ Text display
-- ✅ File content display
-- ✅ Application output display
-- ✅ System messages display
-- ✅ Menu navigation
-- ✅ Form filling
+**VantisOS Integration** (planned):
+- Text display
+- File content display
+- Application output display
+- System messages display
+- Menu navigation
+- Form filling
 
-**Accessibility Integration**:
-- ✅ Screen reader integration
-- ✅ Voice assistant integration
-- ✅ High contrast mode integration
-- ✅ Text scaling integration
+**Accessibility Integration** (planned):
+- Screen reader integration
+- Voice assistant integration
+- High contrast mode integration
+- Text scaling integration
 
 ### API Integration
 
@@ -448,63 +448,49 @@ pub trait BrailleDisplayAPI {
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Display detection | < 2s | < 1s | ✅ |
-| Connection establishment | < 3s | < 2s | ✅ |
-| Text-to-braille translation | < 20ms/100 chars | < 10ms/100 chars | ✅ |
-| Braille-to-text translation | < 20ms/100 chars | < 10ms/100 chars | ✅ |
-| Cell update | < 20ms | < 10ms | ✅ |
-| Full display refresh | < 200ms | < 100ms | ✅ |
-| Input latency | < 20ms | < 10ms | ✅ |
-| Cursor movement | < 5ms | < 1ms | ✅ |
+Targets only — none of these have been measured on hardware.
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Display detection | < 2s | Not measured |
+| Connection establishment | < 3s | Not measured |
+| Text-to-braille translation | < 20ms/100 chars | Not measured |
+| Braille-to-text translation | < 20ms/100 chars | Not measured |
+| Cell update | < 20ms | Not measured |
+| Full display refresh | < 200ms | Not measured |
+| Input latency | < 20ms | Not measured |
+| Cursor movement | < 5ms | Not measured |
 
 ## Testing
 
 ### Automated Testing
 
-**Test Coverage**:
-- ✅ Braille cell rendering tests
-- ✅ Display connection tests
-- ✅ Translation tests
-- ✅ Input processing tests
-- ✅ Navigation tests
-- ✅ Multiple display tests
+**Planned Test Coverage**:
+- Braille cell rendering tests
+- Display connection tests
+- Translation tests
+- Input processing tests
+- Navigation tests
+- Multiple display tests
 
-**Test Results**:
-- Unit tests: 100% pass rate ✅
-- Integration tests: 100% pass rate ✅
-- Performance tests: All targets met ✅
+**Test Results**: Comprehensive automated and hardware testing is not yet in place. No verified pass-rate or coverage figures are available for this prototype.
 
 ### Manual Testing
 
-**Test Scenarios**:
-- ✅ Display connection
-- ✅ Text display
-- ✅ Braille input
-- ✅ Navigation
-- ✅ Translation
-- ✅ Multiple displays
-- ✅ System integration
+**Planned Test Scenarios**:
+- Display connection
+- Text display
+- Braille input
+- Navigation
+- Translation
+- Multiple displays
+- System integration
 
-**Test Results**:
-- All scenarios passed ✅
-- No critical issues ✅
-- User satisfaction: 4.9/5 ✅
+**Test Results**: Not yet performed against real braille hardware.
 
 ### User Testing
 
-**Participants**:
-- 20 braille display users
-- 10 Grade 1 braille users
-- 15 Grade 2 braille users
-- 5 new braille users
-
-**Results**:
-- Task completion rate: 96% ✅
-- User satisfaction: 4.9/5 ✅
-- Preferred input method: 85% ✅
-- Daily usage: 90% ✅
+User testing with braille display users has not yet been conducted. Any participant counts, task-completion rates, or satisfaction scores would be aspirational and are intentionally omitted until real studies are run.
 
 ## Best Practices
 
@@ -554,10 +540,10 @@ pub trait BrailleDisplayAPI {
 
 ## Conclusion
 
-Braille Display Support provides comprehensive integration with refreshable braille displays, enabling users who are blind or have low vision to interact with VantisOS through tactile braille output and input. With support for multiple display sizes, Grade 1 and Grade 2 braille, and excellent performance, Braille Display Support sets a new standard for operating system braille accessibility.
+Braille Display Support is a planned VantisOS accessibility subsystem intended to integrate with refreshable braille displays, enabling users who are blind or have low vision to interact with the system through tactile braille output and input. The design targets multiple display sizes plus Grade 1 and Grade 2 braille. This document describes the intended architecture and APIs; the feature is an early-stage prototype and has not been validated on real hardware.
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 0.4.1 (experimental)  
 **Last Updated**: February 26, 2025  
-**Status**: ✅ Production Ready
+**Status**: Prototype / in progress

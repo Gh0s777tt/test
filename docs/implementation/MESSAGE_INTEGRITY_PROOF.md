@@ -1,15 +1,28 @@
-# 🔐 Message Integrity Proof - Complete Documentation
+# 🔐 Message Integrity - Proof Sketch / Design Intent
 
 **Date**: February 9, 2026  
 **Version**: 1.0  
-**Status**: ✅ COMPLETE  
+**Status**: 🚧 Design sketch (not machine-checked)  
 **Module**: `ipc_message_integrity.rs`
+
+---
+
+> ⚠️ **IMPORTANT — these are proof SKETCHES, not machine-checked proofs.**
+> The arguments below describe the *intended* message-integrity properties and
+> the reasoning we expect to hold. They are **design intent**, not verified
+> results. The actual Verus `proof fn` items in the codebase are stubs
+> (several with empty / English-comment bodies) and are **not verified
+> end-to-end** by the Verus verifier. Nothing here should be read as a
+> guarantee. VantisOS is experimental, early-stage (v0.4.1) software and is
+> **not** certified, audited, or production-ready.
 
 ---
 
 ## 📋 Overview
 
-This document describes the complete formal verification of **Message Integrity** in the VantisOS IPC system. This is the first of five critical properties being proven for the IPC module.
+This document sketches the intended **Message Integrity** properties of the
+VantisOS IPC system and the reasoning we would need to establish to verify
+them. It is one of five IPC properties for which design-intent sketches exist.
 
 ---
 
@@ -101,22 +114,28 @@ pub struct IntegrityBuffer {
 
 ---
 
-## 📐 Formal Proofs
+## 📐 Proof Sketches (design intent — not machine-checked)
 
-### Proof 1: Message Integrity Preserved
+> The "proofs" below are informal arguments for the intended properties.
+> They have **not** been mechanically verified. The accompanying Verus
+> snippets are stubs — note the bodies are English comments
+> (e.g. `// Proof by construction`), which do **not** discharge the obligation
+> in Verus.
 
-**Theorem**:
-```rust
+### Sketch 1: Message Integrity Preserved
+
+**Intended property**:
+```
 ∀ msg: IntegrityMessage, msg.wf() ⟹ msg.verify_integrity() = true
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. By construction, `new()` ensures `checksum = compute_checksum(data)`
 2. `wf()` requires `checksum == compute_checksum_spec(data)`
 3. `verify_integrity()` checks `checksum == compute_checksum(data)`
-4. Therefore, `verify_integrity()` always returns `true` for well-formed messages ∎
+4. Therefore, `verify_integrity()` always returns `true` for well-formed messages (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — English-comment body does NOT prove this)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_message_integrity_preserved()
@@ -125,25 +144,25 @@ pub proof fn theorem_message_integrity_preserved()
             msg.wf() ==> msg.verify_integrity()
     )
 {
-    // Proof by construction
+    // Empty/placeholder body — not an actual Verus proof
 }
 ```
 
-### Proof 2: Data Immutability
+### Sketch 2: Data Immutability
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ msg1, msg2: IntegrityMessage,
   msg1.wf() ∧ msg2.wf() ∧ msg1.data() = msg2.data() ⟹
   msg1.checksum() = msg2.checksum()
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `compute_checksum` is a deterministic function
 2. Same input always produces same output
-3. Therefore, equal data implies equal checksum ∎
+3. Therefore, equal data implies equal checksum (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — English-comment body does NOT prove this)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_data_immutability()
@@ -154,27 +173,27 @@ pub proof fn theorem_data_immutability()
             msg1.checksum() == msg2.checksum()
     )
 {
-    // Proof by determinism
+    // Empty/placeholder body — not an actual Verus proof
 }
 ```
 
-### Proof 3: Buffer Preserves Integrity
+### Sketch 3: Buffer Preserves Integrity
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ buffer: IntegrityBuffer, msg: IntegrityMessage,
   buffer.wf() ∧ msg.wf() ⟹
   buffer.push(msg) ⟹ buffer.pop() = Some(msg') ∧ msg'.wf() ∧ msg'.data() = msg.data()
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. Buffer maintains `wf()` invariant
 2. `wf()` requires all messages in buffer are well-formed
 3. `push()` preserves `wf()`
 4. `pop()` returns well-formed message
-5. Therefore, integrity is preserved through buffer operations ∎
+5. Therefore, integrity is preserved through buffer operations (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_buffer_preserves_integrity()
@@ -191,26 +210,26 @@ pub proof fn theorem_buffer_preserves_integrity()
             }
     )
 {
-    // Proof by buffer invariant
+    // Empty/placeholder body — not an actual Verus proof
 }
 ```
 
-### Proof 4: End-to-End Integrity
+### Sketch 4: End-to-End Integrity
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ sender, receiver: Pid, data: Seq<u8>,
   data.len() <= MAX_MESSAGE_SIZE ⟹
   let msg = IntegrityMessage::new(..., data);
   msg.wf() ∧ msg.data() = data
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `new()` ensures `result.wf()`
 2. `new()` ensures `result.data() == data`
-3. Therefore, message creation preserves data integrity ∎
+3. Therefore, message creation preserves data integrity (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — English-comment body does NOT prove this)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_end_to_end_integrity()
@@ -222,7 +241,7 @@ pub proof fn theorem_end_to_end_integrity()
             }
     )
 {
-    // Proof by construction and specification
+    // Empty/placeholder body — not an actual Verus proof
 }
 ```
 
@@ -232,24 +251,25 @@ pub proof fn theorem_end_to_end_integrity()
 
 ### 1. Verus Formal Proofs
 
-**Status**: ✅ Complete
+**Status**: 🚧 Stubs only — not verified
 
-All four theorems have been proven using Verus:
+Four proof functions are stubbed out with empty / English-comment bodies. They
+do **not** currently pass the Verus verifier:
 - `theorem_message_integrity_preserved`
 - `theorem_data_immutability`
 - `theorem_buffer_preserves_integrity`
 - `theorem_end_to_end_integrity`
 
-**Verification Command**:
+**Intended verification command** (does not pass today):
 ```bash
 verus src/verified/ipc_message_integrity.rs
 ```
 
 ### 2. Kani Model Checking
 
-**Status**: ✅ Complete
+**Status**: 🚧 Planned / not established
 
-Five properties verified with Kani:
+Properties intended to be checked with Kani:
 
 1. **Checksum Determinism**:
    ```rust
@@ -279,14 +299,14 @@ Five properties verified with Kani:
    ```
    Verifies that any data corruption is detected.
 
-**Verification Command**:
+**Intended verification command**:
 ```bash
 cargo kani --harness verify_message_integrity_property
 ```
 
 ### 3. Unit Tests
 
-**Status**: ✅ Complete (6 tests)
+**Status**: Present (6 tests) — these are ordinary tests, not proofs
 
 1. `test_checksum_computation` - Checksum determinism
 2. `test_message_integrity` - Basic integrity verification
@@ -309,17 +329,11 @@ cargo test --package vantis-os --lib ipc_message_integrity
 **Time Complexity**: O(n) where n = message size
 **Space Complexity**: O(1)
 
-**Benchmarks** (4KB message):
-- Checksum computation: ~2 μs
-- Message creation: ~3 μs
-- Integrity verification: ~2 μs
-- Total overhead: ~5 μs per message
-
-**Comparison with alternatives**:
-- CRC32: 2 μs (chosen)
-- SHA256: 15 μs (too slow)
-- MD5: 8 μs (deprecated)
-- No checksum: 0 μs (insecure)
+**Performance**: ⚠️ **Unmeasured.** No benchmarks have been run. CRC32 was
+chosen for its low expected cost and simplicity, but no per-message timings
+exist for this implementation. The relative ordering below (CRC32 cheaper than
+MD5 cheaper than SHA-256) is general algorithmic intuition, not measurements of
+this codebase.
 
 ### Memory Overhead
 
@@ -397,31 +411,31 @@ pub struct IpcManager {
 - [x] CRC32 checksum implementation
 - [x] IntegrityMessage structure
 - [x] IntegrityBuffer implementation
-- [x] Verus formal proofs (4 theorems)
-- [x] Kani model checking (5 properties)
+- [ ] Verus formal proofs (currently stubs with empty bodies — not verified)
+- [ ] Kani model checking (planned)
 - [x] Unit tests (6 tests)
-- [x] Performance benchmarks
-- [x] Security analysis
+- [ ] Performance benchmarks (not run — performance unmeasured)
+- [x] Security analysis (informal)
 - [x] Documentation
-- [x] Code review ready
 
 ---
 
 ## 🎯 Next Steps
 
-### Immediate (Week 1-2)
-1. ✅ Message Integrity Proof - **COMPLETE**
-2. ⏳ Resource Bounds Proof - **NEXT**
-3. ⏳ No Information Leakage Proof
+### Immediate
+1. 📝 Message Integrity — design sketch (proofs are empty stubs)
+2. ⏳ Actually discharge the proofs in Verus
+3. 📝 Resource Bounds — design sketch (proofs are stubs)
+4. 📝 No Information Leakage — design sketch (proofs are stubs)
 
-### Week 3-4
-4. ⏳ Deadlock Freedom Proof
-5. ⏳ Capability Correctness Proof
+### Later
+5. ⏳ Deadlock Freedom — design sketch (proofs are stubs)
+6. ⏳ Capability Correctness — design sketch (proofs are stubs)
 
 ### Integration
-6. ⏳ Integrate with main IPC system
-7. ⏳ End-to-end testing
-8. ⏳ Performance optimization
+7. ⏳ Integrate with main IPC system
+8. ⏳ End-to-end testing
+9. ⏳ Performance measurement (currently unmeasured)
 
 ---
 
@@ -441,22 +455,25 @@ pub struct IpcManager {
 
 ---
 
-## 🎊 Achievement
+## 🎯 Status
 
-**Message Integrity Proof: COMPLETE! ✅**
+**Message Integrity: design sketch in place; proofs NOT machine-checked.**
 
-This is the **first of five critical properties** proven for the VantisOS IPC system. We have achieved:
+This is one of five IPC properties for which a design-intent sketch exists. So far:
 
-- ✅ Complete formal proofs in Verus
-- ✅ Model checking with Kani
-- ✅ Comprehensive unit tests
-- ✅ Performance analysis
-- ✅ Security analysis
-- ✅ Production-ready code
+- 📝 Proof *sketches* written in Verus syntax (stubs with empty / comment bodies — do not pass the verifier)
+- 🚧 Kani model checking planned, not established
+- ✅ Ordinary unit tests present
+- 📝 Informal security analysis
 
-**Impact**: VantisOS now has **mathematically proven message integrity** in its IPC system, making it one of the most secure operating systems in the world.
+**Reality**: VantisOS has a *CRC32-based integrity design* (checksum stored with
+each message, checked on `verify_integrity`) with *intended* end-to-end
+integrity properties. It does **not** have mathematically proven message
+integrity — the proofs are empty stubs and are not verified end-to-end. CRC32
+also detects accidental corruption only; it is not a cryptographic integrity
+guarantee against an active attacker.
 
 ---
 
-**Status**: ✅ READY FOR REVIEW AND INTEGRATION  
-**Next**: Resource Bounds Proof (Week 1-2)
+**Status**: 🚧 Design sketch — proofs are stubs, not verified  
+**Next**: Attempt to actually discharge the proofs in Verus

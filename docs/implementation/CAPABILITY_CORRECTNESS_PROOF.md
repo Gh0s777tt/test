@@ -1,15 +1,28 @@
-# 🔐 Capability Correctness Proof - Complete Documentation
+# 🔐 Capability Correctness - Proof Sketch / Design Intent
 
 **Date**: February 9, 2026  
 **Version**: 1.0  
-**Status**: ✅ COMPLETE  
+**Status**: 🚧 Design sketch (not machine-checked)  
 **Module**: `ipc_capability_correctness.rs`
+
+---
+
+> ⚠️ **IMPORTANT — these are proof SKETCHES, not machine-checked proofs.**
+> The arguments below describe the *intended* correctness properties of the
+> capability system and the reasoning we expect to hold. They are **design
+> intent**, not verified results. The actual Verus `proof fn` items in the
+> codebase are stubs (several with empty / English-comment bodies) and are
+> **not verified end-to-end** by the Verus verifier. Nothing here should be
+> read as a guarantee. VantisOS is experimental, early-stage (v0.4.1) software
+> and is **not** certified, audited, or production-ready.
 
 ---
 
 ## 📋 Overview
 
-This document describes the complete formal verification of **Capability Correctness** in the VantisOS IPC system. This is the fifth and final critical property being proven for the IPC module.
+This document sketches the intended **Capability Correctness** properties of the
+VantisOS IPC system, and the reasoning we would need to establish to verify
+them. It is one of five IPC properties for which design-intent sketches exist.
 
 ---
 
@@ -118,24 +131,28 @@ pub struct CapabilityManager {
 
 ---
 
-## 📐 Formal Proofs
+## 📐 Proof Sketches (design intent — not machine-checked)
 
-### Proof 1: Secure Propagation
+> The "proofs" below are informal arguments for the intended properties.
+> They have **not** been mechanically verified. The accompanying Verus
+> snippets are stubs / signatures, not passing proofs.
 
-**Theorem**:
-```rust
+### Sketch 1: Secure Propagation
+
+**Intended property**:
+```
 ∀ manager, granter, grantee, cap_type:
   grant_capability(granter, grantee, cap_type) = Ok(_) ⟹
   has_grant_capability(granter)
 ```
 
-**Proof by Precondition**:
+**Argument (sketch) by precondition**:
 1. `grant_capability` checks `has_grant_capability(granter)`
 2. If check fails, returns `Err("No grant capability")`
 3. If returns `Ok`, check must have passed
-4. Therefore, granter has Grant capability ∎
+4. Therefore, granter has Grant capability (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_secure_propagation()
@@ -146,24 +163,24 @@ pub proof fn theorem_secure_propagation()
     )
 ```
 
-### Proof 2: No Forgery
+### Sketch 2: No Forgery
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager, token:
   verify_capability(process, token, cap_type) = true ⟹
   exists_valid_capability(manager, token)
 ```
 
-**Proof by Token Verification**:
+**Argument (sketch) by token verification**:
 1. Token contains secret value
 2. Secret is known only to CapabilityManager
 3. `verify_capability` checks `token.verify(secret)`
 4. Only valid tokens pass verification
 5. Forged tokens have wrong secret
-6. Therefore, no forgery is possible ∎
+6. Therefore, forgery should be infeasible up to the secret's strength (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_no_forgery()
@@ -174,22 +191,22 @@ pub proof fn theorem_no_forgery()
     )
 ```
 
-### Proof 3: Revocation Effective
+### Sketch 3: Revocation Effective
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager, token:
   revoke_capability(revoker, token) = Ok(_) ⟹
   eventually(¬is_valid(manager, token))
 ```
 
-**Proof by State Change**:
+**Argument (sketch) by state change**:
 1. `revoke_capability` sets `cap.revoked = true`
 2. `is_valid` checks `!cap.revoked`
 3. After revocation, `is_valid` returns `false`
-4. Therefore, revocation is effective ∎
+4. Therefore, revocation is effective (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_revocation_effective()
@@ -200,23 +217,23 @@ pub proof fn theorem_revocation_effective()
     )
 ```
 
-### Proof 4: No Privilege Escalation
+### Sketch 4: No Privilege Escalation
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager, process, cap_type:
   has_capability(process, cap_type) ⟹
   was_granted(manager, process, cap_type)
 ```
 
-**Proof by Capability Origin**:
+**Argument (sketch) by capability origin**:
 1. Capabilities can only be obtained via `grant_capability`
 2. `grant_capability` requires granter to have Grant capability
 3. Bootstrap grants initial capabilities to root
 4. All capabilities trace back to legitimate grant
-5. Therefore, no privilege escalation is possible ∎
+5. Therefore, privilege escalation should be prevented (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_no_privilege_escalation()
@@ -229,13 +246,15 @@ pub proof fn theorem_no_privilege_escalation()
 
 ---
 
-## 🧪 Verification Methods
+## 🧪 Verification Approach (intended)
 
 ### 1. Verus Formal Proofs
 
-**Status**: ✅ Complete
+**Status**: 🚧 Stubs only — not verified
 
-Four theorems proven:
+Four proof functions are stubbed out (signatures / partial bodies, several
+empty), corresponding to the sketches above. They do **not** currently pass
+the Verus verifier:
 - `theorem_secure_propagation`
 - `theorem_no_forgery`
 - `theorem_revocation_effective`
@@ -243,16 +262,16 @@ Four theorems proven:
 
 ### 2. Kani Model Checking
 
-**Status**: ✅ Complete
+**Status**: 🚧 Planned / not established
 
-Three properties verified:
+Properties intended to be checked:
 1. `verify_grant_requires_capability` - Grant requires Grant capability
 2. `verify_revoked_capability_invalid` - Revoked capabilities don't verify
 3. `verify_forged_token_rejected` - Forged tokens are rejected
 
 ### 3. Unit Tests
 
-**Status**: ✅ Complete (6 tests)
+**Status**: Present (6 tests) — these are ordinary tests, not proofs
 
 1. `test_capability_grant` - Basic grant operation
 2. `test_capability_revocation` - Revocation works
@@ -299,10 +318,12 @@ Three properties verified:
 ### Cryptographic Strength
 
 **Secret Size**: 64 bits
-**Forgery Probability**: 2^-64 ≈ 5.4 × 10^-20
-**Brute Force Time**: ~584 million years (at 1 billion attempts/second)
+**Forgery Probability (theoretical)**: 2^-64 ≈ 5.4 × 10^-20 per guess
 
-**Note**: For production, consider using 128-bit or 256-bit secrets.
+**Note**: This is a back-of-the-envelope figure assuming an ideal, uniformly
+random, non-leaking secret. The implementation has **not** been audited and the
+PRNG / secret-handling has not been reviewed for this property. For any serious
+use, consider 128-bit or 256-bit secrets and a real cryptographic review.
 
 ---
 
@@ -388,10 +409,14 @@ pub enum AuditAction {
 
 ## 🎯 Comparison with Other Systems
 
+> Note: the "VantisOS" row reflects *design intent*, not verified or audited
+> results. seL4's proofs are real, machine-checked, and peer-reviewed; VantisOS's
+> are not.
+
 | System | Capability Model | Forgery Protection | Revocation | Audit |
 |--------|-----------------|-------------------|------------|-------|
-| **VantisOS** | **✅ Proven** | **✅ Secret-based** | **✅ Yes** | **✅ Complete** |
-| seL4 | ✅ Proven | ✅ Hardware-based | ✅ Yes | ⚠️ Limited |
+| **VantisOS** | **Design intent (unverified)** | Secret-based (unaudited) | Yes (design) | Audit log (design) |
+| seL4 | ✅ Proven (machine-checked) | ✅ Hardware-based | ✅ Yes | ⚠️ Limited |
 | Capsicum | ⚠️ Best effort | ✅ Kernel-based | ✅ Yes | ❌ No |
 | EROS | ✅ Proven | ✅ Cryptographic | ✅ Yes | ⚠️ Limited |
 
@@ -440,49 +465,49 @@ pub enum AuditAction {
 - [x] CapabilityType implementation
 - [x] SecureCapability implementation
 - [x] CapabilityManager implementation
-- [x] Verus formal proofs (4 theorems)
-- [x] Kani model checking (3 properties)
+- [ ] Verus formal proofs (currently stubs — not verified)
+- [ ] Kani model checking (planned)
 - [x] Unit tests (6 tests)
-- [x] Security analysis
+- [x] Security analysis (informal)
 - [x] Audit trail implementation
-- [x] Performance analysis
+- [x] Performance analysis (complexity only — unmeasured)
 - [x] Comparison with other systems
 - [x] Real-world use cases
-- [x] Complete documentation
+- [x] Documentation
 
 ---
 
-## 🎊 Achievement
+## 🎯 Status
 
-**Capability Correctness Proof: COMPLETE! ✅**
+**Capability Correctness: design sketch in place; proofs NOT machine-checked.**
 
-This is the **fifth and final critical property** proven for the VantisOS IPC system. We have achieved:
+This is one of five IPC properties for which a design-intent sketch exists. So far:
 
-- ✅ Complete formal proofs in Verus
-- ✅ Model checking with Kani
-- ✅ Comprehensive unit tests
-- ✅ Security analysis
+- 📝 Proof *sketches* written in Verus syntax (stubs — do not pass the verifier)
+- 🚧 Kani model checking planned, not established
+- ✅ Ordinary unit tests present
+- 📝 Informal security analysis
 - ✅ Audit trail implementation
-- ✅ Production-ready code
 
-**Impact**: VantisOS now has **mathematically proven capability correctness** in its IPC system, ensuring secure and correct capability management.
-
----
-
-## 🎉 ALL 5 IPC PROPERTIES COMPLETE!
-
-With this final property, we have completed the formal verification of all five critical IPC properties:
-
-1. ✅ **Message Integrity** - Corruption detection
-2. ✅ **Resource Bounds** - DoS prevention
-3. ✅ **Information Leakage Prevention** - Process isolation
-4. ✅ **Deadlock Freedom** - No deadlocks
-5. ✅ **Capability Correctness** - Secure capability management
-
-**VantisOS now has the world's most comprehensively verified IPC system!**
+**Reality**: VantisOS has a *capability design* with *intended* correctness
+properties. It does **not** have mathematically proven capability correctness.
+The proofs are stubs and are not verified end-to-end.
 
 ---
 
-**Status**: ✅ READY FOR REVIEW AND INTEGRATION  
-**Next**: Final Integration & Testing  
-**Progress**: 5 of 5 IPC properties complete (100%)
+## IPC properties — current state
+
+Design-intent sketches exist for all five IPC properties; **none** are
+machine-checked / verified end-to-end:
+
+1. 📝 **Message Integrity** - corruption detection (sketch)
+2. 📝 **Resource Bounds** - DoS prevention (sketch)
+3. 📝 **Information Leakage Prevention** - process isolation (sketch)
+4. 📝 **Deadlock Freedom** - no deadlocks (sketch)
+5. 📝 **Capability Correctness** - capability management (sketch)
+
+---
+
+**Status**: 🚧 Design sketch — proofs are stubs, not verified  
+**Next**: Attempt to actually discharge the proofs in Verus  
+**Progress**: 5 of 5 IPC properties have design-intent sketches (0 machine-checked)

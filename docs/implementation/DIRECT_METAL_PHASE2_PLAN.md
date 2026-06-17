@@ -1,10 +1,19 @@
 # Direct Metal Phase 2 - Implementation Plan
 **Date**: January 10, 2025  
-**Session Goal**: Complete GPU access with Vulkan/Metal backends  
-**Estimated Duration**: 4-6 hours
+**Session Goal**: Add GPU access with Vulkan/Metal backends  
+**Estimated Duration**: rough guess only (unvalidated)
+
+> ⚠️ **This is an aspirational plan, not a status report.** Nothing here is
+> implemented, complete, verified, or production-ready. Durations, function
+> counts, test counts, and performance targets below are *guesses / goals*,
+> not measurements. Treat every checkbox and "✅" as a planned item, not a done
+> one. VantisOS is experimental, early-stage (v0.4.1) software.
 
 ## Overview
-Phase 1 created the foundation with device management, memory management, command buffers, and scheduling. Phase 2 will add real backend implementations (Vulkan and Metal) to enable actual GPU workloads.
+Phase 1 created an initial scaffold for device management, memory management,
+command buffers, and scheduling. Phase 2 *aims to* add real backend
+implementations (Vulkan and Metal) to enable actual GPU workloads. This is a
+plan; the work described has not been done.
 
 ## Architecture
 
@@ -42,7 +51,7 @@ Phase 1 created the foundation with device management, memory management, comman
 
 ## Implementation Phases
 
-### Phase 2.1: Backend Abstraction Layer (1 hour)
+### Phase 2.1: Backend Abstraction Layer (rough estimate)
 **Goal**: Create trait-based interface for GPU backends
 
 **Files to Create**:
@@ -66,8 +75,8 @@ Phase 1 created the foundation with device management, memory management, comman
 - Compile-time backend selection
 - Runtime backend switching support
 
-### Phase 2.2: Vulkan Backend (2-2.5 hours)
-**Goal**: Implement production-ready Vulkan backend
+### Phase 2.2: Vulkan Backend (rough estimate)
+**Goal**: Implement a working Vulkan backend
 
 **Files to Create**:
 - `src/verified/direct_metal_vulkan.rs`
@@ -106,8 +115,8 @@ Phase 1 created the foundation with device management, memory management, comman
 - Descriptor set management
 - Pipeline caching
 
-### Phase 2.3: Metal Backend (2-2.5 hours)
-**Goal**: Implement production-ready Metal backend (macOS/iOS)
+### Phase 2.3: Metal Backend (rough estimate)
+**Goal**: Implement a working Metal backend (macOS/iOS)
 
 **Files to Create**:
 - `src/verified/direct_metal_metal.rs`
@@ -146,8 +155,8 @@ Phase 1 created the foundation with device management, memory management, comman
 - Shader compilation and caching
 - iOS/macOS compatibility
 
-### Phase 2.4: Integration & Testing (1 hour)
-**Goal**: Integrate backends and create comprehensive tests
+### Phase 2.4: Integration & Testing (rough estimate)
+**Goal**: Integrate backends and create a test suite
 
 **Tasks**:
 1. Update `direct_metal.rs` to use backend abstraction
@@ -182,28 +191,30 @@ objc = "0.2"
 raw-window-handle = "0.5"
 ```
 
-## Success Criteria
+## Success Criteria (targets — none met yet)
+
+> These are goals for the planned work, not achieved results.
 
 ### Functional Requirements
-- ✅ Both backends implement `GpuBackend` trait
-- ✅ Can enumerate and select GPU devices
-- ✅ Can allocate and manage GPU memory
-- ✅ Can submit and execute commands
-- ✅ Proper synchronization and error handling
-- ✅ Resource cleanup and leak prevention
+- [ ] Both backends implement `GpuBackend` trait
+- [ ] Can enumerate and select GPU devices
+- [ ] Can allocate and manage GPU memory
+- [ ] Can submit and execute commands
+- [ ] Proper synchronization and error handling
+- [ ] Resource cleanup and leak prevention
 
-### Performance Requirements
-- ✅ Zero-copy memory transfers where possible
-- ✅ Efficient command buffer recording
-- ✅ Minimal CPU overhead
-- ✅ Optimal queue utilization
+### Performance Requirements (aspirational)
+- [ ] Zero-copy memory transfers where possible
+- [ ] Efficient command buffer recording
+- [ ] Minimal CPU overhead
+- [ ] Optimal queue utilization
 
-### Quality Requirements
-- ✅ Comprehensive test coverage (>90%)
-- ✅ No memory leaks
-- ✅ Proper error propagation
-- ✅ Clear documentation
-- ✅ Example usage code
+### Quality Requirements (aspirational)
+- [ ] Reasonable test coverage (target >90% — unmeasured)
+- [ ] No memory leaks
+- [ ] Proper error propagation
+- [ ] Clear documentation
+- [ ] Example usage code
 
 ## Verification Strategy
 
@@ -254,20 +265,22 @@ raw-window-handle = "0.5"
 - [ ] Compatibility matrix
 
 ### Tests
-- [ ] 50+ unit tests
-- [ ] 20+ integration tests
+- [ ] Unit tests (target ~50, aspirational)
+- [ ] Integration tests (target ~20, aspirational)
 - [ ] Performance benchmarks
 - [ ] Example applications
 
 ## Timeline
 
-| Phase | Duration | Tasks |
+> Durations are rough guesses for planning only — not commitments or measurements.
+
+| Phase | Est. (guess) | Tasks |
 |-------|----------|-------|
-| 2.1 Backend Abstraction | 1 hour | Trait design, factory pattern |
-| 2.2 Vulkan Backend | 2-2.5 hours | Full Vulkan implementation |
-| 2.3 Metal Backend | 2-2.5 hours | Full Metal implementation |
-| 2.4 Integration & Testing | 1 hour | Tests, benchmarks, examples |
-| **Total** | **6-7 hours** | **Complete GPU backend** |
+| 2.1 Backend Abstraction | ~1 hour | Trait design, factory pattern |
+| 2.2 Vulkan Backend | ~2-2.5 hours | Vulkan implementation |
+| 2.3 Metal Backend | ~2-2.5 hours | Metal implementation |
+| 2.4 Integration & Testing | ~1 hour | Tests, benchmarks, examples |
+| **Total** | **~6-7 hours (guess)** | **Aim: working GPU backends** |
 
 ## Next Steps After Phase 2
 
@@ -293,10 +306,11 @@ raw-window-handle = "0.5"
 
 - Focus on correctness first, optimization second
 - Use existing battle-tested libraries (ash, metal-rs)
-- Maintain formal verification where possible
+- Add lightweight checks/invariants where practical (note: this project has no
+  working formal verification today — the Verus "proofs" elsewhere are stubs)
 - Document all unsafe code thoroughly
 - Create clear examples for developers
 
 ---
 
-**Ready to begin implementation!** 🚀
+**Status: planned, not started.** Everything above is aspirational. 🚀

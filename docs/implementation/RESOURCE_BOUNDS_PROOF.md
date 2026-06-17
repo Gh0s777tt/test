@@ -1,15 +1,28 @@
-# 🔐 Resource Bounds Proof - Complete Documentation
+# 🔐 Resource Bounds - Proof Sketch / Design Intent
 
 **Date**: February 9, 2026  
 **Version**: 1.0  
-**Status**: ✅ COMPLETE  
+**Status**: 🚧 Design sketch (not machine-checked)  
 **Module**: `ipc_resource_bounds.rs`
+
+---
+
+> ⚠️ **IMPORTANT — these are proof SKETCHES, not machine-checked proofs.**
+> The arguments below describe the *intended* resource-bound properties and the
+> reasoning we expect to hold. They are **design intent**, not verified
+> results. The actual Verus `proof fn` items in the codebase are stubs
+> (several with empty / English-comment bodies) and are **not verified
+> end-to-end** by the Verus verifier. Nothing here should be read as a
+> guarantee. VantisOS is experimental, early-stage (v0.4.1) software and is
+> **not** certified, audited, or production-ready.
 
 ---
 
 ## 📋 Overview
 
-This document describes the complete formal verification of **Resource Bounds** in the VantisOS IPC system. This is the second of five critical properties being proven for the IPC module.
+This document sketches the intended **Resource Bounds** properties of the
+VantisOS IPC system and the reasoning we would need to establish to verify
+them. It is one of five IPC properties for which design-intent sketches exist.
 
 ---
 
@@ -126,23 +139,27 @@ pub struct BoundedIpcManager {
 
 ---
 
-## 📐 Formal Proofs
+## 📐 Proof Sketches (design intent — not machine-checked)
 
-### Proof 1: Bounded Queue Size
+> The "proofs" below are informal arguments for the intended properties.
+> They have **not** been mechanically verified. The accompanying Verus
+> snippets are stubs / signatures, not passing proofs.
 
-**Theorem**:
-```rust
+### Sketch 1: Bounded Queue Size
+
+**Intended property**:
+```
 ∀ queue: BoundedQueue, queue.wf() ⟹ queue.len() ≤ MAX_QUEUE_SIZE
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `new()` ensures `len() == 0 ≤ MAX_QUEUE_SIZE`
 2. `push()` requires `len() < max_size ≤ MAX_QUEUE_SIZE`
 3. `push()` ensures `len() == old(len()) + 1 ≤ MAX_QUEUE_SIZE`
 4. `pop()` ensures `len() == old(len()) - 1 ≤ MAX_QUEUE_SIZE`
-5. Therefore, `len() ≤ MAX_QUEUE_SIZE` is maintained ∎
+5. Therefore, `len() ≤ MAX_QUEUE_SIZE` is maintained (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_bounded_queue_size()
@@ -152,20 +169,20 @@ pub proof fn theorem_bounded_queue_size()
     )
 ```
 
-### Proof 2: Bounded Message Size
+### Sketch 2: Bounded Message Size
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ msg: BoundedMessage, msg.wf() ⟹ msg.size() ≤ MAX_MESSAGE_SIZE
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `new()` requires `data.len() <= MAX_MESSAGE_SIZE`
 2. `new()` ensures `result.wf()`
 3. `wf()` requires `data.len() <= MAX_MESSAGE_SIZE`
-4. Therefore, all well-formed messages have `size() ≤ MAX_MESSAGE_SIZE` ∎
+4. Therefore, all well-formed messages have `size() ≤ MAX_MESSAGE_SIZE` (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_bounded_message_size()
@@ -175,21 +192,21 @@ pub proof fn theorem_bounded_message_size()
     )
 ```
 
-### Proof 3: Bounded Total Memory
+### Sketch 3: Bounded Total Memory
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager: BoundedIpcManager, manager.wf() ⟹ manager.total_memory() ≤ MAX_IPC_MEMORY
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `new()` ensures `total_memory() == 0 ≤ MAX_IPC_MEMORY`
 2. `send()` requires `total_memory() + msg.size() ≤ max_memory ≤ MAX_IPC_MEMORY`
 3. `send()` ensures `total_memory() ≤ old(total_memory()) + msg.size()`
 4. `receive()` ensures `total_memory() == old(total_memory()) - msg.size()`
-5. Therefore, `total_memory() ≤ MAX_IPC_MEMORY` is maintained ∎
+5. Therefore, `total_memory() ≤ MAX_IPC_MEMORY` is maintained (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_bounded_total_memory()
@@ -199,15 +216,15 @@ pub proof fn theorem_bounded_total_memory()
     )
 ```
 
-### Proof 4: Memory Accounting Correctness
+### Sketch 4: Memory Accounting Correctness
 
-**Theorem**:
+**Intended property**:
 ```rust
 ∀ queue: BoundedQueue, queue.wf() ⟹
   queue.memory_usage() == Σ(i=0 to len-1) queue.messages[i].size()
 ```
 
-**Proof by Induction**:
+**Argument (sketch) by induction**:
 
 **Base Case**: `new()` ensures `memory_usage() == 0` and `len() == 0`
 - Sum of empty sequence is 0
@@ -224,9 +241,9 @@ pub proof fn theorem_bounded_total_memory()
   - New sum = `Σ(i=1 to n-1) messages[i].size()`
   - Therefore, invariant maintained ✓
 
-**Conclusion**: Memory accounting is always correct ∎
+**Conclusion**: under this reasoning, memory accounting stays correct (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_memory_accounting_correct()
@@ -245,24 +262,25 @@ pub proof fn theorem_memory_accounting_correct()
 
 ### 1. Verus Formal Proofs
 
-**Status**: ✅ Complete
+**Status**: 🚧 Stubs only — not verified
 
-All four theorems have been proven using Verus:
+Four proof functions are stubbed out (signatures / partial bodies, some empty).
+They do **not** currently pass the Verus verifier:
 - `theorem_bounded_queue_size`
 - `theorem_bounded_message_size`
 - `theorem_bounded_total_memory`
 - `theorem_memory_accounting_correct`
 
-**Verification Command**:
+**Intended verification command** (does not pass today):
 ```bash
 verus src/verified/ipc_resource_bounds.rs
 ```
 
 ### 2. Kani Model Checking
 
-**Status**: ✅ Complete
+**Status**: 🚧 Planned / not established
 
-Four properties verified with Kani:
+Properties intended to be checked with Kani:
 
 1. **Message Size Bound**:
    ```rust
@@ -292,14 +310,14 @@ Four properties verified with Kani:
    ```
    Verifies that total memory never exceeds limit.
 
-**Verification Command**:
+**Intended verification command**:
 ```bash
 cargo kani --harness verify_queue_size_bound
 ```
 
 ### 3. Unit Tests
 
-**Status**: ✅ Complete (6 tests)
+**Status**: Present (6 tests) — these are ordinary tests, not proofs
 
 1. `test_bounded_message_creation` - Basic message creation
 2. `test_message_size_limit` - Size limit enforcement
@@ -430,31 +448,31 @@ pub struct IpcManager {
 - [x] BoundedMessage implementation
 - [x] BoundedQueue implementation
 - [x] BoundedIpcManager implementation
-- [x] Verus formal proofs (4 theorems)
-- [x] Kani model checking (4 properties)
+- [ ] Verus formal proofs (currently stubs — not verified)
+- [ ] Kani model checking (planned)
 - [x] Unit tests (6 tests)
-- [x] Performance analysis
-- [x] Security analysis
+- [x] Performance analysis (complexity only — unmeasured)
+- [x] Security analysis (informal)
 - [x] Documentation
-- [x] Code review ready
 
 ---
 
 ## 🎯 Next Steps
 
-### Immediate (Week 1-2)
-1. ✅ Message Integrity Proof - **COMPLETE**
-2. ✅ Resource Bounds Proof - **COMPLETE**
-3. ⏳ No Information Leakage Proof - **NEXT**
+### Immediate
+1. 📝 Message Integrity — design sketch (proofs are stubs)
+2. 📝 Resource Bounds — design sketch (proofs are stubs)
+3. ⏳ Actually discharge the proofs in Verus
+4. 📝 No Information Leakage — design sketch (proofs are stubs)
 
-### Week 3-4
-4. ⏳ Deadlock Freedom Proof
-5. ⏳ Capability Correctness Proof
+### Later
+5. ⏳ Deadlock Freedom — design sketch (proofs are stubs)
+6. ⏳ Capability Correctness — design sketch (proofs are stubs)
 
 ### Integration
-6. ⏳ Integrate with main IPC system
-7. ⏳ End-to-end testing
-8. ⏳ Performance optimization
+7. ⏳ Integrate with main IPC system
+8. ⏳ End-to-end testing
+9. ⏳ Performance measurement (currently unmeasured)
 
 ---
 
@@ -474,22 +492,24 @@ pub struct IpcManager {
 
 ---
 
-## 🎊 Achievement
+## 🎯 Status
 
-**Resource Bounds Proof: COMPLETE! ✅**
+**Resource Bounds: design sketch in place; proofs NOT machine-checked.**
 
-This is the **second of five critical properties** proven for the VantisOS IPC system. We have achieved:
+This is one of five IPC properties for which a design-intent sketch exists. So far:
 
-- ✅ Complete formal proofs in Verus
-- ✅ Model checking with Kani
-- ✅ Comprehensive unit tests
-- ✅ Performance analysis
-- ✅ Security analysis
-- ✅ Production-ready code
+- 📝 Proof *sketches* written in Verus syntax (stubs — do not pass the verifier)
+- 🚧 Kani model checking planned, not established
+- ✅ Ordinary unit tests present
+- 📝 Informal security analysis
 
-**Impact**: VantisOS now has **mathematically proven resource bounds** in its IPC system, preventing resource exhaustion and ensuring system stability.
+**Reality**: VantisOS has a *resource-bounding design* (per-message size cap,
+per-queue length cap, tracked total-memory limit) with *intended* bound
+properties. It does **not** have mathematically proven resource bounds — the
+proofs are stubs and are not verified end-to-end. The numeric limits
+(4 KB / 64 / 256 MB / 4096) are configured constants, not verified guarantees.
 
 ---
 
-**Status**: ✅ READY FOR REVIEW AND INTEGRATION  
-**Next**: No Information Leakage Proof (Week 1-2, Day 5-7)
+**Status**: 🚧 Design sketch — proofs are stubs, not verified  
+**Next**: Attempt to actually discharge the proofs in Verus

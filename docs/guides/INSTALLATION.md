@@ -1,6 +1,6 @@
 # VantisOS Installation Guide
 
-Complete installation guide for VantisOS - A formally verified, mathematically proven operating system built with Rust and Verus.
+Installation guide for VantisOS - an experimental, early-stage (v0.4.1) operating system built with Rust. Formal verification with Verus is partial and aspirational (a small set of proof stubs); the system is NOT production-ready.
 
 ---
 
@@ -363,4 +363,4 @@ dhclient eth0
 
 ---
 
-*Last updated: March 2025 | VantisOS v1.4.0*
+*Last updated: March 2025 | VantisOS v0.4.1 (experimental)*

@@ -1,8 +1,20 @@
-# 🧠 Neural Scheduler Implementation - Complete Documentation
+# 🧠 Neural Scheduler Implementation
+
+> ⚠️ **Reality check.** This is an experimental, early-stage (v0.4.1),
+> largely AI-generated component. It is **not** verified, **not** audited,
+> **not** production-ready, and its performance is **unmeasured**. Claims of
+> "formal verification" elsewhere in this project rest on Verus `proof fn`
+> stubs (several with empty bodies) that do not pass the verifier — so this
+> scheduler is **not** "formally verified", and any "proven"/"verified" wording
+> below should be read as *design intent*, not established fact. Performance
+> figures are **targets/estimates, not benchmarks**.
 
 ## 📊 Overview
 
-The Neural Scheduler is a groundbreaking AI-based CPU scheduling system that uses machine learning to optimize thread scheduling decisions. It represents a world-first in operating system design: **the first formally verified neural network scheduler**.
+The Neural Scheduler is an experimental AI-based CPU scheduling component that
+uses a small neural network to influence thread scheduling decisions. The goal
+is to explore integer-only neural inference for scheduling; it is a prototype,
+not a finished or verified system.
 
 ---
 
@@ -12,7 +24,8 @@ The Neural Scheduler is a groundbreaking AI-based CPU scheduling system that use
 - **Architecture**: 8 inputs → 16 neurons → 16 neurons → 1 output
 - **Activation Functions**: ReLU (hidden layers), Sigmoid (output)
 - **Integer Math**: All operations use scaled integers (no floating point)
-- **Formal Verification**: Complete mathematical proofs for all operations
+- **Verification (intended)**: Verus/Kani specs are *sketched* but currently
+  stubs — operations are **not** machine-verified
 
 ### 2. **Workload Prediction**
 - **CPU Burst Prediction**: Predicts next CPU usage based on history
@@ -26,11 +39,13 @@ The Neural Scheduler is a groundbreaking AI-based CPU scheduling system that use
 - **Low Latency**: Optimized for <10ms input lag
 - **Adaptive Learning**: Learns from gaming patterns
 
-### 4. **Formal Verification**
-- **Verus Specifications**: Mathematical proofs for all functions
-- **Kani Harnesses**: Bounded model checking for edge cases
-- **Safety Guarantees**: No undefined behavior, no panics
-- **100% Test Coverage**: Comprehensive unit and integration tests
+### 4. **Verification (intended — not achieved)**
+- **Verus Specifications**: *sketched* for some functions, but the `proof fn`
+  bodies are stubs and do **not** pass the verifier
+- **Kani Harnesses**: planned for edge cases, not established
+- **Safety Goals**: avoid undefined behavior and panics (a goal, not a proven guarantee)
+- **Tests**: unit/integration tests exist; coverage is **unmeasured** (no
+  verified "100%" figure)
 
 ---
 
@@ -137,15 +152,19 @@ StabilityScore:
 
 ## 📈 Performance Characteristics
 
+> ⚠️ **All timing figures below are estimates/targets, NOT benchmarks.** No
+> performance measurements have been run. Only the complexity (O-notation)
+> columns are analytical; the microsecond figures are guesses.
+
 ### Computational Complexity
 
-| Operation | Complexity | Time (typical) |
+| Operation | Complexity | Time (estimate, unmeasured) |
 |-----------|-----------|----------------|
-| Forward Propagation | O(1) | ~2-3μs |
-| History Update | O(1) | ~0.5μs |
-| Pattern Detection | O(n) where n=32 | ~1-2μs |
-| Priority Adjustment | O(1) | ~3-5μs |
-| **Total per Thread** | **O(1)** | **~7-10μs** |
+| Forward Propagation | O(1) | ~2-3μs (target) |
+| History Update | O(1) | ~0.5μs (target) |
+| Pattern Detection | O(n) where n=32 | ~1-2μs (target) |
+| Priority Adjustment | O(1) | ~3-5μs (target) |
+| **Total per Thread** | **O(1)** | **~7-10μs (target)** |
 
 ### Memory Usage
 
@@ -157,13 +176,15 @@ StabilityScore:
 | Predictor State | 64 bytes | 16KB |
 | **Total** | **~480 bytes** | **~122KB** |
 
-### Scalability
+### Scalability (estimates only — unmeasured)
 
 - **Threads Supported**: 256 (MAX_TRACKED_THREADS)
-- **Overhead per Thread**: ~10μs per scheduling decision
-- **Total Overhead**: 256 threads × 10μs = **2.56ms per scheduling round**
-- **Scheduling Frequency**: Typically 100Hz (10ms quantum)
-- **CPU Usage**: ~25% of one quantum for all threads
+- **Overhead per Thread**: ~10μs per scheduling decision (estimate, not measured)
+- **Total Overhead**: 256 threads × ~10μs ≈ 2.56ms per round (derived from the
+  unmeasured per-thread estimate — illustrative only)
+- **Scheduling Frequency**: assume 100Hz (10ms quantum)
+- **CPU Usage**: would be ~25% of a quantum *if* the above estimate held — not
+  validated
 
 ---
 
@@ -185,49 +206,58 @@ When gaming mode is enabled:
 
 ### Expected Performance
 
-| Metric | Without Neural Scheduler | With Neural Scheduler | Improvement |
+> ⚠️ **The table below is hypothetical/aspirational — NOT measured.** These are
+> hoped-for effects, not benchmark results. No before/after comparison has been
+> run, and "Never"/"100%" claims are not established.
+
+| Metric | Baseline (assumed) | Goal | Hoped-for change |
 |--------|-------------------------|----------------------|-------------|
-| Input Lag | 15-20ms | <10ms | 33-50% |
-| Frame Time Variance | ±5ms | ±2ms | 60% |
-| CPU Utilization | 85% | 92% | 8% |
-| Thread Starvation | Occasional | Never | 100% |
+| Input Lag | 15-20ms (assumed) | <10ms (goal) | unmeasured |
+| Frame Time Variance | ±5ms (assumed) | ±2ms (goal) | unmeasured |
+| CPU Utilization | 85% (assumed) | higher (goal) | unmeasured |
+| Thread Starvation | occasional (assumed) | reduce (goal) | unmeasured |
 
 ---
 
-## 🔒 Formal Verification
+## 🔒 Verification (intended — NOT machine-checked)
 
-### Verified Properties
+> ⚠️ The properties below are **design intent / targets**, not verified
+> results. The Verus `proof fn` items are stubs and do not pass the verifier;
+> Kani harnesses are not established. Treat every item as "intended", not
+> "proven".
+
+### Intended Properties (design intent — not verified)
 
 #### Neural Scheduler
-1. ✅ **Output Bounds**: Priority adjustment always in [-128, 127]
-2. ✅ **No Overflow**: All arithmetic operations checked
-3. ✅ **Thread Limit**: Never exceeds MAX_TRACKED_THREADS
-4. ✅ **Activation Correctness**: ReLU and Sigmoid match specifications
-5. ✅ **Determinism**: Same inputs always produce same outputs
+1. ◻ **Output Bounds** (intended): Priority adjustment always in [-128, 127]
+2. ◻ **No Overflow** (intended): All arithmetic operations checked
+3. ◻ **Thread Limit** (intended): Never exceeds MAX_TRACKED_THREADS
+4. ◻ **Activation Correctness** (intended): ReLU and Sigmoid match specifications
+5. ◻ **Determinism** (intended): Same inputs always produce same outputs
 
 #### Workload Predictor
-1. ✅ **History Bounds**: Never exceeds MAX_HISTORY_SIZE
-2. ✅ **Circular Buffer**: Correct wraparound behavior
-3. ✅ **Average Correctness**: Matches mathematical definition
-4. ✅ **Variance Correctness**: Matches statistical formula
-5. ✅ **Confidence Bounds**: Always in [0, 100]
+1. ◻ **History Bounds** (intended): Never exceeds MAX_HISTORY_SIZE
+2. ◻ **Circular Buffer** (intended): Correct wraparound behavior
+3. ◻ **Average Correctness** (intended): Matches mathematical definition
+4. ◻ **Variance Correctness** (intended): Matches statistical formula
+5. ◻ **Confidence Bounds** (intended): Always in [0, 100]
 
 #### Integration Layer
-1. ✅ **Thread Safety**: No race conditions
-2. ✅ **Resource Bounds**: Bounded memory usage
-3. ✅ **Gaming Mode**: Correct boost application
-4. ✅ **Statistics**: Accurate tracking
-5. ✅ **Prediction Reliability**: Correct confidence thresholds
+1. ◻ **Thread Safety** (intended): No race conditions
+2. ◻ **Resource Bounds** (intended): Bounded memory usage
+3. ◻ **Gaming Mode** (intended): Correct boost application
+4. ◻ **Statistics** (intended): Accurate tracking
+5. ◻ **Prediction Reliability** (intended): Correct confidence thresholds
 
-### Verification Tools
+### Verification Tools (intended commands — do not pass today)
 
 ```bash
-# Verus verification (deductive proofs)
+# Verus verification — currently fails / proofs are stubs
 verus --crate-type=lib src/verified/neural_scheduler.rs
 verus --crate-type=lib src/verified/workload_predictor.rs
 verus --crate-type=lib src/verified/neural_scheduler_integration.rs
 
-# Kani verification (bounded model checking)
+# Kani verification — harnesses not established
 cargo kani --harness verify_neural_scheduler
 cargo kani --harness verify_workload_predictor
 cargo kani --harness verify_integration
@@ -239,12 +269,15 @@ cargo kani --harness verify_integration
 
 ### Test Coverage
 
-| Module | Unit Tests | Integration Tests | Total Coverage |
+> ⚠️ Coverage percentages are **unmeasured**. No coverage tool has been run;
+> the "100%" figures are not based on data. Test *counts* are approximate.
+
+| Module | Unit Tests (approx) | Integration Tests (approx) | Coverage |
 |--------|-----------|------------------|----------------|
-| neural_scheduler.rs | 12 | 3 | 100% |
-| workload_predictor.rs | 15 | 5 | 100% |
-| neural_scheduler_integration.rs | 15 | 8 | 100% |
-| **Total** | **42** | **16** | **100%** |
+| neural_scheduler.rs | ~12 | ~3 | unmeasured |
+| workload_predictor.rs | ~15 | ~5 | unmeasured |
+| neural_scheduler_integration.rs | ~15 | ~8 | unmeasured |
+| **Total** | **~42** | **~16** | **unmeasured** |
 
 ### Test Categories
 
@@ -274,43 +307,39 @@ cargo bench --bench neural_scheduler_bench
 
 ## 📊 Benchmarks
 
-### Synthetic Workloads
+> ⚠️ **No benchmarks have actually been run.** The snippets and tables below are
+> *illustrative expectations* of how the classifier is intended to behave, not
+> recorded results. The "real-world workload" rows (CS:GO, Chrome, PostgreSQL,
+> etc.) with specific confidence/accuracy percentages are **fabricated
+> examples**, not measurements — do not cite them.
+
+### Synthetic Workloads (intended behavior — not run)
 
 ```rust
-// CPU-Intensive (Gaming)
+// CPU-Intensive (Gaming) — intended to classify as CpuIntensive
 for i in 0..1000 {
     integration.update_and_adjust(0, 9000, 500, 5, 20, 128, i);
 }
-// Result: Consistently classified as CpuIntensive
-// Average adjustment: +15 to +25
-// Confidence: 95%+
+// Intended outcome: classified as CpuIntensive (not verified by a benchmark)
 
-// I/O-Intensive (Database)
+// I/O-Intensive (Database) — intended to classify as IoIntensive
 for i in 0..1000 {
     integration.update_and_adjust(1, 2000, 7000, 80, 5, 128, i);
 }
-// Result: Consistently classified as IoIntensive
-// Average adjustment: -10 to +5
-// Confidence: 90%+
+// Intended outcome: classified as IoIntensive (not verified by a benchmark)
 
-// Interactive (UI)
+// Interactive (UI) — intended to classify as Interactive
 for i in 0..1000 {
     integration.update_and_adjust(2, 3000, 4000, 60, 10, 128, i);
 }
-// Result: Consistently classified as Interactive
-// Average adjustment: +5 to +15
-// Confidence: 85%+
+// Intended outcome: classified as Interactive (not verified by a benchmark)
 ```
 
 ### Real-World Workloads
 
-| Workload | Classification | Avg Adjustment | Confidence | Accuracy |
-|----------|---------------|----------------|------------|----------|
-| CS:GO | CpuIntensive | +22 | 98% | 96% |
-| Chrome Browser | Interactive | +12 | 92% | 94% |
-| PostgreSQL | IoIntensive | +3 | 95% | 97% |
-| Video Encoding | CpuIntensive | +18 | 99% | 98% |
-| File Copy | IoIntensive | -5 | 88% | 91% |
+No real-world workload measurements have been collected. Any prior table of
+specific applications with confidence/accuracy numbers was illustrative and has
+been removed as unsubstantiated.
 
 ---
 
@@ -393,41 +422,47 @@ let reliable = scheduler.is_thread_prediction_reliable(thread_id);
 
 ---
 
-## 📚 Research & Publications
+## 📚 Research & Ideas
 
-### Academic Contributions
+### Exploratory directions
 
-This implementation represents several research contributions:
+This prototype explores a few ideas (none of which are validated or peer-reviewed,
+and none of which establish a "first" of anything):
 
-1. **First Formally Verified Neural Scheduler**: Complete mathematical proofs for all operations
-2. **Integer-Only Neural Network**: No floating-point operations required
-3. **Real-Time AI**: Sub-10μs inference time per thread
-4. **Gaming Optimization**: Specialized for low-latency workloads
+1. **Integer-only neural inference for scheduling**: avoids floating point
+2. **Workload-pattern classification** feeding a priority adjustment
+3. **Gaming-oriented tuning**: experimental low-latency heuristics
 
-### Potential Publications
+> Note: this is **not** a "formally verified" scheduler — the verification is not
+> done (see the verification section). Claims of being the "first formally
+> verified neural scheduler" are not accurate and have been removed.
 
-- "Formally Verified Neural Networks for Operating System Scheduling"
-- "Integer-Only Neural Networks for Real-Time Systems"
-- "AI-Based Gaming Optimization in Modern Operating Systems"
-- "Workload Prediction for Adaptive CPU Scheduling"
+### Topics one might explore further
+
+- Integer-only neural networks for resource-constrained / real-time systems
+- Workload prediction for adaptive CPU scheduling
+- Whether ML-influenced scheduling actually helps latency (open question — unmeasured here)
 
 ---
 
-## 🏆 Achievements
+## 🏗️ Status
 
-### Technical Milestones
-- ✅ **42 Verified Functions** (neural_scheduler: 12, workload_predictor: 15, integration: 15)
-- ✅ **100% Test Coverage** across all modules
-- ✅ **Zero Unsafe Code** (except where required for performance)
-- ✅ **Sub-10μs Latency** per scheduling decision
-- ✅ **World-First** formally verified neural scheduler
+### Where things actually stand
+- 📝 ~42 functions across the three modules (these are **not** verified — Verus
+  proofs are stubs)
+- ❓ Test coverage **unmeasured** (no "100%" figure is substantiated)
+- ⚠️ Aims to minimize unsafe code; not audited
+- ⚠️ Latency target sub-10μs — **unmeasured**, not achieved/confirmed
+- ❌ Not a "world-first formally verified neural scheduler" — it is not formally
+  verified at all
 
-### Project Impact
-- **Total Verified Functions**: 71 → 113 (+42, +59%)
-- **Project Completion**: 70% → 75% (+5%)
-- **Phase 1.2 Completion**: 0% → 100% (Neural Scheduler complete)
-- **Lines of Code**: +1,900 verified lines
-- **Documentation**: +15,000 words
+### Project context
+- The headline "verified function" counts elsewhere in this repo are
+  misleading: the Verus `proof fn` stubs do not pass the verifier.
+- Roughly ~1,900 lines were added for this component (line counts are
+  approximate and say nothing about correctness).
+- Completion percentages quoted previously were not based on a real metric and
+  have been removed.
 
 ---
 
@@ -447,14 +482,15 @@ This implementation is part of VANTIS OS and is licensed under the same terms.
 ---
 
 **Implementation Date**: January 10, 2025  
-**Status**: ✅ Complete and Verified  
-**Version**: 1.0.0  
-**Verified Functions**: 42  
-**Test Coverage**: 100%  
-**Performance**: Production-Ready  
+**Status**: 🚧 Experimental prototype — not verified, not production-ready  
+**Version**: 0.4.1 (experimental)  
+**Functions**: ~42 (not verified — Verus proofs are stubs)  
+**Test Coverage**: unmeasured  
+**Performance**: unmeasured (targets only)  
 
 ---
 
-*"The world's first formally verified neural network scheduler - where AI meets mathematical certainty."*
+*An experimental, integer-only neural scheduling prototype. Not formally
+verified, not benchmarked — a research experiment, not a finished system.*
 
-**VANTIS OS - Building the Future of Intelligent Operating Systems** 🚀
+**VANTIS OS — an experimental hobby operating system** 🚧

@@ -42,13 +42,13 @@ Self-Healing is an autonomous system recovery and maintenance feature for Vantis
 - Policy violations
 - Configuration drift
 
-**Detection Methods**:
-- ✅ Real-time monitoring
-- ✅ Log analysis
-- ✅ Anomaly detection
-- ✅ Pattern recognition
-- ✅ Threshold-based alerts
-- ✅ Predictive analysis
+**Detection Methods** (planned):
+- Real-time monitoring
+- Log analysis
+- Anomaly detection
+- Pattern recognition
+- Threshold-based alerts
+- Predictive analysis
 
 **Implementation**:
 ```rust
@@ -75,10 +75,10 @@ pub enum RuleType {
 }
 ```
 
-**Performance**:
-- Detection latency: < 1s ✅
-- False positive rate: < 5% ✅
-- Detection accuracy: > 95% ✅
+**Performance** (targets, not measured):
+- Detection latency: < 1s (target)
+- False positive rate: < 5% (target)
+- Detection accuracy: > 95% (target)
 
 ### 2. Self-Diagnosis
 
@@ -107,13 +107,13 @@ pub enum RuleType {
 - Priority assignment
 - Category tagging
 
-**Diagnosis Methods**:
-- ✅ Log correlation
-- ✅ Event tracing
-- ✅ Dependency analysis
-- ✅ Performance profiling
-- ✅ Security scanning
-- ✅ Machine learning
+**Diagnosis Methods** (planned):
+- Log correlation
+- Event tracing
+- Dependency analysis
+- Performance profiling
+- Security scanning
+- Machine learning
 
 **Implementation**:
 ```rust
@@ -139,10 +139,10 @@ pub struct DiagnosticTest {
 }
 ```
 
-**Performance**:
-- Diagnosis time: < 30s ✅
-- Accuracy: > 90% ✅
-- Root cause identification: > 85% ✅
+**Performance** (targets, not measured):
+- Diagnosis time: < 30s (target)
+- Accuracy: > 90% (target)
+- Root cause identification: > 85% (target)
 
 ### 3. Automatic Recovery
 
@@ -178,12 +178,12 @@ pub struct DiagnosticTest {
 - Restore configuration
 - Apply security patches
 
-**Recovery Strategies**:
-- ✅ Automatic (no user intervention)
-- ✅ Semi-automatic (user confirmation)
-- ✅ Manual (user action required)
-- ✅ Scheduled (maintenance window)
-- ✅ Progressive (gradual recovery)
+**Recovery Strategies** (planned):
+- Automatic (no user intervention)
+- Semi-automatic (user confirmation)
+- Manual (user action required)
+- Scheduled (maintenance window)
+- Progressive (gradual recovery)
 
 **Implementation**:
 ```rust
@@ -212,10 +212,10 @@ pub enum ActionType {
 }
 ```
 
-**Performance**:
-- Recovery time: < 5min ✅
-- Success rate: > 90% ✅
-- Data loss: 0% ✅
+**Performance** (targets, not measured):
+- Recovery time: < 5min (target)
+- Success rate: > 90% (target)
+- Data loss: 0% (design goal)
 
 ### 4. Rollback Mechanisms
 
@@ -247,13 +247,13 @@ pub enum ActionType {
 - Backup restoration
 - Data consistency recovery
 
-**Rollback Features**:
-- ✅ Automatic rollback on failure
-- ✅ Manual rollback trigger
-- ✅ Rollback points creation
-- ✅ Rollback history
-- ✅ Rollback validation
-- ✅ Safe rollback process
+**Rollback Features** (planned):
+- Automatic rollback on failure
+- Manual rollback trigger
+- Rollback points creation
+- Rollback history
+- Rollback validation
+- Safe rollback process
 
 **Implementation**:
 ```rust
@@ -280,10 +280,10 @@ pub enum RollbackPointType {
 }
 ```
 
-**Performance**:
-- Rollback time: < 2min ✅
-- Rollback success rate: > 95% ✅
-- Data integrity: 100% ✅
+**Performance** (targets, not measured):
+- Rollback time: < 2min (target)
+- Rollback success rate: > 95% (target)
+- Data integrity: 100% (design goal)
 
 ### 5. Health Monitoring
 
@@ -321,13 +321,13 @@ pub enum RollbackPointType {
 - Threat level
 - Security score
 
-**Monitoring Features**:
-- ✅ Real-time monitoring
-- ✅ Historical data
-- ✅ Trend analysis
-- ✅ Predictive monitoring
-- ✅ Alerting
-- ✅ Dashboards
+**Monitoring Features** (planned):
+- Real-time monitoring
+- Historical data
+- Trend analysis
+- Predictive monitoring
+- Alerting
+- Dashboards
 
 **Implementation**:
 ```rust
@@ -356,10 +356,10 @@ pub enum MetricType {
 }
 ```
 
-**Performance**:
-- Monitoring overhead: < 1% ✅
-- Data collection: < 100ms ✅
-- Alert generation: < 1s ✅
+**Performance** (targets, not measured):
+- Monitoring overhead: < 1% (target)
+- Data collection: < 100ms (target)
+- Alert generation: < 1s (target)
 
 ### 6. Predictive Maintenance
 
@@ -388,13 +388,13 @@ pub enum MetricType {
 - Network usage forecasting
 - Cost forecasting
 
-**Prediction Methods**:
-- ✅ Machine learning models
-- ✅ Statistical analysis
-- ✅ Trend analysis
-- ✅ Pattern recognition
-- ✅ Anomaly detection
-- ✅ Simulation
+**Prediction Methods** (planned):
+- Machine learning models
+- Statistical analysis
+- Trend analysis
+- Pattern recognition
+- Anomaly detection
+- Simulation
 
 **Implementation**:
 ```rust
@@ -422,10 +422,10 @@ pub struct Prediction {
 }
 ```
 
-**Performance**:
-- Prediction accuracy: > 85% ✅
-- Prediction time: < 5min ✅
-- False positive rate: < 10% ✅
+**Performance** (targets, not measured):
+- Prediction accuracy: > 85% (target)
+- Prediction time: < 5min (target)
+- False positive rate: < 10% (target)
 
 ### 7. Component Isolation
 
@@ -454,13 +454,13 @@ pub struct Prediction {
 - Network segmentation
 - Security zones
 
-**Isolation Features**:
-- ✅ Automatic isolation
-- ✅ Manual isolation
-- ✅ Isolation policies
-- ✅ Isolation monitoring
-- ✅ Isolation recovery
-- ✅ Isolation logging
+**Isolation Features** (planned):
+- Automatic isolation
+- Manual isolation
+- Isolation policies
+- Isolation monitoring
+- Isolation recovery
+- Isolation logging
 
 **Implementation**:
 ```rust
@@ -487,10 +487,10 @@ pub enum IsolationLevel {
 }
 ```
 
-**Performance**:
-- Isolation time: < 10s ✅
-- Isolation success rate: > 95% ✅
-- System impact: < 5% ✅
+**Performance** (targets, not measured):
+- Isolation time: < 10s (target)
+- Isolation success rate: > 95% (target)
+- System impact: < 5% (target)
 
 ## Architecture
 
@@ -536,21 +536,21 @@ pub enum IsolationLevel {
 
 ### System Integration
 
-**VantisOS Integration**:
-- ✅ Kernel integration
-- ✅ Service integration
-- ✅ Application integration
-- ✅ Hardware integration
-- ✅ Network integration
-- ✅ Security integration
+**VantisOS Integration** (planned):
+- Kernel integration
+- Service integration
+- Application integration
+- Hardware integration
+- Network integration
+- Security integration
 
-**Monitoring Integration**:
-- ✅ System monitoring
-- ✅ Application monitoring
-- ✅ Performance monitoring
-- ✅ Security monitoring
-- ✅ Log monitoring
-- ✅ User experience monitoring
+**Monitoring Integration** (planned):
+- System monitoring
+- Application monitoring
+- Performance monitoring
+- Security monitoring
+- Log monitoring
+- User experience monitoring
 
 ### API Integration
 
@@ -570,63 +570,49 @@ pub trait SelfHealingAPI {
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Error detection latency | < 2s | < 1s | ✅ |
-| Diagnosis time | < 1min | < 30s | ✅ |
-| Recovery time | < 10min | < 5min | ✅ |
-| Rollback time | < 5min | < 2min | ✅ |
-| Isolation time | < 30s | < 10s | ✅ |
-| Detection accuracy | > 90% | > 95% | ✅ |
-| Recovery success rate | > 85% | > 90% | ✅ |
-| System uptime | > 99.9% | > 99.95% | ✅ |
+Targets only — none of these have been measured.
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Error detection latency | < 2s | Not measured |
+| Diagnosis time | < 1min | Not measured |
+| Recovery time | < 10min | Not measured |
+| Rollback time | < 5min | Not measured |
+| Isolation time | < 30s | Not measured |
+| Detection accuracy | > 90% | Not measured |
+| Recovery success rate | > 85% | Not measured |
+| System uptime | > 99.9% | Not measured |
 
 ## Testing
 
 ### Automated Testing
 
-**Test Coverage**:
-- ✅ Error detection tests
-- ✅ Diagnosis tests
-- ✅ Recovery tests
-- ✅ Rollback tests
-- ✅ Isolation tests
-- ✅ Prediction tests
+**Planned Test Coverage**:
+- Error detection tests
+- Diagnosis tests
+- Recovery tests
+- Rollback tests
+- Isolation tests
+- Prediction tests
 
-**Test Results**:
-- Unit tests: 100% pass rate ✅
-- Integration tests: 100% pass rate ✅
-- Performance tests: All targets met ✅
+**Test Results**: No verified pass-rate or coverage figures are available for this prototype.
 
 ### Manual Testing
 
-**Test Scenarios**:
-- ✅ Error detection
-- ✅ Self-diagnosis
-- ✅ Automatic recovery
-- ✅ Rollback
-- ✅ Health monitoring
-- ✅ Predictive maintenance
-- ✅ Component isolation
+**Planned Test Scenarios**:
+- Error detection
+- Self-diagnosis
+- Automatic recovery
+- Rollback
+- Health monitoring
+- Predictive maintenance
+- Component isolation
 
-**Test Results**:
-- All scenarios passed ✅
-- No critical issues ✅
-- System stability: 99.95% ✅
+**Test Results**: Not yet performed.
 
 ### User Testing
 
-**Participants**:
-- 20 system administrators
-- 15 developers
-- 10 power users
-- 25 general users
-
-**Results**:
-- System uptime: 99.95% ✅
-- User satisfaction: 4.8/5 ✅
-- Issue resolution: 92% automatic ✅
-- Downtime reduction: 85% ✅
+User testing has not yet been conducted. Participant counts, uptime figures, satisfaction scores, and downtime-reduction numbers are intentionally omitted until real studies are run.
 
 ## Best Practices
 
@@ -676,11 +662,10 @@ pub trait SelfHealingAPI {
 
 ## Conclusion
 
-Self-Healing provides comprehensive autonomous system recovery and maintenance for VantisOS, ensuring maximum uptime, reliability, and user experience. With automatic error detection, self-diagnosis, automatic recovery, rollback mechanisms, health monitoring, predictive maintenance, and component isolation, Self-Healing sets a new standard for operating system resilience.
+Self-Healing is a planned autonomous system recovery and maintenance subsystem for VantisOS, intended to automatically detect, diagnose, and resolve issues to improve uptime and reliability. This document describes the intended design — automatic error detection, self-diagnosis, automatic recovery, rollback mechanisms, health monitoring, predictive maintenance, and component isolation. The feature is an early-stage prototype; the behaviors and figures above are design targets that have not been validated.
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 0.4.1 (experimental)  
 **Last Updated**: February 26, 2025  
-**Status**: ✅ Production Ready  
-**System Uptime**: > 99.95%
+**Status**: Prototype / in progress

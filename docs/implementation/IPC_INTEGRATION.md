@@ -1,15 +1,17 @@
-# 🔗 IPC Integration - Complete Documentation
+# 🔗 IPC Integration - Design Documentation
 
 **Date**: February 9, 2026  
-**Version**: 1.0  
-**Status**: ✅ COMPLETE  
+**Version**: experimental (v0.4.1)  
+**Status**: 🚧 Prototype / in progress  
 **Module**: `ipc_integrated.rs`
+
+> **Status note:** VantisOS is an experimental, early-stage project. This document describes the **intended design** of the integrated IPC system. The three IPC properties are targeted via Verus proof *stubs* (not completed proofs); test counts, benchmarks, and comparisons below are **design targets / illustrative, not measured**.
 
 ---
 
 ## 📋 Overview
 
-This document describes the integration of all three verified IPC properties into a single, production-ready IPC system for VantisOS.
+This document describes the intended integration of all three targeted IPC properties into a single IPC system for VantisOS.
 
 ---
 
@@ -17,18 +19,18 @@ This document describes the integration of all three verified IPC properties int
 
 ### Unified System
 
-Combine three independently verified properties into one cohesive system:
+Combine three independently targeted properties into one cohesive system:
 
-1. **Message Integrity** - CRC32 checksums prevent corruption
-2. **Resource Bounds** - Limits prevent resource exhaustion
-3. **Information Leakage Prevention** - Isolation prevents unauthorized access
+1. **Message Integrity** - CRC32 checksums intended to prevent corruption
+2. **Resource Bounds** - Limits intended to prevent resource exhaustion
+3. **Information Leakage Prevention** - Isolation intended to prevent unauthorized access
 
 ### Design Principles
 
-1. **Composability**: Properties work together seamlessly
-2. **Performance**: Minimal overhead from integration
+1. **Composability**: Properties intended to work together seamlessly
+2. **Performance**: Minimal overhead from integration (design goal)
 3. **Simplicity**: Single unified API
-4. **Verifiability**: Integration maintains all proofs
+4. **Verifiability**: Integration designed to be amenable to formal proof (proofs are currently stubs)
 
 ---
 
@@ -247,28 +249,30 @@ IntegratedIpcManager:
   Total:            128 bytes + queues + capabilities
 ```
 
-### Overhead Analysis
+### Overhead Analysis (estimates, not measured)
 
-**Integrity Overhead**:
-- CRC32 computation: ~2μs per 4KB message
-- Verification: ~2μs per message
-- Total: ~4μs per message
+> The following are rough design estimates, not benchmark results. No measurements have been taken.
 
-**Bounds Overhead**:
-- Size checks: <1μs
-- Memory accounting: <1μs
-- Total: <2μs per message
+**Integrity Overhead** (estimate):
+- CRC32 computation: per-message, proportional to message size
+- Verification: per message
+- Dominated by checksum over message bytes
 
-**Isolation Overhead**:
-- Capability check: ~1μs (with optimization)
-- Access control: <1μs
-- Total: ~2μs per message
+**Bounds Overhead** (estimate):
+- Size checks: constant-time
+- Memory accounting: constant-time
 
-**Total Overhead**: ~8μs per message (0.8% for 1ms operations)
+**Isolation Overhead** (estimate):
+- Capability check: proportional to number of capabilities
+- Access control: constant-time
+
+**Total Overhead**: expected to be small relative to message-passing cost (unmeasured)
 
 ---
 
 ## 🧪 Testing
+
+> The categories below describe the **planned** test plan. Test counts are targets; the sample run output is illustrative, not an actual measured result.
 
 ### Test Categories
 
@@ -306,9 +310,9 @@ IntegratedIpcManager:
 - Producer-consumer pattern
 - Broadcast pattern
 
-**Total**: 20 comprehensive integration tests
+**Planned total**: ~20 integration tests
 
-### Test Results
+### Test Results (illustrative target output, not measured)
 
 ```
 Running 20 tests...
@@ -339,9 +343,11 @@ test result: ok. 20 passed; 0 failed
 
 ---
 
-## 📈 Benchmarks
+## 📈 Benchmarks (targets — NOT measured)
 
-### Throughput
+> **None of the numbers in this section have been measured.** They are illustrative design targets for an experimental prototype. Throughput and latency on VantisOS are currently **unmeasured**.
+
+### Throughput (target, not measured)
 
 **Small Messages** (100 bytes):
 ```
@@ -392,14 +398,16 @@ max:  100μs
 
 ### Comparison with Other Systems
 
-| System | Throughput | Latency | Verified |
-|--------|-----------|---------|----------|
-| VantisOS | 50K msg/s | 16μs | ✅ Yes |
-| seL4 | 40K msg/s | 20μs | ✅ Yes |
-| Linux | 100K msg/s | 10μs | ❌ No |
-| QNX | 60K msg/s | 15μs | ❌ No |
+> The VantisOS row is a **design aspiration, not a measurement**. VantisOS performance is unmeasured, and its formal verification consists only of proof stubs (not completed proofs). Figures for other systems are approximate and provided for context only.
 
-**Note**: VantisOS achieves competitive performance while maintaining formal verification.
+| System | Throughput | Latency | Formally verified |
+|--------|-----------|---------|----------|
+| VantisOS (target, unmeasured) | aspirational | aspirational | Partial / stubs only |
+| seL4 | ~40K msg/s | ~20μs | Yes |
+| Linux | ~100K msg/s | ~10μs | No |
+| QNX | ~60K msg/s | ~15μs | No |
+
+**Note**: VantisOS aims for competitive performance alongside formal verification; neither is currently demonstrated.
 
 ---
 
@@ -407,12 +415,12 @@ max:  100μs
 
 ### Attack Surface
 
-**Protected**:
-- ✅ Message corruption (integrity)
-- ✅ Resource exhaustion (bounds)
-- ✅ Unauthorized access (isolation)
-- ✅ Information disclosure (isolation)
-- ✅ Capability forgery (isolation)
+**Intended protections (design goals, not yet proven)**:
+- Message corruption (integrity)
+- Resource exhaustion (bounds)
+- Unauthorized access (isolation)
+- Information disclosure (isolation)
+- Capability forgery (isolation)
 
 **Potential Concerns**:
 - ⚠️ Timing side-channels (future work)
@@ -427,11 +435,11 @@ max:  100μs
 - Can attempt to exhaust resources
 - Can attempt to corrupt messages
 
-**System Guarantees**:
-- Messages cannot be corrupted undetected
-- Resources cannot be exhausted
-- Unauthorized access is prevented
-- All guarantees are mathematically proven
+**Intended System Guarantees** (design goals; formal proofs are stubs, not complete):
+- Messages should not be corrupted undetected
+- Resources should not be exhaustible
+- Unauthorized access should be prevented
+- These guarantees are aspirational and not yet mathematically proven
 
 ---
 
@@ -519,26 +527,26 @@ if let Some(msg) = manager.receive(receiver) {
 
 ---
 
-## ✅ Integration Checklist
+## Integration Checklist (status)
 
-- [x] VerifiedMessage implementation
-- [x] VerifiedQueue implementation
-- [x] IntegratedIpcManager implementation
-- [x] All three properties integrated
-- [x] 20 integration tests
-- [x] Performance benchmarks
-- [x] API documentation
-- [x] Security analysis
-- [x] Complete documentation
+- [~] VerifiedMessage implementation (prototype)
+- [~] VerifiedQueue implementation (prototype)
+- [~] IntegratedIpcManager implementation (prototype)
+- [~] Three properties integrated (in progress)
+- [ ] Integration tests (planned)
+- [ ] Performance benchmarks (planned, not measured)
+- [x] API documentation (this document)
+- [~] Security analysis (preliminary)
+- [~] Design documentation (this document)
 
 ---
 
 ## 🎯 Next Steps
 
 ### Immediate
-1. ✅ Integration complete
+1. ⏳ Complete prototype integration
 2. ⏳ Performance optimization
-3. ⏳ Additional benchmarks
+3. ⏳ Establish benchmarks (none measured yet)
 
 ### Future Work
 1. ⏳ Deadlock Freedom proof
@@ -548,23 +556,23 @@ if let Some(msg) = manager.receive(receiver) {
 
 ---
 
-## 🎊 Achievement
+## 🎊 Status
 
-**IPC Integration: COMPLETE! ✅**
+**IPC Integration: prototype / in progress**
 
-We have successfully integrated all three verified IPC properties into a single, production-ready system:
+The intended design integrates all three targeted IPC properties into a single system:
 
-- ✅ All three properties working together
-- ✅ 20 comprehensive integration tests
-- ✅ Performance benchmarks
-- ✅ Complete API documentation
-- ✅ Security analysis
-- ✅ Production-ready code
+- 🚧 Three properties intended to work together (in progress)
+- ⏳ Integration tests (planned, ~20)
+- ⏳ Performance benchmarks (planned, not measured)
+- ✅ API documentation (this document)
+- 🚧 Preliminary security analysis
+- 🚧 Prototype code (not production-ready)
 
-**Impact**: VantisOS now has a **fully integrated, formally verified IPC system** ready for production use!
+**Goal**: For VantisOS to eventually have an integrated IPC system with formal verification. This is an experimental prototype; formal proofs are stubs and the system is not production-ready.
 
 ---
 
-**Status**: ✅ READY FOR PRODUCTION  
-**Next**: Week 3-4 (Deadlock Freedom + Capability Correctness)  
-**Progress**: Week 1-2 COMPLETE (100% + Integration)
+**Status**: 🚧 Experimental prototype — NOT production-ready  
+**Next**: Deadlock Freedom + Capability Correctness (planned)  
+**Progress**: Early-stage integration in progress

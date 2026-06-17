@@ -2,7 +2,7 @@
 
 ## Wprowadzenie
 
-Wycofanie telemetrii (Telemetry Opt-out) to funkcja pozwalająca użytkownikom na pełną kontrolę nad danymi telemetrycznymi wysyłanymi z systemu VantisOS. Użytkownicy mogą decydować, jakie dane są zbierane, jak często i do kogo są wysyłane.
+Wycofanie telemetrii (Telemetry Opt-out) to funkcja, która ma pozwalać użytkownikom na pełną kontrolę nad danymi telemetrycznymi wysyłanymi z systemu VantisOS. Użytkownicy mają móc decydować, jakie dane są zbierane, jak często i do kogo są wysyłane. VantisOS jest projektem eksperymentalnym we wczesnej fazie (v0.4.1); ta funkcja jest w fazie projektowej/prototypu i **nie została zweryfikowana ani poddana audytowi pod kątem zgodności prawnej**.
 
 ## Cel
 
@@ -11,7 +11,7 @@ Zapewnienie użytkownikom VantisOS możliwości:
 - Wyłączenia zbierania danych telemetrycznych
 - Wyboru kategorii danych do zbierania
 - Przeglądania zbieranych danych
-- Zgodności z RODO (GDPR) i innymi regulacjami prywatności
+- Dążenia do zgodności z RODO (GDPR) i innymi regulacjami prywatności (cel projektowy, nie certyfikowany)
 
 ## Architektura Systemu
 
@@ -125,22 +125,24 @@ System generuje raporty transparentności:
 - Kiedy dane zostały zebrane
 - Do kogo dane zostały wysłane
 
-## Zgodność z RODO (GDPR)
+## Zgodność z RODO (GDPR) — cel projektowy
+
+> **Uwaga:** Poniższe punkty opisują **zamierzony** zakres projektu. VantisOS nie jest certyfikowany ani poddany audytowi pod kątem zgodności z RODO. Lista oznacza cele projektowe, a nie zweryfikowaną implementację.
 
 ### Article 7 - Conditions for Consent
 
-VantisOS w pełni implementuje Article 7 RODO:
-- ✅ Użytkownik wyraża zgodę na zbieranie danych
-- ✅ Użytkownik może wycofać zgodę w dowolnym momencie
-- ✅ Użytkownik jest informowany o zbieraniu danych
-- ✅ Użytkownik ma kontrolę nad danymi
+Projektowany zakres względem Article 7 RODO:
+- (planowane) Użytkownik wyraża zgodę na zbieranie danych
+- (planowane) Użytkownik może wycofać zgodę w dowolnym momencie
+- (planowane) Użytkownik jest informowany o zbieraniu danych
+- (planowane) Użytkownik ma kontrolę nad danymi
 
 ### Article 21 - Right to Object
 
-VantisOS w pełni implementuje Article 21 RODO:
-- ✅ Użytkownik może sprzeciwić się przetwarzaniu danych
-- ✅ System przestaje przetwarzać dane po sprzeciwie
-- ✅ System informuje użytkownika o skutkach sprzeciwu
+Projektowany zakres względem Article 21 RODO:
+- (planowane) Użytkownik może sprzeciwić się przetwarzaniu danych
+- (planowane) System przestaje przetwarzać dane po sprzeciwie
+- (planowane) System informuje użytkownika o skutkach sprzeciwu
 
 ## Implementacja Techniczna
 
@@ -218,37 +220,43 @@ impl TelemetryManager {
 }
 ```
 
-## Bezpieczeństwo
+## Bezpieczeństwo (projektowane)
+
+> Poniższe mechanizmy opisują zamierzony projekt. Nie są one zaimplementowane ani zaudytowane w obecnej wersji (v0.4.1).
 
 ### Szyfrowanie
-- Wszystkie dane telemetryczne są szyfrowane AES-256
-- Dane są przesyłane przez TLS 1.3
-- Klucze szyfrowania są zarządzane przez HSM
+- Planowane szyfrowanie danych telemetrycznych (np. AES-256)
+- Planowane przesyłanie przez TLS 1.3
+- Planowane zarządzanie kluczami (np. przez HSM)
 
 ### Anonimizacja
-- Dane są anonimizowane przed wysłaniem
-- Usuwanie identyfikatorów osobowych
-- Agregacja danych
+- Planowana anonimizacja danych przed wysłaniem
+- Planowane usuwanie identyfikatorów osobowych
+- Planowana agregacja danych
 
 ### Audyt
 - Pełny audyt operacji telemetrii
 - Logowanie wszystkich zmian konfiguracji
 - Raportowanie zgodności z RODO
 
-## Wydajność
+## Wydajność (cele projektowe, niezmierzone)
 
-### Metryki
-- Czas zbierania danych: < 1s
-- Czas wysyłania danych: < 5s
-- Czas generowania raportu: < 10s
-- Czas usuwania danych: < 30s
+> Poniższe wartości to cele projektowe. Nie zostały zmierzone w obecnej wersji.
 
-### Skalowalność
-- Obsługa 1M+ użytkowników
-- Obsługa 10GB+ danych dziennie
-- Obsługa 100K+ raportów dziennie
+### Metryki (cele, niezmierzone)
+- Czas zbierania danych: cel < 1s
+- Czas wysyłania danych: cel < 5s
+- Czas generowania raportu: cel < 10s
+- Czas usuwania danych: cel < 30s
 
-## Testowanie
+### Skalowalność (cele projektowe)
+- Cel: obsługa 1M+ użytkowników
+- Cel: obsługa 10GB+ danych dziennie
+- Cel: obsługa 100K+ raportów dziennie
+
+## Testowanie (planowane)
+
+> Poniżej opisano planowany zakres testów. Nie odzwierciedla on obecnego pokrycia testami.
 
 ### Testy jednostkowe
 - Testy konfiguracji telemetrii
@@ -304,51 +312,55 @@ A: Dane systemowe, dane aplikacji, dane użytkownika, dane bezpieczeństwa.
 **Q: Do kogo są wysyłane dane?**  
 A: Dane są wysyłane do serwerów VantisOS w celu analizy i ulepszania systemu.
 
-## Zgodność z Regulacjami
+## Zgodność z Regulacjami — cele projektowe
 
-### RODO (GDPR) - Article 7
-- ✅ Zgoda na zbieranie danych
-- ✅ Możliwość wycofania zgody
-- ✅ Informowanie o zbieraniu danych
-- ✅ Kontrola nad danymi
+> **Uwaga:** VantisOS nie jest certyfikowany ani zaudytowany pod kątem żadnej z poniższych regulacji. Lista przedstawia zamierzony zakres projektu, a nie potwierdzoną zgodność.
 
-### RODO (GDPR) - Article 21
-- ✅ Prawo do sprzeciwu
-- ✅ Przestanie przetwarzania po sprzeciwie
-- ✅ Informowanie o skutkach sprzeciwu
+### RODO (GDPR) - Article 7 (cel projektowy)
+- (planowane) Zgoda na zbieranie danych
+- (planowane) Możliwość wycofania zgody
+- (planowane) Informowanie o zbieraniu danych
+- (planowane) Kontrola nad danymi
 
-### CCPA (California Consumer Privacy Act)
-- ✅ Prawo do opt-out
-- ✅ Odpowiedź w ciągu 30 dni
-- ✅ Nie dyskryminacja za opt-out
+### RODO (GDPR) - Article 21 (cel projektowy)
+- (planowane) Prawo do sprzeciwu
+- (planowane) Przestanie przetwarzania po sprzeciwie
+- (planowane) Informowanie o skutkach sprzeciwu
+
+### CCPA (California Consumer Privacy Act) (cel projektowy)
+- (planowane) Prawo do opt-out
+- (planowane) Odpowiedź w ciągu 30 dni
+- (planowane) Brak dyskryminacji za opt-out
 
 ## Statystyki
 
-### Metryki sukcesu
-- 100% zgodności z RODO
-- 100% kontrola użytkownika
-- < 1s czas wyłączenia
-- 0 błędów w zbieraniu danych
+> Brak danych produkcyjnych. VantisOS jest projektem eksperymentalnym (v0.4.1); poniższe wartości to **cele projektowe**, a nie zmierzone wyniki.
 
-### Metryki wydajności
-- Średni czas zbierania: 0.5s
-- Średnia ilość danych: 100KB
-- Średnia ilość rekordów: 50
+### Cele jakościowe (niezmierzone)
+- Cel: zgodność z RODO
+- Cel: pełna kontrola użytkownika
+- Cel: czas wyłączenia < 1s
+- Cel: brak błędów w zbieraniu danych
+
+### Cele wydajnościowe (niezmierzone)
+- Cel średniego czasu zbierania: ~0.5s
+- Typowa ilość danych: zależna od scenariusza
+- Typowa liczba rekordów: zależna od scenariusza
 
 ## Podsumowanie
 
-Wycofanie telemetrii w VantisOS zapewnia użytkownikom pełną kontrolę nad danymi telemetrycznymi. Implementacja jest zgodna z RODO (GDPR) Article 7 i Article 21 i zapewnia przejrzyste, bezpieczne i elastyczne zarządzanie danymi.
+Wycofanie telemetrii w VantisOS ma w założeniu zapewnić użytkownikom pełną kontrolę nad danymi telemetrycznymi. Dokument opisuje **projekt** dążący do zgodności z RODO (GDPR) Article 7 i Article 21. Funkcja jest w fazie projektowej/prototypu i nie została zweryfikowana ani zaudytowana.
 
-**Kluczowe cechy:**
-- ✅ Pełna zgodność z RODO (GDPR)
-- ✅ Pełna kontrola użytkownika
-- ✅ Wybór kategorii danych
-- ✅ Dashboard prywatności
-- ✅ Raporty transparentności
-- ✅ Natychmiastowe wyłączenie
+**Założenia projektowe:**
+- Dążenie do zgodności z RODO (GDPR) (niecertyfikowane)
+- Pełna kontrola użytkownika (planowana)
+- Wybór kategorii danych (planowany)
+- Dashboard prywatności (planowany)
+- Raporty transparentności (planowane)
+- Natychmiastowe wyłączenie (planowane)
 
-**Wydajność:**
-- Czas zbierania danych: < 1s
-- Czas wysyłania danych: < 5s
-- Czas generowania raportu: < 10s
-- Obsługa 1M+ użytkowników
+**Wydajność (cele projektowe, niezmierzone):**
+- Czas zbierania danych: cel < 1s
+- Czas wysyłania danych: cel < 5s
+- Czas generowania raportu: cel < 10s
+- Cel: obsługa 1M+ użytkowników

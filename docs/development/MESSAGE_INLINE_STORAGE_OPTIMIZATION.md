@@ -5,7 +5,7 @@
 **Optimization**: Inline storage for small IPC messages  
 **Module**: `src/verified/ipc_inline.rs`  
 **Date**: January 10, 2025  
-**Status**: ✅ Implemented and Tested
+**Status**: Prototype (performance not yet measured)
 
 ---
 
@@ -14,8 +14,8 @@
 ### Performance Improvement
 - **Before**: All messages allocated on heap
 - **After**: Messages ≤64 bytes stored inline in structure
-- **Expected Improvement**: 2-5x faster for small messages
-- **Real-world Impact**: Most IPC messages are small (<64 bytes)
+- **Expected Improvement**: target of avoiding a heap allocation per small message (estimate, not measured)
+- **Real-world Impact**: Most IPC messages are expected to be small (<64 bytes)
 
 ### Use Case
 IPC messages are frequently small (e.g., signals, notifications, small data transfers). Heap allocation for every message creates overhead:
@@ -121,39 +121,26 @@ For 5-byte message:
 - Total: 98 bytes in 2 cache lines
 ```
 
-### Performance Benefits
+### Performance Benefits (qualitative; ratios are estimates, not measured)
 
-| Metric | Heap Storage | Inline Storage | Improvement |
-|--------|--------------|----------------|-------------|
-| Allocations | 1 per message | 0 | ∞ |
-| Cache Lines | 2-3 | 2 | 1.5x |
-| Memory Fragmentation | High | None | ∞ |
-| Copy Cost | Pointer + data | Data only | 1.2x |
-| Allocator Contention | Yes | No | ∞ |
+| Metric | Heap Storage | Inline Storage | Expected effect |
+|--------|--------------|----------------|-----------------|
+| Allocations | 1 per message | 0 | eliminated for small msgs |
+| Cache Lines | 2-3 | 2 | fewer (estimate) |
+| Memory Fragmentation | High | None | reduced |
+| Copy Cost | Pointer + data | Data only | slightly lower (estimate) |
+| Allocator Contention | Yes | No | reduced |
 
-### Real-world Benchmarks
+### Benchmarks (planned — no results yet)
 
-**Test Setup**: 10,000 messages of varying sizes
+A benchmark over messages of varying sizes is planned but has **not** been run.
+The figures below are illustrative placeholders, not measurements:
 
-```rust
-Small messages (5 bytes):
-  Heap:   ~500μs (50ns per message)
-  Inline: ~100μs (10ns per message)
-  Speedup: 5x
-
-Medium messages (32 bytes):
-  Heap:   ~600μs (60ns per message)
-  Inline: ~200μs (20ns per message)
-  Speedup: 3x
-
-Boundary (64 bytes):
-  Heap:   ~800μs (80ns per message)
-  Inline: ~400μs (40ns per message)
-  Speedup: 2x
-
-Large messages (128 bytes):
-  Both use heap storage
-  Performance: Equal
+```text
+Small messages (5 bytes):    inline avoids one heap allocation (speedup TBD)
+Medium messages (32 bytes):  inline avoids one heap allocation (speedup TBD)
+Boundary (64 bytes):         inline avoids one heap allocation (speedup TBD)
+Large messages (128 bytes):  both use heap storage (expected equal)
 ```
 
 ---
@@ -162,26 +149,29 @@ Large messages (128 bytes):
 
 ### Typical IPC Workload
 
-Based on analysis of common operating systems:
+The design *assumes* most IPC messages are small. The distribution below is an
+illustrative assumption, **not** a measurement of VantisOS or any other system:
 
+```text
+Assumed Message Size Distribution (illustrative):
+0-16 bytes:   signals, notifications
+17-32 bytes:  small data transfers
+33-64 bytes:  medium data
+65-256 bytes: large data
+>256 bytes:   bulk transfers
 ```
-Message Size Distribution:
-0-16 bytes:   45% (signals, notifications)
-17-32 bytes:  30% (small data transfers)
-33-64 bytes:  15% (medium data)
-65-256 bytes:  8% (large data)
->256 bytes:    2% (bulk transfers)
 
-Total ≤64 bytes: 90% of messages
-```
-
-**Impact**: 90% of messages benefit from inline storage!
+**Intended impact**: if small messages dominate, most messages would use inline
+storage. The actual distribution has not been measured.
 
 ---
 
 ## 🔒 Formal Verification
 
-### Properties Proven
+### Properties Specified (proof stubs — not discharged)
+
+The blocks below are *specification stubs* describing the properties we intend to
+prove. They are not completed proofs and have not been checked by a verifier.
 
 #### 1. Storage Selection Correctness
 ```rust
@@ -325,16 +315,16 @@ fn test_inline_storage_performance() {
 
 ## 📈 Impact Assessment
 
-### Performance Impact
-- **Small Messages (<64 bytes)**: 2-5x faster
-- **Allocation Reduction**: 90% fewer heap allocations
-- **Cache Efficiency**: Better locality, fewer cache misses
-- **Scalability**: Reduced allocator contention
+### Performance Impact (expected, not measured)
+- **Small Messages (<64 bytes)**: expected faster (no heap allocation); magnitude unmeasured
+- **Allocation Reduction**: heap allocations eliminated for small messages; overall % depends on workload
+- **Cache Efficiency**: expected better locality, fewer cache misses
+- **Scalability**: expected reduced allocator contention
 
 ### Memory Impact
 - **Stack Usage**: +64 bytes per message structure
-- **Heap Usage**: -90% for typical workloads
-- **Fragmentation**: Significantly reduced
+- **Heap Usage**: reduced for small-message workloads (amount depends on actual distribution)
+- **Fragmentation**: expected reduction
 - **Total Memory**: Slightly higher per message, but fewer allocations
 
 ### Code Complexity
@@ -374,12 +364,12 @@ pub struct MessageQueueStats {
 }
 ```
 
-**Example Output**:
-```
-Total Received: 10000
-Total Sent: 9500
-Inline Count: 9000 (90%)
-Heap Count: 1000 (10%)
+**Example Output** (illustrative format only, not measured data):
+```text
+Total Received: <count>
+Total Sent: <count>
+Inline Count: <count> (<pct>)
+Heap Count: <count> (<pct>)
 ```
 
 ---
@@ -390,16 +380,19 @@ Heap Count: 1000 (10%)
 
 | System | Inline Size | Strategy | Notes |
 |--------|-------------|----------|-------|
-| **VANTIS OS** | **64 bytes** | **Enum-based** | **Verified** |
+| **VantisOS** | **64 bytes** | **Enum-based** | proof stubs only (not verified) |
 | Linux | 0 bytes | Always heap | No inline |
 | seL4 | 120 bytes | Always inline | Fixed size |
 | QNX | 32 bytes | Hybrid | Limited inline |
 | Windows | 0 bytes | Always heap | No inline |
 
-**Advantages**:
-- More flexible than seL4 (supports large messages)
-- More efficient than Linux (inline for small messages)
-- Verified correctness (unlike QNX)
+(Other-system figures are from general background and are not independently
+confirmed here.)
+
+**Intended design properties**:
+- Supports large messages (unlike a fixed-size-only scheme)
+- Avoids heap allocation for small messages
+- Correctness is specified via proof stubs, not yet formally verified
 
 ---
 
@@ -419,7 +412,7 @@ Heap Count: 1000 (10%)
 
 3. **SIMD Copy Operations**
    - Use SIMD for inline data copying
-   - 2-4x faster for 64-byte copies
+   - Potentially faster for 64-byte copies (unverified)
    - Requires CPU feature detection
 
 4. **Message Pooling**
@@ -431,22 +424,22 @@ Heap Count: 1000 (10%)
 
 ## 📊 Verification Status
 
-### Completed
-- ✅ MessageStorage implementation
-- ✅ MessageInline implementation
-- ✅ MessageQueueInline implementation
-- ✅ Verus formal specifications (3 proofs)
-- ✅ Kani verification harnesses (5 harnesses)
-- ✅ Unit tests (10 tests)
-- ✅ Performance benchmarks
-- ✅ Documentation
+### Implemented (prototype)
+- [x] MessageStorage implementation
+- [x] MessageInline implementation
+- [x] MessageQueueInline implementation
+- [~] Verus formal specifications (proof stubs, not discharged)
+- [~] Kani verification harnesses (present, not run in verified CI)
+- [~] Unit tests (present; pass-rate/coverage not verified)
+- [ ] Performance benchmarks (not run)
+- [x] Documentation
 
-### Properties Proven
-- ✅ Storage selection correctness
-- ✅ Data preservation
-- ✅ Memory safety (no buffer overflows)
-- ✅ Bounds checking
-- ✅ Priority ordering maintained
+### Properties Specified (not yet proven)
+- [ ] Storage selection correctness
+- [ ] Data preservation
+- [ ] Memory safety (no buffer overflows)
+- [ ] Bounds checking
+- [ ] Priority ordering maintained
 
 ---
 
@@ -473,26 +466,30 @@ Heap Count: 1000 (10%)
 
 ## 🎯 Conclusion
 
-The Message Inline Storage optimization provides a **2-5x performance improvement** for small IPC messages (which represent 90% of typical workloads) while maintaining **full formal verification**.
+The Message Inline Storage optimization is intended to speed up small IPC messages
+by avoiding heap allocation, on the assumption that small messages dominate the
+workload. The performance benefit has not been measured and the correctness
+proofs are stubs that have not been discharged.
 
-**Key Achievements**:
-- ✅ 2-5x faster for small messages
-- ✅ 90% reduction in heap allocations
-- ✅ Better cache locality
-- ✅ Formally verified correctness
-- ✅ Comprehensive testing
-- ✅ Production-ready implementation
+**Status of claims**:
+- [ ] Faster for small messages — expected, not measured
+- [ ] Fewer heap allocations — eliminated for small messages; overall % depends on workload
+- [ ] Better cache locality — expected, not measured
+- [~] Formal verification — proof stubs only, not verified
+- [~] Testing — prototype tests present, not verified
+- [ ] Production readiness — prototype, not production-ready
 
 **Next Steps**:
 1. Integrate with main IPC system
 2. Add to CI/CD pipeline
 3. Benchmark on real workloads
-4. Consider adaptive inline size based on profiling
+4. Discharge the verification stubs
+5. Consider adaptive inline size based on profiling
 
 ---
 
 **Implementation Date**: January 10, 2025  
-**Status**: ✅ Complete and Verified  
+**Status**: Prototype (not measured, proofs are stubs)  
 **Lines of Code**: ~600 lines  
-**Verification Coverage**: 100%  
-**Performance Improvement**: 2-5x for small messages (90% of workload)
+**Verification Coverage**: proof stubs only — not verified  
+**Performance Improvement**: target only — unmeasured

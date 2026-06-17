@@ -1,8 +1,8 @@
 # VantisOS User Space Guide
 
-**Version**: 0.4.1  
+**Version**: 0.4.1 (experimental)  
 **Date**: February 28, 2025  
-**Status**: Production Ready
+**Status**: Prototype / in progress
 
 ---
 
@@ -22,18 +22,18 @@
 
 ## Overview
 
-VantisOS user space provides a complete Unix-like environment with standard libraries, applications, and utilities. The user space is designed to be POSIX-compatible and provides a familiar interface for developers and users.
+VantisOS user space aims to provide a Unix-like environment with standard libraries, applications, and utilities. The user space is designed to be POSIX-compatible and to provide a familiar interface for developers and users. It is an early-stage prototype: many pieces are partial and have not been validated.
 
 ### Key Features
 
-- **Standard C Library (libc)**: Complete string, memory, I/O, and conversion functions
-- **Math Library (libm)**: Comprehensive mathematical functions
-- **Thread Library (libpthread)**: POSIX-compliant threading support
+- **Standard C Library (libc)**: string, memory, I/O, and conversion functions (subset)
+- **Math Library (libm)**: mathematical functions (subset)
+- **Thread Library (libpthread)**: threading support, aiming for POSIX compliance
 - **Dynamic Linker (ld.so)**: ELF64 dynamic linking and symbol resolution
 - **Shell Application**: Interactive shell with 14 built-in commands
-- **File Utilities**: 10 standard Unix file utilities
-- **Network Utilities**: 9 standard Unix network utilities
-- **Comprehensive Testing**: Integration, E2E, performance, and stress tests
+- **File Utilities**: 10 Unix-style file utilities
+- **Network Utilities**: 9 Unix-style network utilities
+- **Testing**: integration, E2E, performance, and stress test scaffolding (results not yet validated)
 
 ---
 
@@ -392,6 +392,10 @@ int apply_relocations(DynamicLinker *linker, LoadedLibrary *library);
 
 ## Testing
 
+The suites below are scaffolding for the prototype. No verified pass-rate or
+coverage figures are claimed, and the performance/stress tests have not produced
+validated measurements.
+
 ### Test Suites
 
 1. **Integration Tests** (6 tests)
@@ -650,8 +654,10 @@ int main() {
 
 ### System Call Performance
 
-| System Call | Latency |
-|-------------|---------|
+Targets only — these latencies have not been measured.
+
+| System Call | Latency (target, not measured) |
+|-------------|--------------------------------|
 | getpid | < 1μs |
 | read/write | < 10μs |
 | open/close | < 5μs |
@@ -662,18 +668,21 @@ int main() {
 
 ## Security Considerations
 
+> Note: the following are design goals for this prototype, not audited guarantees.
+> The user space has not undergone a security audit.
+
 ### Memory Safety
 
-- All user space code is written in Rust
-- No buffer overflows
-- No use-after-free
-- No null pointer dereferences
+- User space code is written in Rust to leverage its memory-safety guarantees
+- Goal: avoid buffer overflows (outside `unsafe` blocks)
+- Goal: avoid use-after-free
+- Goal: avoid null pointer dereferences
 
 ### Process Isolation
 
-- Each process has isolated memory space
-- System call validation
-- Capability-based security
+- Intended: each process has an isolated memory space
+- Intended: system call validation
+- Intended: capability-based security
 
 ### Thread Safety
 
@@ -721,6 +730,6 @@ For issues, questions, or contributions, please visit:
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 0.4.1 (experimental)  
 **Last Updated**: February 28, 2025  
 **Maintainer**: VantisOS Team

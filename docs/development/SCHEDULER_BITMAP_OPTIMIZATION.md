@@ -5,7 +5,7 @@
 **Optimization**: Priority Bitmap for O(1) highest priority lookup  
 **Module**: `src/verified/scheduler_optimized.rs`  
 **Date**: January 10, 2025  
-**Status**: ✅ Implemented and Tested
+**Status**: Prototype (performance not yet measured)
 
 ---
 
@@ -14,8 +14,8 @@
 ### Performance Improvement
 - **Before**: O(256) linear search through all priority levels
 - **After**: O(1) bitmap scan using leading zeros count
-- **Expected Improvement**: 256x faster priority selection
-- **Real-world Impact**: Critical for systems with many processes
+- **Expected Improvement**: removes the 256-level scan from the hot path (asymptotic; actual speedup not measured)
+- **Real-world Impact**: Expected to help systems with many processes
 
 ### Use Case
 Priority selection happens on every context switch, making this one of the most critical hot paths in the scheduler. With 256 priority levels, the linear search becomes a significant bottleneck.
@@ -103,18 +103,16 @@ pub fn find_highest_priority(&self) -> Option<u8> {
 | Clear Priority Bit | N/A | O(1) | New |
 | Check if Empty | O(256) | O(1) | 256x |
 
-### Real-world Performance
+### Real-world Performance (planned — no results yet)
 
-**Test Setup**: 1000 tasks across all 256 priority levels, 10,000 scheduling operations
+**Planned Test Setup**: 1000 tasks across all 256 priority levels, 10,000 scheduling operations
 
-**Results**:
-```
-Without Bitmap: ~100ms (O(256) search per schedule)
-With Bitmap:    <10ms  (O(1) search per schedule)
-Improvement:    10x+ faster in practice
-```
+**Results**: Not yet measured. The figures previously shown here were illustrative
+placeholders, not benchmark output, and have been removed. Expected behavior is
+that bitmap lookup removes the per-schedule linear scan, but the magnitude must
+be measured.
 
-### CPU Instructions
+### CPU Instructions (rough estimates, not measured)
 
 **Before (Linear Search)**:
 ```
@@ -139,7 +137,10 @@ if bitmap_0 != 0:
 
 ## 🔒 Formal Verification
 
-### Properties Proven
+### Properties Specified (proof stubs — not discharged)
+
+The blocks below are *specification stubs* describing the properties we intend to
+prove. They are not completed proofs and have not been checked by a verifier.
 
 #### 1. Bitmap Consistency
 ```rust
@@ -346,11 +347,11 @@ pub fn select_next_task(&mut self) -> Option<SchedTask> {
 
 ## 📈 Impact Assessment
 
-### Performance Impact
-- **Context Switch Time**: 256x faster priority selection
-- **CPU Usage**: Reduced from ~1000 instructions to ~20 instructions per schedule
+### Performance Impact (expected, not measured)
+- **Context Switch Time**: priority selection moves from O(256) scan to O(1) bitmap lookup; speedup not measured
+- **CPU Usage**: expected fewer instructions per schedule (rough estimate ~1000 → ~20; unverified)
 - **Scalability**: Performance independent of number of priority levels
-- **Real-time**: Predictable O(1) worst-case performance
+- **Real-time**: Predictable O(1) worst-case lookup
 
 ### Memory Impact
 - **Additional Memory**: 32 bytes (4 x u64) per scheduler
@@ -406,8 +407,8 @@ self.priority_bitmap.find_highest_priority()
 ### What Worked Well
 1. **Bitmap Design**: 4 x u64 provides good balance of simplicity and performance
 2. **CPU Instructions**: Using `leading_zeros()` leverages hardware acceleration
-3. **Verification**: Bitmap properties are easy to verify formally
-4. **Testing**: Performance improvements are easily measurable
+3. **Verification**: Bitmap properties are amenable to formal specification
+4. **Testing**: Performance improvements should be measurable (benchmarks not yet run)
 
 ### Challenges
 1. **Bitmap Consistency**: Must ensure bitmap always reflects queue state
@@ -435,7 +436,7 @@ self.priority_bitmap.find_highest_priority()
 2. **SIMD Bitmap Operations**
    - Use SIMD instructions for bitmap operations
    - Process multiple priorities in parallel
-   - Improvement: 2-4x faster on modern CPUs
+   - Improvement: potentially faster on modern CPUs (unverified)
 
 3. **Adaptive Priority Levels**
    - Dynamically adjust number of priority levels
@@ -446,64 +447,68 @@ self.priority_bitmap.find_highest_priority()
 
 ## 📊 Comparison with Other Systems
 
+(Other-system details below are general background, not independently confirmed here.)
+
 ### Linux CFS Scheduler
 - Uses multi-level bitmap (similar approach)
 - 140 priority levels vs our 256
-- Our implementation is simpler and more verifiable
 
 ### seL4 Microkernel
 - Uses 256 priority levels (same as us)
 - Uses bitmap for O(1) lookup (same approach)
-- Our implementation adds formal verification
+- Note: seL4 is fully formally verified; VantisOS has proof stubs only
 
 ### Windows NT Scheduler
 - Uses 32 priority levels
 - Simpler bitmap (single u32)
-- Our approach is more flexible
 
 ---
 
-## ✅ Verification Status
+## Verification Status
 
-### Completed
-- ✅ PriorityBitmap implementation
-- ✅ SchedulerOptimized implementation
-- ✅ Verus formal specifications (3 proofs)
-- ✅ Kani verification harnesses (5 harnesses)
-- ✅ Unit tests (6 tests)
-- ✅ Performance benchmarks
-- ✅ Documentation
+### Implemented (prototype)
+- [x] PriorityBitmap implementation
+- [x] SchedulerOptimized implementation
+- [~] Verus formal specifications (proof stubs, not discharged)
+- [~] Kani verification harnesses (present, not run in verified CI)
+- [~] Unit tests (present; pass-rate/coverage not verified)
+- [ ] Performance benchmarks (not run)
+- [x] Documentation
 
-### Properties Proven
-- ✅ Bitmap consistency with queue state
-- ✅ Highest priority correctness
-- ✅ Set/clear operations correctness
-- ✅ Empty bitmap detection
-- ✅ All bitmap ranges work correctly
+### Properties Specified (not yet proven)
+- [ ] Bitmap consistency with queue state
+- [ ] Highest priority correctness
+- [ ] Set/clear operations correctness
+- [ ] Empty bitmap detection
+- [ ] All bitmap ranges work correctly
 
 ---
 
 ## 🎯 Conclusion
 
-The Priority Bitmap optimization provides a **256x performance improvement** for scheduler priority selection while maintaining **full formal verification**. This optimization is critical for real-time performance and scalability.
+The Priority Bitmap optimization changes scheduler priority selection from an
+O(256) scan to an O(1) bitmap lookup. The performance benefit is expected but has
+not been measured, and the correctness proofs are stubs that have not been
+discharged. The intent is to improve real-time predictability and scalability.
 
-**Key Achievements**:
-- ✅ O(1) priority selection (was O(256))
-- ✅ Formally verified correctness
-- ✅ Comprehensive testing
-- ✅ Minimal memory overhead
-- ✅ Production-ready implementation
+**Status of claims**:
+- [x] O(1) priority selection (was O(256)) — algorithmically
+- [~] Formal verification — proof stubs only, not verified
+- [~] Testing — prototype tests present, not verified
+- [x] Minimal memory overhead (32 bytes)
+- [ ] Production readiness — prototype, not production-ready
 
 **Next Steps**:
 1. Integrate with main scheduler
 2. Add to CI/CD pipeline
 3. Benchmark on real hardware
-4. Consider multi-level bitmap for further optimization
+4. Discharge the verification stubs
+5. Consider multi-level bitmap for further optimization
 
 ---
 
 **Implementation Date**: January 10, 2025  
-**Status**: ✅ Complete and Verified  
+**Status**: Prototype (not measured, proofs are stubs)  
 **Lines of Code**: ~800 lines  
-**Verification Coverage**: 100%  
-**Performance Improvement**: 256x faster
+**Verification Coverage**: proof stubs only — not verified  
+**Performance Improvement**: target only — O(256) → O(1), magnitude unmeasured

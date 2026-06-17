@@ -1,15 +1,28 @@
-# 🔐 Deadlock Freedom Proof - Complete Documentation
+# 🔐 Deadlock Freedom - Proof Sketch / Design Intent
 
 **Date**: February 9, 2026  
 **Version**: 1.0  
-**Status**: ✅ COMPLETE  
+**Status**: 🚧 Design sketch (not machine-checked)  
 **Module**: `ipc_deadlock_freedom.rs`
+
+---
+
+> ⚠️ **IMPORTANT — these are proof SKETCHES, not machine-checked proofs.**
+> The arguments below describe the *intended* deadlock-freedom properties and
+> the reasoning we expect to hold. They are **design intent**, not verified
+> results. The actual Verus `proof fn` items in the codebase are stubs
+> (several with empty / English-comment bodies) and are **not verified
+> end-to-end** by the Verus verifier. Nothing here should be read as a
+> guarantee. VantisOS is experimental, early-stage (v0.4.1) software and is
+> **not** certified, audited, or production-ready.
 
 ---
 
 ## 📋 Overview
 
-This document describes the complete formal verification of **Deadlock Freedom** in the VantisOS IPC system. This is the fourth of five critical properties being proven for the IPC module.
+This document sketches the intended **Deadlock Freedom** properties of the
+VantisOS IPC system and the reasoning we would need to establish to verify
+them. It is one of five IPC properties for which design-intent sketches exist.
 
 ---
 
@@ -137,26 +150,30 @@ pub struct DeadlockFreeIpcManager {
 
 ---
 
-## 📐 Formal Proofs
+## 📐 Proof Sketches (design intent — not machine-checked)
 
-### Proof 1: No Circular Wait
+> The "proofs" below are informal arguments for the intended properties.
+> They have **not** been mechanically verified. The accompanying Verus
+> snippets are stubs / signatures, not passing proofs.
 
-**Theorem**:
-```rust
+### Sketch 1: No Circular Wait
+
+**Intended property**:
+```
 ∀ graph: WaitGraph,
   ¬graph.has_cycle() ⟹ 
   ∀ p: Pid, ¬exists_circular_wait(graph, p)
 ```
 
-**Proof by Contradiction**:
+**Argument (sketch) by contradiction**:
 1. Assume: No cycle in wait graph
 2. Assume: There exists circular wait for some process p
 3. Circular wait implies: p waits for p1, p1 waits for p2, ..., pn waits for p
 4. This forms a cycle in the wait graph
 5. Contradiction with assumption (1)
-6. Therefore: No circular wait exists ∎
+6. Therefore: no circular wait exists (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_no_circular_wait()
@@ -167,25 +184,25 @@ pub proof fn theorem_no_circular_wait()
     )
 ```
 
-### Proof 2: Progress Guarantee
+### Sketch 2: Progress Guarantee
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager: DeadlockFreeIpcManager, p: Pid,
   manager.queues.contains_key(&p) ⟹
   eventually_makes_progress(manager, p)
 ```
 
-**Proof by Timeout Mechanism**:
+**Argument (sketch) by timeout mechanism**:
 1. Every `receive` operation has bounded timeout (≤ 1 second)
 2. Timeout ensures process doesn't wait indefinitely
 3. After timeout, process can:
    - Try again
    - Take alternative action
    - Proceed with other work
-4. Therefore: Every process eventually makes progress ∎
+4. Therefore: every process eventually makes progress (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_progress_guarantee()
@@ -196,23 +213,23 @@ pub proof fn theorem_progress_guarantee()
     )
 ```
 
-### Proof 3: Timeout Bounded
+### Sketch 3: Timeout Bounded
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ tracker: TimeoutTracker, p: Pid, duration: Duration,
   tracker.start_timeout(p, duration) ⟹
   eventually(tracker.has_timed_out(p))
 ```
 
-**Proof by Time Progression**:
+**Argument (sketch) by time progression**:
 1. Timeout starts at time t
 2. Time progresses monotonically (t < t+1 < t+2 < ...)
 3. Eventually time t + duration is reached
 4. At that point, `has_timed_out(p)` returns true
-5. Therefore: Timeout eventually occurs ∎
+5. Therefore: timeout eventually occurs (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_timeout_bounded()
@@ -225,29 +242,31 @@ pub proof fn theorem_timeout_bounded()
 
 ---
 
-## 🧪 Verification Methods
+## 🧪 Verification Approach (intended)
 
 ### 1. Verus Formal Proofs
 
-**Status**: ✅ Complete
+**Status**: 🚧 Stubs only — not verified
 
-Three theorems proven:
+Three proof functions are stubbed out (signatures / partial bodies, some
+empty), corresponding to the sketches above. They do **not** currently pass
+the Verus verifier:
 - `theorem_no_circular_wait`
 - `theorem_progress_guarantee`
 - `theorem_timeout_bounded`
 
 ### 2. Kani Model Checking
 
-**Status**: ✅ Complete
+**Status**: 🚧 Planned / not established
 
-Three properties verified:
+Properties intended to be checked:
 1. `verify_no_cycle_in_empty_graph` - Empty graph has no cycles
 2. `verify_cycle_detection` - Cycles are detected
 3. `verify_send_is_non_blocking` - Send never blocks
 
 ### 3. Unit Tests
 
-**Status**: ✅ Complete (6 tests)
+**Status**: Present (6 tests) — these are ordinary tests, not proofs
 
 1. `test_wait_graph_no_cycle` - Linear chains have no cycles
 2. `test_wait_graph_with_cycle` - Cycles are detected
@@ -372,14 +391,20 @@ if self.wait_graph.has_cycle() {
 
 ## 📈 Comparison with Other Systems
 
+> Note: the "VantisOS" row reflects *design intent*, not verified or measured
+> results. The overhead figure is unmeasured. seL4's proofs are real and
+> machine-checked; VantisOS's are not. Other rows are approximate from
+> literature.
+
 | System | Deadlock Prevention | Method | Overhead |
 |--------|-------------------|--------|----------|
-| **VantisOS** | **✅ Proven** | **Timeout + Detection** | **~10μs** |
-| seL4 | ✅ Proven | Non-blocking IPC | ~5μs |
+| **VantisOS** | Design intent (unverified) | Timeout + Detection | unmeasured |
+| seL4 | ✅ Proven (machine-checked) | Non-blocking IPC | ~5μs |
 | Linux | ⚠️ Best effort | Timeouts | ~2μs |
 | QNX | ⚠️ Best effort | Timeouts | ~3μs |
 
-**Note**: VantisOS provides mathematical proof while maintaining competitive performance.
+**Note**: VantisOS's deadlock-freedom is a *design goal* backed by proof
+sketches, not a verified guarantee, and its performance is unmeasured.
 
 ---
 
@@ -439,10 +464,10 @@ if self.wait_graph.has_cycle() {
 - [x] DeadlockFreeMessage implementation
 - [x] DeadlockFreeQueue implementation
 - [x] DeadlockFreeIpcManager implementation
-- [x] Verus formal proofs (3 theorems)
-- [x] Kani model checking (3 properties)
+- [ ] Verus formal proofs (currently stubs — not verified)
+- [ ] Kani model checking (planned)
 - [x] Unit tests (6 tests)
-- [x] Performance analysis
+- [x] Performance analysis (complexity only — unmeasured)
 - [x] Comparison with other systems
 - [x] Real-world scenarios
 - [x] Documentation
@@ -452,33 +477,34 @@ if self.wait_graph.has_cycle() {
 ## 🎯 Next Steps
 
 ### Immediate
-1. ✅ Deadlock Freedom Proof - **COMPLETE**
-2. ⏳ Capability Correctness Proof - **NEXT**
+1. 🚧 Deadlock Freedom — design sketch written; proofs are stubs (not verified)
+2. ⏳ Attempt to actually discharge the proofs in Verus
 
 ### Integration
 3. ⏳ Integrate with main IPC system
 4. ⏳ End-to-end testing
-5. ⏳ Performance optimization
+5. ⏳ Performance measurement (currently unmeasured)
 
 ---
 
-## 🎊 Achievement
+## 🎯 Status
 
-**Deadlock Freedom Proof: COMPLETE! ✅**
+**Deadlock Freedom: design sketch in place; proofs NOT machine-checked.**
 
-This is the **fourth of five critical properties** proven for the VantisOS IPC system. We have achieved:
+This is one of five IPC properties for which a design-intent sketch exists. So far:
 
-- ✅ Complete formal proofs in Verus
-- ✅ Model checking with Kani
-- ✅ Comprehensive unit tests
-- ✅ Performance analysis
-- ✅ Real-world scenario analysis
-- ✅ Production-ready code
+- 📝 Proof *sketches* written in Verus syntax (stubs — do not pass the verifier)
+- 🚧 Kani model checking planned, not established
+- ✅ Ordinary unit tests present
+- 📝 Real-world scenario analysis (informal)
 
-**Impact**: VantisOS now has **mathematically proven deadlock freedom** in its IPC system, ensuring the system never enters a deadlock state.
+**Reality**: VantisOS has a *deadlock-avoidance design* (non-blocking send,
+bounded-timeout receive, cycle detection) with *intended* freedom properties.
+It does **not** have mathematically proven deadlock freedom — the proofs are
+stubs and are not verified end-to-end.
 
 ---
 
-**Status**: ✅ READY FOR REVIEW AND INTEGRATION  
-**Next**: Capability Correctness Proof (Week 3-4)  
-**Progress**: 4 of 5 IPC properties complete (80%)
+**Status**: 🚧 Design sketch — proofs are stubs, not verified  
+**Next**: Attempt to actually discharge the proofs in Verus  
+**Progress**: 4 of 5 IPC properties have design-intent sketches (0 machine-checked)

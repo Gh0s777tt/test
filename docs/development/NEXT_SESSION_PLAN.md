@@ -1,10 +1,10 @@
 # VantisOS - Next Session Development Plan
 
 ## Current State (January 10, 2025)
-- **Verified Functions**: 300/300 ✅
-- **Project Progress**: 96%
-- **Completed Phases**: 1.2, 1.3, 2.1, 3.1 (Phase 1), 3.2
-- **GitHub Status**: 4 commits pending push (GitHub infrastructure issues)
+- **Verification**: ~19 Verus proof stubs only (aspirational; not discharged). "Verified function" counts are not a measure of proven correctness.
+- **Project Progress**: early-stage, experimental (v0.4.1). Percentage-complete figures are not meaningful for this prototype.
+- **Completed Phases**: prototype work on 1.2, 1.3, 2.1, 3.1 (Phase 1), 3.2 — "completed" means code drafted, not verified or hardware-tested.
+- **GitHub Status**: commits pending push
 
 ---
 
@@ -30,7 +30,7 @@
 3. **Fault Detection & Recovery** (10 functions)
    - Watchdog timers
    - Health checks
-   - Automatic restart (0.5s target)
+   - Automatic restart (0.5s target — not measured)
    - State preservation
 
 4. **Hardware Fingerprinting** (8 functions)
@@ -55,11 +55,11 @@
 - Documentation
 
 ### Benefits
-- ✅ Reaches 350+ function milestone
-- ✅ Critical for Phase 4 (UI/Compositor)
-- ✅ Enables real hardware testing
-- ✅ World's first verified driver sandbox
-- ✅ Completes Phase 1 foundation
+- Adds to the function count milestone
+- Needed for Phase 4 (UI/Compositor)
+- A step toward real hardware testing
+- An experimental sandboxed-driver design (correctness not verified; no novelty/"first" claim)
+- Rounds out the Phase 1 foundation
 
 ---
 
@@ -121,17 +121,17 @@
 ### Why Sentinel First?
 1. **Foundation for UI**: Flux Engine needs HAL to access GPU
 2. **Completes Phase 1**: Finishes core system foundation
-3. **Enables Testing**: Real hardware support for all components
-4. **Milestone Achievement**: Reaches 350+ functions
-5. **World-First**: First verified driver sandbox system
+3. **Enables Testing**: A step toward real hardware support for all components
+4. **Milestone**: Adds to the function count
+5. **Experimental design**: a sandboxed-driver approach (no "first"/novelty claim)
 
-### Success Criteria
-- ✅ 50+ new verified functions
-- ✅ Driver isolation with <1ms overhead
-- ✅ 0.5s driver restart time
-- ✅ Hardware fingerprinting for all major components
-- ✅ 40+ comprehensive tests
-- ✅ Complete documentation
+### Success Criteria (targets, not yet met or measured)
+- [ ] 50+ new functions with proof stubs
+- [ ] Driver isolation with <1ms overhead (target, not measured)
+- [ ] 0.5s driver restart time (target, not measured)
+- [ ] Hardware fingerprinting for major components
+- [ ] 40+ tests
+- [ ] Complete documentation
 
 ### Next Steps After Sentinel
 1. Phase 4.1: Flux Engine (Wayland compositor)

@@ -1,15 +1,29 @@
-# 🔐 Information Leakage Prevention Proof - Complete Documentation
+# 🔐 Information Leakage Prevention - Proof Sketch / Design Intent
 
 **Date**: February 9, 2026  
 **Version**: 1.0  
-**Status**: ✅ COMPLETE  
+**Status**: 🚧 Design sketch (not machine-checked)  
 **Module**: `ipc_information_leakage.rs`
+
+---
+
+> ⚠️ **IMPORTANT — these are proof SKETCHES, not machine-checked proofs.**
+> The arguments below describe the *intended* isolation / information-flow
+> properties and the reasoning we expect to hold. They are **design intent**,
+> not verified results. The actual Verus `proof fn` items in the codebase are
+> stubs (several with empty / English-comment bodies) and are **not verified
+> end-to-end** by the Verus verifier. Nothing here should be read as a
+> guarantee. VantisOS is experimental, early-stage (v0.4.1) software and is
+> **not** certified, audited, or production-ready.
 
 ---
 
 ## 📋 Overview
 
-This document describes the complete formal verification of **Information Leakage Prevention** in the VantisOS IPC system. This is the third of five critical properties being proven for the IPC module.
+This document sketches the intended **Information Leakage Prevention**
+properties of the VantisOS IPC system and the reasoning we would need to
+establish to verify them. It is one of five IPC properties for which
+design-intent sketches exist.
 
 ---
 
@@ -151,24 +165,30 @@ pub struct IsolatedIpcManager {
 
 ---
 
-## 📐 Formal Proofs
+## 📐 Proof Sketches (design intent — not machine-checked)
 
-### Proof 1: Process Isolation
+> The "proofs" below are informal arguments for the intended properties.
+> They have **not** been mechanically verified. The accompanying Verus
+> snippets are stubs / signatures, not passing proofs. (Note that the
+> `theorem_capability_enforcement` stub below trivially `ensures(true)` — it
+> proves nothing about capability enforcement.)
 
-**Theorem**:
-```rust
+### Sketch 1: Process Isolation
+
+**Intended property**:
+```
 ∀ msg: IsolatedMessage, p1, p2: Pid,
   msg.wf() ∧ p1 ≠ p2 ∧ msg.receiver() = p1 ⟹
   ¬msg.can_read_spec(p2)
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. By definition, `can_read(p)` returns `true` only if `receiver == p`
 2. Given: `receiver == p1` and `p1 ≠ p2`
 3. Therefore: `receiver ≠ p2`
-4. Therefore: `can_read(p2)` returns `false` ∎
+4. Therefore: `can_read(p2)` returns `false` (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_process_isolation()
@@ -179,49 +199,50 @@ pub proof fn theorem_process_isolation()
     )
 ```
 
-### Proof 2: Capability Enforcement
+### Sketch 2: Capability Enforcement
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager: IsolatedIpcManager, sender, receiver: Pid,
   manager.wf() ∧ send(sender, receiver, data) = Ok(_) ⟹
   has_capability(sender, Send(receiver))
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `send()` checks capabilities before sending
 2. If no capability, returns `Err("No send capability")`
 3. If `send()` returns `Ok(_)`, capability check passed
-4. Therefore, sender has capability ∎
+4. Therefore, sender has capability (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — vacuous, `ensures(true)` proves nothing)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_capability_enforcement()
     ensures(
         forall|manager: IsolatedIpcManager, sender: Pid, receiver: Pid|
             manager.wf() ==> {
-                // If send succeeds, sender must have capability
-                true // Enforced by implementation
+                // Placeholder: this stub asserts `true` and does NOT
+                // actually establish the capability-enforcement property.
+                true
             }
     )
 ```
 
-### Proof 3: Queue Isolation
+### Sketch 3: Queue Isolation
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ queue: IsolatedQueue, msg: IsolatedMessage,
   queue.wf() ∧ msg.wf() ∧ push(msg) = Ok(_) ⟹
   msg.receiver() = queue.owner()
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `push()` has precondition: `msg.receiver() == queue.owner()`
 2. If `push()` succeeds, precondition was satisfied
-3. Therefore, `msg.receiver() == queue.owner()` ∎
+3. Therefore, `msg.receiver() == queue.owner()` (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_queue_isolation()
@@ -232,23 +253,23 @@ pub proof fn theorem_queue_isolation()
     )
 ```
 
-### Proof 4: Unauthorized Read Always Fails
+### Sketch 4: Unauthorized Read Always Fails
 
-**Theorem**:
-```rust
+**Intended property**:
+```
 ∀ manager: IsolatedIpcManager, attacker, victim: Pid,
   manager.wf() ∧ attacker ≠ victim ⟹
   try_unauthorized_read(attacker, victim) = None
 ```
 
-**Proof**:
+**Argument (sketch)**:
 1. `try_unauthorized_read()` calls `queue.pop(attacker)`
 2. `queue.pop()` requires `requester == owner`
 3. Given: `attacker ≠ victim`
 4. Therefore: `attacker ≠ queue.owner` (queue owned by victim)
-5. Therefore: `pop()` returns `None` ∎
+5. Therefore: `pop()` returns `None` (intended property — proof sketch, not machine-checked)
 
-**Verus Code**:
+**Verus signature (stub — not a passing proof)**:
 ```rust
 #[verifier::proof]
 pub proof fn theorem_unauthorized_read_fails()
@@ -265,24 +286,26 @@ pub proof fn theorem_unauthorized_read_fails()
 
 ### 1. Verus Formal Proofs
 
-**Status**: ✅ Complete
+**Status**: 🚧 Stubs only — not verified
 
-All four theorems have been proven using Verus:
+Four proof functions are stubbed out (signatures / partial bodies; one is
+vacuous, asserting only `true`). They do **not** currently pass the Verus
+verifier:
 - `theorem_process_isolation`
-- `theorem_capability_enforcement`
+- `theorem_capability_enforcement` (vacuous stub)
 - `theorem_queue_isolation`
 - `theorem_unauthorized_read_fails`
 
-**Verification Command**:
+**Intended verification command** (does not pass today):
 ```bash
 verus src/verified/ipc_information_leakage.rs
 ```
 
 ### 2. Kani Model Checking
 
-**Status**: ✅ Complete
+**Status**: 🚧 Planned / not established
 
-Four properties verified with Kani:
+Properties intended to be checked with Kani:
 
 1. **Process Isolation**:
    ```rust
@@ -312,14 +335,14 @@ Four properties verified with Kani:
    ```
    Verifies that unauthorized reads always fail.
 
-**Verification Command**:
+**Intended verification command**:
 ```bash
 cargo kani --harness verify_process_isolation
 ```
 
 ### 3. Unit Tests
 
-**Status**: ✅ Complete (6 tests)
+**Status**: Present (6 tests) — these are ordinary tests, not proofs
 
 1. `test_capability_system` - Capability management
 2. `test_message_isolation` - Message access control
@@ -453,33 +476,32 @@ pub struct IpcManager {
 - [x] IsolatedMessage implementation
 - [x] IsolatedQueue implementation
 - [x] IsolatedIpcManager implementation
-- [x] Verus formal proofs (4 theorems)
-- [x] Kani model checking (4 properties)
+- [ ] Verus formal proofs (currently stubs — not verified; one vacuous)
+- [ ] Kani model checking (planned)
 - [x] Unit tests (6 tests)
-- [x] Performance analysis
-- [x] Security analysis
-- [x] Side-channel analysis
+- [x] Performance analysis (complexity only — unmeasured)
+- [x] Security analysis (informal)
+- [x] Side-channel analysis (informal)
 - [x] Documentation
-- [x] Code review ready
 
 ---
 
 ## 🎯 Next Steps
 
-### Immediate (Week 1-2)
-1. ✅ Message Integrity Proof - **COMPLETE**
-2. ✅ Resource Bounds Proof - **COMPLETE**
-3. ✅ No Information Leakage Proof - **COMPLETE**
-4. ⏳ Integration & Testing - **NEXT**
+### Immediate
+1. 📝 Message Integrity — design sketch (proofs are stubs)
+2. 📝 Resource Bounds — design sketch (proofs are stubs)
+3. 📝 Information Leakage — design sketch (proofs are stubs)
+4. ⏳ Actually discharge the proofs in Verus (notably the vacuous capability stub)
 
-### Week 3-4
-5. ⏳ Deadlock Freedom Proof
-6. ⏳ Capability Correctness Proof
+### Later
+5. ⏳ Deadlock Freedom — design sketch (proofs are stubs)
+6. ⏳ Capability Correctness — design sketch (proofs are stubs)
 
 ### Integration
-7. ⏳ Integrate all three proofs
+7. ⏳ Integrate the modules
 8. ⏳ End-to-end testing
-9. ⏳ Performance optimization
+9. ⏳ Performance measurement (currently unmeasured)
 
 ---
 
@@ -499,24 +521,24 @@ pub struct IpcManager {
 
 ---
 
-## 🎊 Achievement
+## 🎯 Status
 
-**Information Leakage Prevention Proof: COMPLETE! ✅**
+**Information Leakage Prevention: design sketch in place; proofs NOT machine-checked.**
 
-This is the **third of five critical properties** proven for the VantisOS IPC system. We have achieved:
+This is one of five IPC properties for which a design-intent sketch exists. So far:
 
-- ✅ Complete formal proofs in Verus
-- ✅ Model checking with Kani
-- ✅ Comprehensive unit tests
-- ✅ Performance analysis
-- ✅ Security analysis
-- ✅ Side-channel analysis
-- ✅ Production-ready code
+- 📝 Proof *sketches* written in Verus syntax (stubs — do not pass the verifier; one is vacuous)
+- 🚧 Kani model checking planned, not established
+- ✅ Ordinary unit tests present
+- 📝 Informal security and side-channel analysis
 
-**Impact**: VantisOS now has **mathematically proven information isolation** in its IPC system, preventing unauthorized access and information disclosure.
+**Reality**: VantisOS has an *isolation design* (per-process queues,
+owner-checked pop, capability checks) with *intended* information-flow
+properties. It does **not** have mathematically proven information isolation —
+the proofs are stubs (one vacuous) and are not verified end-to-end.
 
 ---
 
-**Status**: ✅ READY FOR REVIEW AND INTEGRATION  
-**Next**: Integration & Testing (Week 1-2, Day 8-9)  
-**Progress**: 100% of Week 1-2 core properties complete!
+**Status**: 🚧 Design sketch — proofs are stubs, not verified  
+**Next**: Attempt to actually discharge the proofs in Verus  
+**Progress**: 3 of 5 IPC properties have design-intent sketches at this stage (0 machine-checked)

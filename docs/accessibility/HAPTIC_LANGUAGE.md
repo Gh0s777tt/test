@@ -70,10 +70,10 @@ pub enum PatternCategory {
 }
 ```
 
-**Performance**:
-- Pattern playback: < 10ms latency ✅
-- Pattern switching: < 5ms ✅
-- Pattern library: 100+ patterns ✅
+**Performance** (targets, not measured):
+- Pattern playback: < 10ms latency (target)
+- Pattern switching: < 5ms (target)
+- Pattern library: 100+ patterns (planned)
 
 ### 2. Tactile Communication
 
@@ -100,13 +100,13 @@ pub enum PatternCategory {
 - **Action type**: Different patterns for different actions
 - **Error type**: Different patterns for different errors
 
-**Features**:
-- ✅ Pattern composition
-- ✅ Pattern sequencing
-- ✅ Pattern nesting
-- ✅ Pattern parameters
-- ✅ Pattern customization
-- ✅ Pattern learning
+**Features** (planned):
+- Pattern composition
+- Pattern sequencing
+- Pattern nesting
+- Pattern parameters
+- Pattern customization
+- Pattern learning
 
 **Implementation**:
 ```rust
@@ -123,10 +123,10 @@ pub struct CommunicationContext {
 }
 ```
 
-**Performance**:
-- Message encoding: < 5ms ✅
-- Message decoding: < 5ms ✅
-- Communication latency: < 20ms ✅
+**Performance** (targets, not measured):
+- Message encoding: < 5ms (target)
+- Message decoding: < 5ms (target)
+- Communication latency: < 20ms (target)
 
 ### 3. Vibration Patterns for Notifications
 
@@ -196,10 +196,10 @@ pub enum NotificationPriority {
 }
 ```
 
-**Performance**:
-- Notification generation: < 10ms ✅
-- Notification playback: < 20ms ✅
-- Notification queue: Unlimited ✅
+**Performance** (targets, not measured):
+- Notification generation: < 10ms (target)
+- Notification playback: < 20ms (target)
+- Notification queue: Unlimited (design goal)
 
 ### 4. Spatial Haptics
 
@@ -263,10 +263,10 @@ pub enum SourceType {
 }
 ```
 
-**Performance**:
-- Spatial calculation: < 5ms ✅
-- Directional feedback: < 10ms ✅
-- Distance feedback: < 10ms ✅
+**Performance** (targets, not measured):
+- Spatial calculation: < 5ms (target)
+- Directional feedback: < 10ms (target)
+- Distance feedback: < 10ms (target)
 
 ### 5. Customizable Intensity
 
@@ -295,12 +295,12 @@ pub enum SourceType {
 - Quick intensity toggle
 - Intensity presets
 
-**Features**:
-- ✅ Smooth intensity transitions
-- ✅ Intensity memory
-- ✅ Intensity profiles
-- ✅ Automatic intensity adjustment
-- ✅ Context-aware intensity
+**Features** (planned):
+- Smooth intensity transitions
+- Intensity memory
+- Intensity profiles
+- Automatic intensity adjustment
+- Context-aware intensity
 
 **Implementation**:
 ```rust
@@ -335,10 +335,10 @@ impl IntensityController {
 }
 ```
 
-**Performance**:
-- Intensity adjustment: < 1ms ✅
-- Intensity calculation: < 1ms ✅
-- Profile switching: < 5ms ✅
+**Performance** (targets, not measured):
+- Intensity adjustment: < 1ms (target)
+- Intensity calculation: < 1ms (target)
+- Profile switching: < 5ms (target)
 
 ### 6. Haptic Themes
 
@@ -382,12 +382,12 @@ impl IntensityController {
 - Theme import/export
 - Theme templates
 
-**Theme Features**:
-- ✅ Pattern customization
-- ✅ Intensity customization
-- ✅ Duration customization
-- ✅ Category customization
-- ✅ Application-specific themes
+**Theme Features** (planned):
+- Pattern customization
+- Intensity customization
+- Duration customization
+- Category customization
+- Application-specific themes
 
 **Implementation**:
 ```rust
@@ -413,10 +413,10 @@ pub struct ThemeManager {
 }
 ```
 
-**Performance**:
-- Theme switching: < 10ms ✅
-- Theme loading: < 50ms ✅
-- Theme saving: < 50ms ✅
+**Performance** (targets, not measured):
+- Theme switching: < 10ms (target)
+- Theme loading: < 50ms (target)
+- Theme saving: < 50ms (target)
 
 ## Architecture
 
@@ -461,13 +461,13 @@ pub struct ThemeManager {
 
 ### Hardware Integration
 
-**Supported Devices**:
-- ✅ Built-in vibration motors
-- ✅ External haptic devices
-- ✅ Haptic gloves
-- ✅ Haptic vests
-- ✅ Haptic bands
-- ✅ Custom haptic devices
+**Target Devices** (planned):
+- Built-in vibration motors
+- External haptic devices
+- Haptic gloves
+- Haptic vests
+- Haptic bands
+- Custom haptic devices
 
 **Connection Types**:
 - USB
@@ -477,19 +477,19 @@ pub struct ThemeManager {
 
 ### System Integration
 
-**VantisOS Integration**:
-- ✅ System notifications
-- ✅ Application notifications
-- ✅ User interface feedback
-- ✅ Input feedback
-- ✅ Navigation assistance
-- ✅ Accessibility features
+**VantisOS Integration** (planned):
+- System notifications
+- Application notifications
+- User interface feedback
+- Input feedback
+- Navigation assistance
+- Accessibility features
 
-**Accessibility Integration**:
-- ✅ Screen reader integration
-- ✅ Voice assistant integration
-- ✅ Braille display integration
-- ✅ BCI interface integration
+**Accessibility Integration** (planned):
+- Screen reader integration
+- Voice assistant integration
+- Braille display integration
+- BCI interface integration
 
 ### API Integration
 
@@ -509,63 +509,49 @@ pub trait HapticLanguageAPI {
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Pattern playback latency | < 20ms | < 10ms | ✅ |
-| Pattern switching latency | < 10ms | < 5ms | ✅ |
-| Intensity adjustment latency | < 5ms | < 1ms | ✅ |
-| Theme switching latency | < 20ms | < 10ms | ✅ |
-| Spatial calculation latency | < 10ms | < 5ms | ✅ |
-| Notification generation latency | < 20ms | < 10ms | ✅ |
-| Pattern library size | > 50 | 100+ | ✅ |
-| Battery impact | < 5% | < 3% | ✅ |
+Targets only — none of these have been measured on hardware.
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Pattern playback latency | < 20ms | Not measured |
+| Pattern switching latency | < 10ms | Not measured |
+| Intensity adjustment latency | < 5ms | Not measured |
+| Theme switching latency | < 20ms | Not measured |
+| Spatial calculation latency | < 10ms | Not measured |
+| Notification generation latency | < 20ms | Not measured |
+| Pattern library size | > 50 | Planned |
+| Battery impact | < 5% | Not measured |
 
 ## Testing
 
 ### Automated Testing
 
-**Test Coverage**:
-- ✅ Pattern playback tests
-- ✅ Intensity control tests
-- ✅ Theme management tests
-- ✅ Notification system tests
-- ✅ Spatial haptics tests
-- ✅ Integration tests
+**Planned Test Coverage**:
+- Pattern playback tests
+- Intensity control tests
+- Theme management tests
+- Notification system tests
+- Spatial haptics tests
+- Integration tests
 
-**Test Results**:
-- Unit tests: 100% pass rate ✅
-- Integration tests: 100% pass rate ✅
-- Performance tests: All targets met ✅
+**Test Results**: No verified pass-rate or coverage figures are available for this prototype.
 
 ### Manual Testing
 
-**Test Scenarios**:
-- ✅ Pattern playback
-- ✅ Intensity adjustment
-- ✅ Theme switching
-- ✅ Notifications
-- ✅ Spatial haptics
-- ✅ Custom patterns
-- ✅ System integration
+**Planned Test Scenarios**:
+- Pattern playback
+- Intensity adjustment
+- Theme switching
+- Notifications
+- Spatial haptics
+- Custom patterns
+- System integration
 
-**Test Results**:
-- All scenarios passed ✅
-- No critical issues ✅
-- User satisfaction: 4.7/5 ✅
+**Test Results**: Not yet performed against real haptic hardware.
 
 ### User Testing
 
-**Participants**:
-- 15 users with visual impairments
-- 10 users with hearing impairments
-- 8 users with both visual and hearing impairments
-- 12 general users
-
-**Results**:
-- Task completion rate: 92% ✅
-- User satisfaction: 4.7/5 ✅
-- Daily usage: 75% ✅
-- Preferred feedback: 65% ✅
+User testing with people who have visual or hearing impairments has not yet been conducted. Participant counts, task-completion rates, and satisfaction scores are intentionally omitted until real studies are run.
 
 ## Best Practices
 
@@ -615,10 +601,10 @@ pub trait HapticLanguageAPI {
 
 ## Conclusion
 
-Haptic Language provides a comprehensive tactile communication system for VantisOS, enabling users to receive information and interact with the system through vibration patterns and tactile feedback. With rich pattern library, customizable intensity, and excellent performance, Haptic Language sets a new standard for operating system haptic accessibility.
+Haptic Language is a planned tactile communication system for VantisOS, intended to let users receive information and interact with the system through vibration patterns and tactile feedback, which is particularly valuable for users with visual or hearing impairments. This document describes the intended pattern library, customizable intensity model, and APIs; the feature is an early-stage prototype and has not been validated on real hardware.
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 0.4.1 (experimental)  
 **Last Updated**: February 26, 2025  
-**Status**: ✅ Production Ready
+**Status**: Prototype / in progress

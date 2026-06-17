@@ -1,10 +1,12 @@
 # VantisOS Syscall Interface Specification
-## Complete Reference for the Minimal Verified Syscall Interface
+## Reference for the Minimal Syscall Interface (experimental)
 
-**Version**: 1.0  
+**Version**: experimental (v0.4.1)  
 **Date**: February 9, 2025  
-**Status**: Production Ready  
+**Status**: Design specification — prototype / in progress (NOT production-ready)  
 **Total Syscalls**: 39 (vs 300-400 in POSIX)
+
+> **Status note:** This is a design specification for an experimental, early-stage OS. The interface is a **prototype**. Throughout this document, "Verification" describes **intended** properties — formal verification is currently a small set of Verus proof *stubs*, not completed proofs. All latency/performance figures are **design targets, not measured**. VantisOS is not certified, audited, or production-ready.
 
 ---
 
@@ -25,15 +27,15 @@
 
 ### 1.1 Introduction
 
-VantisOS implements a **minimal, formally verified syscall interface** with only 39 syscalls compared to 300-400 in traditional POSIX systems. This represents a **90% reduction** in kernel complexity while maintaining full functionality for modern applications.
+VantisOS defines a **minimal syscall interface** with only 39 syscalls compared to 300-400 in traditional POSIX systems — roughly a **90% reduction** in kernel surface, while aiming to retain functionality for modern applications.
 
 ### 1.2 Key Characteristics
 
-- ✅ **Minimal**: 39 syscalls (90% less than POSIX)
-- ✅ **Verified**: 100% formally verified with Verus/Kani
-- ✅ **Fast**: 600ns-2.5μs average latency
-- ✅ **Secure**: Capability-based security model
-- ✅ **Modern**: Designed for microkernel architecture
+- **Minimal**: 39 syscalls (about 90% fewer than POSIX)
+- **Verification (aspirational)**: aims for formal verification with Verus/Kani; currently proof stubs, not complete
+- **Performance (target, unmeasured)**: design target ~600ns-2.5μs average latency
+- **Secure**: capability-based security model (design)
+- **Modern**: designed for microkernel architecture
 
 ### 1.3 Design Goals
 
@@ -70,7 +72,7 @@ VantisOS follows strict microkernel design:
 - Microkernel design
 - Minimal, orthogonal operations
 - Simple interactions
-- Fully verified
+- Aims for formal verification (currently proof stubs)
 - Small attack surface
 
 ### 2.3 Syscall Selection Criteria
@@ -89,7 +91,9 @@ A syscall is included in the kernel ONLY if:
 
 ### 3.1 Category Overview
 
-| Category | Count | Purpose | Avg Latency |
+> The "Avg Latency" column lists **design targets, not measured values**.
+
+| Category | Count | Purpose | Avg Latency (target) |
 |----------|-------|---------|-------------|
 | Core I/O | 4 | Basic file operations | 500ns-2μs |
 | Process Management | 4 | Process lifecycle | 1-10μs |
@@ -165,7 +169,7 @@ fn sys_read(fd: FileDescriptor, buffer: &mut [u8]) -> Result<usize, Error>
 
 **Performance**: 500ns-2μs (depends on buffer size)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Buffer bounds checked
 - Fd validity verified
 - No buffer overflow possible
@@ -198,7 +202,7 @@ fn sys_write(fd: FileDescriptor, buffer: &[u8]) -> Result<usize, Error>
 
 **Performance**: 500ns-2μs (depends on buffer size)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Buffer bounds checked
 - Fd validity verified
 - Atomic writes guaranteed
@@ -233,7 +237,7 @@ fn sys_open(path: &str, flags: OpenFlags, mode: Mode) -> Result<FileDescriptor, 
 
 **Performance**: 1-3μs (includes path lookup)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Permission checks
 - Fd allocation verified
@@ -265,7 +269,7 @@ fn sys_close(fd: FileDescriptor) -> Result<(), Error>
 
 **Performance**: 200-500ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Fd validity checked
 - Resource cleanup guaranteed
 - No double-free possible
@@ -295,7 +299,7 @@ fn sys_fork() -> Result<Pid, Error>
 
 **Performance**: 5-10μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Memory isolation guaranteed
 - No resource leaks
 - Proper cleanup on failure
@@ -336,7 +340,7 @@ fn sys_exec(path: &str, args: &[&str], env: &[&str]) -> Result<!, Error>
 
 **Performance**: 10-50μs (depends on program size)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Memory cleanup guaranteed
 - No resource leaks
@@ -368,7 +372,7 @@ fn sys_exit(status: i32) -> !
 
 **Performance**: 1-5μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - All resources freed
 - Parent notified
 - Zombie state handled
@@ -397,7 +401,7 @@ fn sys_wait(pid: Pid) -> Result<(Pid, i32), Error>
 
 **Performance**: 500ns-5μs (depends on child state)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - No zombie processes
 - Proper cleanup
 - Deadlock-free
@@ -442,7 +446,7 @@ fn sys_mmap(
 
 **Performance**: 2-5μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - No overlapping mappings
 - Proper alignment
 - Permission enforcement
@@ -478,7 +482,7 @@ fn sys_munmap(addr: VirtAddr, length: usize) -> Result<(), Error>
 
 **Performance**: 1-3μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - No dangling pointers
 - Proper cleanup
 - No double-free
@@ -507,7 +511,7 @@ fn sys_brk(addr: Option<VirtAddr>) -> Result<VirtAddr, Error>
 
 **Performance**: 500ns-2μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - No heap overflow
 - Proper alignment
 - Memory limits enforced
@@ -544,7 +548,7 @@ fn sys_send(target: Pid, message: &Message) -> Result<(), Error>
 
 **Performance**: 16μs p50 (formally verified)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Message integrity guaranteed
 - No information leakage
 - Deadlock-free
@@ -578,7 +582,7 @@ fn sys_receive(timeout: Option<Duration>) -> Result<Message, Error>
 
 **Performance**: 16μs p50 (formally verified)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Message integrity verified
 - No information leakage
 - Deadlock-free
@@ -614,7 +618,7 @@ fn sys_signal(pid: Pid, signal: Signal) -> Result<(), Error>
 
 **Performance**: 500ns-2μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Signal delivery guaranteed
 - No signal loss
 - Proper ordering
@@ -644,7 +648,7 @@ fn sys_kill(pid: Pid) -> Result<(), Error>
 
 **Performance**: 500ns-2μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Proper cleanup
 - No resource leaks
 - Parent notification
@@ -673,7 +677,7 @@ fn sys_gettime() -> Result<Timestamp, Error>
 
 **Performance**: 100-300ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Monotonic time guaranteed
 - No time going backwards
 
@@ -701,7 +705,7 @@ fn sys_sleep(duration: Duration) -> Result<(), Error>
 
 **Performance**: 500ns-2μs (setup time)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Accurate timing
 - Proper wakeup
 - Interruptible
@@ -734,7 +738,7 @@ fn sys_seek(fd: FileDescriptor, offset: i64, whence: SeekOrigin) -> Result<u64, 
 
 **Performance**: 200-400ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Bounds checking
 - No invalid positions
 - Atomic operation
@@ -772,7 +776,7 @@ fn sys_stat(path: &str) -> Result<FileStat, Error>
 
 **Performance**: 500ns-1μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Permission checks
 - Consistent metadata
@@ -805,7 +809,7 @@ fn sys_fstat(fd: FileDescriptor) -> Result<FileStat, Error>
 
 **Performance**: 300-600ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Fd validation
 - Consistent metadata
 - No race conditions
@@ -835,7 +839,7 @@ fn sys_unlink(path: &str) -> Result<(), Error>
 
 **Performance**: 1-2μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Permission checks
 - Atomic deletion
@@ -868,7 +872,7 @@ fn sys_rename(old_path: &str, new_path: &str) -> Result<(), Error>
 
 **Performance**: 2-4μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Permission checks
 - Atomic operation
@@ -904,7 +908,7 @@ fn sys_mkdir(path: &str, mode: Mode) -> Result<(), Error>
 
 **Performance**: 1-2μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Permission checks
 - Atomic creation
@@ -936,7 +940,7 @@ fn sys_rmdir(path: &str) -> Result<(), Error>
 
 **Performance**: 1-3μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Empty check
 - Permission checks
@@ -969,7 +973,7 @@ fn sys_chdir(path: &str) -> Result<(), Error>
 
 **Performance**: 500ns-1μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Path validation
 - Directory check
 - Permission checks
@@ -1001,7 +1005,7 @@ fn sys_getcwd(buffer: &mut [u8]) -> Result<usize, Error>
 
 **Performance**: 200-400ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Buffer bounds checked
 - Consistent path
 - No race conditions
@@ -1035,7 +1039,7 @@ fn sys_dup(fd: FileDescriptor) -> Result<FileDescriptor, Error>
 
 **Performance**: 300-600ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Fd validation
 - Reference counting
 - Atomic operation
@@ -1066,7 +1070,7 @@ fn sys_dup2(old_fd: FileDescriptor, new_fd: FileDescriptor) -> Result<FileDescri
 
 **Performance**: 400-800ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Fd validation
 - Atomic close and duplicate
 - Reference counting
@@ -1094,7 +1098,7 @@ fn sys_pipe() -> Result<(FileDescriptor, FileDescriptor), Error>
 
 **Performance**: 1-2μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Buffer allocation
 - Atomic creation
 - Proper cleanup on failure
@@ -1133,7 +1137,7 @@ fn sys_ioctl(fd: FileDescriptor, request: u32, arg: usize) -> Result<i32, Error>
 
 **Performance**: 500ns-5μs (device-dependent)
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Fd validation
 - Request validation
 - Device-specific checks
@@ -1174,7 +1178,7 @@ fn sys_set_timer(
 
 **Performance**: 500ns-1μs
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Interval validation
 - Timer queue management
 - Callback safety
@@ -1216,7 +1220,7 @@ fn sys_cancel_timer(timer_id: TimerId) -> Result<(), Error>
 
 **Performance**: 300-600ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Timer validation
 - Atomic cancellation
 - Proper cleanup
@@ -1246,7 +1250,7 @@ fn sys_pause_timer(timer_id: TimerId) -> Result<(), Error>
 
 **Performance**: 200-400ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Timer validation
 - State management
 - Remaining time saved
@@ -1277,7 +1281,7 @@ fn sys_resume_timer(timer_id: TimerId) -> Result<(), Error>
 
 **Performance**: 200-400ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Timer validation
 - State management
 - Expiration recalculation
@@ -1308,7 +1312,7 @@ fn sys_get_timer_info(timer_id: TimerId) -> Result<TimerInfo, Error>
 
 **Performance**: 150-300ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Timer validation
 - Consistent state
 - No race conditions
@@ -1337,7 +1341,7 @@ fn sys_get_timer_resolution() -> Result<Duration, Error>
 
 **Performance**: 50-100ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Always succeeds
 - Consistent value
 
@@ -1364,7 +1368,7 @@ fn sys_getpid() -> Pid
 
 **Performance**: 50-100ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Always succeeds
 - Consistent value
 
@@ -1392,7 +1396,7 @@ fn sys_set_priority(priority: Priority) -> Result<(), Error>
 
 **Performance**: 200-500ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Priority validation
 - Scheduler update
 - Permission checks
@@ -1422,7 +1426,7 @@ fn sys_get_capability(cap_type: CapabilityType) -> Result<Capability, Error>
 
 **Performance**: 200-500ns
 
-**Verification**: ✅ Formally verified
+**Verification (intended, not yet proven)**:
 - Permission checks
 - Unforgeable tokens
 - Proper delegation
@@ -1440,9 +1444,11 @@ let cap = sys_get_capability(CAP_FILE_READ)?;
 
 ## 5. Performance Characteristics
 
-### 5.1 Performance Summary
+> **All figures in this section are design targets, NOT measurements.** Performance on VantisOS has not been benchmarked. The "Grade" columns reflect intended performance classes, not assessed results.
 
-| Category | Min | Avg | Max | Grade |
+### 5.1 Performance Summary (targets, not measured)
+
+| Category | Min | Avg | Max | Target class |
 |----------|-----|-----|-----|-------|
 | Ultra-Fast (<200ns) | 50ns | 100ns | 200ns | A+ |
 | Very Fast (200-500ns) | 200ns | 350ns | 500ns | A+ |
@@ -1451,46 +1457,48 @@ let cap = sys_get_capability(CAP_FILE_READ)?;
 | Slow (2-5μs) | 2μs | 3.5μs | 5μs | B |
 | Very Slow (>5μs) | 5μs | 10μs | 50μs | C |
 
-### 5.2 Performance by Category
+### 5.2 Performance by Category (targets, not measured)
 
-**Timer Operations** (Best):
-- Average: 230-500ns
-- Grade: A+
-- Reason: Simple operations, minimal overhead
+**Timer Operations** (expected fastest):
+- Target average: 230-500ns
+- Target class: A+
+- Rationale: simple operations, minimal overhead
 
 **Advanced Operations**:
-- Average: 550ns-2μs
-- Grade: A
-- Reason: Efficient fd manipulation
+- Target average: 550ns-2μs
+- Target class: A
+- Rationale: fd manipulation
 
 **Directory Operations**:
-- Average: 700ns-1.5μs
-- Grade: A
-- Reason: Optimized path handling
+- Target average: 700ns-1.5μs
+- Target class: A
+- Rationale: path handling
 
 **File Operations**:
-- Average: 800ns-1.6μs
-- Grade: A
-- Reason: Good cache locality
+- Target average: 800ns-1.6μs
+- Target class: A
+- Rationale: cache locality
 
 **Core I/O**:
-- Average: 1-5μs
-- Grade: B+
-- Reason: Depends on I/O subsystem
+- Target average: 1-5μs
+- Target class: B+
+- Rationale: depends on I/O subsystem
 
 ### 5.3 Optimization Opportunities
 
-1. **Path Lookup Caching** (30-50% gain)
+> Percentage gains below are estimates for planned optimizations, not measured improvements.
+
+1. **Path Lookup Caching** (est. 30-50% gain)
    - Affects: Stat, Unlink, Rename, Mkdir, Rmdir
-   - Status: Planned for Week 7
+   - Status: Planned
 
-2. **Fd Allocation** (20-40% gain)
+2. **Fd Allocation** (est. 20-40% gain)
    - Affects: Dup, Pipe, Open
-   - Status: Planned for Week 7
+   - Status: Planned
 
-3. **Directory Caching** (40-60% gain)
+3. **Directory Caching** (est. 40-60% gain)
    - Affects: Chdir, Getcwd
-   - Status: Planned for Week 7
+   - Status: Planned
 
 ---
 
@@ -1575,7 +1583,7 @@ VantisOS uses **capability-based security** for fine-grained access control:
 
 ### 7.2 Security Properties
 
-All syscalls have **formally verified security properties**:
+Syscalls are **intended** to have the following security properties. These are design goals; they are not yet formally proven (formal verification is currently proof stubs):
 
 1. **Memory Safety**
    - No buffer overflows
@@ -1603,31 +1611,35 @@ All syscalls have **formally verified security properties**:
 
 ### 8.1 Syscall Count Comparison
 
+> The VantisOS verification status is **partial (proof stubs only)**, not full. Other systems' figures are approximate, for context.
+
 | System | Syscalls | Type | Verification |
 |--------|----------|------|--------------|
-| **VantisOS** | **39** | Microkernel | ✅ Full |
-| Linux 5.x | 300-400 | Monolithic | ❌ None |
-| FreeBSD 13 | 500+ | Monolithic | ❌ None |
-| seL4 | 61 | Microkernel | ✅ Full |
-| Fuchsia | ~100 | Microkernel | ⚠️ Partial |
-| QNX | 150+ | Microkernel | ❌ None |
+| **VantisOS** | **39** | Microkernel | Partial / stubs (goal: full) |
+| Linux 5.x | 300-400 | Monolithic | None |
+| FreeBSD 13 | 500+ | Monolithic | None |
+| seL4 | 61 | Microkernel | Full (proven) |
+| Fuchsia | ~100 | Microkernel | Partial |
+| QNX | 150+ | Microkernel | None |
 
 ### 8.2 Performance Comparison
 
+> The VantisOS row is a **target, not a measurement** — VantisOS performance is unmeasured. Other systems' figures are approximate.
+
 | System | Avg Syscall | IPC Latency | Verification |
 |--------|-------------|-------------|--------------|
-| **VantisOS** | **1.2μs** | **16μs** | ✅ Full |
-| Linux 5.x | 300-500ns | 2-5μs | ❌ None |
-| seL4 | 200-400ns | 10-20μs | ✅ Full |
-| Fuchsia | 400-600ns | 5-10μs | ⚠️ Partial |
+| **VantisOS** (target, unmeasured) | ~1.2μs (target) | ~16μs (target) | Partial / stubs |
+| Linux 5.x | 300-500ns | 2-5μs | None |
+| seL4 | 200-400ns | 10-20μs | Full (proven) |
+| Fuchsia | 400-600ns | 5-10μs | Partial |
 
-**Note**: VantisOS includes verification overhead that other systems don't have.
+**Note**: VantisOS aims to add verification, which may carry overhead; this has not been measured.
 
 ### 8.3 Design Philosophy Comparison
 
 **VantisOS**:
 - Minimal (39 syscalls)
-- Fully verified
+- Aims for formal verification (currently proof stubs)
 - IPC-centric
 - Modern design
 
@@ -1653,19 +1665,19 @@ All syscalls have **formally verified security properties**:
 
 ## 9. Conclusion
 
-VantisOS's syscall interface represents a **modern, minimal, verified** approach to operating system design:
+VantisOS's syscall interface represents a **modern, minimal** approach to operating system design, with formal verification as an aspiration:
 
-✅ **90% reduction** in syscall count (39 vs 300-400)  
-✅ **100% formal verification** of all syscalls  
-✅ **Excellent performance** (600ns-2.5μs average)  
-✅ **Strong security** (capability-based model)  
-✅ **Microkernel design** (IPC-centric architecture)
+- **~90% reduction** in syscall count (39 vs 300-400)
+- **Formal verification (goal)** — currently proof stubs, not complete
+- **Performance (target, unmeasured)** — design target ~600ns-2.5μs average
+- **Strong security** (capability-based model, by design)
+- **Microkernel design** (IPC-centric architecture)
 
-This specification provides the foundation for building secure, reliable, high-performance applications on VantisOS.
+This specification is intended as the foundation for building applications on VantisOS. It describes a design for an experimental prototype, not a delivered, verified, or production-ready system.
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: experimental (v0.4.1)  
 **Last Updated**: February 9, 2025  
-**Status**: Production Ready  
+**Status**: Design specification — prototype / in progress  
 **Next Review**: After Week 7-8 optimizations

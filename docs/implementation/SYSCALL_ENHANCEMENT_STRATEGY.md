@@ -3,10 +3,12 @@
 ## Executive Summary
 
 **Date**: February 9, 2025  
-**Phase**: Week 5 - Syscall Enhancement (Revised from "POSIX Debloating")  
-**Status**: Strategy Document
+**Phase**: Syscall Enhancement (Revised from "POSIX Debloating")  
+**Status**: Strategy Document (aspirational — experimental v0.4.1)
 
-Based on our analysis, VantisOS already has a minimal syscall interface (20 syscalls vs 300-400 in POSIX). Instead of debloating, we will **enhance and complete** the existing minimal interface.
+> **Note:** This is a planning document for an experimental, early-stage OS. Verification and test-coverage targets below are **goals, not current state**. Current formal verification consists of a small set of Verus proof *stubs* (not completed proofs), and performance is **unmeasured**.
+
+Based on our analysis, VantisOS already has a minimal syscall interface (20 syscalls vs 300-400 in POSIX). Instead of debloating, the plan is to **enhance and complete** the existing minimal interface.
 
 ---
 
@@ -16,11 +18,11 @@ Based on our analysis, VantisOS already has a minimal syscall interface (20 sysc
 **VantisOS doesn't need POSIX debloating - it's already minimal!**
 
 The system has:
-- ✅ Only 20 syscalls (vs 300-400 in POSIX)
-- ✅ Custom, efficient interface
-- ✅ Capability-based security
-- ✅ Formal verification (IPC)
-- ✅ No legacy bloat
+- Only 20 syscalls (vs 300-400 in POSIX)
+- Custom interface
+- Capability-based security model
+- Partial formal verification effort for IPC (Verus proof stubs, not complete proofs)
+- No legacy bloat
 
 ### New Goal
 **Complete the minimal syscall interface with essential missing functions while maintaining formal verification and minimalist philosophy.**
@@ -32,13 +34,13 @@ The system has:
 ### Existing Syscalls (20 total)
 
 ```
-Process Management:    6 syscalls  ✅ Complete
-Memory Management:     4 syscalls  ✅ Complete
-IPC:                   4 syscalls  ✅ Complete (Verified!)
-File Operations:       4 syscalls  ⚠️  Basic (needs expansion)
-Time:                  2 syscalls  ⚠️  Basic (needs expansion)
-Network:               0 syscalls  ❌ Missing
-Signals:               0 syscalls  ❌ Missing
+Process Management:    6 syscalls  (prototype)
+Memory Management:     4 syscalls  (prototype)
+IPC:                   4 syscalls  (prototype; Verus proof stubs in progress)
+File Operations:       4 syscalls  Basic (needs expansion)
+Time:                  2 syscalls  Basic (needs expansion)
+Network:               0 syscalls  Missing
+Signals:               0 syscalls  Missing
 ```
 
 ---
@@ -163,7 +165,9 @@ Still 88% less than POSIX! ✅
 
 ## 🔒 Verification Requirements
 
-### All New Syscalls Must Have:
+> These are **aspirational requirements** for the planned work. They describe the intended bar for new syscalls, not the project's current state (which is prototype-level with proof stubs).
+
+### All New Syscalls Should Aim To Have:
 
 1. **Formal Verification**
    - Verus proofs for critical properties
@@ -272,22 +276,24 @@ Still 88% less than POSIX! ✅
 
 ### Quantitative Metrics
 
+> Targets are aspirational. "Current" reflects an experimental prototype.
+
 | Metric | Target | Current | Status |
 |--------|--------|---------|--------|
-| Total Syscalls | ≤ 50 | 20 | ✅ On track |
-| Verification Coverage | 100% | ~50% (IPC only) | 🔄 In progress |
-| Test Coverage | 100% | ~80% | 🔄 In progress |
-| Syscall Overhead | < 100ns | Unknown | ⏳ To measure |
-| Documentation | Complete | Partial | 🔄 In progress |
+| Total Syscalls | ≤ 50 | 20 | On track |
+| Verification Coverage | 100% (goal) | Proof stubs only (IPC) | 🔄 Early |
+| Test Coverage | 100% (goal) | Partial | 🔄 Early |
+| Syscall Overhead | < 100ns (goal) | Unmeasured | ⏳ To measure |
+| Documentation | Complete (goal) | Partial | 🔄 In progress |
 
 ### Qualitative Metrics
 
-- ✅ **Minimalism**: Maintain lean interface (< 50 syscalls)
-- ✅ **Security**: Capability-based model preserved
-- 🔄 **Verification**: All syscalls formally verified
-- 🔄 **Usability**: Clear, well-documented API
-- ✅ **Performance**: Low overhead, high efficiency
-- 🔄 **Completeness**: All essential operations supported
+- ✅ **Minimalism**: lean interface maintained (< 50 syscalls)
+- ✅ **Security**: capability-based model (design)
+- 🔄 **Verification**: formally verify all syscalls (goal; currently stubs)
+- 🔄 **Usability**: clear, well-documented API (in progress)
+- ⏳ **Performance**: low overhead (goal; unmeasured)
+- 🔄 **Completeness**: all essential operations supported (in progress)
 
 ---
 
@@ -329,24 +335,24 @@ Still 88% less than POSIX! ✅
 
 ### VantisOS vs Traditional POSIX
 
-| Aspect | POSIX | VantisOS | Advantage |
+| Aspect | POSIX | VantisOS | Notes |
 |--------|-------|----------|-----------|
-| Syscall Count | 300-400 | 20 → 34-45 | VantisOS (90% less) |
-| Verification | None | 100% | VantisOS |
-| Security Model | DAC | Capabilities | VantisOS |
-| Overhead | ~100-200ns | < 100ns (target) | VantisOS |
-| Bloat | High | Minimal | VantisOS |
-| Legacy | Yes | No | VantisOS |
+| Syscall Count | 300-400 | 20 → 34-45 (planned) | VantisOS far smaller |
+| Verification | None | Partial / stubs (goal: full) | VantisOS aspires to formal verification |
+| Security Model | DAC | Capabilities | Different model |
+| Overhead | ~100-200ns | < 100ns (target, unmeasured) | VantisOS goal, not demonstrated |
+| Bloat | High | Minimal | VantisOS smaller surface |
+| Legacy | Yes | No | VantisOS greenfield |
 
 ### VantisOS vs seL4
 
 | Aspect | seL4 | VantisOS | Notes |
 |--------|------|----------|-------|
-| Syscall Count | ~60 | 20 → 34-45 | Similar minimalism |
-| Verification | 100% | 100% (goal) | Both excellent |
-| IPC | Verified | Verified | Both excellent |
-| Gaming Focus | No | Yes | VantisOS unique |
-| Windows Compat | No | Yes | VantisOS unique |
+| Syscall Count | ~60 | 20 → 34-45 (planned) | Similar minimalism |
+| Verification | Complete (proven) | Partial / stubs (goal: full) | seL4 is fully proven; VantisOS is not |
+| IPC | Verified | Proof stubs in progress | Not comparable yet |
+| Gaming Focus | No | Planned | VantisOS aspiration |
+| Windows Compat | No | Planned (Vantis Aegis) | VantisOS aspiration |
 
 ---
 
@@ -445,42 +451,42 @@ Day 28:    Final review & celebration ⏳ Planned
 
 ## 🎊 Expected Outcomes
 
-### By End of Week 8
+### Target Outcomes (aspirational)
 
-**Syscall Interface**:
-- 34-45 verified syscalls (from 20)
-- 100% formal verification coverage
+**Syscall Interface** (goals):
+- 34-45 syscalls (from 20)
+- Formal verification coverage (goal: full; currently stubs)
 - Complete API documentation
 - Comprehensive test suite
 
-**Quality Metrics**:
-- All syscalls formally verified
-- 100% test coverage
-- < 100ns syscall overhead
-- Complete documentation
+**Quality Metrics** (goals):
+- All syscalls formally verified (goal)
+- High test coverage (goal)
+- < 100ns syscall overhead (goal, unmeasured)
+- Complete documentation (goal)
 
-**Impact**:
-- Complete minimal syscall interface
-- World-class verification
-- Excellent performance
-- Production ready
+**Intended Impact**:
+- A complete minimal syscall interface
+- Strong formal verification (aspiration)
+- Good performance (unmeasured)
+- Closer to a usable system (not production-ready)
 
 ---
 
 ## 🎯 Conclusion
 
-VantisOS's syscall interface is already minimal and well-designed. Our goal is to **complete** it with essential missing functionality while maintaining:
+VantisOS's syscall interface is already minimal. The goal is to **complete** it with essential missing functionality while maintaining:
 
-1. ✅ **Minimalism** - Keep syscall count low (< 50)
-2. ✅ **Verification** - Formally verify everything
-3. ✅ **Security** - Capability-based model
-4. ✅ **Performance** - Low overhead
-5. ✅ **Quality** - Excellent documentation
+1. **Minimalism** - keep syscall count low (< 50)
+2. **Verification** - formally verify everything (goal; currently proof stubs)
+3. **Security** - capability-based model
+4. **Performance** - low overhead (goal, unmeasured)
+5. **Quality** - thorough documentation
 
-This approach will result in a **complete, minimal, verified syscall interface** that sets a new standard for operating system design.
+If realized, this approach would yield a complete, minimal, verified syscall interface. This is a strategy for an experimental project, not a description of a finished system.
 
 ---
 
 *Strategy Document Created: February 9, 2025*  
-*Status: Approved for Implementation*  
-*Next: Begin Week 5 Implementation*
+*Status: Draft strategy (experimental v0.4.1)*  
+*Next: Begin implementation*

@@ -5,7 +5,7 @@
 **Optimization**: Replace Vec-based capability storage with HashMap  
 **Module**: `src/verified/ipc.rs`  
 **Date**: January 10, 2025  
-**Status**: ✅ Implemented and Tested
+**Status**: Prototype (performance not yet measured)
 
 ---
 
@@ -14,7 +14,7 @@
 ### Performance Improvement
 - **Before**: O(n) capability lookup with linear search
 - **After**: O(1) capability lookup with HashMap
-- **Expected Improvement**: 10-100x faster for capability checks
+- **Expected Improvement**: asymptotically faster for capability checks as the capability count grows (estimate, not measured)
 
 ### Use Case
 Capability checks are performed on every IPC operation (send/receive), making this a critical hot path. With many processes and capabilities, the linear search becomes a bottleneck.
@@ -137,22 +137,23 @@ pub fn delete_queue(&mut self, pid: Pid) -> Result<(), &'static str> {
 | **Check Capability** | **O(n)** | **O(1)** | **n× faster** |
 | Delete Queue | O(n) | O(n) | Same |
 
-### Expected Performance Gains
+### Expected Performance Gains (estimates from complexity, not measured)
+
+These figures are back-of-the-envelope estimates derived from the O(n) → O(1)
+change in comparison count. They are **not** benchmark results and the constant
+factors (hashing cost, cache behavior) are not accounted for.
 
 **Scenario 1: Small System (10 processes, 20 capabilities)**
 - Before: ~20 comparisons per check
 - After: ~1 hash lookup per check
-- **Improvement: ~20x faster**
 
 **Scenario 2: Medium System (100 processes, 200 capabilities)**
 - Before: ~200 comparisons per check
 - After: ~1 hash lookup per check
-- **Improvement: ~200x faster**
 
 **Scenario 3: Large System (1000 processes, 2000 capabilities)**
 - Before: ~2000 comparisons per check
 - After: ~1 hash lookup per check
-- **Improvement: ~2000x faster**
 
 ### Real-World Impact
 
@@ -164,31 +165,29 @@ pub fn delete_queue(&mut self, pid: Pid) -> Result<(), &'static str> {
 4. Enqueue message
 ```
 
-With 1000 IPC operations per second:
-- Before: ~2,000,000 comparisons/sec
-- After: ~1,000 hash lookups/sec
-- **CPU time saved: ~99.95%**
+The capability check moves off the linear-search hot path. The actual CPU-time
+reduction depends on workload and hardware and has not been measured.
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Formal Properties Maintained
 
-All formal specifications remain unchanged:
+The intended formal specifications are unchanged by this refactor:
 
 1. **Grant Capability**:
-   - Postcondition: capability is granted ✅
-   - Behavior: Same as before ✅
+   - Postcondition: capability is granted
+   - Behavior: Same as before
 
 2. **Revoke Capability**:
-   - Postcondition: capability is revoked ✅
-   - Behavior: Same as before ✅
+   - Postcondition: capability is revoked
+   - Behavior: Same as before
 
 3. **Check Capability**:
-   - Returns true if capability exists ✅
-   - Returns false otherwise ✅
-   - Behavior: Same as before ✅
+   - Returns true if capability exists
+   - Returns false otherwise
+   - Behavior: Same as before
 
 ### Kani Verification
 
@@ -211,31 +210,29 @@ fn verify_capability_grant_revoke() {
 }
 ```
 
-**Result**: ✅ All harnesses pass
+**Status**: Harness present; not run as part of a verified CI pipeline.
 
 ### Unit Tests
 
-Added new tests for HashMap-specific behavior:
+Tests intended for HashMap-specific behavior:
 
 1. **test_capability_hashmap_performance**
    - Tests O(1) lookup with 100 processes
-   - Performs 1000 lookups to verify consistent performance
-   - ✅ Passes
+   - Performs 1000 lookups to check consistent behavior
 
 2. **test_capability_revoke_with_hashmap**
    - Tests multiple capabilities per (from, to) pair
    - Verifies selective revocation
    - Verifies cleanup when all capabilities revoked
-   - ✅ Passes
 
-**Result**: ✅ All tests pass (100% coverage maintained)
+**Status**: Prototype tests; no verified pass-rate or coverage figure is claimed.
 
 ---
 
 ## 🎯 Benefits
 
-### Performance Benefits
-1. **10-2000x faster capability checks** depending on system size
+### Performance Benefits (expected, not measured)
+1. **Faster capability checks** as system size grows (O(n) → O(1); magnitude not measured)
 2. **Reduced CPU usage** for IPC operations
 3. **Better scalability** as system grows
 4. **Consistent O(1) performance** regardless of capability count
@@ -296,20 +293,22 @@ for _ in 0..10000 {
 }
 ```
 
-### Expected Results
-- **Before (Vec)**: ~10ms for 10,000 checks (~1μs per check)
-- **After (HashMap)**: ~0.1ms for 10,000 checks (~10ns per check)
-- **Improvement**: ~100x faster
+### Expected Results (illustrative estimates, NOT measured)
+The numbers below are hypothetical and have not been produced by running the
+benchmark. They are placeholders for figures to be measured later.
+- **Before (Vec)**: target on the order of ~1μs per check
+- **After (HashMap)**: target on the order of ~10ns per check
+- **Improvement**: to be measured
 
 ---
 
 ## 🎯 Recommendations
 
 ### Immediate Actions
-1. ✅ **Optimization implemented** - HashMap in place
-2. ✅ **Tests passing** - All verification maintained
-3. ✅ **Documentation updated** - This document created
-4. ⏳ **Benchmark in real system** - Measure actual improvement
+1. [x] **Optimization implemented** - HashMap in place
+2. [ ] **Validate tests** - confirm verification still holds in CI
+3. [x] **Documentation updated** - This document created
+4. [ ] **Benchmark in real system** - Measure actual improvement
 
 ### Future Optimizations
 1. **Consider FxHashMap** - Faster hash function for integer keys
@@ -322,31 +321,33 @@ for _ in 0..10000 {
 ## 📞 Conclusion
 
 ### Summary
-The HashMap optimization provides **10-2000x performance improvement** for capability checks with minimal code changes and no impact on formal verification.
+The HashMap optimization changes capability checks from O(n) to O(1) with minimal
+code changes. The expected performance improvement scales with capability count
+but has not been measured.
 
 ### Impact
-- ✅ **Critical hot path optimized** - O(n) → O(1)
-- ✅ **All tests passing** - 100% coverage maintained
-- ✅ **Formal properties preserved** - No verification impact
-- ✅ **Production ready** - Safe to deploy
+- **Critical hot path changed** - O(n) → O(1)
+- **Tests** - intended to maintain prior behavior; pass-rate/coverage not yet verified
+- **Formal properties** - intended to be preserved; not re-verified
+- **Maturity** - prototype, not production-ready
 
 ### Recommendation
-**Status**: ✅ **Approved for Production**
+**Status**: Prototype change; benchmark and re-verify before relying on it.
 
-This optimization is a clear win:
-- Massive performance improvement
+This optimization is a reasonable design choice:
+- Expected performance improvement at scale (unmeasured)
 - Minimal code changes
-- No verification impact
+- Intended to preserve verification
 - Standard Rust patterns
 
 ---
 
 **Implementation Date**: January 10, 2025  
-**Status**: ✅ Complete and Tested  
-**Performance**: 10-2000x improvement  
-**Verification**: ✅ All properties maintained  
-**Recommendation**: ✅ Deploy to production
+**Status**: Prototype (not measured, not re-verified)  
+**Performance**: target only — O(n) → O(1), magnitude unmeasured  
+**Verification**: properties intended to be preserved; not re-run  
+**Recommendation**: benchmark and re-verify before depending on it
 
 ---
 
-*"From O(n) to O(1) - a simple change with massive impact."*
+*"From O(n) to O(1) - a simple change intended to help at scale."*
